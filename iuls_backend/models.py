@@ -24,6 +24,7 @@ class Industry(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     requests = relationship("IndustryRequest", back_populates="industry")
+    users = relationship("User", back_populates="industry")
 
 class IndustryLinkageOffice(Base):
     __tablename__ = "industry_linkage_office"
@@ -86,25 +87,24 @@ class User(Base):
     
     id = Column(String, primary_key=True, default=generate_uuid)
     
-    # Registration fields
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     
-    # Fetched API Fields
     username = Column(String, unique=True, nullable=True)
     first_name = Column(String, nullable=True)
     father_name = Column(String, nullable=True)
     grand_father_name = Column(String, nullable=True)
     
     status = Column(String, default="PENDING")
+    user_type = Column(String, default="RESEARCHER") # e.g. 'COMPANY', 'OFFICE_ADMIN', 'RESEARCHER'
     must_change_password = Column(Boolean, default=False)
     
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     
-    # Existing relationships/domain fields
     department_id = Column(String, ForeignKey("department.id"), nullable=True)
-    research_office_id = Column(String, nullable=True)
+    industry_id = Column(String, ForeignKey("industry.id"), nullable=True)
+    research_office_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
     office_admin_of_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -113,6 +113,7 @@ class User(Base):
     department = relationship("Department", back_populates="users")
     office = relationship("IndustryLinkageOffice", back_populates="admins")
     assignments = relationship("Assignment", back_populates="staff")
+    industry = relationship("Industry", back_populates="users")
     roles = relationship("StaffRole", back_populates="user")
     researcher_profile = relationship("ResearcherProfile", back_populates="user", uselist=False)
 
@@ -127,7 +128,6 @@ class ResearcherProfile(Base):
     phone_number = Column(String, nullable=True)
     profile_picture = Column(String, nullable=True)
     
-    # You can also use Enum(ISCEDBandCode) in SQLAlchemy, but String is safer across DBs
     author_gender = Column(String, nullable=True)
     publication_isced_band = Column(String, nullable=True)
     
