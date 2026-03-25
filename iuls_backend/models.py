@@ -1,6 +1,6 @@
 import enum
 from sqlalchemy import Column, String, Integer, DateTime, Numeric, Date, ForeignKey, Text, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from db import Base
 import uuid
@@ -24,7 +24,7 @@ class Industry(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     requests = relationship("IndustryRequest", back_populates="industry")
-    users = relationship("User", back_populates="industry")
+    # users = relationship("User", back_populates="industry")
 
 class IndustryLinkageOffice(Base):
     __tablename__ = "industry_linkage_office"
@@ -37,36 +37,33 @@ class IndustryLinkageOffice(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    admins = relationship("User", back_populates="office")
+    # admins = relationship("User", back_populates="office")
 
-class Department(Base):
-    __tablename__ = "department"
+class OrganizationalUnit(Base):
+    __tablename__ = "organizational_unit"
     
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
-    university_unit = Column(String)
+    abbreviation = Column(String, nullable=True)
+    unit_type = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
     
-    users = relationship("User", back_populates="department")
-    assignments = relationship("Assignment", back_populates="department")
+    parent_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_by_id = Column(String, ForeignKey("user.id"), nullable=True)
+    updated_by_id = Column(String, ForeignKey("user.id"), nullable=True)
+    
+    # Hierarchy
+    subnodes = relationship("OrganizationalUnit", backref=backref("parent", remote_side=[id]))
+    
+    created_by = relationship("User", foreign_keys=[created_by_id], backref="created_organization_structures")
+    updated_by = relationship("User", foreign_keys=[updated_by_id], backref="updated_organization_structures")
+    
+    users = relationship("User", back_populates="department", foreign_keys="[User.department_id]")
+    assignments = relationship("Assignment", back_populates="department", foreign_keys="[Assignment.department_id]")
 
-class Role(Base):
-    __tablename__ = "role"
-    
-    id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String, nullable=False)
-    description = Column(String)
-    
-    permissions = relationship("RolePermission", back_populates="role")
-    users = relationship("StaffRole", back_populates="role")
-
-class Permission(Base):
-    __tablename__ = "permission"
-    
-    id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String, nullable=False)
-    description = Column(String)
-    
-    roles = relationship("RolePermission", back_populates="permission")
 
 class ISCEDBandCode(str, enum.Enum):
     GENERIC = "00"
@@ -98,31 +95,11 @@ class User(Base):
     status = Column(String, default="PENDING")
     user_type = Column(String, default="RESEARCHER") # e.g. 'COMPANY', 'OFFICE_ADMIN', 'RESEARCHER'
     must_change_password = Column(Boolean, default=False)
+    # researcher profile field  
+    # is_active = Column(Boolean, default=True)
+    # is_superuser = Column(Boolean, default=False)
     
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)
-    
-    department_id = Column(String, ForeignKey("department.id"), nullable=True)
-    industry_id = Column(String, ForeignKey("industry.id"), nullable=True)
-    research_office_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
-    office_admin_of_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    department = relationship("Department", back_populates="users")
-    office = relationship("IndustryLinkageOffice", back_populates="admins")
-    assignments = relationship("Assignment", back_populates="staff")
-    industry = relationship("Industry", back_populates="users")
-    roles = relationship("StaffRole", back_populates="user")
-    researcher_profile = relationship("ResearcherProfile", back_populates="user", uselist=False)
-
-class ResearcherProfile(Base):
-    __tablename__ = "researcher_profile"
-    
-    id = Column(String, primary_key=True, default=generate_uuid)
-    user_id = Column(String, ForeignKey("user.id", ondelete="CASCADE"), unique=True)
-    
+    # Researcher Profile Fields
     biography = Column(Text, nullable=True)
     research_interests = Column(Text, nullable=True)
     phone_number = Column(String, nullable=True)
@@ -137,10 +114,18 @@ class ResearcherProfile(Base):
     author_employment_type = Column(String, nullable=True)
     academic_title = Column(String, nullable=True)
     
+    department_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
+    # industry_id = Column(String, ForeignKey("industry.id"), nullable=True)
+    # research_office_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
+    # office_admin_of_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    user = relationship("User", back_populates="researcher_profile")
+    department = relationship("OrganizationalUnit", back_populates="users", foreign_keys=[department_id])
+    # office = relationship("IndustryLinkageOffice", back_populates="admins")
+    # assignments = relationship("Assignment", back_populates="staff") # it will be many to many
+    # industry = relationship("Industry", back_populates="users")
 
 class IndustryRequest(Base):
     __tablename__ = "industry_request"
@@ -167,15 +152,15 @@ class Assignment(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     request_id = Column(String, ForeignKey("industry_request.id"))
     staff_id = Column(String, ForeignKey("user.id"))
-    department_id = Column(String, ForeignKey("department.id"))
+    department_id = Column(String, ForeignKey("organizational_unit.id"))
     status = Column(String)
     progress = Column(String)
     assigned_at = Column(DateTime(timezone=True))
     completed_at = Column(DateTime(timezone=True))
     
     request = relationship("IndustryRequest", back_populates="assignments")
-    staff = relationship("User", back_populates="assignments")
-    department = relationship("Department", back_populates="assignments")
+    staff = relationship("User") # assignments back_populates removed because User.assignments is commented
+    department = relationship("OrganizationalUnit", back_populates="assignments", foreign_keys=[department_id])
 
 class PostType(Base):
     __tablename__ = "post_type"
@@ -282,20 +267,3 @@ class KPI(Base):
     
     request = relationship("IndustryRequest", back_populates="kpis")
 
-class RolePermission(Base):
-    __tablename__ = "role_permission"
-    
-    role_id = Column(String, ForeignKey("role.id"), primary_key=True)
-    permission_id = Column(String, ForeignKey("permission.id"), primary_key=True)
-    
-    role = relationship("Role", back_populates="permissions")
-    permission = relationship("Permission", back_populates="roles")
-
-class StaffRole(Base):
-    __tablename__ = "staff_role"
-    
-    staff_id = Column(String, ForeignKey("user.id"), primary_key=True)
-    role_id = Column(String, ForeignKey("role.id"), primary_key=True)
-    
-    user = relationship("User", back_populates="roles")
-    role = relationship("Role", back_populates="users")
