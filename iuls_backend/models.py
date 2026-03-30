@@ -1,4 +1,4 @@
-import enum
+from enums import AcademicRankCode, AcademicTitle, AuthorCategoryCode, EmploymentTypeCode, ISCEDBandCode, QualificationCode
 from sqlalchemy import Column, String, Integer, DateTime, Numeric, Date, ForeignKey, Text, Boolean, Enum as SQLEnum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
@@ -7,6 +7,44 @@ import uuid
 
 def generate_uuid():
     return str(uuid.uuid4())
+class User(Base):
+    __tablename__ = "user"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    
+    email = Column(String, unique=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    
+    username = Column(String, unique=True, nullable=True)
+    first_name = Column(String, nullable=True)
+    father_name = Column(String, nullable=True)
+    grand_father_name = Column(String, nullable=True)
+    
+    status = Column(String, default="PENDING")
+    must_change_password = Column(Boolean, default=False)
+    
+    biography = Column(Text, nullable=True)
+    research_interests = Column(Text, nullable=True)
+    phone_number = Column(String, nullable=True)
+    profile_picture = Column(String, nullable=True)
+    
+    author_gender = Column(String, nullable=True)
+    publication_isced_band = Column(SQLEnum(ISCEDBandCode), nullable=True)
+    
+    author_category = Column(SQLEnum(AuthorCategoryCode), nullable=True)
+    author_academic_rank = Column(SQLEnum(AcademicRankCode), nullable=True)
+    author_qualification = Column(SQLEnum(QualificationCode), nullable=True)
+    author_employment_type = Column(SQLEnum(EmploymentTypeCode), nullable=True)
+    academic_title = Column(SQLEnum(AcademicTitle), nullable=True)
+    
+    academic_unit_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
+
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    academic_unit = relationship("OrganizationalUnit", back_populates="users", foreign_keys=[academic_unit_id])
+
 
 class Industry(Base):
     __tablename__ = "industry"
@@ -65,196 +103,8 @@ class OrganizationalUnit(Base):
     assignments = relationship("Assignment", back_populates="department", foreign_keys="[Assignment.department_id]")
 
 
-from enum import Enum
 
-class ISCEDBandCode(str, Enum):
-    GENERIC = "00"
-    EDUCATION = "01"
-    ARTS_HUMANITIES = "02"
-    SOCIAL_SCIENCES = "03"
-    BUSINESS_LAW = "04"
-    NATURAL_SCIENCES = "05"
-    ICT = "06"
-    ENGINEERING = "07"
-    AGRICULTURE = "08"
-    HEALTH_WELFARE = "09"
-    SERVICES = "10"
-    FIELD_UNKNOWN = "99"
 
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.GENERIC, "Generic programmes and qualifications"),
-            (cls.EDUCATION, "Education"),
-            (cls.ARTS_HUMANITIES, "Arts and humanities"),
-            (cls.SOCIAL_SCIENCES, "Social sciences, journalism and information"),
-            (cls.BUSINESS_LAW, "Business, administration and law"),
-            (cls.NATURAL_SCIENCES, "Natural sciences, mathematics and statistics"),
-            (cls.ICT, "Information and Communication Technologies (ICTs)"),
-            (cls.ENGINEERING, "Engineering, manufacturing and construction"),
-            (cls.AGRICULTURE, "Agriculture, forestry, fisheries and veterinary"),
-            (cls.HEALTH_WELFARE, "Health and welfare"),
-            (cls.SERVICES, "Services"),
-            (cls.FIELD_UNKNOWN, "Field unknown"),
-        ]
-
-class AuthorCategoryCode(str, Enum):
-    ACADEMIC_STAFF = "AS"
-    FIRST_DEGREE_STUDENT = "FDS"
-    SECOND_DEGREE_STUDENT = "SDS"
-    THIRD_DEGREE_STUDENT = "TDS"
-    FULL_TIME_RESEARCHER = "FR"
-
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.ACADEMIC_STAFF, "Academic Staff"),
-            (cls.FIRST_DEGREE_STUDENT, "First Degree Student"),
-            (cls.SECOND_DEGREE_STUDENT, "Second Degree Student"),
-            (cls.THIRD_DEGREE_STUDENT, "Third Degree Student"),
-            (cls.FULL_TIME_RESEARCHER, "Full Time Researcher"),
-        ]
-
-class AcademicRankCode(str, Enum):
-    GRAD_ASSISTANT_I = "GRA-I"
-    GRAD_ASSISTANT_II = "GRA-II"
-    LECTURER = "LEC"
-    ASSISTANT_PROFESSOR = "AST"
-    ASSOCIATE_PROFESSOR = "ASC"
-    PROFESSOR = "PRF"
-    ASSISTANT_LECTURER = "AL"
-    TECHNICAL_ASSISTANCE = 'TA'
-
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.GRAD_ASSISTANT_I, "Graduate Assistant I"),
-            (cls.GRAD_ASSISTANT_II, "Graduate Assistant II"),
-            (cls.LECTURER, "Lecturer"),
-            (cls.ASSISTANT_PROFESSOR, "Assistant Professor"),
-            (cls.ASSOCIATE_PROFESSOR, "Associate Professor"),
-            (cls.PROFESSOR, "Professor"),
-            (cls.ASSISTANT_LECTURER, "Assistant Lecturer"),
-            (cls.TECHNICAL_ASSISTANCE, "Technical Assistance")
-        ]
-
-class QualificationCode(str, Enum):
-    BACHELOR = "BCH"
-    HEALTH_SPECIALITY = "HSP"
-    POST_GRAD_DIPLOMA = "PGD"
-    MASTER = "MST"
-    DOCTORATE = "PHD"
-    HEALTH_SUB_SPECIALTY = "SSP"
-    BACHELOR_TEACHING = "BCH-TE"
-
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.BACHELOR, "Bachelor's degree"),
-            (cls.HEALTH_SPECIALITY, "Health Speciality Certificate"),
-            (cls.POST_GRAD_DIPLOMA, "Post graduate diploma"),
-            (cls.MASTER, "Master's degree"),
-            (cls.DOCTORATE, "Doctorate degree"),
-            (cls.HEALTH_SUB_SPECIALTY, "Health Sub-Specialty"),
-            (cls.BACHELOR_TEACHING, "Bachelor's degree in teaching"),
-        ]
-
-class EmploymentTypeCode(str, Enum):
-    FULL_TIME = "FT"
-    PART_TIME = "PT"
-    JOINT_EDU = "JAEI"
-    JOINT_INDUSTRY = "JAI"
-    VISITING_PROFESSOR = "VP"
-
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.FULL_TIME, "Full Time"),
-            (cls.PART_TIME, "Part Time"),
-            (cls.JOINT_EDU, "Jointly Appointed with other education institutions"),
-            (cls.JOINT_INDUSTRY, "Jointly Appointed with the industry"),
-            (cls.VISITING_PROFESSOR, "Visiting Professor"),
-        ]
-
-class AcademicTitle(str, Enum):
-    MR = "MR"
-    MRS = "MRS"
-    MISS = "MISS"
-    MS = "MS"
-    DR = "DR"
-    PROF = "PROF"
-
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.MR, "Mr."),
-            (cls.MRS, "Mrs."),
-            (cls.MISS, "Miss"),
-            (cls.MS, "Ms."),
-            (cls.DR, "Dr."),
-            (cls.PROF, "Professor")
-        ]
-
-class AuthorType(str, Enum):
-    FIRST_AUTHOR = "FA"
-    CO_AUTHOR = "COA"
-    CORRESPONDING_AUTHOR = "CRA"
-
-    @classmethod
-    def choices(cls):
-        return [
-            (cls.FIRST_AUTHOR.value, "First Author"),
-            (cls.CO_AUTHOR.value, "Co-Author"),
-            (cls.CORRESPONDING_AUTHOR.value, "Corresponding Author")
-        ]
-
-class User(Base):
-    __tablename__ = "user"
-    
-    id = Column(String, primary_key=True, default=generate_uuid)
-    
-    email = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    
-    username = Column(String, unique=True, nullable=True)
-    first_name = Column(String, nullable=True)
-    father_name = Column(String, nullable=True)
-    grand_father_name = Column(String, nullable=True)
-    
-    status = Column(String, default="PENDING")
-    user_type = Column(String, default="RESEARCHER") # e.g. 'COMPANY', 'OFFICE_ADMIN', 'RESEARCHER'
-    must_change_password = Column(Boolean, default=False)
-    # researcher profile field  
-    # is_active = Column(Boolean, default=True)
-    # is_superuser = Column(Boolean, default=False)
-    
-    # Researcher Profile Fields
-    biography = Column(Text, nullable=True)
-    research_interests = Column(Text, nullable=True)
-    phone_number = Column(String, nullable=True)
-    profile_picture = Column(String, nullable=True)
-    
-    author_gender = Column(String, nullable=True)
-    publication_isced_band = Column(SQLEnum(ISCEDBandCode), nullable=True)
-    
-    author_category = Column(SQLEnum(AuthorCategoryCode), nullable=True)
-    author_academic_rank = Column(SQLEnum(AcademicRankCode), nullable=True)
-    author_qualification = Column(SQLEnum(QualificationCode), nullable=True)
-    author_employment_type = Column(SQLEnum(EmploymentTypeCode), nullable=True)
-    academic_title = Column(SQLEnum(AcademicTitle), nullable=True)
-    
-    department_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
-    # industry_id = Column(String, ForeignKey("industry.id"), nullable=True)
-    # research_office_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
-    # office_admin_of_id = Column(String, ForeignKey("industry_linkage_office.id"), nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    department = relationship("OrganizationalUnit", back_populates="users", foreign_keys=[department_id])
-    # office = relationship("IndustryLinkageOffice", back_populates="admins")
-    # assignments = relationship("Assignment", back_populates="staff") # it will be many to many
-    # industry = relationship("Industry", back_populates="users")
 
 class IndustryRequest(Base):
     __tablename__ = "industry_request"
