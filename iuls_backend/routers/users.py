@@ -10,12 +10,38 @@ router = APIRouter(
     tags=["users"],
 )
 
-@router.post("/register", response_model=schemas.User)
-def register_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+
+@router.post(
+    "/register",
+    response_model=schemas.User,
+    status_code=status.HTTP_201_CREATED,
+)
+def register_user(
+    user: schemas.UserCreate,
+    db: Session = Depends(auth.get_db),
+):
+    existing_user = crud.get_user_by_email(db, email=user.email)
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "email_already_registered",
+                "message": "Email is already registered",
+            },
+        )
+
+    try:
+        return crud.create_user(db=db, user=user)
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "user_creation_failed",
+                "message": "Failed to create user",
+            },
+        )
 
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(db: Session = Depends(auth.get_db), form_data: OAuth2PasswordRequestForm = Depends()):

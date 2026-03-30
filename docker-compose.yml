@@ -1,51 +1,35 @@
-
 services:
   backend:
     build: ./iuls_backend
-    container_name: iuls_backend
+    container_name: fastapi_backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
     depends_on:
-      
       - db
     env_file:
       - ./iuls_backend/.env
-
-    volumes:
-      # - ./rpms_backend/accounts/migrations:/app/accounts/migrations
-      # - ./rpms_backend/research_paper/migrations:/app/research_paper/migrations
-      # - ./rpms_backend/organizational_structure/migrations:/app/organizational_structure/migrations
-      # - ./rpms_backend/reporting/migrations:/app/reporting/migrations
-      # - ./rpms_backend/repository/migrations:/app/repository/migrations
-      # - ./rpms_backend/comment/migrations:/app/comment/migrations
-      # - ./rpms_backend/notification/migrations:/app/notification/migrations
-      # - ./rpms_backend/authorization/migrations:/app/authorization/migrations
-      # - ./rpms_backend/chat_system/migrations:/app/chat_system/migrations
-      - ./iuls_backend/media:/app/media
     develop:
       watch:
         - action: sync
           path: ./iuls_backend
           target: /app
+          ignore:
+            - venv/
+            - __pycache__/
+            - .git/
         - action: rebuild
           path: ./iuls_backend/requirements.txt
-        - action: rebuild
-          path: ./iuls_backend/manage.py
-        # - action: rebuild
-        #   path: ./iuls_backend/gunicorn_config.py
-        # - action: sync
-        #   path: ./rpms_backend/entrypoint.sh
-        #   target: /app/entrypoint.sh
 
   db:
-    container_name: iuls_db
+    container_name: fastapi_db
     image: postgres:16
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: iuls
-      POSTGRES_USER: iuls_user
-      POSTGRES_PASSWORD: iuls_password
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: disSAMI!123
     ports:
       - "5432:5432"
 
