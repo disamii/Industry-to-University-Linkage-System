@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from errors import BadRequestException, InternalServerErrorException
 from sqlalchemy.orm import Session
 from datetime import timedelta
 import crud, models, schemas, auth
@@ -21,28 +22,13 @@ def register_user(
     db: Session = Depends(auth.get_db),
 ):
     existing_user = crud.get_user_by_email(db, email=user.email)
-
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "error": "email_already_registered",
-                "message": "Email is already registered",
-            },
-        )
+        raise BadRequestException(detail="Email is already registered")
+    created_user = crud.create_user(db=db, user=user)
+    if not created_user:
+        raise InternalServerErrorException(detail="Failed to create user")
 
-    try:
-        return crud.create_user(db=db, user=user)
-
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "error": "user_creation_failed",
-                "message": "Failed to create user",
-            },
-        )
-
+    return created_user
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(db: Session = Depends(auth.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = crud.get_user_by_email(db, email=form_data.username)

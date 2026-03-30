@@ -38,12 +38,37 @@ class User(Base):
     academic_title = Column(SQLEnum(AcademicTitle), nullable=True)
     
     academic_unit_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
-
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     academic_unit = relationship("OrganizationalUnit", back_populates="users", foreign_keys=[academic_unit_id])
+class OrganizationalUnit(Base):
+    __tablename__ = "organizational_unit"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    name = Column(String, nullable=False)
+    abbreviation = Column(String, nullable=True)
+    unit_type = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    
+    parent_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_by_id = Column(String, ForeignKey("user.id"), nullable=True)
+    updated_by_id = Column(String, ForeignKey("user.id"), nullable=True)
+    
+    # Hierarchy
+    subnodes = relationship("OrganizationalUnit", backref=backref("parent", remote_side=[id]))
+    users = relationship("User", back_populates="academic_unit", foreign_keys="[User.academic_unit_id]")
+    
+    created_by = relationship("User", foreign_keys=[created_by_id])
+    updated_by = relationship("User", foreign_keys=[updated_by_id], backref="updated_organization_structures")
+    
+    assignments = relationship("Assignment", back_populates="department", foreign_keys="[Assignment.department_id]")
+
+
 
 
 class Industry(Base):
@@ -76,33 +101,6 @@ class IndustryLinkageOffice(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # admins = relationship("User", back_populates="office")
-
-class OrganizationalUnit(Base):
-    __tablename__ = "organizational_unit"
-    
-    id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String, nullable=False)
-    abbreviation = Column(String, nullable=True)
-    unit_type = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
-    
-    parent_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    created_by_id = Column(String, ForeignKey("user.id"), nullable=True)
-    updated_by_id = Column(String, ForeignKey("user.id"), nullable=True)
-    
-    # Hierarchy
-    subnodes = relationship("OrganizationalUnit", backref=backref("parent", remote_side=[id]))
-    
-    created_by = relationship("User", foreign_keys=[created_by_id], backref="created_organization_structures")
-    updated_by = relationship("User", foreign_keys=[updated_by_id], backref="updated_organization_structures")
-    
-    users = relationship("User", back_populates="department", foreign_keys="[User.department_id]")
-    assignments = relationship("Assignment", back_populates="department", foreign_keys="[Assignment.department_id]")
-
-
 
 
 

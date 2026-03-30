@@ -28,7 +28,6 @@ class UserProfileUpdate(BaseModel):
 
 class User(UserBase):
     id: str
-    user_type: str
     status: str
     
     # Other optional fields
@@ -138,3 +137,10 @@ class PostType(PostTypeBase):
 
     class Config:
         from_attributes = True
+
+
+
+class ErrorResponse(BaseModel):
+    status_code: int
+    detail: str
+    extra: dict | None = None
