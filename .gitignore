@@ -1,27 +1,45 @@
-# Environment variables
-.env
-*.env
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-ENV/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Database
-*.db
-*.sqlite3
-
-# OS
+# --- General / OS ---
 .DS_Store
 Thumbs.db
+*.pem
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# --- Environment Variables (Crucial) ---
+.env
+.env.*
+!.env.example
+
+# --- Frontend (Next.js / Node) ---
+uil_frontend/node_modules/
+uil_frontend/.next/
+uil_frontend/out/
+uil_frontend/build/
+uil_frontend/.vercel
+uil_frontend/next-env.d.ts
+uil_frontend/*.tsbuildinfo
+.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Backend (FastAPI / Python) ---
+iuls_backend/__pycache__/
+iuls_backend/venv/
+iuls_backend/env/
+iuls_backend/ENV/
+iuls_backend/.Python
+iuls_backend/*.py[cod]
+iuls_backend/*$py.class
+iuls_backend/*.so
+
+# --- Database ---
+*.db
+*.sqlite3
+# If you use a local folder for postgres volumes (like in your docker-compose)
+postgres_data/
+
+# --- Docker ---
+.docker/
