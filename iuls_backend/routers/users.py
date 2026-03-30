@@ -27,8 +27,9 @@ def register_user(
     created_user = crud.create_user(db=db, user=user)
     if not created_user:
         raise InternalServerErrorException(detail="Failed to create user")
-
     return created_user
+
+
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(db: Session = Depends(auth.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = crud.get_user_by_email(db, email=form_data.username)

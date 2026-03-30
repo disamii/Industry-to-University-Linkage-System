@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,EmailStr
 from typing import Optional
 from datetime import datetime
 from models import (
@@ -7,10 +7,10 @@ from models import (
 )
 
 class UserBase(BaseModel):
-    email: str
+    email: EmailStr  # <-- enforces valid email format
 
-class UserCreate(BaseModel):
-    email: str
+
+class UserCreate(UserBase):
     password: str
 
 class UserProfileUpdate(BaseModel):
