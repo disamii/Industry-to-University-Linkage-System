@@ -138,6 +138,54 @@ class PostType(PostTypeBase):
     class Config:
         from_attributes = True
 
+# --- Assignment Schemas ---
+class AssignmentBase(BaseModel):
+    status: Optional[str] = "PENDING"
+    progress: Optional[str] = "0%"
+
+class AssignmentCreate(AssignmentBase):
+    request_id: str
+    staff_id: str
+    department_id: str
+
+class AssignmentUpdate(BaseModel):
+    status: Optional[str] = None
+    progress: Optional[str] = None
+    completed_at: Optional[datetime] = None
+
+class Assignment(AssignmentBase):
+    id: str
+    request_id: str
+    staff_id: str
+    department_id: str
+    assigned_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+# --- KPI Schemas ---
+class KPIBase(BaseModel):
+    response_time: Optional[int] = None
+    completion_status: Optional[str] = None
+    staff_performance: Optional[str] = None
+    office_performance: Optional[str] = None
+
+class KPICreate(KPIBase):
+    request_id: str
+
+class KPIUpdate(BaseModel):
+    response_time: Optional[int] = None
+    completion_status: Optional[str] = None
+    staff_performance: Optional[str] = None
+    office_performance: Optional[str] = None
+
+class KPI(KPIBase):
+    id: str
+    request_id: str
+
+    class Config:
+        from_attributes = True
 
 
 class ErrorResponse(BaseModel):
