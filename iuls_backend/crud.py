@@ -107,3 +107,56 @@ def create_post(db: Session, title: str, post_type_id: str, **kwargs):
     db.commit()
     db.refresh(db_post)
     return db_post
+
+# --- Assignment CRUD ---
+def get_assignment(db: Session, assignment_id: str):
+    return db.query(models.Assignment).filter(models.Assignment.id == assignment_id).first()
+
+def get_assignments_by_request(db: Session, request_id: str, skip: int = 0, limit: int = 100):
+    return db.query(models.Assignment).filter(models.Assignment.request_id == request_id).offset(skip).limit(limit).all()
+
+def create_assignment(db: Session, request_id: str, staff_id: str, department_id: str, **kwargs):
+    db_assignment = models.Assignment(
+        request_id=request_id,
+        staff_id=staff_id,
+        department_id=department_id,
+        **kwargs
+    )
+    db.add(db_assignment)
+    db.commit()
+    db.refresh(db_assignment)
+    return db_assignment
+
+def update_assignment_status(db: Session, assignment_id: str, update_data: dict):
+    db_assignment = get_assignment(db, assignment_id)
+    if not db_assignment:
+        return None
+    for key, value in update_data.items():
+        setattr(db_assignment, key, value)
+    db.commit()
+    db.refresh(db_assignment)
+    return db_assignment
+
+# --- KPI CRUD ---
+def get_kpi(db: Session, kpi_id: str):
+    return db.query(models.KPI).filter(models.KPI.id == kpi_id).first()
+
+def get_kpis_by_request(db: Session, request_id: str, skip: int = 0, limit: int = 100):
+    return db.query(models.KPI).filter(models.KPI.request_id == request_id).offset(skip).limit(limit).all()
+
+def create_kpi(db: Session, request_id: str, **kwargs):
+    db_kpi = models.KPI(request_id=request_id, **kwargs)
+    db.add(db_kpi)
+    db.commit()
+    db.refresh(db_kpi)
+    return db_kpi
+
+def update_kpi(db: Session, kpi_id: str, update_data: dict):
+    db_kpi = get_kpi(db, kpi_id)
+    if not db_kpi:
+        return None
+    for key, value in update_data.items():
+        setattr(db_kpi, key, value)
+    db.commit()
+    db.refresh(db_kpi)
+    return db_kpi
