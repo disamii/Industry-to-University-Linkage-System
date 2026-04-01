@@ -3,7 +3,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from exceptions import BadRequestException, InternalServerErrorException, UnauthorizedException
 from sqlalchemy.orm import Session
 from datetime import timedelta
-import crud, models, schemas, auth
+import crud
+import models
+import schemas
+import auth
 from config import settings
 
 router = APIRouter(
@@ -29,6 +32,7 @@ def register_user(
         raise InternalServerErrorException(detail="Failed to create user")
     return created_user
 
+
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(
     db: Session = Depends(auth.get_db),
@@ -38,7 +42,8 @@ async def login_for_access_token(
     if not user or not crud.verify_password(form_data.password, user.hashed_password):
         raise UnauthorizedException(detail="Incorrect email or password")
 
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token_expires = timedelta(
+        minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
@@ -60,9 +65,10 @@ async def update_my_profile(
 ):
     if not current_user:
         raise UnauthorizedException()
-    
-    updated_user = crud.update_researcher_profile(db, current_user.id, profile_update)
+
+    updated_user = crud.update_researcher_profile(
+        db, current_user.id, profile_update)
     if not updated_user:
         raise BadRequestException(detail="Failed to update profile")
-    
+
     return updated_user

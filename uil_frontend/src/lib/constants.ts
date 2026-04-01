@@ -1,0 +1,8 @@
+export const UIL_CONTACT_INFO = {
+  email: {
+    value: "linkage@university.edu",
+    href: "mailto:linkage@university.edu",
+  },
+  phone: { value: "+1 (555) 123-4567", href: "tel:+15551234567" },
+  location: { value: "Building A, Room 101", href: "#" },
+};
