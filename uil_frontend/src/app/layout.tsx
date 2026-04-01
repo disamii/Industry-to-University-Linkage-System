@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   },
   description:
     "Connect universities with industry partners to collaborate on research, innovation, internships, and real-world problem solving.",
+  icons: {
+    icon: "/favicon/favicon.ico", // Standard favicon
+    shortcut: "/favicon/favicon-32x32.png",
+    apple: "/favicon/apple-touch-icon.png", // For iOS home screen
+  },
+  manifest: "/site.webmanifest", // For PWA support
 };
 
 export default function RootLayout({
