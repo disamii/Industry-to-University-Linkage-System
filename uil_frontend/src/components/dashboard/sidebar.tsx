@@ -95,7 +95,7 @@ export const SidebarContent = ({
   const { links, label } = ROUTES[role];
 
   return (
-    <div className="flex flex-col flex-1 bg-white dark:bg-slate-900 shadow-sm border border-border/50 lg:rounded-[2.5rem] h-full overflow-hidden">
+    <div className="flex flex-col flex-1 bg-white dark:bg-slate-900 shadow-sm border border-border/50 lg:rounded-[2.5rem] overflow-hidden">
       <Logo label={label} />
 
       <nav className="flex-1 space-y-1.5 px-4">

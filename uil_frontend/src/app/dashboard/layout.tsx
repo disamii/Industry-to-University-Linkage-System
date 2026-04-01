@@ -4,7 +4,7 @@ import AdminHeader from "@/components/dashboard/header";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex bg-[#fcfcfd] dark:bg-slate-950 min-h-screen overflow-x-hidden">
+    <div className="flex items-start bg-[#fcfcfd] dark:bg-slate-950 min-h-screen">
       {/* Persistent Desktop Sidebar */}
       <AdminSidebar />
 
