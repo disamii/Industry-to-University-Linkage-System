@@ -1,15 +1,15 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import Logo from "../logo";
-import { ThemeToggle } from "../theme-toggle";
-import { Button } from "../ui/button";
+import Logo from "../../logo";
+import { ThemeToggle } from "../../theme-toggle";
+import { Button } from "../../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../../ui/dropdown-menu";
 import HeaderLink from "./header-link";
 
 const authLinks = [

@@ -1,6 +1,6 @@
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
-import MainContentWrapper from "@/components/layout/main-content-wrapper";
+import { Footer } from "@/components/layout/user/footer";
+import { Header } from "@/components/layout/user/header";
+import MainContentWrapper from "@/components/layout/user/main-content-wrapper";
 
 export default function MainLayout({
   children,

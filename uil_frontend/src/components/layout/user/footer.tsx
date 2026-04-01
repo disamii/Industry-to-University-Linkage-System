@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Logo from "../logo";
+import Logo from "../../logo";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from "../ui/tooltip";
+} from "../../ui/tooltip";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { UIL_CONTACT_INFO } from "@/lib/constants";
 
@@ -82,8 +82,8 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar: Copyright & Legal Links */}
-        <div className="flex md:flex-row flex-col justify-between items-center gap-4 pt-8 border-border/50 border-t">
-          <p className="text-muted-foreground text-xs">
+        <div className="flex md:flex-row flex-col-reverse justify-between items-center gap-4 pt-8 border-border/50 border-t">
+          <p className="text-muted-foreground text-xs md:text-left text-center">
             © {currentYear} University-Industry Linkage. All Rights Reserved.
           </p>
 

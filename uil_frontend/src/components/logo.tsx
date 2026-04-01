@@ -7,15 +7,20 @@ const Logo = ({
   size = 64,
   hasLabel = false,
   forceLabel = false,
+  label,
 }: {
   size?: number;
   hasLabel?: boolean;
   forceLabel?: boolean;
+  label?: string;
 }) => {
   return (
     <Link
       href="/"
-      className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+      className={cn(
+        "flex items-center gap-3 hover:opacity-80 transition-opacity",
+        label && "p-4",
+      )}
     >
       <div className="inline-block relative">
         <Image
@@ -35,6 +40,13 @@ const Logo = ({
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
             Collaboration Platform
           </div>
+        </div>
+      )}
+
+      {label && (
+        <div>
+          <p className="font-bold text-primary text-xl">UIL</p>
+          <p className="font-semibold text-xs uppercase">{label}</p>
         </div>
       )}
     </Link>
