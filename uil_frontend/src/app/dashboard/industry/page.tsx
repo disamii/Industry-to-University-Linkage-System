@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { StatCard } from "@/components/layout/dashboard/stat-card";
+import { StatCard } from "@/components/dashboard/stat-card";
 
 // 1. Status Badge with our established premium palette
 const StatusBadge = ({ status }: { status: string }) => {

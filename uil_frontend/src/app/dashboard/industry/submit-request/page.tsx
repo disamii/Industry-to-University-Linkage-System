@@ -17,7 +17,7 @@ import {
   FormInput,
   FormTextarea,
   FormFileUpload,
-} from "@/components/layout/dashboard/form-components";
+} from "@/components/dashboard/form-components";
 
 export default function SubmitRequest() {
   const router = useRouter();

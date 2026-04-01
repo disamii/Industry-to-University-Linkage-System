@@ -17,11 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  PriorityBadge,
-  StatusBadge,
-} from "@/components/layout/dashboard/badges";
-import { ActivityTimeline } from "@/components/layout/dashboard/activity-timeline";
+import { PriorityBadge, StatusBadge } from "@/components/dashboard/badges";
+import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
 
 export default function RequestDetailPage() {
   // In a real app, you'd fetch this based on the ID from params

@@ -1,15 +1,12 @@
 "use client";
 
-import { DataTable } from "@/components/layout/dashboard/data-table";
+import { DataTable } from "@/components/dashboard/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  PriorityBadge,
-  StatusBadge,
-} from "@/components/layout/dashboard/badges";
+import { PriorityBadge, StatusBadge } from "@/components/dashboard/badges";
 
 export default function MyRequests() {
   const router = useRouter();

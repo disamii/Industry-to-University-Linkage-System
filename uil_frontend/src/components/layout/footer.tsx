@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Logo from "../../logo";
+import Logo from "../logo";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from "../../ui/tooltip";
+} from "../ui/tooltip";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { UIL_CONTACT_INFO } from "@/lib/constants";
 
