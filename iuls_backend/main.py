@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from db import engine
 import models
-from routers import users, industry, org_units, posts, assignments, kpis
+from routers import users, industry, org_units, posts, assignments, kpis, auth
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -23,6 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(industry.router)
 app.include_router(org_units.router)

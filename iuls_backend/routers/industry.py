@@ -1,16 +1,65 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import timedelta
 import crud
 import models
 import schemas
 import auth
+from config import settings
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 
 router = APIRouter(
     prefix="/industry",
     tags=["industry"],
 )
+
+
+@router.post("/register", response_model=schemas.Industry)
+def register_industry(
+    industry: schemas.IndustryCreate,
+    db: Session = Depends(auth.get_db)
+):
+    """
+    Industry registration endpoint.
+    Creates a new industry account with authentication.
+    """
+    # Check if industry with this email already exists
+    existing_industry = crud.get_industry_by_email(db, email=industry.email)
+    if existing_industry:
+        raise BadRequestException(detail="Industry with this email already exists")
+    
+    try:
+        return crud.create_industry_with_auth(db=db, industry=industry)
+    except Exception as e:
+        raise BadRequestException(detail=f"Failed to create industry: {str(e)}")
+
+
+@router.post("/login", response_model=schemas.Token)
+def login_industry(
+    industry_login: schemas.IndustryLogin,
+    db: Session = Depends(auth.get_db)
+):
+    """
+    Industry login endpoint.
+    Authenticates industry and returns JWT token.
+    """
+    # Find industry by email
+    industry = crud.get_industry_by_email(db, email=industry_login.email)
+    if not industry:
+        raise UnauthorizedException(detail="Invalid credentials")
+    
+    # Verify password
+    if not crud.verify_industry_password(industry_login.password, industry.hashed_password):
+        raise UnauthorizedException(detail="Invalid credentials")
+    
+    # Generate token with industry email
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = auth.create_access_token(
+        data={"sub": industry.email}, expires_delta=access_token_expires
+    )
+    
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.get("/", response_model=List[schemas.Industry])

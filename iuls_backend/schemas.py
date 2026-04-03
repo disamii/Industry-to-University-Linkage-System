@@ -3,15 +3,19 @@ from typing import Optional
 from datetime import datetime
 from models import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
-    QualificationCode, EmploymentTypeCode, AcademicTitle
+    QualificationCode, EmploymentTypeCode, AcademicTitle, UserRole
 )
 
 class UserBase(BaseModel):
     email: EmailStr  # <-- enforces valid email format
+    role: Optional[UserRole] = UserRole.USER
 
 
 class UserCreate(UserBase):
     password: str
+
+class UserCreateWithRole(UserCreate):
+    role: UserRole
 
 class UserProfileUpdate(BaseModel):
     biography: Optional[str] = None
@@ -29,6 +33,7 @@ class UserProfileUpdate(BaseModel):
 class User(UserBase):
     id: str
     status: str
+    role: UserRole
     
     # Other optional fields
     first_name: Optional[str] = None
@@ -52,8 +57,8 @@ class TokenData(BaseModel):
 # --- Industry Schemas ---
 class IndustryBase(BaseModel):
     name: str
+    email: str
     contact_person: Optional[str] = None
-    email: Optional[str] = None
     phone: Optional[str] = None
     industry_type: Optional[str] = None
     efficiency_level: Optional[str] = None
@@ -61,10 +66,15 @@ class IndustryBase(BaseModel):
     website: Optional[str] = None
 
 class IndustryCreate(IndustryBase):
-    pass
+    password: str
+
+class IndustryLogin(BaseModel):
+    email: str
+    password: str
 
 class Industry(IndustryBase):
     id: str
+    status: str
     created_at: datetime
     updated_at: Optional[datetime] = None
 

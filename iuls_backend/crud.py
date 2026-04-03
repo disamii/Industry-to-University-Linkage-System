@@ -24,7 +24,27 @@ def create_user(db: Session, user: schemas.UserCreate):
     hashed_password = get_password_hash(user.password)
     db_user = models.User(
         email=user.email,
-        hashed_password=hashed_password    )
+        hashed_password=hashed_password,
+        role=user.role if hasattr(user, 'role') else models.UserRole.USER
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def create_user_from_rpms(db: Session, rpms_user_data: dict):
+    """Create a user from RPMS data with all available fields"""
+    hashed_password = get_password_hash(rpms_user_data.pop("password"))
+    
+    # Set role to USER for RPMS users
+    rpms_user_data["role"] = models.UserRole.USER
+    rpms_user_data["hashed_password"] = hashed_password
+    
+    # Remove any fields that don't exist in the User model
+    valid_fields = {column.name for column in models.User.__table__.columns}
+    filtered_data = {k: v for k, v in rpms_user_data.items() if k in valid_fields}
+    
+    db_user = models.User(**filtered_data)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -65,6 +85,30 @@ def create_industry(db: Session, industry_name: str, **kwargs):
     db.commit()
     db.refresh(db_industry)
     return db_industry
+
+def create_industry_with_auth(db: Session, industry: schemas.IndustryCreate):
+    hashed_password = get_password_hash(industry.password)
+    db_industry = models.Industry(
+        name=industry.name,
+        email=industry.email,
+        hashed_password=hashed_password,
+        contact_person=industry.contact_person,
+        phone=industry.phone,
+        industry_type=industry.industry_type,
+        efficiency_level=industry.efficiency_level,
+        address=industry.address,
+        website=industry.website
+    )
+    db.add(db_industry)
+    db.commit()
+    db.refresh(db_industry)
+    return db_industry
+
+def get_industry_by_email(db: Session, email: str):
+    return db.query(models.Industry).filter(models.Industry.email == email).first()
+
+def verify_industry_password(plain_password: str, hashed_password: str) -> bool:
+    return verify_password(plain_password, hashed_password)
 
 # --- Organizational Unit CRUD ---
 def get_org_unit(db: Session, unit_id: str):
