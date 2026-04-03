@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="space-y-10 w-full max-w-100">
+      <div className="space-y-10 w-full max-w-md">
         {/* Logo & Header Section */}
         <div className="flex flex-col items-center text-center">
           <Logo hasLabel={true} />
