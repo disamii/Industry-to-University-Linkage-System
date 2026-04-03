@@ -91,6 +91,19 @@ async def check_email(
     rpms_user = await get_user_from_rpms(request.email)
     
     if rpms_user:
+        # Strip out organizational structure fields before saving
+        rpms_data = {k: v for k, v in rpms_user.items() if k not in (
+            "id", "academic_unit", "academic_unit_id",
+            "last_login", "is_active", "created_by", "updated_by",
+            "created_at", "updated_at", "raw_password"
+        )}
+        
+        # Save to local DB (password stored as-is since it's pre-hashed from RPMS)
+        try:
+            saved_user = crud.create_user_from_rpms(db=db, rpms_user_data=rpms_data)
+        except Exception:
+            pass  # If save fails, still return the RPMS result
+        
         full_name = f"{rpms_user.get('first_name', '')} {rpms_user.get('father_name', '')} {rpms_user.get('grand_father_name', '')}".strip()
         return {
             "exists": True,
