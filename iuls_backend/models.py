@@ -4,6 +4,13 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from db import Base
 import uuid
+from enum import Enum as PyEnum
+
+
+class UserRole(PyEnum):
+    USER = "user"
+    ADMIN = "admin"
+    INDUSTRY = "industry"
 
 
 def generate_uuid():
@@ -17,6 +24,7 @@ class User(Base):
 
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    role = Column(SQLEnum(UserRole), default=UserRole.USER, nullable=False)
 
     username = Column(String, unique=True, nullable=True)
     first_name = Column(String, nullable=True)
@@ -86,13 +94,15 @@ class Industry(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
     contact_person = Column(String)
-    email = Column(String)
     phone = Column(String)
     industry_type = Column(String)
     efficiency_level = Column(String)
     address = Column(String)
     website = Column(String)
+    status = Column(String, default="PENDING")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
