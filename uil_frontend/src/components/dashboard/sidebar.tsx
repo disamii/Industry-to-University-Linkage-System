@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   Send,
+  SquarePen,
   UserCircle,
   Users,
 } from "lucide-react";
@@ -28,6 +29,11 @@ const ROUTES = {
         href: "/dashboard/office/assignments",
         icon: ClipboardList,
         label: "Assignments",
+      },
+      {
+        href: "/dashboard/office/posts",
+        icon: SquarePen,
+        label: "Posts",
       },
       {
         href: "/dashboard/office/staff",
