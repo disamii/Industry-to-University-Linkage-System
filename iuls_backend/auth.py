@@ -41,16 +41,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = crud.get_user_by_email(db, email=email)
-    if user is None:
+    
+    account = crud.get_account_by_email(db, email=email)
+    if account is None:
         raise credentials_exception
-    return user
+        
+    # Return appropriate profile based on role mapping
+    if account.role == models.UserRole.INDUSTRY:
+        return account.industry_profile
+    return account.user_profile
 
-async def get_current_active_user(current_user: models.User = Depends(get_current_user)):
-    # if not current_user.is_active:
-    #     raise HTTPException(status_code=400, detail="Inactive user")
+async def get_current_active_user(current_user = Depends(get_current_user)):
     return current_user
-
 
 async def get_current_industry(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
@@ -66,11 +68,10 @@ async def get_current_industry(token: str = Depends(oauth2_scheme), db: Session 
     except JWTError:
         raise credentials_exception
     
-    # Check if it's an industry user
-    industry = crud.get_industry_by_email(db, email=email)
-    if industry is None:
+    account = crud.get_account_by_email(db, email=email)
+    if account is None or account.role != models.UserRole.INDUSTRY:
         raise credentials_exception
-    return industry
+    return account.industry_profile
 
 
 async def get_current_active_industry(current_industry: models.Industry = Depends(get_current_industry)):

@@ -17,14 +17,27 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 
+class Account(Base):
+    __tablename__ = "account"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    role = Column(SQLEnum(UserRole), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user_profile = relationship("User", back_populates="account", uselist=False)
+    industry_profile = relationship("Industry", back_populates="account", uselist=False)
+
+
 class User(Base):
     __tablename__ = "user"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-
-    email = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    role = Column(SQLEnum(UserRole), default=UserRole.USER, nullable=False)
+    account_id = Column(String, ForeignKey("account.id"), unique=True, nullable=False)
+    
+    account = relationship("Account", back_populates="user_profile")
 
     username = Column(String, unique=True, nullable=True)
     first_name = Column(String, nullable=True)
@@ -57,6 +70,13 @@ class User(Base):
     academic_unit = relationship(
         "OrganizationalUnit", back_populates="users", foreign_keys=[academic_unit_id])
 
+    @property
+    def email(self):
+        return self.account.email if self.account else None
+
+    @property
+    def role(self):
+        return self.account.role if self.account else None
 
 class OrganizationalUnit(Base):
     __tablename__ = "organizational_unit"
@@ -93,9 +113,10 @@ class Industry(Base):
     __tablename__ = "industry"
 
     id = Column(String, primary_key=True, default=generate_uuid)
+    account_id = Column(String, ForeignKey("account.id"), unique=True, nullable=False)
     name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    
+    account = relationship("Account", back_populates="industry_profile")
     contact_person = Column(String)
     phone = Column(String)
     industry_type = Column(String)
@@ -108,7 +129,14 @@ class Industry(Base):
 
     requests = relationship("IndustryRequest", back_populates="industry")
     # users = relationship("User", back_populates="industry")
+    
+    @property
+    def email(self):
+        return self.account.email if self.account else None
 
+    @property
+    def role(self):
+        return self.account.role if self.account else None
 
 class IndustryLinkageOffice(Base):
     __tablename__ = "industry_linkage_office"

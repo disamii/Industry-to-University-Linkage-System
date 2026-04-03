@@ -14,19 +14,29 @@ def get_password_hash(password: str) -> str:
 def get_user(db: Session, user_id: str):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
+def get_account_by_email(db: Session, email: str):
+    return db.query(models.Account).filter(models.Account.email == email).first()
+
 def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+    account = get_account_by_email(db, email)
+    return account.user_profile if account else None
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = get_password_hash(user.password)
-    db_user = models.User(
+    role = user.role if hasattr(user, 'role') else models.UserRole.USER
+    password_val = get_password_hash(user.password) if role == models.UserRole.ADMIN else user.password
+
+    db_account = models.Account(
         email=user.email,
-        hashed_password=hashed_password,
-        role=user.role if hasattr(user, 'role') else models.UserRole.USER
+        password=password_val,
+        role=role
     )
+    db.add(db_account)
+    db.flush()
+
+    db_user = models.User(account_id=db_account.id)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -34,17 +44,21 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 def create_user_from_rpms(db: Session, rpms_user_data: dict):
     """Create a user from RPMS data with all available fields"""
-    hashed_password = get_password_hash(rpms_user_data.pop("password"))
+    raw_password = rpms_user_data.pop("password")
     
-    # Set role to USER for RPMS users
-    rpms_user_data["role"] = models.UserRole.USER
-    rpms_user_data["hashed_password"] = hashed_password
+    db_account = models.Account(
+        email=rpms_user_data.pop("email"),
+        password=raw_password,
+        role=models.UserRole.USER
+    )
+    db.add(db_account)
+    db.flush()
     
     # Remove any fields that don't exist in the User model
     valid_fields = {column.name for column in models.User.__table__.columns}
     filtered_data = {k: v for k, v in rpms_user_data.items() if k in valid_fields}
     
-    db_user = models.User(**filtered_data)
+    db_user = models.User(account_id=db_account.id, **filtered_data)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -88,24 +102,39 @@ def create_industry(db: Session, industry_name: str, **kwargs):
 
 def create_industry_with_auth(db: Session, industry: schemas.IndustryCreate):
     hashed_password = get_password_hash(industry.password)
-    db_industry = models.Industry(
-        name=industry.name,
+    db_account = models.Account(
         email=industry.email,
-        hashed_password=hashed_password,
-        contact_person=industry.contact_person,
-        phone=industry.phone,
-        industry_type=industry.industry_type,
-        efficiency_level=industry.efficiency_level,
-        address=industry.address,
-        website=industry.website
+        password=hashed_password,
+        role=models.UserRole.INDUSTRY
+    )
+    db.add(db_account)
+    db.flush()
+
+    db_industry = models.Industry(
+        account_id=db_account.id,
+        name=industry.name
     )
     db.add(db_industry)
     db.commit()
     db.refresh(db_industry)
     return db_industry
 
+def update_industry_profile(db: Session, industry_id: str, profile_update: schemas.IndustryProfileUpdate):
+    db_industry = db.query(models.Industry).filter(models.Industry.id == industry_id).first()
+    if not db_industry:
+        return None
+    
+    update_data = profile_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_industry, key, value)
+        
+    db.commit()
+    db.refresh(db_industry)
+    return db_industry
+
 def get_industry_by_email(db: Session, email: str):
-    return db.query(models.Industry).filter(models.Industry.email == email).first()
+    account = get_account_by_email(db, email)
+    return account.industry_profile if account else None
 
 def verify_industry_password(plain_password: str, hashed_password: str) -> bool:
     return verify_password(plain_password, hashed_password)
