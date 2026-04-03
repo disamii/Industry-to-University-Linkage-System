@@ -52,3 +52,38 @@ async def login(
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+class CheckEmailRequest(BaseModel):
+    email: EmailStr
+
+@router.post("/check-email")
+async def check_email(
+    request: CheckEmailRequest,
+    db: Session = Depends(auth.get_db)
+):
+    """
+    Check if an email is already registered in the system.
+    Returns name, email, and role if the account exists.
+    """
+    account = crud.get_account_by_email(db, email=request.email)
+    
+    if not account:
+        return {"exists": False}
+    
+    # Resolve the full name from the profile
+    name = None
+    if account.role == models.UserRole.INDUSTRY:
+        profile = db.query(models.Industry).filter(models.Industry.account_id == account.id).first()
+        name = profile.name if profile else None
+    elif account.role in (models.UserRole.USER, models.UserRole.ADMIN):
+        profile = db.query(models.User).filter(models.User.account_id == account.id).first()
+        if profile:
+            name = f"{profile.first_name} {profile.father_name}"
+    
+    return {
+        "exists": True,
+        "email": account.email,
+        "name": name,
+        "role": account.role.value
+    }
