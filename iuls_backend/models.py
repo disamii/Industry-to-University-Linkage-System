@@ -27,16 +27,19 @@ class Account(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    user_profile = relationship("User", back_populates="account", uselist=False)
-    industry_profile = relationship("Industry", back_populates="account", uselist=False)
+    user_profile = relationship(
+        "User", back_populates="account", uselist=False)
+    industry_profile = relationship(
+        "Industry", back_populates="account", uselist=False)
 
 
 class User(Base):
     __tablename__ = "user"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    account_id = Column(String, ForeignKey("account.id"), unique=True, nullable=False)
-    
+    account_id = Column(String, ForeignKey("account.id"),
+                        unique=True, nullable=False)
+
     account = relationship("Account", back_populates="user_profile")
 
     username = Column(String, unique=True, nullable=True)
@@ -78,6 +81,7 @@ class User(Base):
     def role(self):
         return self.account.role if self.account else None
 
+
 class OrganizationalUnit(Base):
     __tablename__ = "organizational_unit"
 
@@ -92,8 +96,8 @@ class OrganizationalUnit(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    created_by_id = Column(String, ForeignKey("user.id"), nullable=True)
-    updated_by_id = Column(String, ForeignKey("user.id"), nullable=True)
+    # created_by_id = Column(String, ForeignKey("user.id"), nullable=True)
+    # updated_by_id = Column(String, ForeignKey("user.id"), nullable=True)
 
     # Hierarchy
     subnodes = relationship("OrganizationalUnit",
@@ -101,9 +105,9 @@ class OrganizationalUnit(Base):
     users = relationship("User", back_populates="academic_unit",
                          foreign_keys="[User.academic_unit_id]")
 
-    created_by = relationship("User", foreign_keys=[created_by_id])
-    updated_by = relationship("User", foreign_keys=[
-                              updated_by_id], backref="updated_organization_structures")
+    # created_by = relationship("User", foreign_keys=[created_by_id])
+    # updated_by = relationship("User", foreign_keys=[
+    #                           updated_by_id], backref="updated_organization_structures")
 
     assignments = relationship(
         "Assignment", back_populates="department", foreign_keys="[Assignment.department_id]")
@@ -113,9 +117,10 @@ class Industry(Base):
     __tablename__ = "industry"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    account_id = Column(String, ForeignKey("account.id"), unique=True, nullable=False)
+    account_id = Column(String, ForeignKey("account.id"),
+                        unique=True, nullable=False)
     name = Column(String, nullable=False)
-    
+
     account = relationship("Account", back_populates="industry_profile")
     contact_person = Column(String)
     phone = Column(String)
@@ -129,7 +134,7 @@ class Industry(Base):
 
     requests = relationship("IndustryRequest", back_populates="industry")
     # users = relationship("User", back_populates="industry")
-    
+
     @property
     def email(self):
         return self.account.email if self.account else None
@@ -137,6 +142,7 @@ class Industry(Base):
     @property
     def role(self):
         return self.account.role if self.account else None
+
 
 class IndustryLinkageOffice(Base):
     __tablename__ = "industry_linkage_office"

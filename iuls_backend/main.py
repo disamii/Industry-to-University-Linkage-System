@@ -31,6 +31,7 @@ app.include_router(posts.router)
 app.include_router(assignments.router)
 app.include_router(kpis.router)
 
+
 @app.get("/")
 def read_root():
     return {"message": "IULS Backend API"}
