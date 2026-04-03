@@ -65,12 +65,19 @@ class IndustryBase(BaseModel):
     address: Optional[str] = None
     website: Optional[str] = None
 
-class IndustryCreate(IndustryBase):
-    password: str
-
-class IndustryLogin(BaseModel):
+class IndustryCreate(BaseModel):
+    name: str
     email: str
     password: str
+
+class IndustryProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+    industry_type: Optional[str] = None
+    efficiency_level: Optional[str] = None
+    address: Optional[str] = None
+    website: Optional[str] = None
 
 class Industry(IndustryBase):
     id: str

@@ -3,6 +3,7 @@
 Admin Account Creation Script
 
 This script creates an admin account for the IULS system.
+Works with both SQLite and PostgreSQL databases.
 Run this script to set up the initial administrator.
 """
 
@@ -21,6 +22,19 @@ import models
 import crud
 from config import settings
 
+def get_database_url():
+    """Get database URL from environment or config"""
+    # Priority: Environment variable > config file > default
+    db_url = os.getenv('DATABASE_URL')
+    if not db_url:
+        try:
+            db_url = getattr(settings, 'database_url', 'sqlite:///./iuls.db')
+        except:
+            db_url = 'sqlite:///./iuls.db'
+    
+    print(f"🔗 Using database: {db_url}")
+    return db_url
+
 def create_admin_account():
     """Create an admin account interactively"""
     
@@ -28,7 +42,8 @@ def create_admin_account():
     print("=" * 40)
     
     # Database setup
-    engine = create_engine(settings.database_url)
+    db_url = get_database_url()
+    engine = create_engine(db_url)
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
@@ -108,7 +123,8 @@ def create_default_admin():
     print("=" * 40)
     
     # Database setup
-    engine = create_engine(settings.database_url)
+    db_url = get_database_url()
+    engine = create_engine(db_url)
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
