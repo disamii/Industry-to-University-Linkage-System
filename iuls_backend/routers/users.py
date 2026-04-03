@@ -16,28 +16,28 @@ router = APIRouter(
 )
 
 
-@router.post(
-    "/create-admin-industry",
-    response_model=schemas.User,
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_admin_or_industry_user(
-    user: schemas.UserCreateWithRole,
-    db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.require_admin)
-):
-    """Admin-only endpoint to create admin or industry users"""
-    if user.role not in [models.UserRole.ADMIN, models.UserRole.INDUSTRY]:
-        raise BadRequestException(detail="Only admin and industry roles can be created manually")
+# @router.post(
+#     "/create-admin-industry",
+#     response_model=schemas.User,
+#     status_code=status.HTTP_201_CREATED,
+# )
+# async def create_admin_or_industry_user(
+#     user: schemas.UserCreateWithRole,
+#     db: Session = Depends(auth.get_db),
+#     current_user: models.User = Depends(auth.require_admin)
+# ):
+#     """Admin-only endpoint to create admin or industry users"""
+#     if user.role not in [models.UserRole.ADMIN, models.UserRole.INDUSTRY]:
+#         raise BadRequestException(detail="Only admin and industry roles can be created manually")
     
-    existing_user = crud.get_user_by_email(db, email=user.email)
-    if existing_user:
-        raise BadRequestException(detail="Email is already registered")
+#     existing_user = crud.get_user_by_email(db, email=user.email)
+#     if existing_user:
+#         raise BadRequestException(detail="Email is already registered")
     
-    created_user = crud.create_user(db=db, user=user)
-    if not created_user:
-        raise InternalServerErrorException(detail="Failed to create user")
-    return created_user
+#     created_user = crud.create_user(db=db, user=user)
+#     if not created_user:
+#         raise InternalServerErrorException(detail="Failed to create user")
+#     return created_user
 
 
 @router.get("/me", response_model=schemas.User)
