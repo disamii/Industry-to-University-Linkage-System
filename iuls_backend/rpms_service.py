@@ -1,61 +1,30 @@
+import httpx
 from typing import Optional, Dict, Any
-from models import UserRole
+
+RPMS_BASE_URL = "http://10.161.65.18:8000"
+RPMS_API_KEY = "sk_9f3a7c2d1b8e4f6a9c0d2e7f5a1b3c8d"
 
 
-def get_user_from_rpms(email: str) -> Optional[Dict[str, Any]]:
+async def get_user_from_rpms(email: str) -> Optional[Dict[str, Any]]:
     """
-    Mock RPMS service function to simulate fetching user data from RPMS system.
-    In production, this would make an actual API call to the RPMS system.
+    Fetch user data from the RPMS system by email.
     
     Args:
         email: User's email address
         
     Returns:
-        Dictionary with user data matching User model structure, or None if not found
+        Dictionary with user data if found, or None if not found
     """
-    
-    # Mock database of RPMS users
-    mock_rpms_users = {
-        "student@example.com": {
-            "email": "student@example.com",
-            "password": "rpms_password",
-            "first_name": "Test",
-            "father_name": "Student",
-            "grand_father_name": "Name",
-            "biography": "Test student biography",
-            "research_interests": "Machine Learning, AI, Data Science",
-            "phone_number": "+251911234567",
-            "author_gender": "M",
-            "publication_isced_band": None,
-            "author_category": None,
-            "author_academic_rank": None,
-            "author_qualification": None,
-            "author_employment_type": None,
-            "academic_title": None,
-            "academic_unit_id": None,
-            "status": "ACTIVE",
-            "must_change_password": False
-        },
-        "faculty@example.com": {
-            "email": "faculty@example.com",
-            "password": "rpms_password",
-            "first_name": "Test",
-            "father_name": "Faculty",
-            "grand_father_name": "Member",
-            "biography": "Test faculty biography",
-            "research_interests": "Software Engineering, Web Development",
-            "phone_number": "+251912345678",
-            "author_gender": "F",
-            "publication_isced_band": None,
-            "author_category": None,
-            "author_academic_rank": None,
-            "author_qualification": None,
-            "author_employment_type": None,
-            "academic_title": None,
-            "academic_unit_id": None,
-            "status": "ACTIVE",
-            "must_change_password": False
-        }
-    }
-    
-    return mock_rpms_users.get(email)
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{RPMS_BASE_URL}/auth/private/user/",
+                params={"email": email},
+                headers={"X-API-KEY": RPMS_API_KEY}
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            return None
+    except Exception:
+        return None
