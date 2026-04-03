@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from typing import Optional
 import crud
 import models
 import schemas
@@ -21,6 +22,7 @@ class EmailCheckRequest(BaseModel):
 class EmailCheckResponse(BaseModel):
     exists: bool
     email: str
+    full_name: Optional[str] = None
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -40,10 +42,28 @@ async def check_email(
     # Check if user exists in local DB only
     user = crud.get_user_by_email(db, email=email)
     
-    return {
-        "exists": user is not None,
-        "email": email
-    }
+    if user:
+        # Build full name from user's name fields
+        name_parts = []
+        if user.first_name:
+            name_parts.append(user.first_name)
+        if user.father_name:
+            name_parts.append(user.father_name)
+        if user.grand_father_name:
+            name_parts.append(user.grand_father_name)
+        full_name = " ".join(name_parts) if name_parts else None
+        
+        return {
+            "exists": True,
+            "email": email,
+            "full_name": full_name
+        }
+    else:
+        return {
+            "exists": False,
+            "email": email,
+            "full_name": None
+        }
 
 @router.post("/login", response_model=schemas.Token)
 async def login(
