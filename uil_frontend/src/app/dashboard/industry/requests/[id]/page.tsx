@@ -21,7 +21,6 @@ import { PriorityBadge, StatusBadge } from "@/components/dashboard/badges";
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
 
 export default function RequestDetailPage() {
-  // In a real app, you'd fetch this based on the ID from params
   const request = {
     id: 1,
     title: "AI-Powered Quality Control System",

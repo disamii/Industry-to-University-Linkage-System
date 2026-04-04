@@ -4,11 +4,13 @@ import { decodeJwt } from "jose";
 import { UserRole } from "./lib/enums";
 
 export async function middleware(request: NextRequest) {
-  // FIX: Using "access_token" to match the Server Action
   const token = request.cookies.get("access_token")?.value;
   const { pathname } = request.nextUrl;
 
-  // 1. Protect all dashboard routes
+  const redirectToUnauthorized = NextResponse.redirect(
+    new URL("/unauthorized", request.url),
+  );
+
   if (!token && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
@@ -16,23 +18,31 @@ export async function middleware(request: NextRequest) {
   if (token && pathname.startsWith("/dashboard")) {
     try {
       const payload = decodeJwt(token);
+
+      // Implemented later when refresh token is implemented
+      // // Check token expiration
+      // const now = Math.floor(Date.now() / 1000); // current time in seconds
+      // if (payload.exp && payload.exp < now) {
+      //   // Token expired
+      //   return NextResponse.redirect(new URL("/signin", request.url));
+      // }
+
       const role = payload.role as UserRole;
 
-      // 2. Role-Based Route Guarding
-      if (pathname.startsWith("/dashboard/office") && role !== UserRole.ADMIN) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
+      // Role-based route guarding
+      if (pathname.startsWith("/dashboard/office") && role !== UserRole.ADMIN)
+        return redirectToUnauthorized;
+
       if (
         pathname.startsWith("/dashboard/industry") &&
         role !== UserRole.INDUSTRY
-      ) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
-      if (pathname.startsWith("/dashboard/staff") && role !== UserRole.USER) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
+      )
+        return redirectToUnauthorized;
+
+      if (pathname.startsWith("/dashboard/staff") && role !== UserRole.USER)
+        return redirectToUnauthorized;
     } catch (e) {
-      // If token is malformed or expired
+      // If token is malformed
       return NextResponse.redirect(new URL("/signin", request.url));
     }
   }
