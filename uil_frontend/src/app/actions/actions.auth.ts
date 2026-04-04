@@ -10,10 +10,7 @@ import { SigninInput } from "../../validation/validation.auth";
 
 export async function signinAction(data: SigninInput) {
   const response = await signin(data);
-
-  const access_token = response?.data?.access_token;
-
-  if (!access_token) throw Error("Unable to sign in");
+  const { access_token } = response;
 
   const payload = decodeJwt(access_token);
   const role = payload.role as UserRole;

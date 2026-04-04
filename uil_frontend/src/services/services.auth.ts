@@ -1,23 +1,26 @@
-import apiServer from "@/lib/axios";
+import api, { safeApiRequest } from "@/lib/axios";
 import { SigninResponse } from "@/types/interfaces.auth";
-import { SigninInput } from "@/validation/validation.auth";
+import { Industry } from "@/types/interfaces.industry";
+import { CreateIndustryInput, SigninInput } from "@/validation/validation.auth";
 
-export const signin = async (data: SigninInput) => {
-  try {
-    const response = await apiServer.post<SigninResponse>("/auth/login", {
+export const signin = async (data: SigninInput) =>
+  safeApiRequest(
+    api.post<SigninResponse>("/auth/login", {
       email: data.email,
       password: data.password,
-    });
+    }),
+  );
 
-    return response;
-  } catch (error: any) {
-    if (error.response?.status === 401) {
-      return null;
-    }
-    console.error("Signin failed:", error.message);
-    return null;
-  }
-};
+export const createIndustry = async (
+  data: CreateIndustryInput,
+): Promise<Industry> =>
+  safeApiRequest(
+    api.post<Industry>("/industry/register/", {
+      email: data.email,
+      password: data.password,
+      name: data.name,
+    }),
+  );
 
 export const signupStaff = async () => {};
 
