@@ -68,7 +68,7 @@ async def check_email(
             profile = db.query(models.Industry).filter(models.Industry.account_id == account.id).first()
             name = profile.name if profile else None
         elif account.role in (models.UserRole.USER, models.UserRole.ADMIN):
-            profile = db.query(models.User).filter(models.User.account_id == account.id).first()
+            profile = db.query(models.StaffProfile).filter(models.StaffProfile.account_id == account.id).first()
             if profile:
                 name = f"{profile.first_name} {profile.father_name}"
         return {

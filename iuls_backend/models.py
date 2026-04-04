@@ -28,26 +28,25 @@ class Account(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     user_profile = relationship(
-        "User", back_populates="account", uselist=False)
+        "StaffProfile", back_populates="account", uselist=False)
     industry_profile = relationship(
         "Industry", back_populates="account", uselist=False)
 
 
-class User(Base):
-    __tablename__ = "user"
+class StaffProfile(Base):
+    __tablename__ = "staff_profile"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     account_id = Column(String, ForeignKey("account.id"),
                         unique=True, nullable=False)
 
-    account = relationship("Account", back_populates="user_profile")
 
     username = Column(String, unique=True, nullable=True)
     first_name = Column(String, nullable=True)
     father_name = Column(String, nullable=True)
     grand_father_name = Column(String, nullable=True)
 
-    status = Column(String, default="PENDING")
+    status = Column(String, default="PENDING",nullable=False)
     must_change_password = Column(Boolean, default=False)
 
     biography = Column(Text, nullable=True)
@@ -57,21 +56,23 @@ class User(Base):
 
     author_gender = Column(String, nullable=True)
     publication_isced_band = Column(SQLEnum(ISCEDBandCode), nullable=True)
+    academic_unit_id = Column(String, ForeignKey("organizational_unit.id"), nullable=False)
 
     author_category = Column(SQLEnum(AuthorCategoryCode), nullable=True)
     author_academic_rank = Column(SQLEnum(AcademicRankCode), nullable=True)
     author_qualification = Column(SQLEnum(QualificationCode), nullable=True)
     author_employment_type = Column(SQLEnum(EmploymentTypeCode), nullable=True)
     academic_title = Column(SQLEnum(AcademicTitle), nullable=True)
-
-    academic_unit_id = Column(String, ForeignKey(
-        "organizational_unit.id"), nullable=True)
+    
+    assignments = relationship("Assignment", back_populates="staff")  # ADD
+    account = relationship("Account", back_populates="user_profile")
+    academic_unit = relationship(
+        "OrganizationalUnit",
+        back_populates="users"
+    )
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-    academic_unit = relationship(
-        "OrganizationalUnit", back_populates="users", foreign_keys=[academic_unit_id])
 
     @property
     def email(self):
@@ -96,18 +97,11 @@ class OrganizationalUnit(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    # created_by_id = Column(String, ForeignKey("user.id"), nullable=True)
-    # updated_by_id = Column(String, ForeignKey("user.id"), nullable=True)
 
-    # Hierarchy
     subnodes = relationship("OrganizationalUnit",
                             backref=backref("parent", remote_side=[id]))
-    users = relationship("User", back_populates="academic_unit",
-                         foreign_keys="[User.academic_unit_id]")
-
-    # created_by = relationship("User", foreign_keys=[created_by_id])
-    # updated_by = relationship("User", foreign_keys=[
-    #                           updated_by_id], backref="updated_organization_structures")
+    users = relationship("StaffProfile", back_populates="academic_unit",
+                         foreign_keys="[StaffProfile.academic_unit_id]")
 
     assignments = relationship(
         "Assignment", back_populates="department", foreign_keys="[Assignment.department_id]")
@@ -128,12 +122,11 @@ class Industry(Base):
     efficiency_level = Column(String)
     address = Column(String)
     website = Column(String)
-    status = Column(String, default="PENDING")
+    status = Column(String, default="PENDING",nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     requests = relationship("IndustryRequest", back_populates="industry")
-    # users = relationship("User", back_populates="industry")
 
     @property
     def email(self):
@@ -166,7 +159,7 @@ class IndustryRequest(Base):
     title = Column(String, nullable=False)
     description = Column(Text)
     type = Column(String)
-    status = Column(String)
+    status = Column(String, nullable=False)
     submitted_at = Column(DateTime(timezone=True))
     priority = Column(String)
     budget_required = Column(Numeric)
@@ -183,16 +176,16 @@ class Assignment(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     request_id = Column(String, ForeignKey("industry_request.id"))
-    staff_id = Column(String, ForeignKey("user.id"))
+    staff_id = Column(String, ForeignKey("staff_profile.id"))
     department_id = Column(String, ForeignKey("organizational_unit.id"))
-    status = Column(String)
+    status = Column(String,nullable=False)
     progress = Column(String)
     assigned_at = Column(DateTime(timezone=True))
     completed_at = Column(DateTime(timezone=True))
 
     request = relationship("IndustryRequest", back_populates="assignments")
     # assignments back_populates removed because User.assignments is commented
-    staff = relationship("User")
+    staff = relationship("StaffProfile", back_populates="assignments")  # FIX
     department = relationship(
         "OrganizationalUnit", back_populates="assignments", foreign_keys=[department_id])
 
@@ -215,7 +208,7 @@ class Post(Base):
     post_type_id = Column(String, ForeignKey("post_type.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     published_at = Column(DateTime(timezone=True))
-    status = Column(String)
+    status = Column(String,nullable=False)
 
     post_type = relationship("PostType", back_populates="posts")
     images = relationship("PostImage", back_populates="post")
@@ -295,7 +288,7 @@ class Notification(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     message = Column(String)
-    target_user_id = Column(String, ForeignKey("user.id"))
+    target_user_id = Column(String, ForeignKey("account.id"))
     read_status = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

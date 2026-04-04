@@ -23,7 +23,7 @@ def read_org_units(skip: int = 0, limit: int = 100, db: Session = Depends(auth.g
 def create_org_unit(
     unit: schemas.OrgUnitCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")

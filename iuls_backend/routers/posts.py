@@ -18,7 +18,7 @@ def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_d
 def create_post(
     post: schemas.PostCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")

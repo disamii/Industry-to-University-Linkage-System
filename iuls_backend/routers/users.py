@@ -41,7 +41,7 @@ router = APIRouter(
 
 
 @router.get("/me", response_model=schemas.User)
-async def read_users_me(current_user: models.User = Depends(auth.get_current_active_user)):
+async def read_users_me(current_user: models.StaffProfile = Depends(auth.get_current_active_user)):
     if not current_user:
         raise UnauthorizedException()
     return current_user
@@ -51,7 +51,7 @@ async def read_users_me(current_user: models.User = Depends(auth.get_current_act
 async def update_my_profile(
     profile_update: schemas.UserProfileUpdate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException()

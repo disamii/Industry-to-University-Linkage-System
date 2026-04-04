@@ -14,7 +14,7 @@ def read_my_assignments(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     """
     Get all assignments for the currently authenticated staff member
@@ -38,7 +38,7 @@ def read_assignments(request_id: str, skip: int = 0, limit: int = 100, db: Sessi
 def create_assignment(
     assignment: schemas.AssignmentCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
@@ -66,7 +66,7 @@ def update_assignment_progress(
     assignment_id: str,
     assignment_update: schemas.AssignmentUpdate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")

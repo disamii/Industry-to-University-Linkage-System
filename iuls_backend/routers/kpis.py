@@ -21,7 +21,7 @@ def read_kpis(request_id: str, skip: int = 0, limit: int = 100, db: Session = De
 def create_kpi(
     kpi: schemas.KPICreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
@@ -47,7 +47,7 @@ def update_kpi(
     kpi_id: str,
     kpi_update: schemas.KPIUpdate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")

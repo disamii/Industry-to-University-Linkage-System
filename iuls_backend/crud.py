@@ -55,15 +55,13 @@ def create_user_from_rpms(db: Session, rpms_user_data: dict):
         password=raw_password,
         role=models.UserRole.USER
     )
-    print(db_account)
     db.add(db_account)
     db.flush()
     
-    # Remove any fields that don't exist in the User model
-    valid_fields = {column.name for column in models.User.__table__.columns}
+    valid_fields = {column.name for column in models.StaffProfile.__table__.columns}
     filtered_data = {k: v for k, v in rpms_user_data.items() if k in valid_fields}
     
-    db_user = models.User(account_id=db_account.id, **filtered_data)
+    db_user = models.StaffProfile(account_id=db_account.id, **filtered_data)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
