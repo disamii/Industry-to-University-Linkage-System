@@ -85,8 +85,8 @@ async def check_email(
             "exists": True,
             "email": account.email,
             "name": name,
-            "role": account.role.value
-        }
+            "role": account.role.value,
+            "id": account.id        }
     
     # 2. Not found locally — check RPMS
     rpms_user = await get_user_from_rpms(request.email)
@@ -102,16 +102,18 @@ async def check_email(
         # Save to local DB (password stored as-is since it's pre-hashed from RPMS)
         try:
             saved_user = crud.create_user_from_rpms(db=db, rpms_user_data=rpms_data)
-        except Exception:
-            pass  # If save fails, still return the RPMS result
+            print("hello ", saved_user)
+
         
-        full_name = f"{rpms_user.get('first_name', '')} {rpms_user.get('father_name', '')} {rpms_user.get('grand_father_name', '')}".strip()
-        return {
-            "exists": True,
-            "email": rpms_user.get("email", request.email),
-            "name": full_name,
-            "role": "user"
-        }
-    
+            full_name = f"{saved_user.first_name} {saved_user.father_name} {saved_user.grand_father_name}".strip()
+            return {
+                "exists": True,
+                "email":saved_user.email,
+                "name": full_name,
+                "role": "user"
+            }
+        except Exception as e:
+            print(e)
+            return{e} # If save fails, still return the RPMS result
     # 3. Not found anywhere
     return {"exists": False}
