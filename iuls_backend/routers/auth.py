@@ -41,7 +41,8 @@ async def login(
 
     # Verify password
     if account.role == models.UserRole.USER:
-        if password != account.password:
+        # User passwords are Django PBKDF2-SHA256 hashes from RPMS
+        if not crud.verify_django_password(password, account.password):
             raise UnauthorizedException(detail="Invalid credentials")
     else:
         if not crud.verify_password(password, account.password):

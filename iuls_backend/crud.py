@@ -2,11 +2,16 @@ from sqlalchemy.orm import Session
 import models, schemas
 import uuid
 from passlib.context import CryptContext
+from passlib.hash import django_pbkdf2_sha256
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
+def verify_django_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against a Django PBKDF2-SHA256 hash."""
+    return django_pbkdf2_sha256.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
