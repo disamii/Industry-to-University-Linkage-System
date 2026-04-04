@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Logo from "../logo";
+import Logo from "../reusable/logo";
 import {
   Tooltip,
   TooltipContent,
@@ -9,7 +9,7 @@ import {
   TooltipProvider,
 } from "../ui/tooltip";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { UIL_CONTACT_INFO } from "@/lib/constants";
+import { LINKS, UIL_CONTACT_INFO } from "@/lib/constants";
 
 const contacts = [
   {
@@ -30,8 +30,8 @@ const contacts = [
 ];
 
 const links = [
-  { href: "/privacy", label: "Privacy Policy" },
-  { href: "/terms", label: "Terms of Service" },
+  { href: LINKS.privacy, label: "Privacy Policy" },
+  { href: LINKS.terms, label: "Terms of Service" },
 ];
 
 export function Footer() {

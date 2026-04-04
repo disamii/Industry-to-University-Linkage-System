@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import AdminSidebar from "@/components/dashboard/sidebar";
-import AdminHeader from "@/components/dashboard/header";
+import AdminSidebar from "@/components/dashboard/layout/sidebar";
+import AdminHeader from "@/components/dashboard/layout/header";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (

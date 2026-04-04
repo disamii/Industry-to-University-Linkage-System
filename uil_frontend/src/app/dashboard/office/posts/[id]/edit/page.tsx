@@ -8,7 +8,6 @@ export default function EditPostPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  // Mock fetching existing post data
   const existingPost = {
     title: "AI Research Initiative Launch",
     description: "We are excited to announce a new AI research initiative...",

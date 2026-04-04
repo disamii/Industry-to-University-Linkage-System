@@ -18,7 +18,7 @@ export function ThemeToggle() {
       variant="ghost" // Changed to ghost for a cleaner "icon-only" look
       size="icon"
       onClick={toggleTheme}
-      className="relative hover:bg-accent rounded-full w-9 h-9 transition-colors"
+      className="relative bg-white dark:bg-slate-900 shadow-sm border-border/40 rounded-xl w-10 h-10"
     >
       <Sun className="w-[1.2rem] h-[1.2rem] rotate-0 dark:-rotate-90 scale-100 dark:scale-0 transition-all" />
       <Moon className="absolute w-[1.2rem] h-[1.2rem] rotate-90 dark:rotate-0 scale-0 dark:scale-100 transition-all" />

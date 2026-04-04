@@ -16,9 +16,11 @@ router = APIRouter(
     tags=["authentication"],
 )
 
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
 
 @router.post("/login", response_model=schemas.Token)
 async def login(
@@ -29,28 +31,31 @@ async def login(
     Unified login for User, Admin, and Industry.
     """
     email = request.email
-    password = request.password    
+    password = request.password
     account = crud.get_account_by_email(db, email=email)
     if not account:
         raise NotFoundException(detail="Invalid credentials")
-    
+
     if account.role == models.UserRole.USER:
         if not crud.verify_django_password(password, account.password):
             raise ValidationException(detail="Invalid credentials")
     else:
         if not crud.verify_password(password, account.password):
-            raise ValidationException(detail="Invalid credentials")
-    
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+            raise UnauthorizedException(detail="Invalid credentials")
+
+    # Password verified - generate token
+    access_token_expires = timedelta(
+        minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
-        data={"sub": account.email}, expires_delta=access_token_expires
+        data={"sub": account.email, "role": account.role.value}, expires_delta=access_token_expires
     )
-    
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 class CheckEmailRequest(BaseModel):
     email: EmailStr
+
 
 @router.post("/check-email")
 async def check_email(
@@ -65,7 +70,8 @@ async def check_email(
     if account:
         name = None
         if account.role == models.UserRole.INDUSTRY:
-            profile = db.query(models.Industry).filter(models.Industry.account_id == account.id).first()
+            profile = db.query(models.Industry).filter(
+                models.Industry.account_id == account.id).first()
             name = profile.name if profile else None
         elif account.role in (models.UserRole.USER, models.UserRole.ADMIN):
             profile = db.query(models.StaffProfile).filter(models.StaffProfile.account_id == account.id).first()
@@ -76,8 +82,9 @@ async def check_email(
             "email": account.email,
             "name": name,
             "role": account.role.value
-        }    
-    
+        }
+
+    # 2. Not found locally — check RPMS
     rpms_user = await get_user_from_rpms(request.email)
 
     if rpms_user:
@@ -88,13 +95,15 @@ async def check_email(
         )}
         academic_unit_id = None
         if "academic_unit" in rpms_user:
-            academic_unit_id = process_academic_unit(db, rpms_user["academic_unit"])
+            academic_unit_id = process_academic_unit(
+                db, rpms_user["academic_unit"])
             rpms_data["academic_unit_id"] = academic_unit_id
         try:
             print("trying to save ")
-            saved_user = crud.create_user_from_rpms(db=db, rpms_user_data=rpms_data)
+            saved_user = crud.create_user_from_rpms(
+                db=db, rpms_user_data=rpms_data)
 
-            full_name = f"{saved_user.first_name, saved_user.father_name,saved_user.grand_father_name, ''}".strip()
+            full_name = f"{saved_user.first_name, saved_user.father_name, saved_user.grand_father_name, ''}".strip()
             return {
                 "exists": False,
                 "email": rpms_user.get("email", request.email),
@@ -103,5 +112,5 @@ async def check_email(
             }
         except Exception as e:
             print(e)
-            return{e}
+            return {e}
     return {"exists": False}

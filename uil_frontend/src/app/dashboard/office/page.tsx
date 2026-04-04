@@ -80,7 +80,7 @@ export default function AdminDashboard() {
             Real-time metrics for university-industry collaboration.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button
             variant="outline"
             className="border-border/60 rounded-2xl h-11 font-bold"
