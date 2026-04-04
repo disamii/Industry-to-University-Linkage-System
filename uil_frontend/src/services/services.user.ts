@@ -1,4 +1,4 @@
-import apiServer from "@/lib/axios.server";
+import apiServer from "@/lib/axios";
 import { User } from "@/types/interfaces.user";
 import { cache } from "react";
 

@@ -73,7 +73,7 @@ const SinginForm = () => {
   useEffect(() => {
     if (!state?.error) return;
 
-    appToast.solidWarning(state.error);
+    appToast.warning(state.error);
   }, [state]);
 
   return (

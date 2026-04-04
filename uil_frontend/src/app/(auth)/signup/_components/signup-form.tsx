@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,64 +14,43 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import CheckEmailDialog from "./check-email-dialog";
+import CreateIndustryForm from "./create-industry-form";
+import { CreateIndustryInput } from "@/validation/validation.auth";
+import { useCreateIndustryMutation } from "../../_hooks/useAuth";
 
-type RpmsUserData = {
-  fullName: string;
-  email: string;
-};
-
-type MockUserEntry = {
-  fullName: string;
-  exists: boolean;
-  correctPass: string;
-};
-
-type MockRpmsDb = {
-  [email: string]: MockUserEntry;
+const MOCK_RPMS_DB = {
+  "admin@rpms.com": {
+    fullName: "Dr. Sarah Jenkins",
+    exists: true,
+    correctPass: "password123",
+  },
 };
 
 // Props required by the SignupForm
 type Props = {
   step: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  password: string;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
-  isSubmitting: boolean;
-  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowRpmsDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  setRpmsUserData: React.Dispatch<React.SetStateAction<RpmsUserData | null>>;
-  MOCK_RPMS_DB: MockRpmsDb;
-  showRpmsDialog: boolean;
-  rpmsUserData: RpmsUserData | null;
 };
 
-const SignupForm = ({
-  step,
-  setStep,
-  email,
-  setEmail,
-  password,
-  setPassword,
-  isSubmitting,
-  setIsSubmitting,
-  setShowRpmsDialog,
-  setRpmsUserData,
-  MOCK_RPMS_DB,
-  showRpmsDialog,
-  rpmsUserData,
-}: Props) => {
+const SignupForm = ({ step, setStep }: Props) => {
   const [notFoundInRpms, setNotFoundInRpms] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const createIndsutryMutation = useCreateIndustryMutation();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // RPMS State
+  const [showRpmsDialog, setShowRpmsDialog] = useState(false);
+  const [rpmsUserData, setRpmsUserData] = useState<{
+    fullName: string;
+    email: string;
+  } | null>(null);
+
   const [role, setRole] = useState<"industry" | "staff" | null>(null);
 
   const handleContinue = async () => {
-    if (role === "industry" && password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
     setIsSubmitting(true);
     setNotFoundInRpms(false);
     await new Promise((resolve) => setTimeout(resolve, 800));
@@ -89,6 +67,11 @@ const SignupForm = ({
       setStep(3);
     }
     setIsSubmitting(false);
+  };
+
+  const handleSubmit = (data: CreateIndustryInput) => {
+    if (role === "industry")
+      createIndsutryMutation.mutate(data, { onSuccess: () => setStep(3) });
   };
 
   return (
@@ -138,6 +121,7 @@ const SignupForm = ({
                 </div>
               </button>
             </div>
+
             <Button
               onClick={() => setStep(2)}
               disabled={!role}
@@ -148,118 +132,23 @@ const SignupForm = ({
           </div>
         )}
 
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="font-bold text-xl tracking-tight">
-                {role === "staff" ? "Staff Verification" : "Industry Signup"}
-              </h2>
-              <p className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                {role === "staff"
-                  ? "RPMS (Researcher Profile) Lookup"
-                  : "Create your credentials"}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {role === "staff" && (
-                <div className="flex items-start gap-3 bg-blue-500/5 p-3 border border-blue-500/10 rounded-xl">
-                  <ShieldCheck className="mt-0.5 w-4 h-4 text-blue-500 shrink-0" />
-                  <p className="text-[11px] text-blue-700/80 leading-tight">
-                    <strong>Priority:</strong> An active{" "}
-                    <strong>RPMS Account</strong> is required.
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label className="font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
-                  Email Address
-                </Label>
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  className={`bg-background rounded-xl h-12 ${notFoundInRpms ? "border-destructive" : ""}`}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-
-                {notFoundInRpms && role === "staff" && (
-                  <div className="space-y-2 bg-destructive/5 p-4 border border-destructive/20 rounded-2xl animate-in fade-in zoom-in">
-                    <div className="flex items-center gap-2 font-bold text-[11px] text-destructive uppercase tracking-wider">
-                      <AlertCircle className="w-4 h-4" /> Not Found in RPMS
-                    </div>
-                    <p className="text-[12px] text-muted-foreground leading-relaxed">
-                      Your account must be created in RPMS first.
-                    </p>
-                    <Button
-                      asChild
-                      variant="link"
-                      className="p-0 h-auto font-bold text-primary text-xs underline"
-                    >
-                      <a
-                        href="https://rpms.university.edu/register"
-                        target="_blank"
-                      >
-                        Register Now <ExternalLink className="ml-1 w-3 h-3" />
-                      </a>
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {role === "industry" && (
-                <div className="slide-in-from-bottom-2 space-y-4 animate-in">
-                  <div className="space-y-2">
-                    <Label className="font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
-                      Password
-                    </Label>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      className="bg-background rounded-xl h-12"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
-                      Confirm Password
-                    </Label>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      className="bg-background rounded-xl h-12"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => setStep(1)}
-                className="flex-1 rounded-xl h-12 font-bold text-xs"
-              >
-                Back
-              </Button>
-              <Button
-                onClick={handleContinue}
-                disabled={isSubmitting || !email}
-                className="flex-1 rounded-xl h-12 font-bold text-xs uppercase tracking-widest"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  "Continue"
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
+        {step === 2 &&
+          (role === "staff" ? (
+            <StaffVerificationForm
+              email={email}
+              setEmail={setEmail}
+              notFoundInRpms={notFoundInRpms}
+              isSubmitting={isSubmitting}
+              onBack={() => setStep(1)}
+              onContinue={handleContinue}
+            />
+          ) : (
+            <CreateIndustryForm
+              isSubmitting={createIndsutryMutation.isPending}
+              onSubmit={handleSubmit}
+              onBack={() => setStep(1)}
+            />
+          ))}
 
         {step === 3 && (
           <div className="space-y-8 py-6 text-center animate-in fade-in zoom-in">
@@ -292,6 +181,107 @@ const SignupForm = ({
         setRpmsUserData={setRpmsUserData}
       />
     </>
+  );
+};
+
+type BaseFormProps = {
+  email: string;
+  setEmail: (value: string) => void;
+  isSubmitting: boolean;
+  onBack: () => void;
+  onContinue: () => void;
+};
+
+type StaffVerificationFormProps = BaseFormProps & {
+  notFoundInRpms: boolean;
+};
+
+const StaffVerificationForm = ({
+  email,
+  setEmail,
+  notFoundInRpms,
+  isSubmitting,
+  onBack,
+  onContinue,
+}: StaffVerificationFormProps) => {
+  return (
+    <div className="space-y-6">
+      <div className="space-y-1">
+        <h2 className="font-bold text-xl tracking-tight">Staff Verification</h2>
+        <p className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
+          RPMS (Researcher Profile) Lookup
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {/* Info box */}
+        <div className="flex items-start gap-3 bg-blue-500/5 p-3 border border-blue-500/10 rounded-xl">
+          <ShieldCheck className="mt-0.5 w-4 h-4 text-blue-500 shrink-0" />
+          <p className="text-[11px] text-blue-700/80 leading-tight">
+            <strong>Priority:</strong> An active <strong>RPMS Account</strong>{" "}
+            is required.
+          </p>
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <Label className="font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
+            Email Address
+          </Label>
+          <Input
+            type="email"
+            placeholder="Enter your email"
+            className={`bg-background rounded-xl h-12 ${
+              notFoundInRpms ? "border-destructive" : ""
+            }`}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          {notFoundInRpms && (
+            <div className="space-y-2 bg-destructive/5 p-4 border border-destructive/20 rounded-2xl animate-in fade-in zoom-in">
+              <div className="flex items-center gap-2 font-bold text-[11px] text-destructive uppercase tracking-wider">
+                <AlertCircle className="w-4 h-4" /> Not Found in RPMS
+              </div>
+              <p className="text-[12px] text-muted-foreground">
+                Your account must be created in RPMS first.
+              </p>
+              <Button
+                asChild
+                variant="link"
+                className="p-0 h-auto font-bold text-primary text-xs underline"
+              >
+                <a href="https://rpms.university.edu/register" target="_blank">
+                  Register Now <ExternalLink className="ml-1 w-3 h-3" />
+                </a>
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3 pt-2">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          className="flex-1 rounded-xl h-12 font-bold text-xs"
+        >
+          Back
+        </Button>
+        <Button
+          onClick={onContinue}
+          disabled={isSubmitting || !email}
+          className="flex-1 rounded-xl h-12 font-bold text-xs uppercase tracking-widest"
+        >
+          {isSubmitting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            "Continue"
+          )}
+        </Button>
+      </div>
+    </div>
   );
 };
 

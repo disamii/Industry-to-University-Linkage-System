@@ -3,21 +3,21 @@ import { toast } from "sonner";
 // https://shadcnstudio.com/docs/components/sonner
 
 const style = {
-  solidWarning: {
+  warning: {
     "--normal-bg": "light-dark(var(--color-amber-600), var(--color-amber-400))",
     "--normal-text": "var(--color-white)",
     "--normal-border":
       "light-dark(var(--color-amber-600), var(--color-amber-400))",
   } as React.CSSProperties,
 
-  solidError: {
+  error: {
     "--normal-bg":
       "light-dark(var(--destructive), color-mix(in oklab, var(--destructive) 60%, var(--background)))",
     "--normal-text": "var(--color-white)",
     "--normal-border": "transparent",
   } as React.CSSProperties,
 
-  solidSuccess: {
+  success: {
     "--normal-bg": "light-dark(var(--color-green-600), var(--color-green-400))",
     "--normal-text": "var(--color-white)",
     "--normal-border":
@@ -26,16 +26,16 @@ const style = {
 };
 
 export const appToast = {
-  solidWarning: (message: string) =>
-    toast.warning(message, { style: style.solidWarning }),
+  warning: (message: string) =>
+    toast.warning(message, { style: style.warning }),
 
-  solidError: (message: string) =>
+  error: (message: string) =>
     toast.error(message, {
-      style: style.solidError,
+      style: style.error,
     }),
 
   success: (message: string) =>
     toast.success(message, {
-      style: style.solidError,
+      style: style.success,
     }),
 };

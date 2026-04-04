@@ -115,7 +115,7 @@ const CheckEmailDialog = ({
               </Label>
               <Input
                 type="password"
-                placeholder="••••••••"
+                placeholder="Enter your RPMS Password"
                 className="bg-muted/20 rounded-xl h-12"
                 value={password}
                 onChange={(e) => {
