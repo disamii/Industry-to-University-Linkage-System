@@ -5,12 +5,14 @@ import { ConfirmDialog } from "@/components/reusable/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/useUserStore";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const LogoutBtn = () => {
   const clearUser = useUserStore((state) => state.clearUser);
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
 
   const handleLogout = async () => {
     setIsPending(true);
@@ -18,6 +20,7 @@ const LogoutBtn = () => {
       await logoutAction(); // Call server first
       clearUser(); // Clear local state
       setOpen(false); // Finally close
+      router.push("/signin");
     } catch (error) {
       console.error("Logout failed", error);
     } finally {

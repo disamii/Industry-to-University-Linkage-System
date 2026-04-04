@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { signinSchema } from "@/validation/validation.auth";
 import Link from "next/link";
 import { useActionState, useEffect } from "react";
-import SubmitButton from "./submit-button";
+import SubmitButton from "../../../../components/reusable/submit-button";
 import { appToast } from "@/lib/toast";
 import { CardContent } from "@/components/ui/card";
 import { useUserStore } from "@/store/useUserStore";

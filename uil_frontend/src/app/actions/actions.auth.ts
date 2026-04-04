@@ -1,13 +1,12 @@
 "use server";
 
-import { signin } from "@/data/auth/signin";
 import { UserRole } from "@/lib/enums";
+import { signin } from "@/services/services.auth";
 import { getMe } from "@/services/services.user";
 import { decodeJwt } from "jose";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SigninInput } from "../../validation/validation.auth";
-import { redirect } from "next/navigation";
 
 export async function signinAction(data: SigninInput) {
   const response = await signin(data);
@@ -58,7 +57,4 @@ export async function logoutAction() {
 
   // Delete the cookie by setting an expired date
   cookieStore.delete("access_token");
-
-  // Redirect to the sign-in or landing page
-  redirect("/signin");
 }

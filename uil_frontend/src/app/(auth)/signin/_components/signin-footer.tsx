@@ -8,7 +8,7 @@ const SigninFooter = () => {
       <p className="font-medium text-muted-foreground text-xs text-center">
         New to the platform?{" "}
         <Link
-          href={LINKS.signin}
+          href={LINKS.signup}
           className="font-bold text-primary hover:underline underline-offset-4"
         >
           Create an account

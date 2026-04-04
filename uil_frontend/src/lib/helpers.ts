@@ -1,9 +1,9 @@
-export const getNameInitials = (name?: string, backup?: string) =>
+export const getNameInitials = (name: string) =>
   name
     ?.split(" ")
     .map((n: string) => n[0])
     .join("")
-    .toUpperCase() || backup?.[0].toUpperCase();
+    .toUpperCase();
 
 export const getFullName = (
   first_name?: string,

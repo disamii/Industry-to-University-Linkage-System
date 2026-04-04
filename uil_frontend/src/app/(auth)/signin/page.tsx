@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card";
 import SigninFooter from "./_components/signin-footer";
 import SinginForm from "./_components/signin-form";
-import SigninHeader from "./_components/singin-header";
+import SigninHeader from "./_components/signin-header";
 import TermsPrivacyLinks from "./_components/terms-privacy-links";
 
 export default function SigninPage() {

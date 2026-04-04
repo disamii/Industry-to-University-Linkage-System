@@ -1,9 +1,10 @@
 "use client";
 
 import HeaderSearchInput from "./header-search-input";
-import NotificationBtn from "./notification-btn";
-import ProfileDropdown from "./profile-dropdown";
+import NotificationBtn from "../../layout/notification-btn";
+import ProfileDropdown from "../../layout/profile-dropdown";
 import SidebarTrigger from "./sidebar-trigger";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const AdminHeader = () => {
   return (
@@ -14,6 +15,7 @@ const AdminHeader = () => {
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
+        <ThemeToggle />
         <NotificationBtn />
         <ProfileDropdown />
       </div>
