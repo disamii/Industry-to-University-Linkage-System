@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 import crud, models, schemas, auth
-from exceptions import BadRequestException, NotFoundException, UnauthorizedException
+from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 
 router = APIRouter(
     prefix="/industry-requests",
@@ -72,6 +72,16 @@ def update_industry_request(
     db_request = crud.get_industry_request(db, request_id=request_id)
     if not db_request:
         raise NotFoundException(detail="Industry request not found")
+
+    # Ownership check: industry can only update their own, admins can update any
+    is_admin = current_user.account.role == models.UserRole.ADMIN
+    is_owner = (
+        current_user.account.role == models.UserRole.INDUSTRY
+        and db_request.industry_id == current_user.id
+    )
+    if not is_admin and not is_owner:
+        raise ForbiddenException(detail="You do not have permission to update this request")
+
     try:
         update_data = request_update.model_dump(exclude_unset=True)
         for key, value in update_data.items():

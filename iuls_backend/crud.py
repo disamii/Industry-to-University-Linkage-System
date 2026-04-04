@@ -50,12 +50,12 @@ def create_user(db: Session, user: schemas.UserCreate):
 def create_user_from_rpms(db: Session, rpms_user_data: dict):
     """Create a user from RPMS data with all available fields"""
     raw_password = rpms_user_data.pop("password")
-    
     db_account = models.Account(
         email=rpms_user_data.pop("email"),
         password=raw_password,
         role=models.UserRole.USER
     )
+    print(db_account)
     db.add(db_account)
     db.flush()
     
@@ -193,7 +193,7 @@ def get_assignment(db: Session, assignment_id: str):
 def get_assignments_by_request(db: Session, request_id: str, skip: int = 0, limit: int = 100):
     return db.query(models.Assignment).filter(models.Assignment.request_id == request_id).offset(skip).limit(limit).all()
 
-def create_assignment(db: Session, request_id: str, staff_id: str, department_id: str, **kwargs):
+def create_assignment(db: Session, request_id: str, staff_id: str, department_id: str = None, **kwargs):
     db_assignment = models.Assignment(
         request_id=request_id,
         staff_id=staff_id,
