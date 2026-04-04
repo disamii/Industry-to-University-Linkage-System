@@ -163,7 +163,7 @@ class AssignmentBase(BaseModel):
 class AssignmentCreate(AssignmentBase):
     request_id: str
     staff_id: str
-    department_id: str
+    department_id: Optional[str] = None
 
 class AssignmentUpdate(BaseModel):
     status: Optional[str] = None
@@ -174,7 +174,7 @@ class Assignment(AssignmentBase):
     id: str
     request_id: str
     staff_id: str
-    department_id: str
+    department_id: Optional[str] = None
     assigned_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 

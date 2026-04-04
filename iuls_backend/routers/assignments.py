@@ -9,6 +9,23 @@ router = APIRouter(
     tags=["assignments"],
 )
 
+@router.get("/my", response_model=List[schemas.Assignment])
+def read_my_assignments(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(auth.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user)
+):
+    """
+    Get all assignments for the currently authenticated staff member
+    """
+    if not current_user:
+        raise UnauthorizedException(detail="Authentication required")
+    return db.query(models.Assignment).filter(
+        models.Assignment.staff_id == current_user.id
+    ).offset(skip).limit(limit).all()
+
+
 @router.get("/", response_model=List[schemas.Assignment])
 def read_assignments(request_id: str, skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
     """

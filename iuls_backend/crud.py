@@ -193,7 +193,7 @@ def get_assignment(db: Session, assignment_id: str):
 def get_assignments_by_request(db: Session, request_id: str, skip: int = 0, limit: int = 100):
     return db.query(models.Assignment).filter(models.Assignment.request_id == request_id).offset(skip).limit(limit).all()
 
-def create_assignment(db: Session, request_id: str, staff_id: str, department_id: str, **kwargs):
+def create_assignment(db: Session, request_id: str, staff_id: str, department_id: str = None, **kwargs):
     db_assignment = models.Assignment(
         request_id=request_id,
         staff_id=staff_id,
