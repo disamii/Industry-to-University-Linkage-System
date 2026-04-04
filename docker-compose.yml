@@ -23,6 +23,20 @@ services:
         - action: rebuild
           path: ./iuls_backend/requirements.txt
 
+  alembic:
+    build:
+      context: ./iuls_backend
+      dockerfile: Dockerfile
+    container_name: alembic_runner
+    command: alembic upgrade head
+    volumes:
+      - ./iuls_backend:/app
+    env_file:
+      - ./iuls_backend/.env
+    depends_on:
+      - db
+    restart: "no"             
+
   frontend:
     build:
       context: ./uil_frontend

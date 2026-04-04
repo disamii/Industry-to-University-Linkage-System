@@ -50,12 +50,12 @@ def create_user(db: Session, user: schemas.UserCreate):
 def create_user_from_rpms(db: Session, rpms_user_data: dict):
     """Create a user from RPMS data with all available fields"""
     raw_password = rpms_user_data.pop("password")
-    
     db_account = models.Account(
         email=rpms_user_data.pop("email"),
         password=raw_password,
         role=models.UserRole.USER
     )
+    print(db_account)
     db.add(db_account)
     db.flush()
     

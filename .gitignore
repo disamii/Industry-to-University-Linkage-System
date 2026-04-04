@@ -31,10 +31,12 @@ iuls_backend/venv/
 iuls_backend/env/
 iuls_backend/ENV/
 iuls_backend/.Python
+iuls_backend/*.pyc
 iuls_backend/*.py[cod]
 iuls_backend/*$py.class
 iuls_backend/*.so
-
+*.pyc
+iuls_backend/versions/__pycache__/
 # --- Database ---
 *.db
 *.sqlite3
