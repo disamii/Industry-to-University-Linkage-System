@@ -178,7 +178,7 @@ const UserInfo = ({
       <div className="max-w-35 overflow-hidden">
         <p className="font-bold text-sm truncate leading-none">{fullName}</p>
         <p className="mt-1 text-[10px] text-muted-foreground truncate capitalize tracking-tight">
-          {user.role} User Account
+          {user.role} Account
         </p>
       </div>
     </div>

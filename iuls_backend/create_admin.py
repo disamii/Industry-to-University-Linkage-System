@@ -1,209 +1,149 @@
 #!/usr/bin/env python3
 """
-Admin Account Creation Script
-
-This script creates an admin account for the IULS system.
-Works with both SQLite and PostgreSQL databases.
-Run this script to set up the initial administrator.
+Admin Account Creation Script - Final Version
+Syncs with Backend Hashing Logic
 """
 
+from config import settings
+import models
+from db import Base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 import sys
 import os
 from pathlib import Path
+import uuid
 
 # Add the backend directory to Python path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from db import Base
-import models
-import crud
-from config import settings
+
+# Attempt to import your app's hashing logic
+try:
+    from crud import get_password_hash
+except ImportError:
+    print("⚠️  Could not import get_password_hash from crud.py.")
+    print("⚠️  Falling back to manual bcrypt hashing...")
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    def get_password_hash(password):
+        return pwd_context.hash(password)
+
 
 def get_database_url():
-    """Get database URL from environment or config"""
-    # Priority: Environment variable > config file > default
     db_url = os.getenv('DATABASE_URL')
     if not db_url:
         try:
             db_url = getattr(settings, 'database_url', 'sqlite:///./iuls.db')
         except:
             db_url = 'sqlite:///./iuls.db'
-    
-    print(f"🔗 Using database: {db_url}")
     return db_url
 
-def create_admin_account():
-    """Create an admin account interactively"""
-    
-    print("🔐 IULS Admin Account Creation")
-    print("=" * 40)
-    
-    # Database setup
-    db_url = get_database_url()
-    engine = create_engine(db_url)
-    Base.metadata.create_all(bind=engine)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    db = SessionLocal()
-    
+
+def get_or_create_default_unit(db):
+    unit = db.query(models.OrganizationalUnit).first()
+    if not unit:
+        print("🏗️  Creating default Organizational Unit...")
+        unit = models.OrganizationalUnit(
+            id=str(uuid.uuid4()),
+            name="System Administration",
+            unit_type="ADMIN",
+            abbreviation="SYS"
+        )
+        db.add(unit)
+        db.commit()
+        db.refresh(unit)
+    return unit
+
+
+def create_admin_logic(db, email, password, first_name, father_name, grand_father_name, phone=None, bio=None):
     try:
-        # Get admin details
-        print("\nEnter admin account details:")
-        
-        email = input("Email: ").strip()
-        if not email:
-            print("❌ Email is required")
-            return False
-            
-        # Check if admin already exists
-        existing_admin = crud.get_user_by_email(db, email=email)
-        if existing_admin:
-            print(f"❌ User with email '{email}' already exists")
-            return False
-        
-        first_name = input("First Name: ").strip()
-        father_name = input("Father Name: ").strip()
-        grand_father_name = input("Grand Father Name: ").strip()
-        
-        password = input("Password: ").strip()
-        if not password:
-            print("❌ Password is required")
-            return False
-            
-        confirm_password = input("Confirm Password: ").strip()
-        if password != confirm_password:
-            print("❌ Passwords do not match")
-            return False
-        
-        phone_number = input("Phone Number (optional): ").strip()
-        biography = input("Biography (optional): ").strip()
-        
-        # Create admin user
-        from schemas import UserCreate
-        admin_data = UserCreate(
+        # 1. Check if Account exists
+        existing_account = db.query(models.Account).filter(
+            models.Account.email == email).first()
+        if existing_account:
+            print(
+                f"❌ Account with email '{email}' already exists. Updating password...")
+            existing_account.password = get_password_hash(password)
+            db.commit()
+            return existing_account
+
+        # 2. Ensure Org Unit exists
+        unit = get_or_create_default_unit(db)
+
+        # 3. Hash the password correctly for the ADMIN role
+        hashed_password = get_password_hash(password)
+
+        # 4. Create Account
+        new_account = models.Account(
+            id=str(uuid.uuid4()),
             email=email,
-            password=password,
-            role=models.UserRole.ADMIN,
+            password=hashed_password,
+            role=models.UserRole.ADMIN
+        )
+        db.add(new_account)
+        db.flush()
+
+        # 5. Create Staff Profile
+        new_profile = models.StaffProfile(
+            id=str(uuid.uuid4()),
+            account_id=new_account.id,
             first_name=first_name,
             father_name=father_name,
             grand_father_name=grand_father_name,
-            phone_number=phone_number if phone_number else None,
-            biography=biography if biography else None,
+            phone_number=phone,
+            biography=bio,
+            academic_unit_id=unit.id,
             status="ACTIVE"
         )
-        
-        admin_user = crud.create_user(db=db, user=admin_data)
-        
-        if admin_user:
-            print(f"\n✅ Admin account created successfully!")
-            print(f"   Email: {admin_user.email}")
-            print(f"   Name: {admin_user.first_name} {admin_user.father_name}")
-            print(f"   Role: {admin_user.role.value}")
-            print(f"   ID: {admin_user.id}")
-            print(f"\n🔑 You can now login using:")
-            print(f"   POST /auth/login")
-            print(f"   {{\"email\": \"{email}\", \"password\": \"{password}\"}}")
-            return True
-        else:
-            print("❌ Failed to create admin account")
-            return False
-            
+        db.add(new_profile)
+        db.commit()
+        return new_account
+
     except Exception as e:
-        print(f"❌ Error creating admin account: {str(e)}")
-        return False
-    finally:
-        db.close()
+        db.rollback()
+        print(f"❌ Database Error: {str(e)}")
+        return None
+
 
 def create_default_admin():
-    """Create a default admin account with preset credentials"""
-    
-    print("🔐 Creating Default Admin Account")
+    print("🔐 Creating/Resetting Default Admin Account")
     print("=" * 40)
-    
-    # Database setup
+
     db_url = get_database_url()
+    print(f"🔗 Using database: {db_url}")
     engine = create_engine(db_url)
     Base.metadata.create_all(bind=engine)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    SessionLocal = sessionmaker(bind=engine)
     db = SessionLocal()
-    
+
     try:
-        default_email = "admin@iuls.edu"
-        default_password = "admin123"
-        
-        # Check if admin already exists
-        existing_admin = crud.get_user_by_email(db, email=default_email)
-        if existing_admin:
-            print(f"❌ Default admin '{default_email}' already exists")
-            return False
-        
-        # Create default admin user
-        from schemas import UserCreate
-        admin_data = UserCreate(
-            email=default_email,
-            password=default_password,
-            role=models.UserRole.ADMIN,
-            first_name="System",
-            father_name="Administrator",
-            grand_father_name="Account",
-            phone_number="+251911000000",
-            biography="Default system administrator account",
-            status="ACTIVE"
+        email = "admin@bdu.et"
+        password = "password"
+
+        admin = create_admin_logic(
+            db, email, password,
+            "System", "Administrator", "Account",
+            "+251911000000", "Default system administrator"
         )
-        
-        admin_user = crud.create_user(db=db, user=admin_data)
-        
-        if admin_user:
-            print(f"\n✅ Default admin account created successfully!")
-            print(f"   Email: {admin_user.email}")
-            print(f"   Password: {default_password}")
-            print(f"   Role: {admin_user.role.value}")
-            print(f"   ID: {admin_user.id}")
-            print(f"\n⚠️  IMPORTANT: Change the default password after first login!")
-            print(f"🔑 Login credentials:")
-            print(f"   POST /auth/login")
-            print(f"   {{\"email\": \"{default_email}\", \"password\": \"{default_password}\"}}")
+
+        if admin:
+            print(f"\n✅ Admin account is ready!")
+            print(f"   Email: {email}")
+            print(f"   Password: {password}")
             return True
-        else:
-            print("❌ Failed to create default admin account")
-            return False
-            
-    except Exception as e:
-        print(f"❌ Error creating default admin account: {str(e)}")
         return False
     finally:
         db.close()
 
+
 def main():
-    """Main script function"""
-    
-    if len(sys.argv) > 1 and sys.argv[1] == "--default":
-        # Create default admin
-        success = create_default_admin()
-    else:
-        # Interactive admin creation
-        print("Choose admin creation method:")
-        print("1. Interactive (custom credentials)")
-        print("2. Default admin account")
-        
-        choice = input("\nEnter choice (1 or 2): ").strip()
-        
-        if choice == "1":
-            success = create_admin_account()
-        elif choice == "2":
-            success = create_default_admin()
-        else:
-            print("❌ Invalid choice")
-            success = False
-    
-    if success:
-        print("\n🎉 Admin account setup completed!")
-        sys.exit(0)
-    else:
-        print("\n❌ Admin account setup failed!")
-        sys.exit(1)
+    # Force default for this run to fix your current issue
+    success = create_default_admin()
+    sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main()

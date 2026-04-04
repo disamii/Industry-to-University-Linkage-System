@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useCheckStaffEmail } from "../../_hooks/useAuth";
 import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import RpmsProfileFoundDialog from "./rpms-profile-found-dialog";
+import { cn } from "@/lib/utils";
 
 type Props = {
   setStep: (step: number) => void;
@@ -78,9 +79,10 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className={`bg-background rounded-xl h-12
-               ${notFoundInRpms ? "border-destructive" : ""}
-              `}
+                className={cn(
+                  "bg-background rounded-xl h-12",
+                  notFoundInRpms ? "border-destructive" : "",
+                )}
                 value={email}
                 onChange={(e) => handleEmailChange(e.target.value)}
               />
