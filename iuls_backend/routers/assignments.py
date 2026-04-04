@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud, models, schemas, auth
-from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
+import crud,  schemas, auth
+from exceptions import BadRequestException, NotFoundException, UnauthorizedException
+from models.account_models import StaffProfile
+from models import core_models 
 
 router = APIRouter(
     prefix="/assignments",
@@ -14,15 +16,15 @@ def read_my_assignments(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(auth.get_db),
-    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user: StaffProfile = Depends(auth.get_current_active_user)
 ):
     """
     Get all assignments for the currently authenticated staff member
     """
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-    return db.query(models.Assignment).filter(
-        models.Assignment.staff_id == current_user.id
+    return db.query(core_models.Assignment).filter(
+        core_models.Assignment.staff_id == current_user.id
     ).offset(skip).limit(limit).all()
 
 
@@ -38,7 +40,7 @@ def read_assignments(request_id: str, skip: int = 0, limit: int = 100, db: Sessi
 def create_assignment(
     assignment: schemas.AssignmentCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user: StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
@@ -66,7 +68,7 @@ def update_assignment_progress(
     assignment_id: str,
     assignment_update: schemas.AssignmentUpdate,
     db: Session = Depends(auth.get_db),
-    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user: StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")

@@ -4,7 +4,8 @@ from exceptions import BadRequestException, InternalServerErrorException, Unauth
 from sqlalchemy.orm import Session
 from datetime import timedelta
 import crud
-import models
+from  models import account_models
+from  models import core_models 
 import schemas
 import auth
 from config import settings
@@ -24,10 +25,10 @@ router = APIRouter(
 # async def create_admin_or_industry_user(
 #     user: schemas.UserCreateWithRole,
 #     db: Session = Depends(auth.get_db),
-#     current_user: models.User = Depends(auth.require_admin)
+#     current_user:  User = Depends(auth.require_admin)
 # ):
 #     """Admin-only endpoint to create admin or industry users"""
-#     if user.role not in [models.UserRole.ADMIN, models.UserRole.INDUSTRY]:
+#     if user.role not in [ UserRole.ADMIN,  UserRole.INDUSTRY]:
 #         raise BadRequestException(detail="Only admin and industry roles can be created manually")
     
 #     existing_user = crud.get_user_by_email(db, email=user.email)
@@ -41,7 +42,7 @@ router = APIRouter(
 
 
 @router.get("/me", response_model=schemas.User)
-async def read_users_me(current_user: models.StaffProfile = Depends(auth.get_current_active_user)):
+async def read_users_me(current_user:  account_models.StaffProfile = Depends(auth.get_current_active_user)):
     if not current_user:
         raise UnauthorizedException()
     return current_user
@@ -51,7 +52,7 @@ async def read_users_me(current_user: models.StaffProfile = Depends(auth.get_cur
 async def update_my_profile(
     profile_update: schemas.UserProfileUpdate,
     db: Session = Depends(auth.get_db),
-    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user:  account_models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException()

@@ -2,15 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from typing import Optional
-import crud
-import models
-import schemas
-import auth
+import crud,auth,schemas,enums
 from config import settings
 from rpms_service import get_user_from_rpms, process_academic_unit
 from exceptions import BadRequestException, InternalServerErrorException, NotFoundException, UnauthorizedException, ValidationException
 from pydantic import BaseModel, EmailStr
-
+from models import *
 router = APIRouter(
     prefix="/auth",
     tags=["authentication"],
@@ -36,7 +33,7 @@ async def login(
     if not account:
         raise NotFoundException(detail="Invalid credentials")
 
-    if account.role == models.UserRole.USER:
+    if account.role == enums.UserRole.USER:
         if not crud.verify_django_password(password, account.password):
             raise ValidationException(detail="Invalid credentials")
     else:
@@ -69,12 +66,12 @@ async def check_email(
     account = crud.get_account_by_email(db, email=request.email)
     if account:
         name = None
-        if account.role == models.UserRole.INDUSTRY:
-            profile = db.query(models.Industry).filter(
-                models.Industry.account_id == account.id).first()
+        if account.role == enums.UserRole.INDUSTRY:
+            profile = db.query(core_models.Industry).filter(
+                core_models.Industry.account_id == account.id).first()
             name = profile.name if profile else None
-        elif account.role in (models.UserRole.USER, models.UserRole.ADMIN):
-            profile = db.query(models.StaffProfile).filter(models.StaffProfile.account_id == account.id).first()
+        elif account.role in (core_models.UserRole.USER, core_models.UserRole.ADMIN):
+            profile = db.query(core_models.StaffProfile).filter(core_models.StaffProfile.account_id == account.id).first()
             if profile:
                 name = f"{profile.first_name} {profile.father_name}"
         return {

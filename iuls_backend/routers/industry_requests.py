@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud, models, schemas, auth
+import schemas, auth,crud
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
-
+import enums
+from models import core_models  
 router = APIRouter(
     prefix="/industry-requests",
     tags=["industry-requests"],
@@ -20,9 +21,9 @@ def read_industry_requests(
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
     # Admins/staff see all requests; industry accounts only see their own
-    if hasattr(current_user, 'account') and current_user.account.role == models.UserRole.INDUSTRY:
-        return db.query(models.IndustryRequest).filter(
-            models.IndustryRequest.industry_id == current_user.id
+    if hasattr(current_user, 'account') and current_user.account.role == enums.UserRole.INDUSTRY:
+        return db.query(core_models.IndustryRequest).filter(
+            core_models.IndustryRequest.industry_id == current_user.id
         ).offset(skip).limit(limit).all()
     return crud.get_industry_requests(db, skip=skip, limit=limit)
 
@@ -74,9 +75,9 @@ def update_industry_request(
         raise NotFoundException(detail="Industry request not found")
 
     # Ownership check: industry can only update their own, admins can update any
-    is_admin = current_user.account.role == models.UserRole.ADMIN
+    is_admin = current_user.account.role == enums.UserRole.ADMIN
     is_owner = (
-        current_user.account.role == models.UserRole.INDUSTRY
+        current_user.account.role == enums.UserRole.INDUSTRY
         and db_request.industry_id == current_user.id
     )
     if not is_admin and not is_owner:
