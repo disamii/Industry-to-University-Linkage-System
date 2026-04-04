@@ -13,7 +13,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 # 2. Now you can safely import your project files
 try:
     from db import Base
-    import models  # This will now work because of the sys.path line above
+    import iuls_backend.models.core_models as core_models  # This will now work because of the sys.path line above
     target_metadata = Base.metadata
 except ImportError as e:
     print(f"Import Error: {e}")

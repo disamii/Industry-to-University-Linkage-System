@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-import models, schemas
+import models ,schemas
 import uuid
 from passlib.context import CryptContext
 from passlib.hash import django_pbkdf2_sha256
@@ -17,7 +17,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def get_user(db: Session, user_id: str):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.StaffProfile).filter(models.StaffProfile.id == user_id).first()
 
 def get_account_by_email(db: Session, email: str):
     return db.query(models.Account).filter(models.Account.email == email).first()

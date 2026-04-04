@@ -1,5 +1,9 @@
 import enum
 from enum import Enum
+class UserRole(Enum):
+    USER = "user"
+    ADMIN = "admin"
+    INDUSTRY = "industry"
 
 class ISCEDBandCode(str, Enum):
     GENERIC = "00"

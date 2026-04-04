@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from db import engine
-import models
 from routers import users, industry, org_units, posts, assignments, kpis, auth, industry_requests
 
+import models
+models.core_models  # ensures models are imported
+models.account_models
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="IULS Backend API")

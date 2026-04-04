@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
-from models import (
+from enums import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
     QualificationCode, EmploymentTypeCode, AcademicTitle, UserRole
 )

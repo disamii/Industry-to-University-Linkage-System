@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud, models, schemas, auth
+import crud, schemas, auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException  # add these if not yet created
-
+from models import  account_models
+from models import  core_models 
 router = APIRouter(
     prefix="/posts",
     tags=["posts"],
@@ -18,7 +19,7 @@ def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_d
 def create_post(
     post: schemas.PostCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user: account_models.StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
@@ -46,7 +47,7 @@ def read_post(post_id: str, db: Session = Depends(auth.get_db)):
 
 @router.get("/types", response_model=List[schemas.PostType])
 def read_post_types(db: Session = Depends(auth.get_db)):
-    post_types = db.query(models.PostType).all()
+    post_types = db.query(core_models.PostType).all()
     if not post_types:
         raise NotFoundException(detail="No post types found")
     return post_types

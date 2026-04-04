@@ -2,11 +2,10 @@ import httpx
 from typing import Optional, Dict, Any
     
     
-from models import OrganizationalUnit
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Dict
-
+from models.account_models import OrganizationalUnit
 RPMS_BASE_URL = "http://10.161.65.18:8000"
 RPMS_API_KEY = "sk_9f3a7c2d1b8e4f6a9c0d2e7f5a1b3c8d"
 

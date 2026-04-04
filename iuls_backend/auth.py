@@ -5,7 +5,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import SessionLocal
-import models, schemas, crud
+import schemas, crud
+from models.account_models import *
+from models.core_models import *
 from config import settings
 from exceptions import ForbiddenException
 
@@ -47,7 +49,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
         
     # Return appropriate profile based on role mapping
-    if account.role == models.UserRole.INDUSTRY:
+    if account.role ==  UserRole.INDUSTRY:
         return account.industry_profile
     return account.user_profile
 
@@ -69,16 +71,16 @@ async def get_current_industry(token: str = Depends(oauth2_scheme), db: Session 
         raise credentials_exception
     
     account = crud.get_account_by_email(db, email=email)
-    if account is None or account.role != models.UserRole.INDUSTRY:
+    if account is None or account.role !=  UserRole.INDUSTRY:
         raise credentials_exception
     return account.industry_profile
 
 
-async def get_current_active_industry(current_industry: models.Industry = Depends(get_current_industry)):
+async def get_current_active_industry(current_industry:  Industry = Depends(get_current_industry)):
     return current_industry
 
 
-def require_role(required_role: models.UserRole):
+def require_role(required_role:  UserRole):
     """
     Dependency factory that creates a dependency to require a specific user role.
     
@@ -88,35 +90,35 @@ def require_role(required_role: models.UserRole):
     Returns:
         Dependency function that checks the user's role
     """
-    async def role_dependency(current_user: models.StaffProfile = Depends(get_current_active_user)):
+    async def role_dependency(current_user:  StaffProfile = Depends(get_current_active_user)):
         if current_user.role != required_role:
             raise ForbiddenException(detail=f"Access denied. Required role: {required_role.value}")
         return current_user
     return role_dependency
 
 
-def require_admin(current_user: models.StaffProfile = Depends(get_current_active_user)):
+def require_admin(current_user:  StaffProfile = Depends(get_current_active_user)):
     """Dependency that requires admin role"""
-    if current_user.role != models.UserRole.ADMIN:
+    if current_user.role !=  UserRole.ADMIN:
         raise ForbiddenException(detail="Access denied. Admin role required")
     return current_user
 
 
-def require_industry(current_user: models.StaffProfile = Depends(get_current_active_user)):
+def require_industry(current_user:  StaffProfile = Depends(get_current_active_user)):
     """Dependency that requires industry role"""
-    if current_user.role != models.UserRole.INDUSTRY:
+    if current_user.role !=  UserRole.INDUSTRY:
         raise ForbiddenException(detail="Access denied. Industry role required")
     return current_user
 
 
-def require_user_or_admin(current_user: models.StaffProfile = Depends(get_current_active_user)):
+def require_user_or_admin(current_user:  StaffProfile = Depends(get_current_active_user)):
     """Dependency that requires user or admin role"""
-    if current_user.role not in [models.UserRole.USER, models.UserRole.ADMIN]:
+    if current_user.role not in [ UserRole.USER,  UserRole.ADMIN]:
         raise ForbiddenException(detail="Access denied. User or Admin role required")
     return current_user
 
 
-def require_any_role(*allowed_roles: models.UserRole):
+def require_any_role(*allowed_roles:  UserRole):
     """
     Dependency factory that allows any of the specified roles.
     
@@ -126,7 +128,7 @@ def require_any_role(*allowed_roles: models.UserRole):
     Returns:
         Dependency function that checks if user has any of the allowed roles
     """
-    async def role_dependency(current_user: models.StaffProfile= Depends(get_current_active_user)):
+    async def role_dependency(current_user:  StaffProfile= Depends(get_current_active_user)):
         if current_user.role not in allowed_roles:
             role_names = [role.value for role in allowed_roles]
             raise ForbiddenException(detail=f"Access denied. Required one of: {', '.join(role_names)}")
