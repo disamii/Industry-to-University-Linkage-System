@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logoImg from "../../public/logo/uil-logo-no-bg.png";
+import logoImg from "@/../public/logo/uil-logo-no-bg.png";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 

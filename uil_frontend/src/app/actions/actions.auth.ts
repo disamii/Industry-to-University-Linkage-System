@@ -1,25 +1,19 @@
 "use server";
 
+import { signin } from "@/data/auth/signin";
+import { UserRole } from "@/lib/enums";
+import { getMe } from "@/services/services.user";
+import { decodeJwt } from "jose";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { SigninInput } from "../../validation/validation.auth";
-import { decodeJwt } from "jose";
-import { UserRole } from "@/lib/enums";
+import { redirect } from "next/navigation";
 
 export async function signinAction(data: SigninInput) {
-  const res = await fetch(`${process.env.API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  const response = await signin(data);
 
-  if (!res.ok) {
-    throw new Error("Incorrect Email or Password");
-  }
-
-  const { access_token } = await res.json();
-  const payload = decodeJwt(access_token); // Assuming role is in JWT
+  const { access_token } = response.data;
+  const payload = decodeJwt(access_token);
   const role = payload.role as UserRole;
 
   const cookieStore = await cookies();
@@ -33,6 +27,9 @@ export async function signinAction(data: SigninInput) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
+
+  // Fetch Profile immediately using the new token
+  const userProfile = await getMe();
 
   // Map roles to paths
   let targetPath = "/dashboard";
@@ -52,5 +49,16 @@ export async function signinAction(data: SigninInput) {
   }
 
   revalidatePath(targetPath);
-  redirect(targetPath);
+
+  return { user: userProfile, path: targetPath };
+}
+
+export async function logoutAction() {
+  const cookieStore = await cookies();
+
+  // Delete the cookie by setting an expired date
+  cookieStore.delete("access_token");
+
+  // Redirect to the sign-in or landing page
+  redirect("/signin");
 }

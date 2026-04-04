@@ -1,6 +1,6 @@
 "use client";
 
-import Logo from "@/components/logo";
+import Logo from "@/components/reusable/logo";
 import { cn, getAdminRole } from "@/lib/utils";
 import {
   Building2,

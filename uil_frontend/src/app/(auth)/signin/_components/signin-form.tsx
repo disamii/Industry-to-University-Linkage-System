@@ -1,3 +1,5 @@
+"use client";
+
 import { signinAction } from "@/app/actions/actions.auth";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +9,8 @@ import { useActionState, useEffect } from "react";
 import SubmitButton from "./submit-button";
 import { appToast } from "@/lib/toast";
 import { CardContent } from "@/components/ui/card";
+import { useUserStore } from "@/store/useUserStore";
+import { useRouter } from "next/navigation";
 
 type ActionState = {
   message: string | null;
@@ -15,6 +19,9 @@ type ActionState = {
 };
 
 const SinginForm = () => {
+  const setUser = useUserStore((state) => state.setUser);
+  const router = useRouter();
+
   const [state, formAction] = useActionState<ActionState, FormData>(
     async (
       prevState: ActionState,
@@ -35,8 +42,17 @@ const SinginForm = () => {
       }
 
       try {
-        await signinAction(validatedFields.data);
-        return { message: "Success!", error: null, fields: null };
+        const result = await signinAction(validatedFields.data);
+
+        if (result?.user) {
+          // SAVE TO ZUSTAND (and LocalStorage via persist)
+          setUser(result.user);
+
+          // Redirect
+          router.push(result.path);
+        }
+
+        return { message: "Logging in...", error: null };
       } catch (err: any) {
         if (
           err.message === "NEXT_REDIRECT" ||

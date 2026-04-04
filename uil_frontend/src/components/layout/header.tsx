@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import Logo from "../logo";
+import Logo from "../reusable/logo";
 import { ThemeToggle } from "../theme-toggle";
 import { Button } from "../ui/button";
 import {
