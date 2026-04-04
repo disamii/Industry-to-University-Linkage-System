@@ -1,6 +1,6 @@
 import { useState } from "react";
 import CreateIndustryForm from "./create-industry-form";
-import CreateStaffFrom from "./create-staff-form";
+import CheckStaffEmailForm from "./check-staff-email-form";
 import SignupChooseRole from "./signup-choose-role";
 import SignupSuccess from "./signup-success";
 
@@ -21,7 +21,7 @@ const SignupForm = ({ step, setStep }: Props) => {
 
         {step === 2 &&
           (role === "staff" ? (
-            <CreateStaffFrom setStep={setStep} />
+            <CheckStaffEmailForm setStep={setStep} />
           ) : (
             <CreateIndustryForm setStep={setStep} />
           ))}

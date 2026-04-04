@@ -62,8 +62,10 @@ export const useSignin = (onSuccess?: () => void) => {
   );
 
   useEffect(() => {
-    if (state?.error) appToast.warning(state.error);
-  }, [state]);
+    if (state?.error && !isPending) {
+      appToast.warning(state.error);
+    }
+  }, [state?.error, isPending]);
 
   return { state, formAction, isPending };
 };

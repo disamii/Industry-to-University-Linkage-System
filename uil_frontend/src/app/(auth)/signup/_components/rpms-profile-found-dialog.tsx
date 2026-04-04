@@ -31,13 +31,19 @@ const RpmsProfileFoundDialog = ({
   const [password, setPassword] = useState("");
 
   // Destructure state and formAction from our DRY hook
-  const { state, formAction } = useSignin(() => setShowFoundDialog(false));
+  const { state, formAction } = useSignin(() => {
+    setPassword("");
+    setShowFoundDialog(false);
+  });
 
   return (
     <Dialog open={showFoundDialog} onOpenChange={setShowFoundDialog}>
       <DialogContent className="flex flex-col shadow-2xl p-0 border-none rounded-[2.5rem] sm:max-w-106.25 max-h-[90vh] overflow-hidden">
-        {/* We wrap the content in a form to enable useFormStatus for SubmitButton */}
-        <form action={formAction} className="flex flex-col h-full">
+        <form
+          id="form-rpms-signin"
+          action={formAction}
+          className="flex flex-col h-full"
+        >
           {/* Hidden input to pass the email from rpmsUserData to the Server Action */}
           <input type="hidden" name="email" value={rpmsUserData?.email || ""} />
 
@@ -77,7 +83,8 @@ const RpmsProfileFoundDialog = ({
                 </Label>
                 <Input
                   type="password"
-                  name="password" // Key for the signinSchema
+                  name="password"
+                  autoComplete="current-password"
                   placeholder="Enter your RPMS Password"
                   className="bg-muted/20 rounded-xl h-12"
                   value={password}
@@ -103,11 +110,8 @@ const RpmsProfileFoundDialog = ({
               Cancel
             </Button>
 
-            {/* SubmitButton uses useFormStatus() internally.
-              It will automatically show the Loader2 when formAction is running.
-            */}
             <div className="flex-1">
-              <SubmitButton label="Verify & Sign in" />
+              <SubmitButton label="Verify & Sign in" form="form-rpms-signin" />
             </div>
           </DialogFooter>
         </form>

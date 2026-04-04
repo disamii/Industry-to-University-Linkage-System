@@ -6,9 +6,10 @@ import { useFormStatus } from "react-dom";
 
 type Props = {
   label: string;
+  form: string;
 };
 
-const SubmitButton = ({ label }: Props) => {
+const SubmitButton = ({ label, form }: Props) => {
   const { pending } = useFormStatus();
 
   return (
@@ -16,6 +17,7 @@ const SubmitButton = ({ label }: Props) => {
       type="submit"
       className="hover:bg-primary/90 rounded-xl w-full h-12 font-bold text-xs uppercase tracking-widest transition-all"
       disabled={pending}
+      form={form}
     >
       {pending ? (
         <Loader2 className="w-4 h-4 animate-spin" />

@@ -10,7 +10,7 @@ const SinginForm = () => {
   const { state, formAction } = useSignin();
 
   return (
-    <form action={formAction} className="space-y-6" noValidate>
+    <form id="form-signin" action={formAction} className="space-y-6" noValidate>
       <div className="space-y-2.5">
         <Label
           htmlFor="email"
@@ -53,7 +53,7 @@ const SinginForm = () => {
         />
       </div>
 
-      <SubmitButton label="Sign In" />
+      <SubmitButton label="Sign In" form="form-signin" />
     </form>
   );
 };

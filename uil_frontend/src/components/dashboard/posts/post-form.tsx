@@ -46,7 +46,7 @@ export function PostForm({
       {/* Main Form Area */}
       <div className="lg:col-span-2">
         <Card className="bg-card shadow-sm p-8 md:p-12 border border-border/50 rounded-[2.5rem]">
-          <form id="post-form" onSubmit={handleSubmit} className="space-y-8">
+          <form id="form-post" onSubmit={handleSubmit} className="space-y-8">
             <FormInput
               label="Post Title"
               placeholder="e.g. Annual Technology Symposium 2026"
@@ -143,7 +143,7 @@ export function PostForm({
             </div>
             <Button
               type="submit"
-              form="post-form"
+              form="form-post"
               disabled={isSubmitting}
               className="gap-2 shadow-lg px-8 rounded-2xl w-full h-12 font-bold transition-all"
             >

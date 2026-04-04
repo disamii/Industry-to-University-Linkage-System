@@ -62,7 +62,11 @@ export default function IndustryProfilePage() {
           </CardHeader>
 
           <CardContent className="p-10">
-            <form onSubmit={handleSubmit} className="space-y-10">
+            <form
+              id="form-update-profile"
+              onSubmit={handleSubmit}
+              className="space-y-10"
+            >
               {/* Three-column grid on desktop */}
               <div className="gap-x-8 gap-y-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {/* 1. Company Name */}
@@ -184,6 +188,7 @@ export default function IndustryProfilePage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting || isSaved}
+                    form="form-update-profile"
                     className="flex-1 md:flex-none px-12 rounded-2xl h-14 font-bold uppercase tracking-widest transition-all"
                   >
                     {isSubmitting ? (

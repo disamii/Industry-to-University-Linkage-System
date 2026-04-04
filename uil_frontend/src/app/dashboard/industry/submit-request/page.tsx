@@ -61,7 +61,11 @@ export default function SubmitRequest() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form
+        id="form-create-request"
+        onSubmit={handleSubmit}
+        className="space-y-8"
+      >
         <Card className="bg-card shadow-sm p-2 md:p-6 border-border/50 rounded-[2.5rem]">
           <CardContent className="space-y-8 pt-6">
             {/* Title Section */}
@@ -191,6 +195,7 @@ export default function SubmitRequest() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
+                form="form-create-request"
                 className="shadow-lg shadow-primary/20 px-10 rounded-2xl w-full sm:w-auto h-12 font-bold transition-all"
               >
                 {isSubmitting ? (

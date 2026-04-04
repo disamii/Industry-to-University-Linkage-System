@@ -22,7 +22,11 @@ const ForgotPasswordForm = ({ onSent }: Props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      id="form-forgot-password"
+      onSubmit={handleSubmit}
+      className="space-y-6"
+    >
       <div className="space-y-2.5">
         <Label
           htmlFor="email"
@@ -41,6 +45,7 @@ const ForgotPasswordForm = ({ onSent }: Props) => {
 
       <Button
         type="submit"
+        form="form-forgot-password"
         className="hover:bg-primary/90 rounded-xl w-full h-12 font-bold text-xs uppercase tracking-widest transition-all"
         disabled={isLoading}
       >
