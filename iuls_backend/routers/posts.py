@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import crud, schemas, auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException  # add these if not yet created
-from models import  account_models
-from models import  core_models 
+from models import  *
 router = APIRouter(
     prefix="/posts",
     tags=["posts"],
@@ -19,7 +18,7 @@ def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_d
 def create_post(
     post: schemas.PostCreate,
     db: Session = Depends(auth.get_db),
-    current_user: account_models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")

@@ -169,5 +169,4 @@ class KPI(Base):
     completion_status = Column(String)
     staff_performance = Column(String)
     office_performance = Column(String)
-
     request = relationship("IndustryRequest", back_populates="kpis")

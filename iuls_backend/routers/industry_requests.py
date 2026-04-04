@@ -4,7 +4,7 @@ from typing import List
 import schemas, auth,crud
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 import enums
-from models import core_models  
+from models import *
 router = APIRouter(
     prefix="/industry-requests",
     tags=["industry-requests"],
@@ -22,8 +22,8 @@ def read_industry_requests(
         raise UnauthorizedException(detail="Authentication required")
     # Admins/staff see all requests; industry accounts only see their own
     if hasattr(current_user, 'account') and current_user.account.role == enums.UserRole.INDUSTRY:
-        return db.query(core_models.IndustryRequest).filter(
-            core_models.IndustryRequest.industry_id == current_user.id
+        return db.query( IndustryRequest).filter(
+             IndustryRequest.industry_id == current_user.id
         ).offset(skip).limit(limit).all()
     return crud.get_industry_requests(db, skip=skip, limit=limit)
 

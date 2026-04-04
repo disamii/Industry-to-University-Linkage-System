@@ -67,11 +67,11 @@ async def check_email(
     if account:
         name = None
         if account.role == enums.UserRole.INDUSTRY:
-            profile = db.query(core_models.Industry).filter(
-                core_models.Industry.account_id == account.id).first()
+            profile = db.query( Industry).filter(
+                 Industry.account_id == account.id).first()
             name = profile.name if profile else None
-        elif account.role in (core_models.UserRole.USER, core_models.UserRole.ADMIN):
-            profile = db.query(core_models.StaffProfile).filter(core_models.StaffProfile.account_id == account.id).first()
+        elif account.role in ( UserRole.USER,  UserRole.ADMIN):
+            profile = db.query( StaffProfile).filter( StaffProfile.account_id == account.id).first()
             if profile:
                 name = f"{profile.first_name} {profile.father_name}"
         return {

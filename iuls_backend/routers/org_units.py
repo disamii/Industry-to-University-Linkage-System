@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import crud
 import schemas
-from models import  account_models 
+from models import  *
 import auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 
@@ -23,7 +23,7 @@ def read_org_units(skip: int = 0, limit: int = 100, db: Session = Depends(auth.g
 def create_org_unit(
     unit: schemas.OrgUnitCreate,
     db: Session = Depends(auth.get_db),
-    current_user: account_models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
