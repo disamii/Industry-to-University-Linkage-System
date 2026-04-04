@@ -12,19 +12,37 @@ import {
 } from "@/validation/validation.auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { useCreateIndustryMutation } from "../../_hooks/useAuth";
 
 type Props = {
-  isSubmitting: boolean;
-  onBack: () => void;
-  onSubmit: (data: CreateIndustryInput) => void;
+  setStep: (step: number) => void;
 };
 
-const CreateIndustryForm = ({ isSubmitting, onBack, onSubmit }: Props) => {
+const CreateIndustryForm = ({ setStep }: Props) => {
+  const { mutate, isPending: isSubmitting } = useCreateIndustryMutation();
+
   const form = useForm<CreateIndustryInput>({
     resolver: zodResolver(createIndustrySchema),
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
+
+  const name = useWatch({
+    control: form.control,
+    name: "name",
+  });
+  const email = useWatch({
+    control: form.control,
+    name: "email",
+  });
+
+  const onSubmit = (data: CreateIndustryInput) =>
+    mutate(data, {
+      onSuccess: () => {
+        form.reset();
+        setStep(3);
+      },
+    });
 
   return (
     <div className="space-y-6">
@@ -130,8 +148,7 @@ const CreateIndustryForm = ({ isSubmitting, onBack, onSubmit }: Props) => {
       <div className="flex gap-3 pt-2">
         <Button
           variant="outline"
-          onClick={onBack}
-          // onClick={() => form.reset()}
+          onClick={() => setStep(1)}
           className="flex-1 rounded-xl h-12 font-bold text-xs"
         >
           Back
@@ -139,7 +156,7 @@ const CreateIndustryForm = ({ isSubmitting, onBack, onSubmit }: Props) => {
         <Button
           type="submit"
           form="form-create-industry"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !email || !name}
           className="flex-1 rounded-xl h-12 font-bold text-xs uppercase tracking-widest"
         >
           {isSubmitting ? (

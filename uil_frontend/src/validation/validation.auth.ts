@@ -20,3 +20,9 @@ export const createIndustrySchema = z
   });
 
 export type CreateIndustryInput = z.infer<typeof createIndustrySchema>;
+
+export const checkStaffEmailSchema = z.object({
+  email: z.string().email(),
+});
+
+export type CheckStaffEmailInput = z.infer<typeof checkStaffEmailSchema>;

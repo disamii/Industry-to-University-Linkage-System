@@ -12,4 +12,5 @@ export const LINKS = {
   terms: "/terms",
   signup: "/signup",
   signin: "/signin",
+  rpms: "http://10.161.65.18/auth?mode=signup",
 };

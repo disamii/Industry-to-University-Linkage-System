@@ -1,7 +1,14 @@
 import api, { safeApiRequest } from "@/lib/axios";
-import { SigninResponse } from "@/types/interfaces.auth";
+import {
+  CheckStaffEmailResponse,
+  SigninResponse,
+} from "@/types/interfaces.auth";
 import { Industry } from "@/types/interfaces.industry";
-import { CreateIndustryInput, SigninInput } from "@/validation/validation.auth";
+import {
+  CheckStaffEmailInput,
+  CreateIndustryInput,
+  SigninInput,
+} from "@/validation/validation.auth";
 
 export const signin = async (data: SigninInput) =>
   safeApiRequest(
@@ -22,6 +29,11 @@ export const createIndustry = async (
     }),
   );
 
-export const signupStaff = async () => {};
+export const checkStaffEmail = async (data: CheckStaffEmailInput) =>
+  safeApiRequest(
+    api.post<CheckStaffEmailResponse>("/auth/check-email", {
+      email: data.email,
+    }),
+  );
 
 export const forgotPassword = async () => {};
