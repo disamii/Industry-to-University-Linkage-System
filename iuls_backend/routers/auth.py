@@ -100,9 +100,9 @@ async def check_email(
             saved_user = crud.create_user_from_rpms(
                 db=db, rpms_user_data=rpms_data)
 
-            full_name = f"{saved_user.first_name, saved_user.father_name, saved_user.grand_father_name, ''}".strip()
+            full_name = f"{saved_user.first_name or ''} {saved_user.father_name or ''} {saved_user.grand_father_name or ''}".strip()
             return {
-                "exists": False,
+                "exists": True,
                 "email": rpms_user.get("email", request.email),
                 "name": full_name,
                 "role": "user"
