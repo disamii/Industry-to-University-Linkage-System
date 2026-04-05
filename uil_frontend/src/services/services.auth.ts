@@ -1,4 +1,5 @@
-import api, { safeApiRequest } from "@/lib/axios";
+import api from "@/lib/axios.server";
+import { safeApiRequest } from "@/lib/axios.utils";
 import {
   CheckStaffEmailResponse,
   SigninResponse,

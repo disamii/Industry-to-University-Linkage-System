@@ -1,7 +1,5 @@
-import api, { safeApiRequest } from "@/lib/axios";
+import api from "@/lib/axios.server";
+import { safeApiRequest } from "@/lib/axios.utils";
 import { User } from "@/types/interfaces.user";
-import { cache } from "react";
 
-export const getMe = cache(async () =>
-  safeApiRequest(api.get<User>("/users/me")),
-);
+export const getMe = async () => safeApiRequest(api.get<User>("/users/me"));

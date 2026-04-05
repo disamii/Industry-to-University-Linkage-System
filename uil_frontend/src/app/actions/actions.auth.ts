@@ -10,7 +10,7 @@ import { SigninInput } from "../../validation/validation.auth";
 
 export async function signinAction(data: SigninInput) {
   const response = await signin(data);
-  const { access_token } = response;
+  const { access_token, refresh_token } = response;
 
   const payload = decodeJwt(access_token);
   const role = payload.role as UserRole;
@@ -21,6 +21,14 @@ export async function signinAction(data: SigninInput) {
   cookieStore.set({
     name: "access_token",
     value: access_token,
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  cookieStore.set({
+    name: "refresh_token",
+    value: refresh_token,
     httpOnly: true,
     path: "/",
     sameSite: "lax",
@@ -49,7 +57,7 @@ export async function signinAction(data: SigninInput) {
 
   revalidatePath(targetPath);
 
-  return { user: userProfile, path: targetPath };
+  return { user: userProfile, access_token, refresh_token, path: targetPath };
 }
 
 export async function logoutAction() {
@@ -57,4 +65,5 @@ export async function logoutAction() {
 
   // Delete the cookie by setting an expired date
   cookieStore.delete("access_token");
+  cookieStore.delete("refresh_token");
 }

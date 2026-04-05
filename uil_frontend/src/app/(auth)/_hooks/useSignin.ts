@@ -38,10 +38,12 @@ export const useSignin = (onSuccess?: () => void) => {
 
       try {
         const result = await signinAction(validatedFields.data);
+
         if (result?.user) {
-          setUser(result.user);
+          setUser(result.access_token, result.refresh_token, result.user);
           onSuccess?.();
           router.push(result.path);
+
           return { message: "Success", error: null };
         }
         return { message: null, error: "Invalid credentials" };

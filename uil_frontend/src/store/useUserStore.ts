@@ -7,7 +7,13 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserState {
   user: User | null;
-  setUser: (user: User | null) => void;
+  access_token: string;
+  refresh_token: string;
+  setUser: (
+    access_token: string,
+    refresh_token: string,
+    user: User | null,
+  ) => void;
   clearUser: () => void;
 }
 
@@ -15,11 +21,13 @@ export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
       user: null,
-      setUser: (user) => set({ user }),
-      clearUser: () => {
-        set({ user: null });
-        localStorage.removeItem("user-storage");
-      },
+      access_token: "",
+      refresh_token: "",
+
+      setUser: (access_token, refresh_token, user) =>
+        set({ access_token, refresh_token, user }),
+
+      clearUser: () => set({ user: null, access_token: "", refresh_token: "" }),
     }),
     {
       name: "user-storage",

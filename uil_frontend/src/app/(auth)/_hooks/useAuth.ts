@@ -1,5 +1,3 @@
-"use client";
-
 import { appToast } from "@/lib/toast";
 import { checkStaffEmail, createIndustry } from "@/services/services.auth";
 import { useMutation } from "@tanstack/react-query";
