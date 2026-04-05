@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 import crud
-from models import  core_models 
+from models import  *
 import schemas
 import auth
 from exceptions import BadRequestException, NotFoundException
@@ -37,7 +37,7 @@ def register_industry(
 def update_profile(
     profile_update: schemas.IndustryProfileUpdate,
     db: Session = Depends(auth.get_db),
-    current_industry: core_models.Industry = Depends(auth.get_current_active_industry)
+    current_industry:  Industry = Depends(auth.get_current_active_industry)
 ):
     """
     Update the authenticated industry's profile.

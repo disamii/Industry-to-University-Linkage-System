@@ -4,7 +4,7 @@ from typing import List
 import crud,  schemas, auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException
 from models.account_models import StaffProfile
-from models import core_models 
+from models import *
 
 router = APIRouter(
     prefix="/assignments",
@@ -23,8 +23,8 @@ def read_my_assignments(
     """
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-    return db.query(core_models.Assignment).filter(
-        core_models.Assignment.staff_id == current_user.id
+    return db.query( Assignment).filter(
+         Assignment.staff_id == current_user.id
     ).offset(skip).limit(limit).all()
 
 

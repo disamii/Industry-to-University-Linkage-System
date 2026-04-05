@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 import crud,schemas, auth
-from models import account_models  
+from models import *
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 
 router = APIRouter(
@@ -22,7 +22,7 @@ def read_kpis(request_id: str, skip: int = 0, limit: int = 100, db: Session = De
 def create_kpi(
     kpi: schemas.KPICreate,
     db: Session = Depends(auth.get_db),
-    current_user: account_models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
@@ -48,7 +48,7 @@ def update_kpi(
     kpi_id: str,
     kpi_update: schemas.KPIUpdate,
     db: Session = Depends(auth.get_db),
-    current_user: account_models.StaffProfile = Depends(auth.get_current_active_user)
+    current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
