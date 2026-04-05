@@ -3,7 +3,8 @@ from typing import Optional
 from datetime import datetime
 from enums import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
-    QualificationCode, EmploymentTypeCode, AcademicTitle, UserRole
+    QualificationCode, EmploymentTypeCode, AcademicTitle, UserRole,
+    AssignmentStatus, RequestStatus, RequestPriority
 )
 
 
@@ -129,8 +130,17 @@ class IndustryRequestBase(BaseModel):
     title: str
     description: Optional[str] = None
     type: Optional[str] = None
-    status: Optional[str] = "PENDING"
-    priority: Optional[str] = "MEDIUM"
+    status: Optional[RequestStatus] = RequestStatus.PENDING
+    priority: Optional[RequestPriority] = RequestPriority.MEDIUM
+    budget_required: Optional[float] = None
+
+
+class IndustryRequestUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    type: Optional[str] = None
+    status: Optional[RequestStatus] = None
+    priority: Optional[RequestPriority] = None
     budget_required: Optional[float] = None
 
 
@@ -184,7 +194,7 @@ class PostType(PostTypeBase):
 
 
 class AssignmentBase(BaseModel):
-    status: Optional[str] = "PENDING"
+    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
     progress: Optional[str] = "0%"
 
 
@@ -195,7 +205,7 @@ class AssignmentCreate(AssignmentBase):
 
 
 class AssignmentUpdate(BaseModel):
-    status: Optional[str] = None
+    status: Optional[AssignmentStatus] = None
     progress: Optional[str] = None
     completed_at: Optional[datetime] = None
 
