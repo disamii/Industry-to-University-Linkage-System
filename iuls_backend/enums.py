@@ -145,3 +145,35 @@ class AuthorType(str, Enum):
             (cls.CO_AUTHOR.value, "Co-Author"),
             (cls.CORRESPONDING_AUTHOR.value, "Corresponding Author")
         ]
+
+class AssignmentStatus(str, Enum):
+    PENDING = "PENDING"
+    ASSIGNED = "ASSIGNED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+
+class RequestStatus(str, Enum):
+    PENDING = "PENDING"
+    IN_REVIEW = "IN_REVIEW"
+    ASSIGNED = "ASSIGNED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+
+class RequestPriority(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    
+from enum import Enum
+
+
+class RequestType(str, Enum):
+    TECHNICAL_SUPPORT = "technical_support"
+    RESEARCH_COLLABORATION = "research_collaboration"
+    WORKSHOP = "workshop"
+    SEMINAR = "seminar"
+    EMPLOYEE_TRAINING = "employee_training"
+    INTERNSHIP = "internship"
+    MAINTENANCE = "maintenance"   
+    OTHER="other"

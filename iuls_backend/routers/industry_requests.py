@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import schemas, auth,crud
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 import enums
@@ -15,17 +15,22 @@ router = APIRouter(
 def read_industry_requests(
     skip: int = 0,
     limit: int = 100,
+    industry_id: Optional[str] = Query(default=None),
     db: Session = Depends(auth.get_db),
     current_user=Depends(auth.get_current_active_user),
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-    # Admins/staff see all requests; industry accounts only see their own
+    
     if hasattr(current_user, 'account') and current_user.account.role == enums.UserRole.INDUSTRY:
-        return db.query( IndustryRequest).filter(
-             IndustryRequest.industry_id == current_user.id
+        return db.query(IndustryRequest).filter(
+            IndustryRequest.industry_id == current_user.id
         ).offset(skip).limit(limit).all()
-    return crud.get_industry_requests(db, skip=skip, limit=limit)
+
+    query = db.query(IndustryRequest)
+    if industry_id:
+        query = query.filter(IndustryRequest.industry_id == industry_id)
+    return query.offset(skip).limit(limit).all()
 
 
 @router.post("/", response_model=schemas.IndustryRequest)
@@ -37,11 +42,11 @@ def create_industry_request(
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
     try:
+        data = request.model_dump()
         return crud.create_industry_request(
             db=db,
             industry_id=current_user.id,
-            title=request.title,
-            **request.model_dump(exclude={"title"}),
+            **data
         )
     except Exception as e:
         raise BadRequestException(detail=str(e))
@@ -64,7 +69,7 @@ def read_industry_request(
 @router.patch("/{request_id}", response_model=schemas.IndustryRequest)
 def update_industry_request(
     request_id: str,
-    request_update: schemas.IndustryRequestBase,
+    request_update: schemas.IndustryRequestUpdate,
     db: Session = Depends(auth.get_db),
     current_user=Depends(auth.get_current_active_user),
 ):

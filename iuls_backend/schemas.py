@@ -3,7 +3,8 @@ from typing import Optional
 from datetime import datetime
 from enums import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
-    QualificationCode, EmploymentTypeCode, AcademicTitle, UserRole
+    QualificationCode, EmploymentTypeCode, AcademicTitle, RequestType, UserRole,
+    AssignmentStatus, RequestStatus, RequestPriority
 )
 
 
@@ -54,6 +55,7 @@ class User(UserBase):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
 
@@ -127,10 +129,19 @@ class OrgUnit(OrgUnitBase):
 
 class IndustryRequestBase(BaseModel):
     title: str
+    description: str = None
+    type: RequestType= RequestType.TECHNICAL_SUPPORT
+    status: RequestStatus = RequestStatus.PENDING
+    priority: RequestPriority = RequestPriority.MEDIUM
+    budget_required: Optional[float] = None
+
+
+class IndustryRequestUpdate(BaseModel):
+    title: Optional[str] = None
     description: Optional[str] = None
     type: Optional[str] = None
-    status: Optional[str] = "PENDING"
-    priority: Optional[str] = "MEDIUM"
+    status: Optional[RequestStatus] = None
+    priority: Optional[RequestPriority] = None
     budget_required: Optional[float] = None
 
 
@@ -184,7 +195,7 @@ class PostType(PostTypeBase):
 
 
 class AssignmentBase(BaseModel):
-    status: Optional[str] = "PENDING"
+    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
     progress: Optional[str] = "0%"
 
 
@@ -195,7 +206,7 @@ class AssignmentCreate(AssignmentBase):
 
 
 class AssignmentUpdate(BaseModel):
-    status: Optional[str] = None
+    status: Optional[AssignmentStatus] = None
     progress: Optional[str] = None
     completed_at: Optional[datetime] = None
 
