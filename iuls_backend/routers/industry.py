@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 import crud
-from models import  *
+from models import *
 import schemas
 import auth
 from exceptions import BadRequestException, NotFoundException
@@ -21,17 +21,19 @@ def register_industry(
     # Email uniqueness
     existing_industry = crud.get_industry_by_email(db, email=industry.email)
     if existing_industry:
-        raise BadRequestException(detail="Industry with this email already exists")
+        raise BadRequestException(
+            detail="Industry with this email already exists")
 
     # Name uniqueness
-    existing_name = crud.get_industry_by_name(db, name=industry.name)
-    if existing_name:
-        raise BadRequestException(detail="Industry with this name already exists")
+    # existing_name = crud.get_industry_by_name(db, name=industry.name)
+    # if existing_name:
+    #     raise BadRequestException(detail="Industry with this name already exists")
 
     try:
         return crud.create_industry_with_auth(db=db, industry=industry)
     except Exception as e:
-        raise BadRequestException(detail=f"Failed to create industry: {str(e)}")
+        raise BadRequestException(
+            detail=f"Failed to create industry: {str(e)}")
 
 
 @router.put("/me/profile", response_model=schemas.Industry)
@@ -43,12 +45,11 @@ def update_profile(
     """
     Update the authenticated industry's profile.
     """
-    updated_industry = crud.update_industry_profile(db, current_industry.id, profile_update)
+    updated_industry = crud.update_industry_profile(
+        db, current_industry.id, profile_update)
     if not updated_industry:
         raise NotFoundException(detail="Industry not found")
     return updated_industry
-
-
 
 
 @router.get("/", response_model=List[schemas.Industry])
@@ -63,5 +64,3 @@ def read_industry(industry_id: str, db: Session = Depends(auth.get_db)):
     if not db_industry:
         raise NotFoundException(detail="Industry not found")
     return db_industry
-
-

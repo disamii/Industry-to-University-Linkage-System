@@ -130,7 +130,7 @@ class OrgUnit(OrgUnitBase):
 class IndustryRequestBase(BaseModel):
     title: str
     description: str = None
-    type: RequestType= RequestType.TECHNICAL_SUPPORT
+    type: RequestType = RequestType.TECHNICAL_SUPPORT
     status: RequestStatus = RequestStatus.PENDING
     priority: RequestPriority = RequestPriority.MEDIUM
     budget_required: Optional[float] = None

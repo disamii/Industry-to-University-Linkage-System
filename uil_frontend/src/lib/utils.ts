@@ -22,3 +22,12 @@ export const getAdminHomepageLink = (role: UserRole) => {
 
   return targetPath;
 };
+
+export const formatSelectOptions = (options: string[]) =>
+  options.map((opt) => ({
+    label: opt
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (l) => l.toUpperCase()),
+    value: opt,
+  }));

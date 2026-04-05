@@ -1,42 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Send, X, CheckCircle2, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   FormInput,
-  FormTextarea,
-  FormFileUpload,
-} from "@/components/dashboard/form-components";
+  FormSelect,
+  FormTextArea,
+} from "@/components/dashboard/form-components-modified";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry_request-create-mutation";
+import {
+  RequestPriority,
+  requestPriorityOptions,
+  RequestStatus,
+  RequestType,
+  requestTypeOptions,
+} from "@/lib/enums";
+import { formatSelectOptions } from "@/lib/utils";
+import {
+  IndustryRequestCreateInput,
+  industryRequestCreateSchema,
+} from "@/validation/validation.industry_requests";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Send } from "lucide-react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
 
 export default function SubmitRequest() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    type: "",
-    priority: "",
-    budget: "",
-    description: "",
+  const form = useForm<IndustryRequestCreateInput>({
+    resolver: zodResolver(industryRequestCreateSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      type: RequestType.WORKSHOP,
+      status: RequestStatus.PENDING,
+      priority: RequestPriority.MEDIUM,
+      budget_required: 0,
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    router.push("/dashboard/industry/requests");
+  const { mutate, isPending: isSubmitting } =
+    useIndustryRequestCreateMutation();
+
+  const onSubmit = async (data: IndustryRequestCreateInput) => {
+    console.log(data);
+    mutate(data, {
+      onSuccess: () => {
+        form.reset();
+      },
+    });
   };
 
   return (
@@ -61,165 +72,92 @@ export default function SubmitRequest() {
         </p>
       </div>
 
-      <form
-        id="form-create-request"
-        onSubmit={handleSubmit}
-        className="space-y-8"
-      >
-        <Card className="bg-card shadow-sm p-2 md:p-6 border-border/50 rounded-[2.5rem]">
-          <CardContent className="space-y-8 pt-6">
-            {/* Title Section */}
-            <FormInput
-              label="Request Title"
-              placeholder="e.g., AI-Powered Quality Control System"
-              required
-              value={formData.title}
-              onChange={(e: any) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-            />
+      <div>
+        <form
+          id="form-create-request"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8"
+        >
+          <Card className="bg-card shadow-sm p-2 md:p-6 border-border/50 rounded-[2.5rem]">
+            <CardContent className="space-y-8 pt-6">
+              {/* Title - Input Text */}
+              <FormInput
+                form={form}
+                name="title"
+                label="Project Title"
+                placeholder="Enter a descriptive title"
+                type="text"
+              />
 
-            {/* Grid for Selects */}
-            <div className="gap-6 grid grid-cols-1 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="ml-1 font-bold text-foreground text-sm tracking-tight">
-                  Request Type <span className="text-destructive">*</span>
-                </label>
-                <Select
-                  onValueChange={(v) => setFormData({ ...formData, type: v })}
-                >
-                  <SelectTrigger className="bg-background border-border/60 rounded-2xl focus:ring-primary/20 h-12">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="shadow-xl border-border/60 rounded-2xl">
-                    <SelectItem value="technical-support">
-                      Technical Support
-                    </SelectItem>
-                    <SelectItem value="research-collaboration">
-                      Research Collaboration
-                    </SelectItem>
-                    <SelectItem value="training">
-                      Training & Development
-                    </SelectItem>
-                    <SelectItem value="consulting">
-                      Consulting Services
-                    </SelectItem>
-                    <SelectItem value="testing">Testing & Analysis</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Description - Text Area */}
+              <FormTextArea
+                form={form}
+                name="description"
+                label="Description"
+                placeholder="Provide more details about the request..."
+                desc="Briefly explain the scope of work."
+              />
+
+              <div className="gap-6 grid grid-cols-1 md:grid-cols-2">
+                {/* Type - Select */}
+                <FormSelect
+                  form={form}
+                  name="type"
+                  label="Request Type"
+                  placeholder="Select type"
+                  options={formatSelectOptions(requestTypeOptions)}
+                />
+
+                {/* Priority - Select */}
+                <FormSelect
+                  form={form}
+                  name="priority"
+                  label="Priority Level"
+                  placeholder="Select priority"
+                  options={formatSelectOptions(requestPriorityOptions)}
+                />
+
+                {/* Budget Required - Input Number */}
+                <FormInput
+                  form={form}
+                  name="budget_required"
+                  label="Budget Required"
+                  placeholder="0.00"
+                  type="number"
+                />
               </div>
+            </CardContent>
+          </Card>
+        </form>
 
-              <div className="space-y-2">
-                <label className="ml-1 font-bold text-foreground text-sm tracking-tight">
-                  Priority <span className="text-destructive">*</span>
-                </label>
-                <Select
-                  onValueChange={(v) =>
-                    setFormData({ ...formData, priority: v })
-                  }
-                >
-                  <SelectTrigger className="bg-background border-border/60 rounded-2xl focus:ring-primary/20 h-12">
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent className="shadow-xl border-border/60 rounded-2xl">
-                    <SelectItem value="low">Low Priority</SelectItem>
-                    <SelectItem value="medium">Medium Priority</SelectItem>
-                    <SelectItem value="high">High Priority</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Budget Input */}
-            <FormInput
-              label="Estimated Budget (USD)"
-              type="number"
-              placeholder="e.g. 50000"
-              value={formData.budget}
-              onChange={(e: any) =>
-                setFormData({ ...formData, budget: e.target.value })
-              }
-              helperText="Optional: Provide a rough estimate for financial planning."
-            />
-
-            {/* Description Textarea */}
-            <FormTextarea
-              label="Detailed Description"
-              placeholder="Describe project goals, expected outcomes, and specific technical requirements..."
-              required
-              value={formData.description}
-              onChange={(e: any) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-            />
-
-            {/* File Upload */}
-            <FormFileUpload
-              label="Attachments & Briefings"
-              accept=".pdf,.doc,.docx"
-            />
-
-            {/* Next Steps Info Box */}
-            <div className="bg-primary/[0.03] p-6 md:p-8 border border-primary/10 rounded-[2rem]">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-primary/10 p-2 rounded-xl text-primary">
-                  <Info size={18} />
-                </div>
-                <h3 className="font-bold text-foreground">
-                  What happens next?
-                </h3>
-              </div>
-              <ul className="gap-4 grid grid-cols-1 md:grid-cols-2">
-                {[
-                  "Review by Linkage Office (2-3 days)",
-                  "Matching with university experts",
-                  "Status updates via email/dashboard",
-                  "Direct messaging with assigned team",
-                ].map((step, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-muted-foreground text-sm"
-                  >
-                    <CheckCircle2
-                      size={16}
-                      className="mt-0.5 text-primary shrink-0"
-                    />
-                    {step}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex sm:flex-row flex-col items-center gap-4 pt-4 border-border/40 border-t">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                form="form-create-request"
-                className="shadow-lg shadow-primary/20 px-10 rounded-2xl w-full sm:w-auto h-12 font-bold transition-all"
-              >
-                {isSubmitting ? (
-                  "Submitting..."
-                ) : (
-                  <>
-                    <Send className="mr-2 w-4 h-4" />
-                    Submit Request
-                  </>
-                )}
-              </Button>
-              <Link href="/dashboard/industry" className="w-full sm:w-auto">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="hover:bg-accent px-10 rounded-2xl w-full sm:w-auto h-12 font-bold text-muted-foreground"
-                >
-                  Cancel
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </form>
+        {/* Form Actions */}
+        <div className="flex sm:flex-row flex-col items-center gap-4 pt-4 border-border/40 border-t">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            form="form-create-request"
+            className="shadow-lg shadow-primary/20 px-10 rounded-2xl w-full sm:w-auto h-12 font-bold transition-all"
+          >
+            {isSubmitting ? (
+              "Submitting..."
+            ) : (
+              <>
+                <Send className="mr-2 w-4 h-4" />
+                Submit Request
+              </>
+            )}
+          </Button>
+          <Link href="/dashboard/industry" className="w-full sm:w-auto">
+            <Button
+              variant="ghost"
+              type="button"
+              className="hover:bg-accent px-10 rounded-2xl w-full sm:w-auto h-12 font-bold text-muted-foreground"
+            >
+              Cancel
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,13 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
-import crud,auth,schemas,enums
+import crud
+import auth
+import schemas
+import enums
 from config import settings
 from rpms_service import get_user_from_rpms, process_academic_unit
-from exceptions import  NotFoundException, UnauthorizedException, ValidationException
+from exceptions import NotFoundException, UnauthorizedException, ValidationException
 from pydantic import BaseModel, EmailStr
-from  models import Industry,StaffProfile
-from enums import  UserRole
+from models import Industry, StaffProfile
+from enums import UserRole
 router = APIRouter(
     prefix="/auth",
     tags=["authentication"],
@@ -41,7 +44,8 @@ async def login(
             raise UnauthorizedException(detail="Invalid credentials")
 
     # Password verified - generate tokens
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token_expires = timedelta(
+        minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
         data={"sub": account.email, "role": account.role.value}, expires_delta=access_token_expires
     )
@@ -69,11 +73,12 @@ async def check_email(
     if account:
         name = None
         if account.role == enums.UserRole.INDUSTRY:
-            profile = db.query( Industry).filter(
-                 Industry.account_id == account.id).first()
+            profile = db.query(Industry).filter(
+                Industry.account_id == account.id).first()
             name = profile.name if profile else None
-        elif account.role in ( UserRole.USER,  UserRole.ADMIN):
-            profile = db.query( StaffProfile).filter( StaffProfile.account_id == account.id).first()
+        elif account.role in (UserRole.USER,  UserRole.ADMIN):
+            profile = db.query(StaffProfile).filter(
+                StaffProfile.account_id == account.id).first()
             if profile:
                 name = f"{profile.first_name} {profile.father_name}"
         return {
@@ -118,6 +123,7 @@ async def check_email(
 class RefreshRequest(BaseModel):
     refresh_token: str
 
+
 @router.post("/refresh", response_model=schemas.Token)
 async def refresh_token(
     request: RefreshRequest,
@@ -125,9 +131,11 @@ async def refresh_token(
 ):
     """Exchange a refresh token for a new access + refresh token pair."""
     from jose import JWTError, jwt
-    credentials_exception = UnauthorizedException(detail="Invalid refresh token")
+    credentials_exception = UnauthorizedException(
+        detail="Invalid refresh token")
     try:
-        payload = jwt.decode(request.refresh_token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = jwt.decode(request.refresh_token, settings.secret_key, algorithms=[
+                             settings.algorithm])
         if payload.get("type") != "refresh":
             raise credentials_exception
         email: str = payload.get("sub")
