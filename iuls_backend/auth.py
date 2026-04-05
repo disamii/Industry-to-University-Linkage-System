@@ -29,6 +29,8 @@ def create_refresh_token(data: dict):
     to_encode.update({"exp": expire, "type": "refresh"})
     return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
+
+
 def get_db():
     db = SessionLocal()
     try:

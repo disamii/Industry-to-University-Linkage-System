@@ -164,3 +164,16 @@ class RequestPriority(str, Enum):
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
+    
+from enum import Enum
+
+
+class RequestType(str, Enum):
+    TECHNICAL_SUPPORT = "technical_support"
+    RESEARCH_COLLABORATION = "research_collaboration"
+    WORKSHOP = "workshop"
+    SEMINAR = "seminar"
+    EMPLOYEE_TRAINING = "employee_training"
+    INTERNSHIP = "internship"
+    MAINTENANCE = "maintenance"   
+    OTHER="other"

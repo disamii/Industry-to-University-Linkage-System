@@ -21,14 +21,12 @@ def read_industry_requests(
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-
-    # Industry accounts only see their own
+    
     if hasattr(current_user, 'account') and current_user.account.role == enums.UserRole.INDUSTRY:
         return db.query(IndustryRequest).filter(
             IndustryRequest.industry_id == current_user.id
         ).offset(skip).limit(limit).all()
 
-    # Admins/staff: filter by industry_id if provided, else return all
     query = db.query(IndustryRequest)
     if industry_id:
         query = query.filter(IndustryRequest.industry_id == industry_id)
@@ -44,11 +42,11 @@ def create_industry_request(
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
     try:
+        data = request.model_dump()
         return crud.create_industry_request(
             db=db,
             industry_id=current_user.id,
-            title=request.title,
-            **request.model_dump(exclude={"title"}),
+            **data
         )
     except Exception as e:
         raise BadRequestException(detail=str(e))

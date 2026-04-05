@@ -1,17 +1,18 @@
+from email.policy import default
+
 from sqlalchemy import Column, String, Integer, DateTime, Numeric, Date, ForeignKey, Text, Boolean, Enum as SQLEnum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from db import Base
 
 from models.account_models import *
-from enums import UserRole
-
+from enums import RequestPriority,RequestStatus, RequestType
 
 class IndustryLinkageOffice(Base):
     __tablename__ = "industry_linkage_office"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String, nullable=False)
+    name = Column(String, unique=True, nullable=False)
     email = Column(String)
     phone = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -25,11 +26,11 @@ class IndustryRequest(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     industry_id = Column(String, ForeignKey("industry.id"))
     title = Column(String, nullable=False)
-    description = Column(Text)
-    type = Column(String)
-    status = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    type = Column(String ,nullable=False,default=RequestType.TECHNICAL_SUPPORT)
+    status = Column(String, nullable=False,default=RequestStatus.PENDING)
     submitted_at = Column(DateTime(timezone=True))
-    priority = Column(String)
+    priority = Column(String,default=RequestPriority.HIGH)
     budget_required = Column(Numeric)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

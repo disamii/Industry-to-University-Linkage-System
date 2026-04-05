@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from typing import Optional
 import crud,auth,schemas,enums
 from config import settings
 from rpms_service import get_user_from_rpms, process_academic_unit
-from exceptions import BadRequestException, InternalServerErrorException, NotFoundException, UnauthorizedException, ValidationException
+from exceptions import  NotFoundException, UnauthorizedException, ValidationException
 from pydantic import BaseModel, EmailStr
-from models import *
+from  models import Industry,StaffProfile
+from enums import  UserRole
 router = APIRouter(
     prefix="/auth",
     tags=["authentication"],

@@ -18,15 +18,16 @@ def register_industry(
     industry: schemas.IndustryCreate,
     db: Session = Depends(auth.get_db)
 ):
-    """
-    Industry registration endpoint.
-    Creates a new industry account with authentication.
-    """
-    # Check if industry with this email already exists
+    # Email uniqueness
     existing_industry = crud.get_industry_by_email(db, email=industry.email)
     if existing_industry:
         raise BadRequestException(detail="Industry with this email already exists")
-    
+
+    # Name uniqueness
+    existing_name = crud.get_industry_by_name(db, name=industry.name)
+    if existing_name:
+        raise BadRequestException(detail="Industry with this name already exists")
+
     try:
         return crud.create_industry_with_auth(db=db, industry=industry)
     except Exception as e:

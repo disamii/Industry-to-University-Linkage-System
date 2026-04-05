@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 from enums import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
-    QualificationCode, EmploymentTypeCode, AcademicTitle, UserRole,
+    QualificationCode, EmploymentTypeCode, AcademicTitle, RequestType, UserRole,
     AssignmentStatus, RequestStatus, RequestPriority
 )
 
@@ -129,10 +129,10 @@ class OrgUnit(OrgUnitBase):
 
 class IndustryRequestBase(BaseModel):
     title: str
-    description: Optional[str] = None
-    type: Optional[str] = None
-    status: Optional[RequestStatus] = RequestStatus.PENDING
-    priority: Optional[RequestPriority] = RequestPriority.MEDIUM
+    description: str = None
+    type: RequestType= RequestType.TECHNICAL_SUPPORT
+    status: RequestStatus = RequestStatus.PENDING
+    priority: RequestPriority = RequestPriority.MEDIUM
     budget_required: Optional[float] = None
 
 
