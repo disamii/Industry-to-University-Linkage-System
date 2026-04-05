@@ -40,14 +40,16 @@ async def login(
         if not crud.verify_password(password, account.password):
             raise UnauthorizedException(detail="Invalid credentials")
 
-    # Password verified - generate token
-    access_token_expires = timedelta(
-        minutes=settings.access_token_expire_minutes)
+    # Password verified - generate tokens
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
         data={"sub": account.email, "role": account.role.value}, expires_delta=access_token_expires
     )
+    refresh_token = auth.create_refresh_token(
+        data={"sub": account.email, "role": account.role.value}
+    )
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
 class CheckEmailRequest(BaseModel):
@@ -111,3 +113,38 @@ async def check_email(
             print(e)
             return {e}
     return {"exists": False}
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+@router.post("/refresh", response_model=schemas.Token)
+async def refresh_token(
+    request: RefreshRequest,
+    db: Session = Depends(auth.get_db)
+):
+    """Exchange a refresh token for a new access + refresh token pair."""
+    from jose import JWTError, jwt
+    credentials_exception = UnauthorizedException(detail="Invalid refresh token")
+    try:
+        payload = jwt.decode(request.refresh_token, settings.secret_key, algorithms=[settings.algorithm])
+        if payload.get("type") != "refresh":
+            raise credentials_exception
+        email: str = payload.get("sub")
+        if not email:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    account = crud.get_account_by_email(db, email=email)
+    if not account:
+        raise credentials_exception
+
+    access_token = auth.create_access_token(
+        data={"sub": account.email, "role": account.role.value},
+        expires_delta=timedelta(minutes=settings.access_token_expire_minutes)
+    )
+    new_refresh_token = auth.create_refresh_token(
+        data={"sub": account.email, "role": account.role.value}
+    )
+    return {"access_token": access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
