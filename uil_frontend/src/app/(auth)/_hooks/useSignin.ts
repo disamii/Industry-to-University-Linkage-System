@@ -14,7 +14,7 @@ export type ActionState = {
 };
 
 export const useSignin = (onSuccess?: () => void) => {
-  const setUser = useUserStore((state) => state.setUser);
+  const { setUser } = useUserStore();
   const router = useRouter();
 
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(
@@ -40,7 +40,7 @@ export const useSignin = (onSuccess?: () => void) => {
         const result = await signinAction(validatedFields.data);
 
         if (result?.user) {
-          setUser(result.access_token, result.refresh_token, result.user);
+          setUser(result.user);
           onSuccess?.();
           router.push(result.path);
 

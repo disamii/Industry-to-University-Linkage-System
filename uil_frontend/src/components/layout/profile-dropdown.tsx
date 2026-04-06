@@ -25,7 +25,7 @@ const authLinks = [
 
 const ProfileDropdown = () => {
   const pathname = usePathname();
-  const user = useUserStore((state) => state.user);
+  const { user } = useUserStore();
   const hasHydrated = useHasHydrated();
 
   const isDashboard = pathname.startsWith("/dashboard");

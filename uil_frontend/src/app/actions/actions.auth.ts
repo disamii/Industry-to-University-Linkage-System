@@ -57,7 +57,7 @@ export async function signinAction(data: SigninInput) {
 
   revalidatePath(targetPath);
 
-  return { user: userProfile, access_token, refresh_token, path: targetPath };
+  return { user: userProfile, path: targetPath };
 }
 
 export async function logoutAction() {
