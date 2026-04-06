@@ -13,7 +13,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         {/* Content area with responsive padding */}
         <main className="flex-1 p-4 md:p-8 pt-2 animate-in duration-500 fade-in">
-          <div className="mx-auto max-w-7xl">{children}</div>
+          <div className="mx-auto max-w-7xl">
+            {" "}
+            <div className="space-y-8 pb-10">{children}</div>
+          </div>
         </main>
       </div>
     </div>

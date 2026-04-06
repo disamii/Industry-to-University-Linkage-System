@@ -1,7 +1,10 @@
 "use client";
 
-import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
-import { PriorityBadge, StatusBadge } from "@/components/dashboard/badges";
+import { ActivityTimeline } from "@/components/dashboard/reusable/activity-timeline";
+import {
+  PriorityBadge,
+  StatusBadge,
+} from "@/components/dashboard/reusable/badges";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

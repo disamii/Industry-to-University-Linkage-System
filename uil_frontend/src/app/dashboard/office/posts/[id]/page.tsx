@@ -1,9 +1,12 @@
 "use client";
 
-import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
+import { ActivityTimeline } from "@/components/dashboard/reusable/activity-timeline";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PriorityBadge, StatusBadge } from "@/components/dashboard/badges";
+import {
+  PriorityBadge,
+  StatusBadge,
+} from "@/components/dashboard/reusable/badges";
 import {
   ArrowLeft,
   ChevronRight,

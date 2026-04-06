@@ -2,9 +2,9 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { UserRole } from "./enums";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { format, formatDistanceToNow, isValid, parseISO } from "date-fns";
+
+export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 export const getAdminRole = (pathname: string) => {
   if (pathname.startsWith("/dashboard/office")) return "office";
@@ -31,3 +31,28 @@ export const formatSelectOptions = (options: string[]) =>
       .replace(/\b\w/g, (l) => l.toUpperCase()),
     value: opt,
   }));
+
+export function formatDate(
+  date: string | Date | null | undefined,
+  options?: { relative?: boolean; includeTime?: boolean },
+) {
+  if (!date) return "-";
+
+  // parse string to Date if necessary
+  const parsedDate = typeof date === "string" ? parseISO(date) : date;
+
+  if (!isValid(parsedDate)) return "-";
+
+  // if relative is true and date is within last 7 days, use "x days ago"
+  if (options?.relative) {
+    const diff = Date.now() - parsedDate.getTime();
+    const diffDays = diff / (1000 * 60 * 60 * 24);
+
+    if (diffDays <= 7) {
+      return formatDistanceToNow(parsedDate, { addSuffix: true });
+    }
+  }
+
+  // fallback: normal readable format
+  return format(parsedDate, options?.includeTime ? "PPP p" : "PPP"); // e.g., Apr 5, 2026 10:27 PM
+}

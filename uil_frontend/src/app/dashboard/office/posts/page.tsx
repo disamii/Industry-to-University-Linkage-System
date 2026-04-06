@@ -24,8 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/dashboard/data-table";
-import { StatusBadge, PriorityBadge } from "@/components/dashboard/badges";
+import { DataTable } from "@/components/dashboard/reusable/data-table";
+import {
+  StatusBadge,
+  PriorityBadge,
+} from "@/components/dashboard/reusable/badges";
 
 export default function PostsManagement() {
   const posts = [

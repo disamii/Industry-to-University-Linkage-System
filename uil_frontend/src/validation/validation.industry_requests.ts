@@ -4,11 +4,11 @@ import { z } from "zod";
 // --- Base Schema ---
 export const industryRequestBaseSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().nullish(),
-  type: z.nativeEnum(RequestType).default(RequestType.WORKSHOP),
-  status: z.nativeEnum(RequestStatus).default(RequestStatus.PENDING),
-  priority: z.nativeEnum(RequestPriority).default(RequestPriority.MEDIUM),
-  budget_required: z.coerce.number().nullish(),
+  description: z.string().optional().or(z.literal("")),
+  type: z.nativeEnum(RequestType),
+  status: z.nativeEnum(RequestStatus),
+  priority: z.nativeEnum(RequestPriority),
+  budget_required: z.coerce.number().optional(),
 });
 
 // --- Create Schema ---

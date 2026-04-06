@@ -1,5 +1,14 @@
 import { cn } from "@/lib/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader } from "../../ui/card";
+
+type Props = {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  trend?: { value: string; isPositive: boolean };
+  color?: string;
+};
 
 export function StatCard({
   title,
@@ -7,19 +16,20 @@ export function StatCard({
   icon: Icon,
   trend,
   color = "bg-primary",
-}: any) {
+}: Props) {
   return (
-    <div className="group bg-card shadow-sm hover:shadow-md p-6 border border-border/50 rounded-[2rem] transition-all">
-      <div className="flex justify-between items-start mb-4">
+    <Card className="group bg-card shadow-sm hover:shadow-md md:p-6 px-2 border border-border/50 rounded-[2rem] transition-all">
+      <CardHeader className="flex justify-between items-start mb-4">
         <div
           className={cn(
-            "p-3 rounded-2xl group-hover:scale-110 transition-transform duration-300",
+            "py-3 rounded-2xl group-hover:scale-110 transition-transform duration-300",
             color,
             "bg-opacity-10",
           )}
         >
           <Icon className={cn("w-6 h-6", color.replace("bg-", "text-"))} />
         </div>
+
         {trend && (
           <div
             className={cn(
@@ -37,15 +47,16 @@ export function StatCard({
             {trend.value}
           </div>
         )}
-      </div>
-      <div className="space-y-1">
+      </CardHeader>
+
+      <CardContent className="space-y-1">
         <h3 className="font-bold text-foreground text-3xl tracking-tight">
           {value}
         </h3>
         <p className="font-bold text-muted-foreground text-xs uppercase tracking-widest">
           {title}
         </p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

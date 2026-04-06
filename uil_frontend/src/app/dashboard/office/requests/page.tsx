@@ -12,8 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DataTable } from "@/components/dashboard/data-table";
-import { PriorityBadge, StatusBadge } from "@/components/dashboard/badges";
+import { DataTable } from "@/components/dashboard/reusable/data-table";
+import {
+  PriorityBadge,
+  StatusBadge,
+} from "@/components/dashboard/reusable/badges";
 
 export default function AdminRequestsManagement() {
   const router = useRouter();

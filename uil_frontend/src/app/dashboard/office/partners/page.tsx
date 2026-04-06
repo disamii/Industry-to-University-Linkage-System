@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/dashboard/data-table";
+import { DataTable } from "@/components/dashboard/reusable/data-table";
 import { Badge } from "@/components/ui/badge";
 
 export default function IndustriesManagement() {

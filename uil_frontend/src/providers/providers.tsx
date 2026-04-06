@@ -4,8 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "../data/query-client";
 import { ThemeProvider } from "./theme-provider";
-import { Toaster } from "./ui/sonner";
-import { TooltipProvider } from "./ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 type Props = {
   children: React.ReactNode;

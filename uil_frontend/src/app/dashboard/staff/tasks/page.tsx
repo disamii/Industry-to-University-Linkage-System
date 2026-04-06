@@ -21,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StatusBadge, PriorityBadge } from "@/components/dashboard/badges";
+import {
+  StatusBadge,
+  PriorityBadge,
+} from "@/components/dashboard/reusable/badges";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function MyTasksPage() {

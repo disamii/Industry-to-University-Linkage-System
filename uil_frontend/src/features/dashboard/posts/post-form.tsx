@@ -11,7 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormInput, FormTextarea, FormFileUpload } from "../form-components";
+import {
+  FormInput,
+  FormTextarea,
+  FormFileUpload,
+} from "../../../components/dashboard/forms/form-components";
 
 interface PostFormProps {
   initialData?: {

@@ -4,7 +4,7 @@ import { Bell } from "lucide-react";
 const NotificationBtn = () => {
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
       className="relative bg-white dark:bg-slate-900 shadow-sm border-border/40 rounded-xl w-10 h-10"
     >

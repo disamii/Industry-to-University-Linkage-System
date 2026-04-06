@@ -22,8 +22,11 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { StatusBadge, PriorityBadge } from "@/components/dashboard/badges";
+import { StatCard } from "@/components/dashboard/reusable/stat-card";
+import {
+  StatusBadge,
+  PriorityBadge,
+} from "@/components/dashboard/reusable/badges";
 
 export default function StaffDashboard() {
   const myTasks = [

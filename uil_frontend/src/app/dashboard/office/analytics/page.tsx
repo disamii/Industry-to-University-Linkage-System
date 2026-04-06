@@ -1,6 +1,6 @@
 "use client";
 
-import { StatCard } from "@/components/dashboard/stat-card";
+import { StatCard } from "@/components/dashboard/reusable/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

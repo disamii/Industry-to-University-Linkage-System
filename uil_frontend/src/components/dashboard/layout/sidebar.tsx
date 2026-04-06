@@ -66,7 +66,7 @@ const ROUTES = {
         label: "My Requests",
       },
       {
-        href: "/dashboard/industry/submit-request",
+        href: "/dashboard/industry/requests/create",
         icon: Send,
         label: "Submit Request",
       },
@@ -119,7 +119,7 @@ export const SidebarContent = ({
               className={cn(
                 "group flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20"
+                  ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground",
               )}
               {...externalProps}

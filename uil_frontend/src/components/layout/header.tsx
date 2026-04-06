@@ -1,7 +1,7 @@
 "use client";
 
 import Logo from "../reusable/logo";
-import { ThemeToggle } from "../theme-toggle";
+import { ThemeToggle } from "../reusable/theme-toggle";
 import ProfileDropdown from "./profile-dropdown";
 
 export function Header() {

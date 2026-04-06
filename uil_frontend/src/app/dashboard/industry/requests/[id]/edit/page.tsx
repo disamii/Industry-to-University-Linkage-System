@@ -1,0 +1,28 @@
+import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
+import { getIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-mutation";
+import CreateEditIndustryRequestsForm from "@/features/dashboard/industry_requests/create-edit-industry_requests-form";
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+const EditIndustryRequestsPage = async ({ params }: Props) => {
+  const { id } = await params;
+  const requestToEdit = await getIndustryRequestDetail(id);
+
+  return (
+    <div className="space-y-8 mx-auto">
+      <AdminHeaderTitle
+        title="Edit Your Request"
+        backLink={{
+          linkLabel: "Back to Requests",
+          href: "/dashboard/industry/requests",
+        }}
+      />
+
+      <CreateEditIndustryRequestsForm />
+    </div>
+  );
+};
+
+export default EditIndustryRequestsPage;

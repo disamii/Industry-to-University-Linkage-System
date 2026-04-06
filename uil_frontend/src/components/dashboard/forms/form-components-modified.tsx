@@ -5,16 +5,16 @@ import {
   FieldDescription,
   FieldError,
   FieldLabel,
-} from "../ui/field";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
 
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
@@ -47,6 +47,7 @@ export const FormInput = <T extends FieldValues>({
             type={type}
             placeholder={placeholder}
             aria-invalid={fieldState.invalid}
+            className="py-5"
           />
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
@@ -121,7 +122,7 @@ export const FormSelect = <T extends FieldValues>({
           <SelectTrigger
             id={field.name}
             aria-invalid={fieldState.invalid}
-            className="min-w-30"
+            className="py-5 min-w-30"
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

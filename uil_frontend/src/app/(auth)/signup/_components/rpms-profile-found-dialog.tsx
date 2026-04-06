@@ -1,6 +1,6 @@
 "use client";
 
-import SubmitButton from "@/components/reusable/submit-button";
+import SubmitButton from "@/components/dashboard/forms/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
