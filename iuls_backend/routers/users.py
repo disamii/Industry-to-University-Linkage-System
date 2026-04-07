@@ -3,11 +3,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from exceptions import BadRequestException, InternalServerErrorException, UnauthorizedException
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from typing import List
-import crud
+from typing import List 
+import crud, schemas, auth
 from  models import *
-import schemas
-import auth
 from config import settings
 from rpms_service import get_user_from_rpms
 

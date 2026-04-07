@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud,schemas, auth
+import crud,schemas, auth,db
 from models import *
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 
@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 @router.get("/request/{request_id}", response_model=List[schemas.KPI])
-def read_kpis(request_id: str, skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
+def read_kpis(request_id: str, skip: int = 0, limit: int = 100, db: Session = Depends(db.get_db)):
     """
     Get all KPIs for a specific industry request
     """
@@ -21,7 +21,7 @@ def read_kpis(request_id: str, skip: int = 0, limit: int = 100, db: Session = De
 @router.post("/", response_model=schemas.KPI)
 def create_kpi(
     kpi: schemas.KPICreate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
@@ -37,7 +37,7 @@ def create_kpi(
         raise BadRequestException(detail=str(e))
 
 @router.get("/{kpi_id}", response_model=schemas.KPI)
-def read_kpi(kpi_id: str, db: Session = Depends(auth.get_db)):
+def read_kpi(kpi_id: str, db: Session = Depends(db.get_db)):
     db_kpi = crud.get_kpi(db, kpi_id=kpi_id)
     if not db_kpi:
         raise NotFoundException(detail="KPI not found")
@@ -47,7 +47,7 @@ def read_kpi(kpi_id: str, db: Session = Depends(auth.get_db)):
 def update_kpi(
     kpi_id: str,
     kpi_update: schemas.KPIUpdate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:

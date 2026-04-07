@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud,  schemas, auth
+import crud,  schemas, auth,db
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException
 from models.account_models import StaffProfile
 from models import *
@@ -42,7 +42,7 @@ def read_assignments(
 @router.post("/", response_model=schemas.Assignment)
 def create_assignment(
     assignment: schemas.AssignmentCreate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user: StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
@@ -60,7 +60,7 @@ def create_assignment(
         raise BadRequestException(detail=str(e))
 
 @router.get("/{assignment_id}", response_model=schemas.Assignment)
-def read_assignment(assignment_id: str, db: Session = Depends(auth.get_db)):
+def read_assignment(assignment_id: str, db: Session = Depends(db.get_db)):
     db_assignment = crud.get_assignment(db, assignment_id=assignment_id)
     if not db_assignment:
         raise NotFoundException(detail="Assignment not found")
@@ -70,7 +70,7 @@ def read_assignment(assignment_id: str, db: Session = Depends(auth.get_db)):
 def update_assignment_progress(
     assignment_id: str,
     assignment_update: schemas.AssignmentUpdate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user: StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
