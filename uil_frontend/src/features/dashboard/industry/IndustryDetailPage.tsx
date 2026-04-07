@@ -152,7 +152,6 @@ const IndustryDetailPage = ({ id }: Props) => {
             {/* Recent Requests Card */}
             <AdminCard
               title={`${industry.name} Requests`}
-              link={{ label: "View all", href: "/dashboard/office/requests" }}
               className="col-span-full bg-transparent border-none"
               padding="px-3 md:px-8 pt-3"
             >

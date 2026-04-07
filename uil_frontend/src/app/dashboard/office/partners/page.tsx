@@ -3,6 +3,10 @@
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
 import { StatCard } from "@/components/dashboard/reusable/stat-card";
 import { DataTable } from "@/components/dashboard/table/data-table";
+import {
+  ActionDropdown,
+  DropdownAction,
+} from "@/components/dashboard/table/table-action-dropdown";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,13 +21,8 @@ import { useGetIndustryList } from "@/data/industry/industry-list-query";
 import { formatDate } from "@/lib/utils";
 import { TableColumn } from "@/types/interfaces";
 import { IndustryResponse } from "@/types/interfaces.industry";
-import { Phone, Plus, Search } from "lucide-react";
+import { Eye, Pencil, Phone, Search, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  ActionDropdown,
-  DropdownAction,
-} from "@/components/dashboard/table/table-action-dropdown";
-import { Eye, Pencil, Trash } from "lucide-react";
 
 // Stats Needed — total partners(Building2), total requests(Layers), active projects(TrendingUp), total revenue(ArrowUpRight)
 
@@ -45,29 +44,40 @@ export default function IndustriesManagement() {
     {
       key: "industry_type",
       label: "Sector",
-      render: (value) => (
-        <Badge className="bg-primary/10 font-medium text-primary uppercase">
-          {value}
-        </Badge>
-      ),
+      render: (value) =>
+        value ? (
+          <Badge className="bg-primary/10 font-medium text-primary uppercase">
+            {value}
+          </Badge>
+        ) : (
+          <p className="text-muted-foreground text-sm">Not Specified</p>
+        ),
     },
     {
       key: "contact_person",
       label: "Contact Person",
-      render: (value, row) => (
-        <div className="space-y-1">
-          <div className="font-bold text-foreground text-sm">{value}</div>
-          <div className="flex items-center gap-2 text-muted-foreground text-xs">
-            <Phone size={12} className="text-primary" />
-            {row.phone}
+      render: (value, row) =>
+        value ? (
+          <div className="space-y-1">
+            <div className="font-bold text-foreground text-sm">{value}</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs">
+              <Phone size={12} className="text-primary" />
+              {row.phone}
+            </div>
           </div>
-        </div>
-      ),
+        ) : (
+          <p className="text-muted-foreground text-sm">Not Assigned</p>
+        ),
     },
     {
       key: "efficiency_level",
       label: "Efficiency Level",
-      render: (value) => <Badge variant="secondary">{value}</Badge>,
+      render: (value) =>
+        value ? (
+          <Badge variant="secondary">{value}</Badge>
+        ) : (
+          <p className="text-muted-foreground text-sm">Unknown</p>
+        ),
     },
     {
       key: "created_at",
@@ -112,11 +122,6 @@ export default function IndustriesManagement() {
       <AdminHeaderTitle
         title="Industry Partners"
         desc="Nurture and track long-term corporate collaborations."
-        links={{
-          href: "/dashboard/office/partners/create",
-          Icon: Plus,
-          linkLabel: "Register New Partner",
-        }}
       />
 
       <div className="gap-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
