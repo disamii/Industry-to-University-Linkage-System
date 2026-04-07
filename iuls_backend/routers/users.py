@@ -61,6 +61,24 @@ async def read_all_users(
     ).offset(skip).limit(limit).all()
 
 
+@router.get("/{user_id}", response_model=schemas.User)
+async def read_user(
+    user_id: str,
+    db: Session = Depends(auth.get_db),
+    current_user: StaffProfile = Depends(auth.require_admin)
+):
+    """Admin only — get a specific user with their assignments"""
+    from exceptions import NotFoundException
+    # Try by staff_profile.id first
+    user = db.query(StaffProfile).filter(StaffProfile.id == user_id).first()
+    # Fallback: try by account_id
+    if not user:
+        user = db.query(StaffProfile).filter(StaffProfile.account_id == user_id).first()
+    if not user:
+        raise NotFoundException(detail="User not found")
+    return user
+
+
 @router.put("/me/profile", response_model=schemas.User)
 async def update_my_profile(
     profile_update: schemas.UserProfileUpdate,

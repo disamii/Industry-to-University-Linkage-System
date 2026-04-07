@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from enums import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
@@ -107,6 +107,35 @@ class OrgUnit(OrgUnitBase):
         from_attributes = True
 
 
+class AssignmentBase(BaseModel):
+    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
+    progress: Optional[str] = "0%"
+
+
+class AssignmentCreate(AssignmentBase):
+    request_id: str
+    staff_id: str
+    department_id: Optional[str] = None
+
+
+class AssignmentUpdate(BaseModel):
+    status: Optional[AssignmentStatus] = None
+    progress: Optional[str] = None
+    completed_at: Optional[datetime] = None
+
+
+class Assignment(AssignmentBase):
+    id: str
+    request_id: str
+    staff_id: str
+    department_id: Optional[str] = None
+    assigned_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 class User(UserBase):
     id: str
     status: str
@@ -122,7 +151,6 @@ class User(UserBase):
     profile_picture: Optional[str] = None
     author_gender: Optional[str] = None
 
-    # Academic qualifications
     publication_isced_band: Optional[ISCEDBandCode] = None
     author_category: Optional[AuthorCategoryCode] = None
     author_academic_rank: Optional[AcademicRankCode] = None
@@ -130,8 +158,8 @@ class User(UserBase):
     author_employment_type: Optional[EmploymentTypeCode] = None
     academic_title: Optional[AcademicTitle] = None
 
-    # Populated academic unit
     academic_unit: Optional[OrgUnit] = None
+    assignments: Optional[List[Assignment]] = []
 
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -202,37 +230,6 @@ class PostTypeBase(BaseModel):
 
 class PostType(PostTypeBase):
     id: str
-
-    class Config:
-        from_attributes = True
-
-# --- Assignment Schemas ---
-
-
-class AssignmentBase(BaseModel):
-    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
-    progress: Optional[str] = "0%"
-
-
-class AssignmentCreate(AssignmentBase):
-    request_id: str
-    staff_id: str
-    department_id: Optional[str] = None
-
-
-class AssignmentUpdate(BaseModel):
-    status: Optional[AssignmentStatus] = None
-    progress: Optional[str] = None
-    completed_at: Optional[datetime] = None
-
-
-class Assignment(AssignmentBase):
-    id: str
-    request_id: str
-    staff_id: str
-    department_id: Optional[str] = None
-    assigned_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
