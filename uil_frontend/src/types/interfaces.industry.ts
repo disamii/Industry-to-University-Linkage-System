@@ -1,27 +1,11 @@
-export type IndustryBase = {
-  name: string;
-  email: string;
-  contact_person?: string;
-  phone?: string;
-  industry_type?: string;
-  efficiency_level?: string;
-  address?: string;
-  website?: string;
-};
+import { z } from "zod";
+import { industryBaseSchema } from "@/validation/validation.industry";
 
-// export type IndustryProfileUpdate = {
-//   name?: string;
-//   contact_person?: string;
-//   phone?: string;
-//   industry_type?: string;
-//   efficiency_level?: string;
-//   address?: string;
-//   website?: string;
-// };
+export const industrySchema = industryBaseSchema.extend({
+  id: z.string(),
+  status: z.string(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date().nullish(),
+});
 
-export type Industry = IndustryBase & {
-  id: string;
-  status: string;
-  created_at: string;
-  updated_at?: string;
-};
+export type IndustryResponse = z.infer<typeof industrySchema>;

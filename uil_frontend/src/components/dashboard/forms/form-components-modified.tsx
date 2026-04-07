@@ -24,7 +24,7 @@ type BaseFormProps<T extends FieldValues> = {
 };
 
 type FormInputProps<T extends FieldValues> = BaseFormProps<T> & {
-  type: string;
+  type?: string;
 };
 
 export const FormInput = <T extends FieldValues>({
@@ -32,7 +32,7 @@ export const FormInput = <T extends FieldValues>({
   label,
   name,
   placeholder,
-  type,
+  type = "text",
 }: FormInputProps<T>) => {
   return (
     <Controller

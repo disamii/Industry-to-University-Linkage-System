@@ -37,7 +37,7 @@ const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
           <h1 className="font-bold text-foreground text-3xl md:text-4xl tracking-tight">
             {title}
           </h1>
-          <p className="mt-1 text-muted-foreground">{desc}</p>
+          <p className="mt-1 text-muted-foreground">{desc?.trim()}</p>
         </div>
       </div>
 

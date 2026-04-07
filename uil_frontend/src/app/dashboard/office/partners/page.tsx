@@ -1,11 +1,9 @@
 "use client";
 
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
-import { DataTable } from "@/components/dashboard/reusable/data-table";
 import { StatCard } from "@/components/dashboard/reusable/stat-card";
+import { DataTable } from "@/components/dashboard/table/data-table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,158 +13,105 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { stats } from "@/data/dummy-data";
-import { Building2, ExternalLink, Mail, Plus, Search } from "lucide-react";
+import { useGetIndustryList } from "@/data/industry/industry-list-query";
+import { formatDate } from "@/lib/utils";
+import { TableColumn } from "@/types/interfaces";
+import { IndustryResponse } from "@/types/interfaces.industry";
+import { Phone, Plus, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  ActionDropdown,
+  DropdownAction,
+} from "@/components/dashboard/table/table-action-dropdown";
+import { Eye, Pencil, Trash } from "lucide-react";
 
 // Stats Needed — total partners(Building2), total requests(Layers), active projects(TrendingUp), total revenue(ArrowUpRight)
 
 export default function IndustriesManagement() {
-  const industries = [
-    {
-      id: 1,
-      company: "TechCorp Industries",
-      industry: "Technology",
-      contactPerson: "John Doe",
-      email: "john.doe@techcorp.com",
-      phone: "+1 555-1001",
-      totalRequests: 12,
-      activeRequests: 3,
-      joinedDate: "Jan 15, 2025",
-    },
-    {
-      id: 2,
-      company: "GreenEnergy Co",
-      industry: "Energy",
-      contactPerson: "Jane Smith",
-      email: "jane.smith@greenenergy.com",
-      phone: "+1 555-1002",
-      totalRequests: 8,
-      activeRequests: 2,
-      joinedDate: "Feb 20, 2025",
-    },
-    {
-      id: 3,
-      company: "Manufacturing Plus",
-      industry: "Manufacturing",
-      contactPerson: "Robert Wilson",
-      email: "robert.wilson@mfgplus.com",
-      phone: "+1 555-1003",
-      totalRequests: 15,
-      activeRequests: 4,
-      joinedDate: "Dec 10, 2024",
-    },
-    {
-      id: 4,
-      company: "BuildRight Construction",
-      industry: "Construction",
-      contactPerson: "Maria Garcia",
-      email: "maria.garcia@buildright.com",
-      phone: "+1 555-1004",
-      totalRequests: 6,
-      activeRequests: 1,
-      joinedDate: "Mar 5, 2025",
-    },
-  ];
+  const listQuery = useGetIndustryList();
+  const router = useRouter();
 
   const columns = [
     {
-      key: "company",
+      key: "name",
       label: "Partner",
-      render: (value: string) => (
-        <div className="flex items-center gap-3">
-          <div className="flex justify-center items-center bg-accent/50 border border-border/50 rounded-xl w-10 h-10">
-            <Building2 className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <div>
-            <div className="mb-1 font-bold text-foreground leading-none">
-              {value}
-            </div>
-            <div className="font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
-              Global Partner
-            </div>
-          </div>
+      render: (value, row) => (
+        <div className="space-y-0.5">
+          <p className="font-bold text-primary capitalize">{value}</p>
+          <p className="text-muted-foreground text-xs">{row.email}</p>
         </div>
       ),
     },
     {
-      key: "industry",
+      key: "industry_type",
       label: "Sector",
-      render: (value: string) => (
-        <Badge
-          variant="secondary"
-          className="bg-primary/5 border-none rounded-lg font-bold text-[10px] text-primary uppercase"
-        >
+      render: (value) => (
+        <Badge className="bg-primary/10 font-medium text-primary uppercase">
           {value}
         </Badge>
       ),
     },
     {
-      key: "contactPerson",
-      label: "Contact Details",
-      render: (value: string, row: any) => (
+      key: "contact_person",
+      label: "Contact Person",
+      render: (value, row) => (
         <div className="space-y-1">
           <div className="font-bold text-foreground text-sm">{value}</div>
           <div className="flex items-center gap-2 text-muted-foreground text-xs">
-            <Mail size={12} className="text-primary" />
-            {row.email}
+            <Phone size={12} className="text-primary" />
+            {row.phone}
           </div>
         </div>
       ),
     },
     {
-      key: "activeRequests",
-      label: "Activity",
-      render: (value: number, row: any) => (
-        <div className="flex items-center gap-4">
-          <div className="text-center">
-            <div className="font-bold text-foreground text-sm">
-              {row.totalRequests}
-            </div>
-            <div className="font-bold text-[10px] text-muted-foreground uppercase">
-              Total
-            </div>
-          </div>
-          <div className="bg-border w-[1px] h-8" />
-          <div className="text-center">
-            <div className="font-bold text-primary text-sm">{value}</div>
-            <div className="font-bold text-[10px] text-primary/70 uppercase">
-              Active
-            </div>
-          </div>
-        </div>
-      ),
+      key: "efficiency_level",
+      label: "Efficiency Level",
+      render: (value) => <Badge variant="secondary">{value}</Badge>,
     },
     {
-      key: "joinedDate",
+      key: "created_at",
       label: "Joined",
-      render: (value: string) => (
+      render: (value) => (
         <span className="font-medium tabular-nums text-muted-foreground text-xs">
-          {value}
+          {formatDate(value)}
         </span>
       ),
     },
     {
       key: "actions",
       label: "",
-      render: () => (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hover:bg-primary/10 rounded-xl hover:text-primary"
-        >
-          <ExternalLink size={16} />
-        </Button>
-      ),
+      render: (_, row) => {
+        const actions: DropdownAction[] = [
+          {
+            label: "View Details",
+            icon: Eye,
+            onClick: () => router.push(`partners/${row.id}`),
+          },
+          {
+            label: "Edit Industry",
+            icon: Pencil,
+            onClick: () => router.push(`partners/${row.id}/edit`),
+          },
+          {
+            label: "Delete Industry",
+            icon: Trash,
+            variant: "destructive",
+            showSeparator: true,
+            onClick: () => alert(row.id),
+          },
+        ];
+
+        return <ActionDropdown actions={actions} />;
+      },
     },
-  ];
+  ] satisfies TableColumn<IndustryResponse>[];
 
   return (
     <div className="space-y-8 pb-10">
-      {/* Header Section */}
-
       <AdminHeaderTitle
         title="Industry Partners"
-        desc="Nurture and track long-term corporate collaborations.
-          "
+        desc="Nurture and track long-term corporate collaborations."
         links={{
           href: "/dashboard/office/partners/create",
           Icon: Plus,
@@ -192,7 +137,7 @@ export default function IndustriesManagement() {
           </div>
 
           <Select>
-            <SelectTrigger className="bg-background border-border/60 rounded-2xl w-full sm:w-[200px] h-12">
+            <SelectTrigger className="bg-background border-border/60 rounded-2xl w-full sm:w-50 h-12">
               <SelectValue placeholder="All Sectors" />
             </SelectTrigger>
             <SelectContent className="rounded-2xl">
@@ -205,7 +150,13 @@ export default function IndustriesManagement() {
         </div>
 
         <div className="border border-border/40 rounded-[1.5rem] overflow-hidden">
-          <DataTable columns={columns} data={industries} />
+          <DataTable
+            columns={columns}
+            data={listQuery.data || []}
+            isLoading={listQuery.isLoading}
+            isError={listQuery.isError}
+            onRowClick={(row) => router.push(`partners/${row.id}`)}
+          />
         </div>
       </div>
     </div>

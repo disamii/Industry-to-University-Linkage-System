@@ -1,4 +1,5 @@
-import { RequestStatus } from "@/lib/enums";
+import { RequestPriority, RequestStatus, RequestType } from "@/lib/enums";
+import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
 import { CheckCircle, Clock, FileText, TrendingUp } from "lucide-react";
 
 export const notifications = [
@@ -19,24 +20,33 @@ export const notifications = [
   },
 ];
 
-export const recentRequests = [
+export const recentRequests: IndustryRequestResponse[] = [
   {
-    id: 1,
+    id: "1",
     title: "AI Quality Control System",
+    type: RequestType.INTERNSHIP,
     status: RequestStatus.IN_PROGRESS,
-    date: "2 days ago",
+    created_at: new Date("2026-12-05"),
+    priority: RequestPriority.LOW,
+    industry_id: "string",
   },
   {
-    id: 2,
+    id: "2",
     title: "Supply Chain Optimization",
+    type: RequestType.OTHER,
     status: RequestStatus.COMPLETED,
-    date: "5 days ago",
+    created_at: new Date("2026-12-05"),
+    priority: RequestPriority.MEDIUM,
+    industry_id: "string",
   },
   {
-    id: 3,
+    id: "3",
     title: "Renewable Energy Analysis",
+    type: RequestType.MAINTENANCE,
     status: RequestStatus.REJECTED,
-    date: "1 week ago",
+    created_at: new Date("2026-12-05"),
+    priority: RequestPriority.HIGH,
+    industry_id: "string",
   },
 ] as const;
 
