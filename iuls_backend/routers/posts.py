@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import List
 import crud, schemas, auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException  # add these if not yet created
@@ -9,10 +11,15 @@ router = APIRouter(
     tags=["posts"],
 )
 
-@router.get("/", response_model=List[schemas.Post])
-def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
-    posts = crud.get_posts(db, skip=skip, limit=limit)
-    return posts
+
+
+@router.get("/", response_model=Page[schemas.Post])
+def read_posts(db: Session = Depends(auth.get_db)):
+    """
+    Returns a paginated list of posts. 
+    The library automatically handles 'page' and 'size' query params.
+    """
+    return paginate(db.query(Post))
 
 @router.post("/", response_model=schemas.Post)
 def create_post(

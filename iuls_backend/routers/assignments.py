@@ -5,16 +5,16 @@ import crud,  schemas, auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException
 from models.account_models import StaffProfile
 from models import *
-
+# Correct
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/assignments",
     tags=["assignments"],
 )
 
-@router.get("/my", response_model=List[schemas.Assignment])
+@router.get("/my", response_model=Page[schemas.Assignment])
 def read_my_assignments(
-    skip: int = 0,
-    limit: int = 100,
     db: Session = Depends(auth.get_db),
     current_user: StaffProfile = Depends(auth.get_current_active_user)
 ):
@@ -23,18 +23,21 @@ def read_my_assignments(
     """
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-    return db.query( Assignment).filter(
-         Assignment.staff_id == current_user.id
-    ).offset(skip).limit(limit).all()
+    
+    query = db.query(Assignment).filter(Assignment.staff_id == current_user.id)
+    return paginate(query)
 
 
-@router.get("/", response_model=List[schemas.Assignment])
-def read_assignments(request_id: str, skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
+@router.get("/", response_model=Page[schemas.Assignment])
+def read_assignments(
+    request_id: str,
+    db: Session = Depends(auth.get_db)
+):
     """
     Get all assignments for a specific industry request
     """
-    assignments = crud.get_assignments_by_request(db, request_id=request_id, skip=skip, limit=limit)
-    return assignments or []
+    query = crud.get_assignments_by_request(db, request_id=request_id)
+    return paginate(query)
 
 @router.post("/", response_model=schemas.Assignment)
 def create_assignment(
