@@ -33,7 +33,7 @@ export const useIndustryRequestUpdateMutation = (id: string) => {
       industryRequestUpdate({ id, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
-      appToast.success("Industry updated successfully");
+      appToast.success("Request updated successfully");
     },
     onError: (error: any) =>
       appToast.error(error.message || "Failed to update request"),

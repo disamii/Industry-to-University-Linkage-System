@@ -1,18 +1,11 @@
 "use client";
 
-import React from "react";
-import {
-  Search,
-  Plus,
-  Building2,
-  Mail,
-  Phone,
-  ExternalLink,
-  TrendingUp,
-  Layers,
-  ArrowUpRight,
-} from "lucide-react";
+import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
+import { DataTable } from "@/components/dashboard/reusable/data-table";
+import { StatCard } from "@/components/dashboard/reusable/stat-card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/dashboard/reusable/data-table";
-import { Badge } from "@/components/ui/badge";
+import { stats } from "@/data/dummy-data";
+import { Building2, ExternalLink, Mail, Plus, Search } from "lucide-react";
+
+// Stats Needed — total partners(Building2), total requests(Layers), active projects(TrendingUp), total revenue(ArrowUpRight)
 
 export default function IndustriesManagement() {
   const industries = [
@@ -70,33 +64,6 @@ export default function IndustriesManagement() {
       totalRequests: 6,
       activeRequests: 1,
       joinedDate: "Mar 5, 2025",
-    },
-  ];
-
-  const stats = [
-    {
-      label: "Total Partners",
-      value: "32",
-      icon: Building2,
-      color: "text-blue-500",
-    },
-    {
-      label: "Total Requests",
-      value: "156",
-      icon: Layers,
-      color: "text-primary",
-    },
-    {
-      label: "Active Projects",
-      value: "24",
-      icon: TrendingUp,
-      color: "text-emerald-500",
-    },
-    {
-      label: "Total Revenue",
-      value: "$2.4M",
-      icon: ArrowUpRight,
-      color: "text-indigo-500",
     },
   ];
 
@@ -195,42 +162,21 @@ export default function IndustriesManagement() {
   return (
     <div className="space-y-8 pb-10">
       {/* Header Section */}
-      <div className="flex md:flex-row flex-col justify-between md:items-center gap-4">
-        <div>
-          <h1 className="font-bold text-foreground text-3xl md:text-4xl tracking-tight">
-            Industry Partners
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Nurture and track long-term corporate collaborations.
-          </p>
-        </div>
-        <Button className="gap-2 shadow-lg shadow-primary/20 px-6 rounded-2xl h-11 font-bold">
-          <Plus size={18} />
-          Register New Partner
-        </Button>
-      </div>
 
-      {/* KPI Strip */}
+      <AdminHeaderTitle
+        title="Industry Partners"
+        desc="Nurture and track long-term corporate collaborations.
+          "
+        links={{
+          href: "/dashboard/office/partners/create",
+          Icon: Plus,
+          linkLabel: "Register New Partner",
+        }}
+      />
+
       <div className="gap-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, i) => (
-          <Card
-            key={i}
-            className="shadow-sm border-border/40 rounded-[2rem] overflow-hidden"
-          >
-            <CardContent className="flex justify-between items-center p-6">
-              <div>
-                <p className="mb-1 font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
-                  {stat.label}
-                </p>
-                <p className="font-bold text-foreground text-2xl">
-                  {stat.value}
-                </p>
-              </div>
-              <div className={`p-3 rounded-2xl bg-accent/30 ${stat.color}`}>
-                <stat.icon size={22} />
-              </div>
-            </CardContent>
-          </Card>
+        {stats.map((stat, idx) => (
+          <StatCard key={`${stat.title}—${idx}`} {...stat} />
         ))}
       </div>
 

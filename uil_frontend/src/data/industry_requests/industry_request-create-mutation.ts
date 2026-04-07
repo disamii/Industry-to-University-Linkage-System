@@ -26,7 +26,7 @@ export const useIndustryRequestCreateMutation = () => {
     mutationFn: industryRequestCreate,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
-      appToast.success("Industry created successfully");
+      appToast.success("Request created successfully");
     },
     onError: (error: any) =>
       appToast.error(error.message || "Failed to create request"),

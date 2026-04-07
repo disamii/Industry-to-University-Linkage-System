@@ -11,7 +11,7 @@ import { Spinner } from "@/components/reusable/spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { timeline } from "@/data/dummy-data";
-import { useGetIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-mutation";
+import { useGetIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-query";
 import { formatDate } from "@/lib/utils";
 import {
   Calendar,

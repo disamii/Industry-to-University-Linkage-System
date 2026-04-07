@@ -9,7 +9,7 @@ import {
 import { DataTable } from "@/components/dashboard/reusable/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGetIndustryRequestList } from "@/data/industry_requests/industry_request-list-mutation";
+import { useGetIndustryRequestList } from "@/data/industry_requests/industry_request-list-query";
 import { formatDate } from "@/lib/utils";
 import { TableColumn } from "@/types/interfaces";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
@@ -19,11 +19,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Eye, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/reusable/confirm-dialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function MyRequests() {
   const router = useRouter();
@@ -49,7 +51,14 @@ export default function MyRequests() {
     {
       key: "type",
       label: "Category",
-      render: (value) => <span>{value}</span>,
+      render: (value) => (
+        <Badge variant="secondary">
+          {value
+            .split("_")
+            .map((v) => v[0].toUpperCase() + v.slice(1))
+            .join(" ")}
+        </Badge>
+      ),
     },
     {
       key: "status",
@@ -87,7 +96,7 @@ export default function MyRequests() {
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" className="space-y-1 w-40">
+          <DropdownMenuContent align="end" className="space-y-1 py-2 w-40">
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
@@ -107,6 +116,8 @@ export default function MyRequests() {
               <Pencil className="mr-2 w-4 h-4" />
               Edit Request
             </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
 
             <DropdownMenuItem
               onClick={(e) => {
