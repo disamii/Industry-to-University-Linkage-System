@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from exceptions import BadRequestException, InternalServerErrorException, UnauthorizedException
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from typing import List
 import crud
 from  models import *
 import schemas
@@ -41,10 +42,21 @@ router = APIRouter(
 
 
 @router.get("/me", response_model=schemas.User)
-async def read_users_me(current_user:   StaffProfile = Depends(auth.get_current_active_user)):
+async def read_users_me(current_user: StaffProfile = Depends(auth.get_current_active_user)):
     if not current_user:
         raise UnauthorizedException()
     return current_user
+
+
+@router.get("/", response_model=List[schemas.User])
+async def read_all_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(auth.get_db),
+    current_user: StaffProfile = Depends(auth.require_admin)
+):
+    """Admin only — list all users"""
+    return crud.get_users(db, skip=skip, limit=limit)
 
 
 @router.put("/me/profile", response_model=schemas.User)

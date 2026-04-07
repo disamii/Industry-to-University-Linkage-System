@@ -27,7 +27,7 @@ def get_user_by_email(db: Session, email: str):
     return account.user_profile if account else None
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
+    return db.query(models.StaffProfile).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
     role = user.role if hasattr(user, 'role') else models.UserRole.USER
