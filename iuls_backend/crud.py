@@ -170,6 +170,9 @@ def create_industry_request(db: Session, industry_id: str, title: str, **kwargs)
     db.refresh(db_request)
     return db_request
 
+def get_industry_requests_by_industry(db: Session, industry_id: str, skip: int = 0, limit: int = 100):
+    return db.query(models.IndustryRequest).filter(models.IndustryRequest.industry_id == industry_id).offset(skip).limit(limit).all()
+
 # --- Post CRUD ---
 def get_post(db: Session, post_id: str):
     return db.query(models.Post).filter(models.Post.id == post_id).first()

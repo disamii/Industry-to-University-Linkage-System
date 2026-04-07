@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from enums import (
     ISCEDBandCode, AuthorCategoryCode, AcademicRankCode,
@@ -33,24 +33,6 @@ class UserProfileUpdate(BaseModel):
     author_qualification: Optional[QualificationCode] = None
     author_employment_type: Optional[EmploymentTypeCode] = None
     academic_title: Optional[AcademicTitle] = None
-
-
-class User(UserBase):
-    id: str
-    status: str
-    role: UserRole
-
-    # Other optional fields
-    first_name: Optional[str] = None
-    father_name: Optional[str] = None
-    grand_father_name: Optional[str] = None
-    biography: Optional[str] = None
-    research_interests: Optional[str] = None
-    phone_number: Optional[str] = None
-    profile_picture: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 
 class Token(BaseModel):
@@ -124,6 +106,67 @@ class OrgUnit(OrgUnitBase):
     class Config:
         from_attributes = True
 
+
+class AssignmentBase(BaseModel):
+    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
+    progress: Optional[str] = "0%"
+
+
+class AssignmentCreate(AssignmentBase):
+    request_id: str
+    staff_id: str
+    department_id: Optional[str] = None
+
+
+class AssignmentUpdate(BaseModel):
+    status: Optional[AssignmentStatus] = None
+    progress: Optional[str] = None
+    completed_at: Optional[datetime] = None
+
+
+class Assignment(AssignmentBase):
+    id: str
+    request_id: str
+    staff_id: str
+    department_id: Optional[str] = None
+    assigned_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class User(UserBase):
+    id: str
+    status: str
+    role: UserRole
+
+    first_name: Optional[str] = None
+    father_name: Optional[str] = None
+    grand_father_name: Optional[str] = None
+    username: Optional[str] = None
+    biography: Optional[str] = None
+    research_interests: Optional[str] = None
+    phone_number: Optional[str] = None
+    profile_picture: Optional[str] = None
+    author_gender: Optional[str] = None
+
+    publication_isced_band: Optional[ISCEDBandCode] = None
+    author_category: Optional[AuthorCategoryCode] = None
+    author_academic_rank: Optional[AcademicRankCode] = None
+    author_qualification: Optional[QualificationCode] = None
+    author_employment_type: Optional[EmploymentTypeCode] = None
+    academic_title: Optional[AcademicTitle] = None
+
+    academic_unit: Optional[OrgUnit] = None
+    assignments: Optional[List[Assignment]] = []
+
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 # --- Industry Request Schemas ---
 
 
@@ -187,37 +230,6 @@ class PostTypeBase(BaseModel):
 
 class PostType(PostTypeBase):
     id: str
-
-    class Config:
-        from_attributes = True
-
-# --- Assignment Schemas ---
-
-
-class AssignmentBase(BaseModel):
-    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
-    progress: Optional[str] = "0%"
-
-
-class AssignmentCreate(AssignmentBase):
-    request_id: str
-    staff_id: str
-    department_id: Optional[str] = None
-
-
-class AssignmentUpdate(BaseModel):
-    status: Optional[AssignmentStatus] = None
-    progress: Optional[str] = None
-    completed_at: Optional[datetime] = None
-
-
-class Assignment(AssignmentBase):
-    id: str
-    request_id: str
-    staff_id: str
-    department_id: Optional[str] = None
-    assigned_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

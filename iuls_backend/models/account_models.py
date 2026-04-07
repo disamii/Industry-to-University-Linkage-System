@@ -51,7 +51,7 @@ class StaffProfile(Base):
 
     author_gender = Column(String, nullable=True)
     publication_isced_band = Column(SQLEnum(ISCEDBandCode), nullable=True)
-    academic_unit_id = Column(String, ForeignKey("organizational_unit.id"), nullable=False)
+    academic_unit_id = Column(String, ForeignKey("organizational_unit.id"), nullable=True)
 
     author_category = Column(SQLEnum(AuthorCategoryCode), nullable=True)
     author_academic_rank = Column(SQLEnum(AcademicRankCode), nullable=True)
