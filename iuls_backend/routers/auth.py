@@ -7,7 +7,7 @@ import schemas
 import enums
 from config import settings
 from rpms_service import get_user_from_rpms, process_academic_unit
-from exceptions import NotFoundException, UnauthorizedException, ValidationException
+from exceptions import NotFoundException, UnauthorizedException
 from pydantic import BaseModel, EmailStr
 from models import Industry, StaffProfile
 from enums import UserRole
@@ -36,9 +36,9 @@ async def login(
     if not account:
         raise NotFoundException(detail="Invalid credentials")
 
-    if account.role == enums.UserRole.USER:
-        if not crud.verify_django_password(password, account.password):
-            raise ValidationException(detail="Invalid credentials")
+    # elif account.role == enums.UserRole.USER:
+    # if not crud.verify_django_password(password, account.password):
+    #         raise ValidationException(detail="Invalid credentials")
     else:
         if not crud.verify_password(password, account.password):
             raise UnauthorizedException(detail="Invalid credentials")

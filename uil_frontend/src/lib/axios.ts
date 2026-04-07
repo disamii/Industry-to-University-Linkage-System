@@ -3,14 +3,17 @@ import axios from "axios";
 const isServer = typeof window === "undefined";
 
 const api = axios.create({
-  baseURL: !isServer ? "/api" : process.env.NEXT_PUBLIC_API_BASE_URL,
+  // If server: use internal container alias
+  // If client: use the public localhost URL
+  baseURL: isServer 
+    ? process.env.INTERNAL_API_URL 
+    : process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
 
 api.interceptors.request.use(async (config) => {
   if (isServer) {
     const { cookies } = await import("next/headers");
-
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token")?.value;
 
@@ -18,7 +21,6 @@ api.interceptors.request.use(async (config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
-
   return config;
 });
 
