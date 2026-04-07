@@ -55,8 +55,10 @@ async def read_all_users(
     db: Session = Depends(auth.get_db),
     current_user: StaffProfile = Depends(auth.require_admin)
 ):
-    """Admin only — list all users"""
-    return crud.get_users(db, skip=skip, limit=limit)
+    """Admin only — list all staff users (excludes admins)"""
+    return db.query(StaffProfile).join(Account).filter(
+        Account.role == UserRole.USER
+    ).offset(skip).limit(limit).all()
 
 
 @router.put("/me/profile", response_model=schemas.User)

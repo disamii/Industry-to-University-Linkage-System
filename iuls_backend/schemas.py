@@ -35,24 +35,6 @@ class UserProfileUpdate(BaseModel):
     academic_title: Optional[AcademicTitle] = None
 
 
-class User(UserBase):
-    id: str
-    status: str
-    role: UserRole
-
-    # Other optional fields
-    first_name: Optional[str] = None
-    father_name: Optional[str] = None
-    grand_father_name: Optional[str] = None
-    biography: Optional[str] = None
-    research_interests: Optional[str] = None
-    phone_number: Optional[str] = None
-    profile_picture: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
-
 class Token(BaseModel):
     access_token: str
     refresh_token: str
@@ -119,6 +101,39 @@ class OrgUnitCreate(OrgUnitBase):
 class OrgUnit(OrgUnitBase):
     id: str
     created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class User(UserBase):
+    id: str
+    status: str
+    role: UserRole
+
+    first_name: Optional[str] = None
+    father_name: Optional[str] = None
+    grand_father_name: Optional[str] = None
+    username: Optional[str] = None
+    biography: Optional[str] = None
+    research_interests: Optional[str] = None
+    phone_number: Optional[str] = None
+    profile_picture: Optional[str] = None
+    author_gender: Optional[str] = None
+
+    # Academic qualifications
+    publication_isced_band: Optional[ISCEDBandCode] = None
+    author_category: Optional[AuthorCategoryCode] = None
+    author_academic_rank: Optional[AcademicRankCode] = None
+    author_qualification: Optional[QualificationCode] = None
+    author_employment_type: Optional[EmploymentTypeCode] = None
+    academic_title: Optional[AcademicTitle] = None
+
+    # Populated academic unit
+    academic_unit: Optional[OrgUnit] = None
+
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     class Config:
