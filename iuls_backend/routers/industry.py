@@ -64,3 +64,33 @@ def read_industry(industry_id: str, db: Session = Depends(auth.get_db)):
     if not db_industry:
         raise NotFoundException(detail="Industry not found")
     return db_industry
+
+
+@router.get("/{industry_id}/requests", response_model=List[schemas.IndustryRequest])
+def read_industry_requests_by_industry(
+    industry_id: str,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(auth.get_db),
+    current_user=Depends(auth.get_current_active_user)
+):
+    """
+    Get all requests for a specific industry.
+    """
+    db_industry = crud.get_industry(db, industry_id=industry_id)
+    if not db_industry:
+        raise NotFoundException(detail="Industry not found")
+
+    # Protection: Industry can only see their own requests unless admin
+    is_admin = current_user.account.role == UserRole.ADMIN
+    is_owner = (
+        current_user.account.role == UserRole.INDUSTRY
+        and industry_id == current_user.id
+    )
+
+    if not is_admin and not is_owner:
+        from exceptions import ForbiddenException
+        raise ForbiddenException(
+            detail="You do not have permission to view these requests")
+
+    return crud.get_industry_requests_by_industry(db, industry_id=industry_id, skip=skip, limit=limit)
