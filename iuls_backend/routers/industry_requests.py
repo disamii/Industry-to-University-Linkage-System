@@ -5,34 +5,35 @@ import schemas, auth,crud
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 import enums
 from models import *
+from fastapi_pagination import Page, paginate
+
 router = APIRouter(
     prefix="/industry-requests",
     tags=["industry-requests"],
 )
 
 
-@router.get("/", response_model=List[schemas.IndustryRequest])
+
+@router.get("/", response_model=Page[schemas.IndustryRequest])
 def read_industry_requests(
-    skip: int = 0,
-    limit: int = 100,
     industry_id: Optional[str] = Query(default=None),
     db: Session = Depends(auth.get_db),
     current_user=Depends(auth.get_current_active_user),
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-    
-    if hasattr(current_user, 'account') and current_user.account.role == enums.UserRole.INDUSTRY:
-        return db.query(IndustryRequest).filter(
+
+    if hasattr(current_user, "account") and current_user.account.role == enums.UserRole.INDUSTRY:
+        query = db.query(IndustryRequest).filter(
             IndustryRequest.industry_id == current_user.id
-        ).offset(skip).limit(limit).all()
+        )
+        return paginate(query)
 
     query = db.query(IndustryRequest)
     if industry_id:
         query = query.filter(IndustryRequest.industry_id == industry_id)
-    return query.offset(skip).limit(limit).all()
-
-
+    
+    return paginate(query)
 @router.post("/", response_model=schemas.IndustryRequest)
 def create_industry_request(
     request: schemas.IndustryRequestBase,

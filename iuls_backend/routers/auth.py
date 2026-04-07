@@ -83,7 +83,6 @@ async def check_email(
             "role": account.role.value
         }
 
-    # 2. Not found locally — check RPMS
     rpms_user = await get_user_from_rpms(request.email)
 
     if rpms_user:
