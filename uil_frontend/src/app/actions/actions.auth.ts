@@ -5,7 +5,7 @@ import { decodeJwt } from "jose";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SigninInput } from "../../validation/validation.auth";
-import { getMe } from "@/data/user/user-profile-query";
+import { getMe } from "@/data/user/current_user-profile-query";
 import { signin } from "@/data/auth/sigin-mutation";
 import { getAdminHomepageLink } from "@/lib/utils";
 

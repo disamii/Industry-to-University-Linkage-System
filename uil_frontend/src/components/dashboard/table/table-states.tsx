@@ -13,7 +13,7 @@ export function TableState({
 }) {
   if (type === "loading") {
     return (
-      <div className="flex justify-center items-center py-10 text-muted-foreground">
+      <div className="flex justify-center items-center gap-2 py-10 text-muted-foreground">
         <Spinner size="sm" /> <span>Loading...</span>
       </div>
     );
