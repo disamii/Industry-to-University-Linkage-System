@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/reusable/spinner";
 
 export function TableState({
   type,
@@ -10,8 +10,7 @@ export function TableState({
   if (type === "loading") {
     return (
       <div className="flex justify-center items-center py-10 text-muted-foreground">
-        <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-        Loading...
+        <Spinner size="sm" /> <span>Loading...</span>
       </div>
     );
   }

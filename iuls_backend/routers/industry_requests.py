@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-import schemas, auth,crud
+import schemas
+import auth
+import crud
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 import enums
 from models import *
@@ -21,7 +23,7 @@ def read_industry_requests(
 ):
     if not current_user:
         raise UnauthorizedException(detail="Authentication required")
-    
+
     if hasattr(current_user, 'account') and current_user.account.role == enums.UserRole.INDUSTRY:
         return db.query(IndustryRequest).filter(
             IndustryRequest.industry_id == current_user.id
@@ -86,7 +88,8 @@ def update_industry_request(
         and db_request.industry_id == current_user.id
     )
     if not is_admin and not is_owner:
-        raise ForbiddenException(detail="You do not have permission to update this request")
+        raise ForbiddenException(
+            detail="You do not have permission to update this request")
 
     try:
         update_data = request_update.model_dump(exclude_unset=True)

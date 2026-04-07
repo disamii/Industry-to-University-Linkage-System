@@ -1,7 +1,8 @@
+import { Spinner } from "@/components/reusable/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
@@ -50,7 +51,7 @@ const ForgotPasswordForm = ({ onSent }: Props) => {
         disabled={isLoading}
       >
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Spinner size="sm" />
         ) : (
           <>
             Send Instructions

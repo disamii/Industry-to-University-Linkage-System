@@ -7,6 +7,7 @@ import {
   PriorityBadge,
   StatusBadge,
 } from "@/components/dashboard/reusable/badges";
+import { Spinner } from "@/components/reusable/spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { timeline } from "@/data/dummy-data";
@@ -17,7 +18,7 @@ import {
   DollarSign,
   FileText,
   HelpCircle,
-  Loader2,
+  Pencil,
   User,
 } from "lucide-react";
 
@@ -28,8 +29,7 @@ type Props = {
 const RequestDetailPage = ({ id }: Props) => {
   const detailQuery = useGetIndustryRequestDetail(id);
 
-  if (detailQuery.isLoading)
-    return <Loader2 className="w-4 h-4 animate-spin" />;
+  if (detailQuery.isLoading) return <Spinner size="lg" center />;
   if (detailQuery.isError) return <p>An Error occured</p>;
 
   const request = detailQuery.data;
@@ -44,6 +44,11 @@ const RequestDetailPage = ({ id }: Props) => {
           backLink={{
             linkLabel: "Back to My Requests",
             href: "/dashboard/industry/requests",
+          }}
+          links={{
+            href: `${request.id}/edit`,
+            Icon: Pencil,
+            linkLabel: "Edit Request",
           }}
         />
 

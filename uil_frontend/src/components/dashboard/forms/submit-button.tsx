@@ -1,8 +1,9 @@
 "use client";
 
+import { Spinner } from "@/components/reusable/spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useFormStatus } from "react-dom";
 
 type Props = {
@@ -27,7 +28,9 @@ const SubmitButton = ({ label, form, isSubmitting, className }: Props) => {
       form={form}
     >
       {isPending ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <>
+          <Spinner size="sm" /> <span>Submitting...</span>
+        </>
       ) : (
         <>
           {label}

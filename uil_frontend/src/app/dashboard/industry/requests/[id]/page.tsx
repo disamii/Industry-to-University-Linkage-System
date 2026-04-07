@@ -1,4 +1,4 @@
-import RequestDetailPage from "./_components/RequestDetailPage";
+import RequestDetailPage from "@/features/dashboard/industry/RequestDetailPage";
 
 type Props = {
   params: Promise<{ id: string }>;

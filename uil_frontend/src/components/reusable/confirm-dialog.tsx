@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface ConfirmDialogProps {
-  isOpen: boolean;
+  onOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   title?: string;
@@ -21,9 +21,8 @@ interface ConfirmDialogProps {
   variant?: "default" | "destructive";
 }
 
-// @/components/reusable/confirm-dialog.tsx
 export function ConfirmDialog({
-  isOpen,
+  onOpen,
   onOpenChange,
   onConfirm,
   isLoading = false, // Add this
@@ -34,7 +33,7 @@ export function ConfirmDialog({
   variant = "default",
 }: ConfirmDialogProps & { isLoading?: boolean }) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+    <AlertDialog open={onOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

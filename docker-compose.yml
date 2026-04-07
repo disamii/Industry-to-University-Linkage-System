@@ -35,31 +35,31 @@ services:
       - ./iuls_backend/.env
     depends_on:
       - db
-    restart: "no"             
+    restart: "no"
 
   frontend:
-    build:
-      context: ./uil_frontend
-      dockerfile: Dockerfile
-    container_name: nextjs_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
-      - WATCHPACK_POLLING=true
-    depends_on:
-      - backend
-    develop:
-      watch:
-        - action: sync
-          path: ./uil_frontend
-          target: /app
-          ignore:
-            - node_modules/
-            - .next/
-            - .git/
-        - action: rebuild
-          path: ./uil_frontend/package.json
+  build:
+    context: ./uil_frontend
+    dockerfile: Dockerfile
+  container_name: nextjs_frontend
+  ports:
+    - "3000:3000"
+  environment:
+    - NEXT_PUBLIC_API_URL=http://backend:8000
+    - WATCHPACK_POLLING=true
+  depends_on:
+    - backend
+  develop:
+    watch:
+      - action: sync
+        path: ./uil_frontend
+        target: /app
+        ignore:
+          - node_modules/
+          - .next/
+          - .git/
+      - action: rebuild
+        path: ./uil_frontend/package.json
 
   db:
     container_name: fastapi_db

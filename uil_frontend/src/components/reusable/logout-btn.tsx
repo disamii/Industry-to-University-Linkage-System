@@ -39,7 +39,7 @@ const LogoutBtn = () => {
       </Button>
 
       <ConfirmDialog
-        isOpen={open}
+        onOpen={open}
         onOpenChange={setOpen}
         onConfirm={handleLogout}
         isLoading={isPending}

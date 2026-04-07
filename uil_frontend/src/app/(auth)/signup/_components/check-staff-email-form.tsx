@@ -1,13 +1,14 @@
+import { Spinner } from "@/components/reusable/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LINKS } from "@/lib/constants";
-import { AlertCircle, ExternalLink, Loader2, ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
+import { AlertCircle, ExternalLink, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useCheckStaffEmail } from "../../_hooks/useAuth";
-import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import RpmsProfileFoundDialog from "./rpms-profile-found-dialog";
-import { cn } from "@/lib/utils";
 
 type Props = {
   setStep: (step: number) => void;
@@ -125,7 +126,7 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
               className="flex-1 rounded-xl h-12 font-bold text-xs uppercase tracking-widest"
               disabled={isSubmitting || !email}
             >
-              {isSubmitting ? <Loader2 className="animate-spin" /> : "Continue"}
+              {isSubmitting ? <Spinner size="sm" /> : "Continue"}
             </Button>
           </div>
         </div>

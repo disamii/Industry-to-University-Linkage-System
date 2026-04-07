@@ -1,12 +1,13 @@
 "use client";
 
+import { Spinner } from "@/components/reusable/spinner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,15 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { ArrowRight, Briefcase, Check, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Briefcase,
-  Check,
-  Loader2,
-  ShieldCheck,
-} from "lucide-react";
+import { useState } from "react";
 
 export default function IndustryProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -192,7 +187,9 @@ export default function IndustryProfilePage() {
                     className="flex-1 md:flex-none px-12 rounded-2xl h-14 font-bold uppercase tracking-widest transition-all"
                   >
                     {isSubmitting ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <>
+                        <Spinner size="sm" /> <span>Saving...</span>
+                      </>
                     ) : isSaved ? (
                       <span className="flex items-center gap-2">
                         <Check className="w-5 h-5" /> Profile Saved

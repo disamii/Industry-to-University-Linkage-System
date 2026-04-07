@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/reusable/spinner";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -11,7 +12,6 @@ import {
   createIndustrySchema,
 } from "@/validation/validation.auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useCreateIndustryMutation } from "../../_hooks/useAuth";
 
@@ -160,7 +160,9 @@ const CreateIndustryForm = ({ setStep }: Props) => {
           className="flex-1 rounded-xl h-12 font-bold text-xs uppercase tracking-widest"
         >
           {isSubmitting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <>
+              <Spinner size="sm" /> <span>Submitting...</span>
+            </>
           ) : (
             "Register"
           )}

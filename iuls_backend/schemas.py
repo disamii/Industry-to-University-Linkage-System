@@ -139,7 +139,7 @@ class IndustryRequestBase(BaseModel):
 class IndustryRequestUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    type: Optional[str] = None
+    type: Optional[RequestType] = None
     status: Optional[RequestStatus] = None
     priority: Optional[RequestPriority] = None
     budget_required: Optional[float] = None
@@ -255,3 +255,7 @@ class ErrorResponse(BaseModel):
     status_code: int
     detail: str
     extra: dict | None = None
+
+
+class MessageResponse(BaseModel):
+    message: str

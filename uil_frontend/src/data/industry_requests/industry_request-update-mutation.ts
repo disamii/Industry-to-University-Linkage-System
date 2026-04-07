@@ -10,20 +10,27 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
 
-export const industryRequestUpdate = (data: IndustryRequestUpdateInput) => {
+export const industryRequestUpdate = ({
+  id,
+  data,
+}: {
+  id: string;
+  data: IndustryRequestUpdateInput;
+}) => {
   return safeApiRequest(
     api.patch<IndustryRequestResponse>(
-      industryRequestUrls.base(),
+      industryRequestUrls.byId(id),
       industryRequestUpdateSchema.parse(data),
     ),
   );
 };
 
-export const useIndustryRequestUpdateMutation = () => {
+export const useIndustryRequestUpdateMutation = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: industryRequestUpdate,
+    mutationFn: (data: IndustryRequestUpdateInput) =>
+      industryRequestUpdate({ id, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
       appToast.success("Industry updated successfully");

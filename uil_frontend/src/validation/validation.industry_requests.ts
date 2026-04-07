@@ -26,3 +26,12 @@ export const industryRequestUpdateSchema = industryRequestBaseSchema.partial();
 export type IndustryRequestUpdateInput = z.infer<
   typeof industryRequestUpdateSchema
 >;
+
+export const industryRequestDefaultValues = {
+  title: "",
+  description: "",
+  type: RequestType.WORKSHOP,
+  status: RequestStatus.PENDING,
+  priority: RequestPriority.MEDIUM,
+  budget_required: 0,
+};

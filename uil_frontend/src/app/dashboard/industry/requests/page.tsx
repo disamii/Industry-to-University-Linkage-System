@@ -15,12 +15,29 @@ import { TableColumn } from "@/types/interfaces";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
 import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical, Eye, Pencil, Trash } from "lucide-react";
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/reusable/confirm-dialog";
 
 export default function MyRequests() {
   const router = useRouter();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const listQuery = useGetIndustryRequestList();
 
+  const handleDeleteRequest = () => {
+    if (!deleteId) return;
+
+    alert("DELETED");
+
+    // call delete API with deleteId
+  };
   const columns = [
     {
       key: "title",
@@ -53,6 +70,56 @@ export default function MyRequests() {
             relative: true,
           })}
         </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_, row) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end" className="space-y-1 w-40">
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`requests/${row.id}`);
+              }}
+            >
+              <Eye className="mr-2 w-4 h-4" />
+              View Details
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`requests/${row.id}/edit`);
+              }}
+            >
+              <Pencil className="mr-2 w-4 h-4" />
+              Edit Request
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteId(row.id);
+              }}
+              className="text-red-600 focus:text-red-600"
+            >
+              <Trash className="mr-2 w-4 h-4" />
+              Delete Request
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ] satisfies TableColumn<IndustryRequestResponse>[];
@@ -96,12 +163,21 @@ export default function MyRequests() {
             data={listQuery.data || []}
             isLoading={listQuery.isLoading}
             isError={listQuery.isError}
-            onRowClick={(row) =>
-              router.push(`/dashboard/industry/requests/${row.id}`)
-            }
+            onRowClick={(row) => router.push(`requests/${row.id}`)}
           />
         </div>
       </AdminCard>
+
+      <ConfirmDialog
+        onOpen={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        onConfirm={handleDeleteRequest}
+        isLoading={false}
+        title="Delete Request"
+        description="Are you sure you want to delete this request?"
+        confirmText="Delete Request"
+        variant="destructive"
+      />
     </>
   );
 }
