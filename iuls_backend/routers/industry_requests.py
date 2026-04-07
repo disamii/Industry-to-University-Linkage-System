@@ -5,8 +5,9 @@ import schemas, auth,crud
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 import enums
 from models import *
-from fastapi_pagination import Page, paginate
-
+# Correct
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/industry-requests",
     tags=["industry-requests"],

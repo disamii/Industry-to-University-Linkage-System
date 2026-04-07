@@ -6,8 +6,9 @@ from models import  Industry
 import schemas
 import auth
 from exceptions import BadRequestException, NotFoundException
-from fastapi_pagination import Page, paginate
-
+# Correct
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/industry",
     tags=["industry"],
