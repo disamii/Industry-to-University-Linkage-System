@@ -54,14 +54,11 @@ def update_profile(
     return updated_industry
 
 
-@router.get("/", response_model=List[schemas.Industry])
-def read_industries(skip: int = 0, limit: int = 100, db: Session = Depends(db.get_db)):
-    industries = crud.get_industries(db, skip=skip, limit=limit)
-    return industries
-
 @router.get("/", response_model=Page[schemas.Industry])
 def read_industries(db: Session = Depends(auth.get_db)):
     return paginate(db.query(Industry))
+
+
 
 @router.get("/{industry_id}", response_model=schemas.Industry)
 def read_industry(industry_id: str, db: Session = Depends(db.get_db)):
@@ -69,6 +66,7 @@ def read_industry(industry_id: str, db: Session = Depends(db.get_db)):
     if not db_industry:
         raise NotFoundException(detail="Industry not found")
     return db_industry
+
 
 
 @router.get("/{industry_id}/requests", response_model=List[schemas.IndustryRequest])
