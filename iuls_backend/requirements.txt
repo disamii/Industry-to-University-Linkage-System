@@ -12,3 +12,4 @@ python-jose[cryptography]
 python-multipart
 httpx
 fastapi-pagination
+fastapi-pagination[sqlalchemy]

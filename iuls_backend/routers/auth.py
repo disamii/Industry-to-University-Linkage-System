@@ -1,13 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import timedelta
-import crud
-import auth
-import schemas
-import enums
+from datetime import timedelta 
+import crud, auth,db, schemas, enums
 from config import settings
 from rpms_service import get_user_from_rpms, process_academic_unit
-from exceptions import NotFoundException, UnauthorizedException, ValidationException
+from exceptions import NotFoundException, UnauthorizedException
 from pydantic import BaseModel, EmailStr
 from models import Industry, StaffProfile
 from enums import UserRole
@@ -25,7 +22,7 @@ class LoginRequest(BaseModel):
 @router.post("/login", response_model=schemas.Token)
 async def login(
     request: LoginRequest,
-    db: Session = Depends(auth.get_db)
+    db: Session = Depends(db.get_db)
 ):
     """
     Unified login for User, Admin, and Industry.
@@ -36,9 +33,9 @@ async def login(
     if not account:
         raise NotFoundException(detail="Invalid credentials")
 
-    if account.role == enums.UserRole.USER:
-        if not crud.verify_django_password(password, account.password):
-            raise ValidationException(detail="Invalid credentials")
+    # elif account.role == enums.UserRole.USER:
+    # if not crud.verify_django_password(password, account.password):
+    #         raise ValidationException(detail="Invalid credentials")
     else:
         if not crud.verify_password(password, account.password):
             raise UnauthorizedException(detail="Invalid credentials")
@@ -63,7 +60,7 @@ class CheckEmailRequest(BaseModel):
 @router.post("/check-email")
 async def check_email(
     request: CheckEmailRequest,
-    db: Session = Depends(auth.get_db)
+    db: Session = Depends(db.get_db)
 ):
     """
     Check if an email is already registered.
@@ -126,7 +123,7 @@ class RefreshRequest(BaseModel):
 @router.post("/refresh", response_model=schemas.Token)
 async def refresh_token(
     request: RefreshRequest,
-    db: Session = Depends(auth.get_db)
+    db: Session = Depends(db.get_db)
 ):
     """Exchange a refresh token for a new access + refresh token pair."""
     from jose import JWTError, jwt

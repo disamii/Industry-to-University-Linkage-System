@@ -1,14 +1,17 @@
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from sqlalchemy import func, case
+from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination import Params
+
 import schemas
 import auth
 import crud
+import db
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 import enums
 from models import *
-from fastapi_pagination import Page
-from fastapi_pagination.ext.sqlalchemy import paginate
 
 router = APIRouter(
     prefix="/industry-requests",
@@ -16,32 +19,36 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=Page[schemas.IndustryRequest])
-def read_industry_requests(
-    industry_id: Optional[str] = Query(default=None),
-    db: Session = Depends(auth.get_db),
-    current_user=Depends(auth.get_current_active_user),
-):
-    if not current_user:
-        raise UnauthorizedException(detail="Authentication required")
-
-    if hasattr(current_user, "account") and current_user.account.role == enums.UserRole.INDUSTRY:
-        query = db.query(IndustryRequest).filter(
-            IndustryRequest.industry_id == current_user.id
-        )
-        return paginate(query)
-
+@router.get("/", response_model=schemas.IndustryRequestPage[schemas.IndustryRequest])
+def read_requests(db: Session = Depends(auth.get_db), params: Params = Depends()):
     query = db.query(IndustryRequest)
-    if industry_id:
-        query = query.filter(IndustryRequest.industry_id == industry_id)
 
-    return paginate(query)
+    stats_data = db.query(
+        func.count(IndustryRequest.id).label("total"),
+        func.sum(case((IndustryRequest.status == "PENDING", 1), else_=0)).label(
+            "pending"),
+        func.sum(case((IndustryRequest.status == "COMPLETED", 1), else_=0)).label(
+            "completed"),
+    ).first()
+
+    # Step 1: normal pagination
+    page = paginate(query, params)
+
+    # Step 2: wrap into custom Page with extra fields
+    return schemas.IndustryRequestPage.create(
+        items=page.items,
+        params=params,
+        total=page.total,
+        total_requests=stats_data.total or 0,
+        pending_count=stats_data.pending or 0,
+        completed_count=stats_data.completed or 0,
+    )
 
 
 @router.post("/", response_model=schemas.IndustryRequest)
 def create_industry_request(
     request: schemas.IndustryRequestBase,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user=Depends(auth.get_current_active_industry),
 ):
     if not current_user:
@@ -60,7 +67,7 @@ def create_industry_request(
 @router.get("/{request_id}", response_model=schemas.IndustryRequest)
 def read_industry_request(
     request_id: str,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user=Depends(auth.get_current_active_user),
 ):
     if not current_user:
@@ -75,7 +82,7 @@ def read_industry_request(
 def update_industry_request(
     request_id: str,
     request_update: schemas.IndustryRequestUpdate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user=Depends(auth.get_current_active_user),
 ):
     if not current_user:
