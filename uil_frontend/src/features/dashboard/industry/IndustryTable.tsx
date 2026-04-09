@@ -5,16 +5,16 @@ import {
 } from "@/components/dashboard/table/table-action-dropdown";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
-import { TableColumn } from "@/types/interfaces";
+import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { IndustryResponse } from "@/types/interfaces.industry";
-import { Eye, Pencil, Phone, Trash } from "lucide-react";
+import { Eye, Phone, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Props = {
   query: {
     isLoading: boolean;
     isError: boolean;
-    data?: any;
+    data?: ApiPaginatedResponse<IndustryResponse[]>;
     refetch?: () => void;
   };
 };
@@ -90,11 +90,11 @@ const IndustryTable = ({ query }: Props) => {
             icon: Eye,
             onClick: () => router.push(`partners/${row.id}`),
           },
-          {
-            label: "Edit Industry",
-            icon: Pencil,
-            onClick: () => router.push(`partners/${row.id}/edit`),
-          },
+          // {
+          //   label: "Edit Industry",
+          //   icon: Pencil,
+          //   onClick: () => router.push(`partners/${row.id}/edit`),
+          // },
           {
             label: "Delete Industry",
             icon: Trash,
@@ -113,7 +113,7 @@ const IndustryTable = ({ query }: Props) => {
     <div className="border border-border/40 rounded-[1.5rem] overflow-hidden">
       <DataTable
         columns={columns}
-        data={query.data || []}
+        data={query.data?.items || []}
         isLoading={query.isLoading}
         isError={query.isError}
         refetch={query.refetch}

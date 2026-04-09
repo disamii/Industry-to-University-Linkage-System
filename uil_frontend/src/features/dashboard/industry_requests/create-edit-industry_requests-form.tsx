@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry_request-create-mutation";
 import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry_request-update-mutation";
-import { requestPriorityOptions, requestTypeOptions } from "@/lib/enums";
 import { formatSelectOptions } from "@/lib/utils";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
 import {
@@ -23,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { RequestPriority, RequestType } from "@/lib/enums";
 
 type Props = {
   requestToEdit?: IndustryRequestResponse;
@@ -95,7 +95,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
               name="type"
               label="Request Type"
               placeholder="Select type"
-              options={formatSelectOptions(requestTypeOptions)}
+              options={formatSelectOptions(Object.values(RequestType))}
             />
 
             <FormSelect
@@ -103,7 +103,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
               name="priority"
               label="Priority Level"
               placeholder="Select priority"
-              options={formatSelectOptions(requestPriorityOptions)}
+              options={formatSelectOptions(Object.values(RequestPriority))}
             />
 
             <FormInput

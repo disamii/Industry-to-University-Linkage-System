@@ -4,8 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { userKeys } from "./keys";
 import { userUrls } from "./urls";
 import { User } from "@/types/interfaces.user";
+import { ApiPaginatedResponse } from "@/types/interfaces";
 
-export const getUsers = () => safeApiRequest(api.get<User>(userUrls.base()));
+export const getUsers = () =>
+  safeApiRequest(api.get<ApiPaginatedResponse<User[]>>(userUrls.base()));
 
 export const useGetUsers = () => {
   return useQuery({

@@ -14,3 +14,5 @@ export const LINKS = {
   signin: "/signin",
   rpms: "http://10.161.65.18/auth?mode=signup",
 };
+
+export const PAGE_SIZE = 10;

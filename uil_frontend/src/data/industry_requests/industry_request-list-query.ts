@@ -4,10 +4,13 @@ import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
 import { useQuery } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
+import { ApiPaginatedResponse } from "@/types/interfaces";
 
 export const getIndustryRequestList = () => {
   return safeApiRequest(
-    api.get<IndustryRequestResponse[]>(industryRequestUrls.base()),
+    api.get<ApiPaginatedResponse<IndustryRequestResponse[]>>(
+      industryRequestUrls.base(),
+    ),
   );
 };
 

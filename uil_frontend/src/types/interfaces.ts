@@ -2,6 +2,14 @@ export type ApiErrorResponse = {
   detail: string;
 };
 
+export type ApiPaginatedResponse<T> = {
+  items: T;
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+};
+
 type Trend = {
   value: string;
   isPositive: boolean;

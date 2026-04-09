@@ -27,9 +27,8 @@ def get_request_trends(db: Session = Depends(db.get_db)):
         .group_by(IndustryRequest.status)
         .all()
     )
-    
+
     return {
         "labels": [s[0] for s in status_counts],
         "data": [s[1] for s in status_counts]
     }
-

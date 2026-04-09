@@ -10,7 +10,7 @@ import {
 import { ConfirmDialog } from "@/components/reusable/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
-import { TableColumn } from "@/types/interfaces";
+import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
 import { Eye, Pencil, Trash } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ type Props = {
   query: {
     isLoading: boolean;
     isError: boolean;
-    data?: any;
+    data?: ApiPaginatedResponse<IndustryRequestResponse[]>;
     refetch?: () => void;
   };
 };
@@ -122,7 +122,7 @@ const IndustryRequestsTable = ({ query }: Props) => {
       <div className="border border-border/40 rounded-[1.5rem] overflow-hidden">
         <DataTable
           columns={columns}
-          data={query.data || []}
+          data={query.data?.items || []}
           isLoading={query.isLoading}
           isError={query.isError}
           refetch={query.refetch}

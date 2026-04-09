@@ -63,7 +63,11 @@ export const QueryState = ({
   }
 
   // 3. EMPTY STATE (No Data)
-  if (!data || (Array.isArray(data) && data.length === 0)) {
+  if (
+    !data ||
+    (Array.isArray(data) && data.length === 0) ||
+    (Array.isArray(data?.items) && data?.items.length === 0)
+  ) {
     return (
       <div className="flex flex-col justify-center items-center p-8 border-2 border-slate-200 border-dashed rounded-2xl w-full min-h-75 text-center">
         <div className="bg-slate-50 p-4 rounded-2xl text-slate-400">

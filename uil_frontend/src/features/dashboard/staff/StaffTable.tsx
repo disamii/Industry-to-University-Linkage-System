@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getFullName, getNameInitials } from "@/lib/helpers";
-import { TableColumn } from "@/types/interfaces";
+import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { User } from "@/types/interfaces.user";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ type Props = {
   query: {
     isLoading: boolean;
     isError: boolean;
-    data?: any;
+    data?: ApiPaginatedResponse<User[]>;
     refetch?: () => void;
   };
 };
@@ -57,14 +57,14 @@ const StaffTable = ({ query }: Props) => {
       },
     },
     {
-      key: "biography", // NEEDS TO BE CHANGED
-      label: "Department",
-      render: (_) => (
+      key: "academic_unit",
+      label: "Academic Unit",
+      render: (value) => (
         <Badge
           variant="outline"
           className="bg-accent/20 border-border/60 rounded-lg font-medium"
         >
-          Computer Science
+          {value?.name}
         </Badge>
       ),
     },
@@ -131,7 +131,7 @@ const StaffTable = ({ query }: Props) => {
     <div className="border border-border/40 rounded-[1.5rem] overflow-hidden">
       <DataTable
         columns={columns}
-        data={query.data || []}
+        data={query.data?.items || []}
         isLoading={query.isLoading}
         isError={query.isError}
         refetch={query.refetch}
