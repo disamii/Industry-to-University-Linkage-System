@@ -35,7 +35,7 @@ services:
       - ./iuls_backend/.env
     depends_on:
       - db
-    restart: "no"             
+    restart: "no"
 
   frontend:
     build:
@@ -45,7 +45,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - API_DOCKER_INTERNAL_URL=http://backend:8000
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+      - RUNNING_IN_DOCKER=true
       - WATCHPACK_POLLING=true
     depends_on:
       - backend

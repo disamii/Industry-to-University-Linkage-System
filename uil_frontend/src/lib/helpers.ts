@@ -1,6 +1,7 @@
 export const getNameInitials = (name: string) =>
   name
     ?.split(" ")
+    ?.slice(0, 2)
     .map((n: string) => n[0])
     .join("")
     .toUpperCase();
