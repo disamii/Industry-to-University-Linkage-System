@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 import crud
-from models import *
+from models import Industry
 import schemas
 import auth
 from exceptions import BadRequestException, NotFoundException
-
+# Correct
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/industry",
     tags=["industry"],
@@ -52,10 +54,9 @@ def update_profile(
     return updated_industry
 
 
-@router.get("/", response_model=List[schemas.Industry])
-def read_industries(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
-    industries = crud.get_industries(db, skip=skip, limit=limit)
-    return industries
+@router.get("/", response_model=Page[schemas.Industry])
+def read_industries(db: Session = Depends(auth.get_db)):
+    return paginate(db.query(Industry))
 
 
 @router.get("/{industry_id}", response_model=schemas.Industry)

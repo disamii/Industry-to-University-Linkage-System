@@ -6,17 +6,21 @@ import schemas
 from models import  *
 import auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
-
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/org-units",
     tags=["org-units"],
 )
 
 
-@router.get("/", response_model=List[schemas.OrgUnit])
-def read_org_units(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
-    units = crud.get_org_units(db, skip=skip, limit=limit)
-    return units
+@router.get("/", response_model=Page[schemas.OrgUnit])
+def read_org_units(db: Session = Depends(auth.get_db)):
+    """
+    Returns a paginated list of all Organizational Units.
+    """
+    query = db.query(OrganizationalUnit)    
+    return paginate(query)
 
 
 @router.post("/", response_model=schemas.OrgUnit)
@@ -49,6 +53,10 @@ def read_org_unit(unit_id: str, db: Session = Depends(auth.get_db)):
     if db_unit is None:
         raise NotFoundException(detail="Organizational Unit not found")
     return db_unit
+
+
+
+
 
 
 @router.get("/{unit_id}/subunits", response_model=List[schemas.OrgUnit])
