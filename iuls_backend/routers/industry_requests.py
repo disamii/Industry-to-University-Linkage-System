@@ -1,9 +1,9 @@
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, case
 from fastapi_pagination.ext.sqlalchemy import paginate
-from fastapi_pagination import Params
+from fastapi_pagination import Params, Page
 
 import schemas
 import auth
@@ -110,3 +110,46 @@ def update_industry_request(
         return db_request
     except Exception as e:
         raise BadRequestException(detail=str(e))
+
+
+def get_admin_request_query(db: Session, request_id: str = None):
+    """
+    Centralized query builder for Admin views.
+    """
+    # Base query with the industry data joined
+    query = db.query(IndustryRequest).options(
+        joinedload(IndustryRequest.industry))
+
+    if request_id:
+        return query.filter(IndustryRequest.id == request_id).first()
+
+    return query.order_by(IndustryRequest.created_at.desc())
+
+
+@router.get("/admin/all", response_model=Page[schemas.IndustryRequestForAdmin])
+def read_all_requests_with_industry_data(
+    db: Session = Depends(db.get_db),
+    _=Depends(auth.require_admin)
+):
+    """
+    Returns all requests with industry data.
+    """
+    query = get_admin_request_query(db)
+    return paginate(query)
+
+
+@router.get("/admin/details/{request_id}", response_model=schemas.IndustryRequestForAdmin)
+def read_request_admin_detail(
+    request_id: str,
+    db: Session = Depends(db.get_db),
+    _=Depends(auth.require_admin)
+):
+    """
+    Returns a single request with full industry details.
+    """
+    db_request = get_admin_request_query(db, request_id=request_id)
+
+    if not db_request:
+        raise NotFoundException(detail="Request not found")
+
+    return db_request

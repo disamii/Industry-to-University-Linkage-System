@@ -201,6 +201,13 @@ class IndustryRequest(IndustryRequestBase):
     class Config:
         from_attributes = True
 
+
+class IndustryRequestForAdmin(IndustryRequest):
+    industry: Industry
+
+    class Config:
+        from_attributes = True
+
 # --- Post and Content Schemas ---
 
 
@@ -279,10 +286,12 @@ class AnalyticsOverview(BaseModel):
     pending_requests: int
     total_industries: int
 
+
 class DepartmentStats(BaseModel):
     name: str
     staff_count: int
     active_assignments: int
+
 
 class StaffAnalytics(BaseModel):
     by_department: List[DepartmentStats]
