@@ -147,8 +147,6 @@ class AuthorType(str, Enum):
         ]
 
 class AssignmentStatus(str, Enum):
-    PENDING = "PENDING"
-    ASSIGNED = "ASSIGNED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
 

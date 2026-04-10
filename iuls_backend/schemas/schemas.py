@@ -108,7 +108,7 @@ class OrgUnit(OrgUnitBase):
 
 
 class AssignmentBase(BaseModel):
-    status: Optional[AssignmentStatus] = AssignmentStatus.PENDING
+    status: Optional[AssignmentStatus] = AssignmentStatus.IN_PROGRESS
     progress: Optional[str] = "0%"
 
 
