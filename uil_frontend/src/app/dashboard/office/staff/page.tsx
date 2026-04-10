@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetUsers } from "@/data/user/users-query";
+import { useGetUsers } from "@/data/user/user-list-query";
 import StaffTable from "@/features/dashboard/staff/StaffTable";
 import { Search } from "lucide-react";
 

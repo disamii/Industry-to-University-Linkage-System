@@ -2,7 +2,6 @@
 
 import AdminCard from "@/components/dashboard/reusable/admin-card";
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
-import { StatusBadge } from "@/components/dashboard/reusable/badges";
 import { QueryState } from "@/components/dashboard/reusable/query-state-ui";
 import { Badge } from "@/components/ui/badge";
 import { recentRequests } from "@/data/dummy-data";
@@ -36,7 +35,7 @@ const IndustryDetailPage = ({ id }: Props) => {
             />
 
             <div className="flex flex-wrap items-center gap-3">
-              <StatusBadge status={industry.status} />
+              {/* <StatusBadge status={industry.status} /> */}
               {industry.industry_type && (
                 <Badge variant="secondary" className="px-3 rounded-full h-6">
                   {industry.industry_type}
@@ -159,7 +158,13 @@ const IndustryDetailPage = ({ id }: Props) => {
                 query={{
                   isLoading: false,
                   isError: false,
-                  data: recentRequests || [],
+                  data: {
+                    items: recentRequests || [],
+                    total: 20,
+                    page: 10,
+                    size: 50,
+                    pages: 20,
+                  },
                 }}
               />
             </AdminCard>

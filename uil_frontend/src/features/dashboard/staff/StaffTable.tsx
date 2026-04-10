@@ -69,6 +69,11 @@ const StaffTable = ({ query }: Props) => {
       ),
     },
     {
+      key: "assignments",
+      label: "Assigned Tasks",
+      render: (value) => <p>{value?.length}</p>,
+    },
+    {
       key: "research_interests",
       label: "Research Interests",
       render: (value) => {

@@ -11,7 +11,7 @@ type Link = {
 };
 
 type Props = {
-  title: string;
+  title?: string;
   desc?: string;
   links?: Link | Link[];
   backLink?: Link;
@@ -34,10 +34,12 @@ const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
         )}
 
         <div>
-          <h1 className="font-bold text-foreground text-3xl md:text-4xl tracking-tight">
-            {title}
-          </h1>
-          <p className="mt-1 text-muted-foreground">{desc?.trim()}</p>
+          {title && (
+            <h1 className="font-bold text-foreground text-3xl md:text-4xl tracking-tight">
+              {title}
+            </h1>
+          )}
+          {desc && <p className="mt-1 text-muted-foreground">{desc?.trim()}</p>}
         </div>
       </div>
 
