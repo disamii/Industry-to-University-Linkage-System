@@ -11,6 +11,9 @@ from exceptions import BadRequestException, NotFoundException
 # Correct
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
+import enums
+from models import *
+
 router = APIRouter(
     prefix="/industry",
     tags=["industry"],
@@ -69,22 +72,20 @@ def read_industry(industry_id: str, db: Session = Depends(db.get_db)):
     return db_industry
 
 
-@router.get("/{industry_id}/requests", response_model=List[schemas.IndustryRequest])
+@router.get("/{industry_id}/requests", response_model=Page[schemas.IndustryRequest])
 def read_industry_requests_by_industry(
     industry_id: str,
-    skip: int = 0,
-    limit: int = 100,
     db: Session = Depends(db.get_db),
     current_user=Depends(auth.get_current_active_user)
 ):
     """
-    Get all requests for a specific industry.
+    Get all requests for a specific industry with pagination.
     """
     db_industry = crud.get_industry(db, industry_id=industry_id)
     if not db_industry:
         raise NotFoundException(detail="Industry not found")
 
-    # Protection: Industry can only see their own requests unless admin
+    # Permission logic remains the same
     is_admin = current_user.account.role == UserRole.ADMIN
     is_owner = (
         current_user.account.role == UserRole.INDUSTRY
@@ -96,4 +97,8 @@ def read_industry_requests_by_industry(
         raise ForbiddenException(
             detail="You do not have permission to view these requests")
 
-    return crud.get_industry_requests_by_industry(db, industry_id=industry_id, skip=skip, limit=limit)
+    # 1. Get the SQLAlchemy Query object from CRUD (not the result list)
+    query = crud.get_industry_requests_by_industry(db, industry_id=industry_id)
+
+    # 2. Return the paginated result
+    return paginate(db, query)

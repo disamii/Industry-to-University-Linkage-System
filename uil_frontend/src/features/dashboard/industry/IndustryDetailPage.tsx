@@ -4,8 +4,8 @@ import AdminCard from "@/components/dashboard/reusable/admin-card";
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
 import { QueryState } from "@/components/dashboard/reusable/query-state-ui";
 import { Badge } from "@/components/ui/badge";
-import { recentRequests } from "@/data/dummy-data";
 import { useGetIndustryDetail } from "@/data/industry/industry-detail-query";
+import { useGetIndustryRequestsListByIndustryId } from "@/data/industry/industry-requests-by-industry_id-list-query";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Globe, Mail, MapPin, Phone, User } from "lucide-react";
 import IndustryRequestsTable from "../industry_requests/IndustryRequestsTable";
@@ -16,6 +16,7 @@ type Props = {
 
 const IndustryDetailPage = ({ id }: Props) => {
   const detailQuery = useGetIndustryDetail(id);
+  const requestsQuery = useGetIndustryRequestsListByIndustryId(id);
 
   return (
     <QueryState
@@ -30,7 +31,7 @@ const IndustryDetailPage = ({ id }: Props) => {
               title={industry.name}
               backLink={{
                 linkLabel: "Back to Industries",
-                href: "/dashboard/office/partners",
+                // href: "/dashboard/office/partners",
               }}
             />
 
@@ -154,19 +155,7 @@ const IndustryDetailPage = ({ id }: Props) => {
               className="col-span-full bg-transparent border-none"
               padding="px-3 md:px-8 pt-3"
             >
-              <IndustryRequestsTable
-                query={{
-                  isLoading: false,
-                  isError: false,
-                  data: {
-                    items: recentRequests || [],
-                    total: 20,
-                    page: 10,
-                    size: 50,
-                    pages: 20,
-                  },
-                }}
-              />
+              <IndustryRequestsTable query={requestsQuery} />
             </AdminCard>
           </div>
         </div>

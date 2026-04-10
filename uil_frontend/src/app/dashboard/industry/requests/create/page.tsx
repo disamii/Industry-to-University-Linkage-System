@@ -10,7 +10,7 @@ export default function SubmitRequest() {
           with university experts."
         backLink={{
           linkLabel: "Back to Dashboard",
-          href: "/dashboard/industry",
+          // href: "/dashboard/industry",
         }}
       />
 

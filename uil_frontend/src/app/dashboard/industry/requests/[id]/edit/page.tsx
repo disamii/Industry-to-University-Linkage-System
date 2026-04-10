@@ -18,7 +18,7 @@ const EditIndustryRequestsPage = async ({ params }: Props) => {
         title="Edit Your Request"
         backLink={{
           linkLabel: "Back to Requests",
-          href: "/dashboard/industry/requests",
+          // href: "/dashboard/industry/requests",
         }}
       />
 

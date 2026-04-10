@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Search, SlidersHorizontal, Building2, LayoutGrid } from "lucide-react";
+import {
+  PriorityBadge,
+  StatusBadge,
+} from "@/components/dashboard/reusable/badges";
+import { DataTable } from "@/components/dashboard/table/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,11 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DataTable } from "@/components/dashboard/table/data-table";
-import {
-  PriorityBadge,
-  StatusBadge,
-} from "@/components/dashboard/reusable/badges";
+import { LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AdminRequestsManagement() {
   const router = useRouter();
@@ -84,9 +83,6 @@ export default function AdminRequestsManagement() {
       label: "Industry Partner",
       render: (value: string) => (
         <div className="flex items-center gap-2">
-          <div className="bg-primary/10 p-1.5 rounded-lg text-primary">
-            <Building2 size={14} />
-          </div>
           <span className="font-bold text-foreground tracking-tight">
             {value}
           </span>

@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import React from "react";
 import { Button } from "../../ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Link = {
   linkLabel: string;
@@ -19,18 +22,19 @@ type Props = {
 
 const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
   const linksArr = !links ? [] : Array.isArray(links) ? links : [links];
+  const router = useRouter();
 
   return (
     <div className="flex sm:flex-row flex-col justify-between sm:items-center gap-4">
       <div className="flex flex-col gap-4">
         {backLink && (
-          <Link
-            href={backLink.href!}
+          <button
+            onClick={() => router.back()}
             className="group inline-flex items-center gap-2 font-bold text-muted-foreground hover:text-primary text-sm transition-colors"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             {backLink.linkLabel}
-          </Link>
+          </button>
         )}
 
         <div>

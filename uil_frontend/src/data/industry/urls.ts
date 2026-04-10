@@ -5,4 +5,5 @@ export const industryUrls = {
   register: () => `${base}/register`,
   profile: () => `${base}/me/profile`,
   byId: (id: string) => `${base}/${id}`,
+  requests: (id: string) => `${base}/${id}/requests`,
 };

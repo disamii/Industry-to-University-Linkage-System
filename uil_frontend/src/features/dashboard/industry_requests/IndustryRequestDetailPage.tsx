@@ -42,7 +42,7 @@ const RequestDetailPage = ({ id }: Props) => {
               title={request.title}
               backLink={{
                 linkLabel: "Back to My Requests",
-                href: "/dashboard/industry/requests",
+                // href: "/dashboard/industry/requests",
               }}
               links={{
                 href: `${request.id}/edit`,
