@@ -156,8 +156,6 @@ class RequestStatus(str, Enum):
     PENDING = "PENDING"
     IN_REVIEW = "IN_REVIEW"
     ASSIGNED = "ASSIGNED"
-    IN_PROGRESS = "IN_PROGRESS"
-    COMPLETED = "COMPLETED"
     REJECTED = "REJECTED"
 
 class RequestPriority(str, Enum):
