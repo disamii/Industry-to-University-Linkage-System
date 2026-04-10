@@ -2,6 +2,19 @@ export type ApiErrorResponse = {
   detail: string;
 };
 
+type Trend = {
+  value: string;
+  isPositive: boolean;
+};
+
+export type Stats = {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  color: string;
+  trend: Trend;
+};
+
 export type TableColumn<T> =
   | {
       [K in keyof T]: {

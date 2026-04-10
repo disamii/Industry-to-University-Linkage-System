@@ -22,7 +22,7 @@ export function Spinner({
     <LoaderIcon
       role="status"
       aria-label="Loading"
-      className={cn("text-primary animate-spin", sizeVariants[size], className)}
+      className={cn("animate-spin", sizeVariants[size], className)}
       {...props}
     />
   );

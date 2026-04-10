@@ -1,5 +1,10 @@
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import func, case
+
 from typing import List
 import crud, schemas, auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException  # add these if not yet created
@@ -9,11 +14,39 @@ router = APIRouter(
     tags=["posts"],
 )
 
-@router.get("/", response_model=List[schemas.Post])
-def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
-    posts = crud.get_posts(db, skip=skip, limit=limit)
-    return posts
 
+
+
+@router.get("/", response_model=schemas.PostPage[schemas.Post])
+def read_posts(
+    db: Session = Depends(auth.get_db),
+    params: Params = Depends(),
+):
+    query = db.query(Post)
+    page = paginate(query, params)
+
+    stats_data = db.query(
+        func.count(Post.id).label("total"),
+        func.sum(case((Post.status == "published", 1), else_=0)).label("published"),
+        func.sum(case((Post.status == "draft", 1), else_=0)).label("draft"),
+    ).first()
+    
+    
+    
+    return pagination.PostPage(
+        items=page.items,
+        total=page.total,
+        page=page.page,
+        size=page.size,
+        pages=page.pages,
+        total_posts=stats_data.total or 0,
+        published_count=stats_data.published or 0,
+        draft_count=stats_data.draft or 0,
+    )
+    
+    
+    
+    
 @router.post("/", response_model=schemas.Post)
 def create_post(
     post: schemas.PostCreate,

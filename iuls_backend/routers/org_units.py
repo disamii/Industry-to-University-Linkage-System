@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud
+import crud,db
 import schemas
 from models import  *
 import auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
-
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/org-units",
     tags=["org-units"],
@@ -14,7 +15,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.OrgUnit])
-def read_org_units(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
+def read_org_units(skip: int = 0, limit: int = 100, db: Session = Depends(db.get_db)):
     units = crud.get_org_units(db, skip=skip, limit=limit)
     return units
 
@@ -22,7 +23,7 @@ def read_org_units(skip: int = 0, limit: int = 100, db: Session = Depends(auth.g
 @router.post("/", response_model=schemas.OrgUnit)
 def create_org_unit(
     unit: schemas.OrgUnitCreate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user:  StaffProfile = Depends(auth.get_current_active_user)
 ):
     if not current_user:
@@ -44,15 +45,19 @@ def create_org_unit(
 
 
 @router.get("/{unit_id}", response_model=schemas.OrgUnit)
-def read_org_unit(unit_id: str, db: Session = Depends(auth.get_db)):
+def read_org_unit(unit_id: str, db: Session = Depends(db.get_db)):
     db_unit = crud.get_org_unit(db, unit_id=unit_id)
     if db_unit is None:
         raise NotFoundException(detail="Organizational Unit not found")
     return db_unit
 
 
+
+
+
+
 @router.get("/{unit_id}/subunits", response_model=List[schemas.OrgUnit])
-def read_subunits(unit_id: str, db: Session = Depends(auth.get_db)):
+def read_subunits(unit_id: str, db: Session = Depends(db.get_db)):
     db_unit = crud.get_org_unit(db, unit_id=unit_id)
     if db_unit is None:
         raise NotFoundException(detail="Organizational Unit not found")

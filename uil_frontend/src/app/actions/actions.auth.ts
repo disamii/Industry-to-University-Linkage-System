@@ -1,12 +1,13 @@
 "use server";
 
 import { UserRole } from "@/lib/enums";
-import { signin } from "@/services/services.auth";
-import { getMe } from "@/services/services.user";
 import { decodeJwt } from "jose";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SigninInput } from "../../validation/validation.auth";
+import { getMe } from "@/data/user/current_user-profile-query";
+import { signin } from "@/data/auth/sigin-mutation";
+import { getAdminHomepageLink } from "@/lib/utils";
 
 export async function signinAction(data: SigninInput) {
   const response = await signin(data);
@@ -39,21 +40,7 @@ export async function signinAction(data: SigninInput) {
   const userProfile = await getMe();
 
   // Map roles to paths
-  let targetPath = "/dashboard";
-
-  switch (role) {
-    case UserRole.ADMIN:
-      targetPath = "/dashboard/office";
-      break;
-    case UserRole.INDUSTRY:
-      targetPath = "/dashboard/industry";
-      break;
-    case UserRole.USER:
-      targetPath = "/dashboard/staff";
-      break;
-    default:
-      break;
-  }
+  const targetPath = getAdminHomepageLink(role);
 
   revalidatePath(targetPath);
 

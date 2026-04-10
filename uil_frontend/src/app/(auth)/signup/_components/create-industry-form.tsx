@@ -7,24 +7,25 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  CreateIndustryInput,
-  createIndustrySchema,
-} from "@/validation/validation.auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { useCreateIndustryMutation } from "../../_hooks/useAuth";
+import {
+  IndustryCreateInput,
+  industryCreateSchema,
+  industryDefaultValues,
+} from "@/validation/validation.industry";
+import { useIndustryCreateMutation } from "@/data/industry/industry-create-mutation";
 
 type Props = {
   setStep: (step: number) => void;
 };
 
 const CreateIndustryForm = ({ setStep }: Props) => {
-  const { mutate, isPending: isSubmitting } = useCreateIndustryMutation();
+  const { mutate, isPending: isSubmitting } = useIndustryCreateMutation();
 
-  const form = useForm<CreateIndustryInput>({
-    resolver: zodResolver(createIndustrySchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+  const form = useForm<IndustryCreateInput>({
+    resolver: zodResolver(industryCreateSchema),
+    defaultValues: industryDefaultValues,
   });
 
   const name = useWatch({
@@ -36,7 +37,7 @@ const CreateIndustryForm = ({ setStep }: Props) => {
     name: "email",
   });
 
-  const onSubmit = (data: CreateIndustryInput) =>
+  const onSubmit = (data: IndustryCreateInput) =>
     mutate(data, {
       onSuccess: () => {
         form.reset();

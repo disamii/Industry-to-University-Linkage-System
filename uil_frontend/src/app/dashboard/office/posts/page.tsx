@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/dashboard/reusable/data-table";
+import { DataTable } from "@/components/dashboard/table/data-table";
 import {
   StatusBadge,
   PriorityBadge,

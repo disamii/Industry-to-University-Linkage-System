@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DataTable } from "@/components/dashboard/reusable/data-table";
+import { DataTable } from "@/components/dashboard/table/data-table";
 import {
   PriorityBadge,
   StatusBadge,

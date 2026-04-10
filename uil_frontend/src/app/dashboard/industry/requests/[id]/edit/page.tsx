@@ -1,6 +1,6 @@
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
 import { Spinner } from "@/components/reusable/spinner";
-import { getIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-mutation";
+import { getIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-query";
 import CreateEditIndustryRequestsForm from "@/features/dashboard/industry_requests/create-edit-industry_requests-form";
 import { Suspense } from "react";
 

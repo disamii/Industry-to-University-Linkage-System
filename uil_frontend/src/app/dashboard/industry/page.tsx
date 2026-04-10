@@ -5,6 +5,7 @@ import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title
 import { StatusBadge } from "@/components/dashboard/reusable/badges";
 import { StatCard } from "@/components/dashboard/reusable/stat-card";
 import { notifications, recentRequests, stats } from "@/data/dummy-data";
+import { formatDate } from "@/lib/utils";
 import { BellRing, ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -44,7 +45,7 @@ export default function IndustryDashboard() {
                   {request.title}
                 </h3>
                 <p className="mt-1 text-muted-foreground text-xs">
-                  {request.date}
+                  {formatDate(request.created_at)}
                 </p>
               </div>
               <div className="flex items-center gap-3">

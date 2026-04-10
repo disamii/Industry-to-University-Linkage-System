@@ -1,4 +1,6 @@
+const base = "/industry-requests";
+
 export const industryRequestUrls = {
-  base: () => `/industry-requests`,
-  byId: (id: string) => `/industry-requests/${id}`,
+  base: () => base,
+  byId: (id: string) => `${base}/${id}`,
 };

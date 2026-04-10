@@ -3,11 +3,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from exceptions import BadRequestException, InternalServerErrorException, UnauthorizedException
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from typing import List
-import crud
+from typing import List 
+import crud, schemas, auth
 from  models import *
-import schemas
-import auth
 from config import settings
 from rpms_service import get_user_from_rpms
 
@@ -16,29 +14,6 @@ router = APIRouter(
     tags=["users"],
 )
 
-
-# @router.post(
-#     "/create-admin-industry",
-#     response_model=schemas.User,
-#     status_code=status.HTTP_201_CREATED,
-# )
-# async def create_admin_or_industry_user(
-#     user: schemas.UserCreateWithRole,
-#     db: Session = Depends(auth.get_db),
-#     current_user:  User = Depends(auth.require_admin)
-# ):
-#     """Admin-only endpoint to create admin or industry users"""
-#     if user.role not in [ UserRole.ADMIN,  UserRole.INDUSTRY]:
-#         raise BadRequestException(detail="Only admin and industry roles can be created manually")
-    
-#     existing_user = crud.get_user_by_email(db, email=user.email)
-#     if existing_user:
-#         raise BadRequestException(detail="Email is already registered")
-    
-#     created_user = crud.create_user(db=db, user=user)
-#     if not created_user:
-#         raise InternalServerErrorException(detail="Failed to create user")
-#     return created_user
 
 
 @router.get("/me", response_model=schemas.User)

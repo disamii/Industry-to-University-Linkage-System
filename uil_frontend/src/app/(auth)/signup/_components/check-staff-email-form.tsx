@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import { AlertCircle, ExternalLink, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import { useCheckStaffEmail } from "../../_hooks/useAuth";
+
 import RpmsProfileFoundDialog from "./rpms-profile-found-dialog";
+import { useCheckStaffEmail } from "@/data/auth/check-staff-email-mutation";
 
 type Props = {
   setStep: (step: number) => void;

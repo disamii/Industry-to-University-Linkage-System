@@ -271,3 +271,18 @@ class ErrorResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class AnalyticsOverview(BaseModel):
+    total_staff: int
+    active_projects: int
+    pending_requests: int
+    total_industries: int
+
+class DepartmentStats(BaseModel):
+    name: str
+    staff_count: int
+    active_assignments: int
+
+class StaffAnalytics(BaseModel):
+    by_department: List[DepartmentStats]

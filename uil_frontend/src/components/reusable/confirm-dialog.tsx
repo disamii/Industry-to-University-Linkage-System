@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Spinner } from "./spinner";
 
 interface ConfirmDialogProps {
   onOpen: boolean;
@@ -50,13 +51,16 @@ export function ConfirmDialog({
               onConfirm();
             }}
             disabled={isLoading}
-            className={
-              variant === "destructive"
-                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                : ""
-            }
+            variant={variant}
           >
-            {isLoading ? "Processing..." : confirmText}
+            {isLoading ? (
+              <div className="flex items-center gap-1">
+                <Spinner size="sm" />
+                <span>Processing...</span>
+              </div>
+            ) : (
+              confirmText
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

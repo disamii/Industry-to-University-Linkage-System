@@ -20,6 +20,7 @@ type DataTableProps<T> = {
   isLoading?: boolean;
   isError?: boolean;
   emptyMessage?: string;
+  refetch?: () => void;
 };
 
 export function DataTable<T>({
@@ -29,6 +30,7 @@ export function DataTable<T>({
   isLoading,
   isError,
   emptyMessage,
+  refetch,
 }: DataTableProps<T>) {
   const colSpan = columns.length;
 
@@ -64,7 +66,7 @@ export function DataTable<T>({
           {!isLoading && isError && (
             <TableRow>
               <TableCell colSpan={colSpan}>
-                <TableState type="error" />
+                <TableState type="error" refetch={refetch} />
               </TableCell>
             </TableRow>
           )}

@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud
 from models import *
+from models import  Industry
 import schemas
-import auth
+import crud,auth,db
 from exceptions import BadRequestException, NotFoundException
-
+# Correct
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(
     prefix="/industry",
     tags=["industry"],
@@ -16,7 +18,7 @@ router = APIRouter(
 @router.post("/register", response_model=schemas.Industry)
 def register_industry(
     industry: schemas.IndustryCreate,
-    db: Session = Depends(auth.get_db)
+    db: Session = Depends(db.get_db)
 ):
     # Email uniqueness
     existing_industry = crud.get_industry_by_email(db, email=industry.email)
@@ -39,7 +41,7 @@ def register_industry(
 @router.put("/me/profile", response_model=schemas.Industry)
 def update_profile(
     profile_update: schemas.IndustryProfileUpdate,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_industry:  Industry = Depends(auth.get_current_active_industry)
 ):
     """
@@ -52,18 +54,19 @@ def update_profile(
     return updated_industry
 
 
-@router.get("/", response_model=List[schemas.Industry])
-def read_industries(skip: int = 0, limit: int = 100, db: Session = Depends(auth.get_db)):
-    industries = crud.get_industries(db, skip=skip, limit=limit)
-    return industries
+@router.get("/", response_model=Page[schemas.Industry])
+def read_industries(db: Session = Depends(auth.get_db)):
+    return paginate(db.query(Industry))
+
 
 
 @router.get("/{industry_id}", response_model=schemas.Industry)
-def read_industry(industry_id: str, db: Session = Depends(auth.get_db)):
+def read_industry(industry_id: str, db: Session = Depends(db.get_db)):
     db_industry = crud.get_industry(db, industry_id=industry_id)
     if not db_industry:
         raise NotFoundException(detail="Industry not found")
     return db_industry
+
 
 
 @router.get("/{industry_id}/requests", response_model=List[schemas.IndustryRequest])
@@ -71,7 +74,7 @@ def read_industry_requests_by_industry(
     industry_id: str,
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(auth.get_db),
+    db: Session = Depends(db.get_db),
     current_user=Depends(auth.get_current_active_user)
 ):
     """
