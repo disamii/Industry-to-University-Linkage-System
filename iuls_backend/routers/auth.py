@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import timedelta 
-import crud, auth,db, schemas, enums
+from datetime import timedelta
+import crud
+import auth
+import db
+import schemas
+import enums
 from config import settings
 from rpms_service import get_user_from_rpms, process_academic_unit
 from exceptions import NotFoundException, UnauthorizedException

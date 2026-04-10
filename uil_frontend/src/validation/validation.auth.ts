@@ -12,3 +12,9 @@ export const checkStaffEmailSchema = z.object({
 });
 
 export type CheckStaffEmailInput = z.infer<typeof checkStaffEmailSchema>;
+
+export const refreshTokenSchema = z.object({
+  refresh_token: z.string(),
+});
+
+export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
