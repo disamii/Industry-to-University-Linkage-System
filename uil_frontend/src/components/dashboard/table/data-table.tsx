@@ -40,9 +40,9 @@ export function DataTable<T>({
         {/* Header */}
         <TableHeader>
           <TableRow>
-            {columns.map((col) => (
+            {columns.map((col, idx) => (
               <TableHead
-                key={String(col.key)}
+                key={`${String(col.key)}-${idx}`}
                 className="bg-[#fcfcfd] dark:bg-slate-950 px-6 py-4 font-bold text-[11px] text-muted-foreground uppercase tracking-widest"
               >
                 {col.label}
@@ -92,12 +92,12 @@ export function DataTable<T>({
                   onRowClick && "cursor-pointer",
                 )}
               >
-                {columns.map((col) => {
+                {columns.map((col, idx) => {
                   const value = row[col.key];
 
                   return (
                     <TableCell
-                      key={String(col.key)}
+                      key={`${String(col.key)}-${idx}`}
                       className="px-6 py-4 font-medium text-foreground/80 text-sm"
                     >
                       {col.render ? col.render(value, row) : String(value)}

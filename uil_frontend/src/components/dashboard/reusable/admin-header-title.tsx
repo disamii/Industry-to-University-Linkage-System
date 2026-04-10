@@ -43,7 +43,9 @@ const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
               {title}
             </h1>
           )}
-          {desc && <p className="mt-1 text-muted-foreground">{desc?.trim()}</p>}
+          <p className="mt-1 text-muted-foreground">
+            {desc?.replace(/\s+/g, " ").trim()}
+          </p>
         </div>
       </div>
 

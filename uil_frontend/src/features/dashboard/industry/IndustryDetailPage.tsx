@@ -8,7 +8,7 @@ import { useGetIndustryDetail } from "@/data/industry/industry-detail-query";
 import { useGetIndustryRequestsListByIndustryId } from "@/data/industry/industry-requests-by-industry_id-list-query";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Globe, Mail, MapPin, Phone, User } from "lucide-react";
-import IndustryRequestsTable from "../industry_requests/IndustryRequestsTable";
+import IndustryRequestsTableForAdmin from "../industry_requests/IndustryRequestsTableForAdmin";
 
 type Props = {
   id: string;
@@ -148,14 +148,13 @@ const IndustryDetailPage = ({ id }: Props) => {
               </div>
             </AdminCard>
 
-            {/* Include search and filters */}
             {/* Recent Requests Card */}
             <AdminCard
               title={`${industry.name} Requests`}
               className="col-span-full bg-transparent border-none"
               padding="px-3 md:px-8 pt-3"
             >
-              <IndustryRequestsTable query={requestsQuery} />
+              <IndustryRequestsTableForAdmin query={requestsQuery} />
             </AdminCard>
           </div>
         </div>

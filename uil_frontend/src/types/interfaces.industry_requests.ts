@@ -1,5 +1,6 @@
 import { industryRequestBaseSchema } from "@/validation/validation.industry_requests";
 import { z } from "zod";
+import { industrySchema } from "./interfaces.industry";
 
 export const industryRequestSchema = industryRequestBaseSchema.extend({
   id: z.string(),
@@ -9,3 +10,11 @@ export const industryRequestSchema = industryRequestBaseSchema.extend({
 });
 
 export type IndustryRequestResponse = z.infer<typeof industryRequestSchema>;
+
+export const industryRequestSchemaForAdmin = industryRequestSchema.extend({
+  industry: z.optional(industrySchema),
+});
+
+export type IndustryRequestResponseForAdmin = z.infer<
+  typeof industryRequestSchemaForAdmin
+>;
