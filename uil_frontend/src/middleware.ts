@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decodeJwt } from "jose";
 import { UserRole } from "./lib/enums";
+import { LINKS } from "./lib/constants";
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
@@ -10,7 +11,7 @@ export async function middleware(request: NextRequest) {
 
   // 1. Public redirect for missing tokens
   if (!token && pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/signin", request.url));
+    return NextResponse.redirect(new URL(LINKS.signin, request.url));
   }
 
   if (token && pathname.startsWith("/dashboard")) {
@@ -27,12 +28,14 @@ export async function middleware(request: NextRequest) {
 
       for (const [path, requiredRole] of Object.entries(rolePaths)) {
         if (pathname.startsWith(path) && role !== requiredRole) {
-          return NextResponse.redirect(new URL("/unauthorized", request.url));
+          return NextResponse.redirect(
+            new URL(LINKS.unauthorized, request.url),
+          );
         }
       }
     } catch (e: any) {
       console.error(e);
-      return NextResponse.redirect(new URL("/signin", request.url));
+      return NextResponse.redirect(new URL(LINKS.signin, request.url));
     }
   }
 

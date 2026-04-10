@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LINKS } from "@/lib/constants";
 import {
   ArrowRight,
   FileText,
@@ -36,11 +37,15 @@ const STATS = [
 
 const links = [
   {
-    href: "/signup",
+    href: LINKS.signup,
     Icon: ArrowRight,
     label: "Submit Request",
   },
-  { href: "/research", variant: "outline", label: "Explore Research" },
+  {
+    href: LINKS.rpms,
+    variant: "outline",
+    label: "Explore Research",
+  },
 ];
 
 export default function Hero() {

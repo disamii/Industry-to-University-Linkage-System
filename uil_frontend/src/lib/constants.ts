@@ -12,7 +12,9 @@ export const LINKS = {
   terms: "/terms",
   signup: "/signup",
   signin: "/signin",
-  rpms: "http://10.161.65.18/auth?mode=signup",
+  forgot_password: "/forgot-password",
+  unauthorized: "/unauthorized",
+  rpms: "http://10.161.65.18",
 };
 
 export const PAGE_SIZE = 10;

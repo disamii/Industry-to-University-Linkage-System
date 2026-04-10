@@ -1,6 +1,7 @@
 "use client";
 
 import Logo from "@/components/reusable/logo";
+import { LINKS } from "@/lib/constants";
 import { cn, getAdminRole } from "@/lib/utils";
 import {
   Building2,
@@ -71,7 +72,7 @@ const ROUTES = {
         label: "Submit Request",
       },
       {
-        href: "http://10.161.65.18/",
+        href: LINKS.rpms,
         icon: Lightbulb,
         label: "Explore Research",
       },

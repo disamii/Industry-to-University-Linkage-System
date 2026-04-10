@@ -3,6 +3,8 @@
 import { logoutAction } from "@/app/actions/actions.auth";
 import { ConfirmDialog } from "@/components/reusable/confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { LINKS } from "@/lib/constants";
+import { appToast } from "@/lib/toast";
 import { useUserStore } from "@/store/useUserStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
@@ -28,9 +30,10 @@ const LogoutBtn = () => {
       setOpen(false);
 
       // 3. Redirect to signin
-      router.push("/signin");
+      router.push(LINKS.signin);
     } catch (error) {
       console.error("Logout failed", error);
+      appToast.error(`Logout Failed ${error || "Unkown error"}`);
     } finally {
       setIsPending(false);
     }

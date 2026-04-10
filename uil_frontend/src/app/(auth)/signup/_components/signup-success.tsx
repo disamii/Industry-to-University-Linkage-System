@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LINKS } from "@/lib/constants";
 import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
@@ -11,7 +12,7 @@ const SignupSuccess = () => {
       <h2 className="font-bold text-2xl tracking-tighter">
         Registration Success!
       </h2>
-      <Link href="/signin" className="block w-full">
+      <Link href={LINKS.signin} className="block w-full">
         <Button className="rounded-xl w-full h-12 font-bold text-xs uppercase tracking-widest">
           Return to Login
         </Button>

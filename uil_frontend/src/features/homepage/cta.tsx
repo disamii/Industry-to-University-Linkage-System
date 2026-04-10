@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { LINKS } from "@/lib/constants";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -22,7 +23,7 @@ export default function CTA() {
           </div>
 
           <div className="flex gap-3 shrink-0">
-            <Link href="/signup">
+            <Link href={LINKS.signup}>
               <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 px-8 rounded-xl h-12 font-bold text-white transition-all"

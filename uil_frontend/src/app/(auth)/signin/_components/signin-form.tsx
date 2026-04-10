@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useSignin } from "../../_hooks/useSignin";
+import { LINKS } from "@/lib/constants";
 
 const SinginForm = () => {
   const { state, formAction } = useSignin();
@@ -37,7 +38,7 @@ const SinginForm = () => {
             Password
           </Label>
           <Link
-            href="/forgot-password"
+            href={LINKS.forgot_password}
             className="hover:opacity-80 font-bold text-[11px] text-primary uppercase tracking-wider transition-opacity"
           >
             Forgot Password?

@@ -1,6 +1,7 @@
 "use client";
 
 import { CardFooter } from "@/components/ui/card";
+import { LINKS } from "@/lib/constants";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,17 +12,17 @@ const FOOTER_MESSAGES: Record<
   signup: {
     text: "Already have an account?",
     linkLabel: "Sign In",
-    linkHref: "/signin",
+    linkHref: LINKS.signin,
   },
   signin: {
     text: "Don't have an account?",
     linkLabel: "Sign Up",
-    linkHref: "/signup",
+    linkHref: LINKS.signup,
   },
   "forgot-password": {
     text: "Remembered your password?",
     linkLabel: "Sign In",
-    linkHref: "/signin",
+    linkHref: LINKS.signin,
   },
 };
 
