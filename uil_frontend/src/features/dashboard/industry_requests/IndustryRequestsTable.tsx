@@ -1,4 +1,5 @@
 import {
+  DefaultBadge,
   PriorityBadge,
   StatusBadge,
 } from "@/components/dashboard/reusable/badges";
@@ -8,21 +9,16 @@ import {
   DropdownAction,
 } from "@/components/dashboard/table/table-action-dropdown";
 import { ConfirmDialog } from "@/components/reusable/confirm-dialog";
-import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
+import { UseQueryResult } from "@tanstack/react-query";
 import { Eye, Pencil, Trash } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Props = {
-  query: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: ApiPaginatedResponse<IndustryRequestResponse[]>;
-    refetch?: () => void;
-  };
+  query: UseQueryResult<ApiPaginatedResponse<IndustryRequestResponse[]>>;
 };
 
 const IndustryRequestsTable = ({ query }: Props) => {
@@ -54,12 +50,12 @@ const IndustryRequestsTable = ({ query }: Props) => {
       key: "type",
       label: "Category",
       render: (value) => (
-        <Badge variant="secondary">
-          {value
+        <DefaultBadge
+          value={value
             .split("_")
             .map((v) => v[0].toUpperCase() + v.slice(1))
             .join(" ")}
-        </Badge>
+        />
       ),
     },
     {

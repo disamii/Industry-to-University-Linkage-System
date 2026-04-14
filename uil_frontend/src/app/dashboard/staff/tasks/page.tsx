@@ -80,7 +80,7 @@ export default function MyTasksPage() {
   ];
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-8">
       {/* Header Section */}
       <div className="flex md:flex-row flex-col justify-between md:items-end gap-6">
         <div className="space-y-1">

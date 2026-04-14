@@ -1,26 +1,22 @@
 import { Spinner } from "@/components/reusable/spinner";
+import { UseQueryResult } from "@tanstack/react-query";
 import { AlertCircle, RefreshCcw, SearchX } from "lucide-react";
 import React from "react";
 
-interface QueryStateProps {
-  query: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: any;
-    refetch?: () => void;
-  };
-  children: (data: any) => React.ReactNode;
+interface QueryStateProps<T> {
+  query: UseQueryResult<T>;
+  children: (data: T) => React.ReactNode;
   emptyMessage?: string;
   loadingMessage?: string;
 }
 
-export const QueryState = ({
+export const QueryState = <T,>({
   query,
   children,
   emptyMessage = "No records found",
   loadingMessage = "Loading data...",
-}: QueryStateProps) => {
-  const { isLoading, isError, data, refetch } = query;
+}: QueryStateProps<T>) => {
+  const { isLoading, isError, error, data, refetch } = query;
 
   // 1. LOADING STATE
   if (isLoading) {
@@ -45,10 +41,10 @@ export const QueryState = ({
           <AlertCircle className="w-8 h-8" />
         </div>
         <h3 className="mt-4 font-semibold text-slate-900 text-lg">
-          Something went wrong
+          {error?.message || "Something went wrong"}
         </h3>
         <p className="mt-1 max-w-xs text-slate-500 text-sm">
-          We had trouble loading this information. Please try again.
+          We had trouble loading this information.
         </p>
         {refetch && (
           <button
@@ -62,12 +58,18 @@ export const QueryState = ({
     );
   }
 
-  // 3. EMPTY STATE (No Data)
-  if (
-    !data ||
-    (Array.isArray(data) && data.length === 0) ||
-    (Array.isArray(data?.items) && data?.items.length === 0)
-  ) {
+  // 3. EMPTY STATE LOGIC
+  const checkIsEmpty = (val: any): boolean => {
+    if (!val) return true;
+    if (Array.isArray(val)) return val.length === 0;
+    // Safely check for .items if val is an object
+    if (typeof val === "object" && "items" in val && Array.isArray(val.items)) {
+      return val.items.length === 0;
+    }
+    return false;
+  };
+
+  if (checkIsEmpty(data)) {
     return (
       <div className="flex flex-col justify-center items-center p-8 border-2 border-slate-200 border-dashed rounded-2xl w-full min-h-75 text-center">
         <div className="bg-slate-50 p-4 rounded-2xl text-slate-400">
@@ -84,5 +86,7 @@ export const QueryState = ({
   }
 
   // 4. SUCCESS STATE
-  return <>{children(data)}</>;
+  // Since we've checked for loading, error, and empty,
+  // 'data' is guaranteed to exist and be populated here.
+  return <>{children(data as T)}</>;
 };

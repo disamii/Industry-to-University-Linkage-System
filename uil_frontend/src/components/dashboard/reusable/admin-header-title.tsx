@@ -11,6 +11,7 @@ type Link = {
   href?: string;
   onClick?: () => void;
   Icon?: React.ElementType;
+  variant?: "default" | "secondary";
 };
 
 type Props = {
@@ -25,7 +26,7 @@ const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
   const router = useRouter();
 
   return (
-    <div className="flex sm:flex-row flex-col justify-between sm:items-center gap-4">
+    <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
       <div className="flex flex-col gap-4">
         {backLink && (
           <button
@@ -49,7 +50,7 @@ const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
         </div>
       </div>
 
-      <div>
+      <div className="flex flex-wrap sm:flex-nowrap items-center space-x-4">
         {linksArr.map((link, idx) => (
           <CTA key={`${link.linkLabel}-${idx}`} link={link}>
             {link.Icon && (
@@ -67,7 +68,10 @@ const CTA = ({ link, children }: { link: Link; children: React.ReactNode }) => {
   if (link.href) {
     return (
       <Link href={link.href}>
-        <Button className="group px-6 rounded-2xl h-12 font-bold">
+        <Button
+          variant={link.variant}
+          className="group px-6 rounded-2xl h-12 font-bold"
+        >
           {children}
         </Button>
       </Link>
@@ -75,7 +79,11 @@ const CTA = ({ link, children }: { link: Link; children: React.ReactNode }) => {
   }
 
   return (
-    <Button onClick={link.onClick} className="group rounded-2xl h-12 font-bold">
+    <Button
+      variant={link.variant}
+      onClick={link.onClick}
+      className="group rounded-2xl h-12 font-bold"
+    >
       {children}
     </Button>
   );

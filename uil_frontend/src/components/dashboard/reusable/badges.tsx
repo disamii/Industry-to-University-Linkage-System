@@ -1,7 +1,8 @@
-import { RequestPriority, RequestStatus } from "@/lib/enums";
+import { Badge } from "@/components/ui/badge";
+import { AssignmentStatus, RequestPriority, RequestStatus } from "@/lib/enums";
 import { cn } from "@/lib/utils";
 
-const statusStyles: Record<RequestStatus, string> = {
+const statusStyles: Record<RequestStatus | AssignmentStatus, string> = {
   PENDING: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   IN_REVIEW: "bg-purple-500/10 text-purple-600 border-purple-500/20",
   ASSIGNED: "bg-blue-500/10 text-blue-600 border-blue-500/20",
@@ -37,5 +38,24 @@ export const PriorityBadge = ({ priority }: { priority: RequestPriority }) => {
     >
       {priority}
     </span>
+  );
+};
+
+export const DefaultBadge = ({
+  value,
+  className,
+  variant = "secondary",
+}: {
+  value: string;
+  className?: string;
+  variant?: "default" | "secondary";
+}) => {
+  return (
+    <Badge
+      variant={variant}
+      className={cn("px-3 rounded-full h-6 capitalize", className)}
+    >
+      {value}
+    </Badge>
   );
 };

@@ -13,7 +13,7 @@ export const getIndustryRequestDetailForAdmin = (id: string) => {
 
 export const useGetIndustryRequestDetailForAdmin = (id: string) => {
   return useQuery({
-    queryKey: industryRequestKeys.admindetail(id),
+    queryKey: industryRequestKeys.adminDetail(id),
     queryFn: () => getIndustryRequestDetailForAdmin(id),
   });
 };

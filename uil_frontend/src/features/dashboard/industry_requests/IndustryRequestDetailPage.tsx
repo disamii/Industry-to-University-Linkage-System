@@ -4,15 +4,16 @@ import { ActivityTimeline } from "@/components/dashboard/reusable/activity-timel
 import AdminCard from "@/components/dashboard/reusable/admin-card";
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
 import {
+  DefaultBadge,
   PriorityBadge,
   StatusBadge,
 } from "@/components/dashboard/reusable/badges";
 import { QueryState } from "@/components/dashboard/reusable/query-state-ui";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { timeline } from "@/data/dummy-data";
 import { useGetIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-query";
 import { formatDate } from "@/lib/utils";
+import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
 import {
   Calendar,
   DollarSign,
@@ -30,13 +31,13 @@ const RequestDetailPage = ({ id }: Props) => {
   const detailQuery = useGetIndustryRequestDetail(id);
 
   return (
-    <QueryState
+    <QueryState<IndustryRequestResponse>
       query={detailQuery}
       emptyMessage="This specific request could not be found."
       loadingMessage="Analyzing industry data..."
     >
       {(request) => (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-8">
           <div className="space-y-2">
             <AdminHeaderTitle
               title={request.title}
@@ -54,9 +55,7 @@ const RequestDetailPage = ({ id }: Props) => {
             <div className="flex flex-wrap items-center gap-3">
               <StatusBadge status={request.status} />
               <PriorityBadge priority={request.priority} />
-              <Badge variant="secondary" className="px-3 rounded-full h-6">
-                {request.type}
-              </Badge>
+              <DefaultBadge value={request.type} />
             </div>
           </div>
 

@@ -1,22 +1,18 @@
+import { DefaultBadge } from "@/components/dashboard/reusable/badges";
 import { DataTable } from "@/components/dashboard/table/data-table";
 import {
   ActionDropdown,
   DropdownAction,
 } from "@/components/dashboard/table/table-action-dropdown";
-import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { IndustryResponse } from "@/types/interfaces.industry";
+import { UseQueryResult } from "@tanstack/react-query";
 import { Eye, Phone, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  query: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: ApiPaginatedResponse<IndustryResponse[]>;
-    refetch?: () => void;
-  };
+  query: UseQueryResult<ApiPaginatedResponse<IndustryResponse[]>>;
 };
 
 const IndustryTable = ({ query }: Props) => {
@@ -38,9 +34,11 @@ const IndustryTable = ({ query }: Props) => {
       label: "Sector",
       render: (value) =>
         value ? (
-          <Badge className="bg-primary/10 font-medium text-primary uppercase">
-            {value}
-          </Badge>
+          <DefaultBadge
+            value={value}
+            variant="default"
+            className="bg-primary/10 font-medium text-primary uppercase"
+          />
         ) : (
           <p className="text-muted-foreground text-sm">Not Specified</p>
         ),
@@ -66,7 +64,7 @@ const IndustryTable = ({ query }: Props) => {
       label: "Efficiency Level",
       render: (value) =>
         value ? (
-          <Badge variant="secondary">{value}</Badge>
+          <DefaultBadge value={value} />
         ) : (
           <p className="text-muted-foreground text-sm">Unknown</p>
         ),

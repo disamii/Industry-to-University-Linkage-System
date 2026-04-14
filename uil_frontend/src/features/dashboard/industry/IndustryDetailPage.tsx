@@ -2,11 +2,12 @@
 
 import AdminCard from "@/components/dashboard/reusable/admin-card";
 import AdminHeaderTitle from "@/components/dashboard/reusable/admin-header-title";
+import { DefaultBadge } from "@/components/dashboard/reusable/badges";
 import { QueryState } from "@/components/dashboard/reusable/query-state-ui";
-import { Badge } from "@/components/ui/badge";
 import { useGetIndustryDetail } from "@/data/industry/industry-detail-query";
 import { useGetIndustryRequestsListByIndustryId } from "@/data/industry/industry-requests-by-industry_id-list-query";
 import { formatDate } from "@/lib/utils";
+import { IndustryResponse } from "@/types/interfaces.industry";
 import { Calendar, Globe, Mail, MapPin, Phone, User } from "lucide-react";
 import IndustryRequestsTableForAdmin from "../industry_requests/IndustryRequestsTableForAdmin";
 
@@ -19,13 +20,13 @@ const IndustryDetailPage = ({ id }: Props) => {
   const requestsQuery = useGetIndustryRequestsListByIndustryId(id);
 
   return (
-    <QueryState
+    <QueryState<IndustryResponse>
       query={detailQuery}
       emptyMessage="This specific industry record could not be found."
       loadingMessage="Fetching industry details..."
     >
       {(industry) => (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-8">
           <div className="space-y-2">
             <AdminHeaderTitle
               title={industry.name}
@@ -36,16 +37,14 @@ const IndustryDetailPage = ({ id }: Props) => {
             />
 
             <div className="flex flex-wrap items-center gap-3">
-              {/* <StatusBadge status={industry.status} /> */}
               {industry.industry_type && (
-                <Badge variant="secondary" className="px-3 rounded-full h-6">
-                  {industry.industry_type}
-                </Badge>
+                <DefaultBadge value={industry.industry_type} />
               )}
               {industry.efficiency_level && (
-                <Badge className="bg-amber-100 hover:bg-amber-100 px-3 border-amber-200 rounded-full h-6 text-amber-700">
-                  {industry.efficiency_level} Efficiency
-                </Badge>
+                <DefaultBadge
+                  value={`${industry.efficiency_level} Efficiency`}
+                  className="bg-amber-100 hover:bg-amber-100 border-amber-200 text-amber-700"
+                />
               )}
             </div>
           </div>

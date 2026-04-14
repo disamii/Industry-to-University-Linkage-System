@@ -10,7 +10,8 @@ type Title = {
 
 type LinkType = {
   label: string;
-  href: string;
+  href?: string;
+  onClick?: () => void;
 };
 
 type Props = {
@@ -53,14 +54,23 @@ const AdminCard = ({
             </CardTitle>
           )}
 
-          {link && (
-            <Link
-              href={link.href}
-              className="font-bold text-primary text-sm hover:underline"
-            >
-              {link.label}
-            </Link>
-          )}
+          {link &&
+            (link.onClick ? (
+              <button
+                onClick={link.onClick}
+                className="font-bold text-primary text-sm hover:underline"
+                type="button"
+              >
+                {link.label}
+              </button>
+            ) : (
+              <Link
+                href={link.href || "#"}
+                className="font-bold text-primary text-sm hover:underline"
+              >
+                {link.label}
+              </Link>
+            ))}
         </CardHeader>
       )}
 

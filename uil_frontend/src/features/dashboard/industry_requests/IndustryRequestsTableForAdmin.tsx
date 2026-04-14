@@ -1,4 +1,5 @@
 import {
+  DefaultBadge,
   PriorityBadge,
   StatusBadge,
 } from "@/components/dashboard/reusable/badges";
@@ -7,20 +8,17 @@ import {
   ActionDropdown,
   DropdownAction,
 } from "@/components/dashboard/table/table-action-dropdown";
-import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { IndustryRequestResponseForAdmin } from "@/types/interfaces.industry_requests";
+import { UseQueryResult } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 type Props = {
-  query: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: ApiPaginatedResponse<IndustryRequestResponseForAdmin[]>;
-    refetch?: () => void;
-  };
+  query: UseQueryResult<
+    ApiPaginatedResponse<IndustryRequestResponseForAdmin[]>
+  >;
 };
 
 const IndustryRequestsTableForAdmin = ({ query }: Props) => {
@@ -59,12 +57,12 @@ const IndustryRequestsTableForAdmin = ({ query }: Props) => {
       key: "type",
       label: "Category",
       render: (value) => (
-        <Badge variant="secondary">
-          {value
+        <DefaultBadge
+          value={value
             .split("_")
             .map((v) => v[0].toUpperCase() + v.slice(1))
             .join(" ")}
-        </Badge>
+        />
       ),
     },
     {

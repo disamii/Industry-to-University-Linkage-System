@@ -13,16 +13,12 @@ import {
 import { getFullName, getNameInitials } from "@/lib/helpers";
 import { ApiPaginatedResponse, TableColumn } from "@/types/interfaces";
 import { User } from "@/types/interfaces.user";
+import { UseQueryResult } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  query: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: ApiPaginatedResponse<User[]>;
-    refetch?: () => void;
-  };
+  query: UseQueryResult<ApiPaginatedResponse<User[]>>;
 };
 
 const StaffTable = ({ query }: Props) => {
