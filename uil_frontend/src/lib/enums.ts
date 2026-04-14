@@ -14,9 +14,9 @@ export enum RequestStatus {
   PENDING = "PENDING",
   IN_REVIEW = "IN_REVIEW",
   ASSIGNED = "ASSIGNED",
-  IN_PROGRESS = "IN_PROGRESS",
-  COMPLETED = "COMPLETED",
   REJECTED = "REJECTED",
+  // IN_PROGRESS = "IN_PROGRESS",
+  // COMPLETED = "COMPLETED",
 }
 
 export enum RequestPriority {
@@ -40,8 +40,8 @@ export enum RequestType {
  * Assignment Status
  */
 export enum AssignmentStatus {
-  PENDING = "PENDING",
-  ASSIGNED = "ASSIGNED",
+  // PENDING = "PENDING",
+  // ASSIGNED = "ASSIGNED",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
 }

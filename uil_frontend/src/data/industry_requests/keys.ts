@@ -3,6 +3,6 @@ export const industryRequestKeys = {
   list: () => [...industryRequestKeys.all(), "list"] as const,
   detail: (id: string) => [...industryRequestKeys.all(), "detail", id] as const,
   adminList: () => [...industryRequestKeys.all(), "list", "admin"] as const,
-  admindetail: (id: string) =>
+  adminDetail: (id: string) =>
     [...industryRequestKeys.all(), "detail", "admin", id] as const,
 };

@@ -1,50 +1,19 @@
 import {
   AcademicRankCode,
   AcademicTitle,
-  AssignmentStatus,
   AuthorCategoryCode,
   EmploymentTypeCode,
   ISCEDBandCode,
   QualificationCode,
   UserRole,
 } from "@/lib/enums";
+import { AssignmentResponse } from "./interfaces.assignments";
+import { OrgUnitResponse } from "./interfaces.org_units";
 
 export type UserBase = {
   email: string;
   role?: UserRole;
 };
-
-// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS
-type AcademicUnitBase = {
-  name: string;
-  abbreviation: string | null;
-  unit_type: string;
-  description: string | null;
-  parent_id: string | null;
-};
-
-export type AcademicUnit = AcademicUnitBase & {
-  id: string;
-  created_at: string;
-  updated_at: string | null;
-};
-// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS// MOVE TO ORAN UNITS
-
-// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS
-export type AssignmentBase = {
-  status?: AssignmentStatus;
-  progress?: string;
-};
-
-export type Assignment = AssignmentBase & {
-  id: string;
-  request_id: string;
-  staff_id: string;
-  department_id?: string | null;
-  assigned_at?: Date | string | null;
-  completed_at?: Date | string | null;
-};
-// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS// MOVE TO ASSIGNMENTS
 
 export type User = UserBase & {
   id: string;
@@ -68,8 +37,8 @@ export type User = UserBase & {
   author_employment_type?: EmploymentTypeCode | null;
   academic_title?: AcademicTitle | null;
 
-  academic_unit?: AcademicUnit | null;
-  assignments?: Assignment[];
+  academic_unit?: OrgUnitResponse | null;
+  assignments?: AssignmentResponse[];
 
   created_at?: string;
   updated_at?: string | null;
