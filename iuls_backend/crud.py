@@ -227,12 +227,16 @@ def create_post(db: Session, title: str, post_type_id: str, **kwargs):
 # --- Assignment CRUD ---
 
 
+def get_all_assignments(db: Session):
+    return db.query(models.Assignment)
+
+
 def get_assignment(db: Session, assignment_id: str):
     return db.query(models.Assignment).filter(models.Assignment.id == assignment_id).first()
 
 
-def get_assignments_by_request(db: Session, request_id: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Assignment).filter(models.Assignment.request_id == request_id).offset(skip).limit(limit).all()
+def get_assignments_by_request(db: Session, request_id: str):
+    return db.query(models.Assignment).filter(models.Assignment.request_id == request_id)
 
 
 def create_assignment(db: Session, request_id: str, staff_id: str, department_id: str = None, **kwargs):

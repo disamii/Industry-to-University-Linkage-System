@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from exceptions import BadRequestException, InternalServerErrorException, UnauthorizedException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload, joinedload
 from datetime import timedelta
 from typing import List
 import crud
@@ -48,16 +48,31 @@ async def read_user(
     db: Session = Depends(auth.get_db),
     current_user: StaffProfile = Depends(auth.require_admin)
 ):
-    """Admin only — get a specific user with their assignments"""
+    """Admin only — get a specific user with their assignments and nested requests"""
     from exceptions import NotFoundException
+
+    # Define the eager loading logic once to reuse it
+    # This loads assignments, and for each assignment, it loads the request
+    loading_options = [
+        selectinload(StaffProfile.assignments)
+        .joinedload(Assignment.request)
+        .joinedload(IndustryRequest.industry)
+    ]
+
     # Try by staff_profile.id first
-    user = db.query(StaffProfile).filter(StaffProfile.id == user_id).first()
+    user = db.query(StaffProfile).options(*loading_options).filter(
+        StaffProfile.id == user_id
+    ).first()
+
     # Fallback: try by account_id
     if not user:
-        user = db.query(StaffProfile).filter(
-            StaffProfile.account_id == user_id).first()
+        user = db.query(StaffProfile).options(*loading_options).filter(
+            StaffProfile.account_id == user_id
+        ).first()
+
     if not user:
         raise NotFoundException(detail="User not found")
+
     return user
 
 

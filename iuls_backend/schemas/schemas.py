@@ -106,6 +106,8 @@ class OrgUnit(OrgUnitBase):
     class Config:
         from_attributes = True
 
+# --- Assignment Schemas ---
+
 
 class AssignmentBase(BaseModel):
     status: Optional[AssignmentStatus] = AssignmentStatus.IN_PROGRESS
@@ -118,9 +120,7 @@ class AssignmentCreate(AssignmentBase):
     department_id: Optional[str] = None
 
 
-class AssignmentUpdate(BaseModel):
-    status: Optional[AssignmentStatus] = None
-    progress: Optional[str] = None
+class AssignmentUpdate(AssignmentBase):
     completed_at: Optional[datetime] = None
 
 
@@ -135,37 +135,6 @@ class Assignment(AssignmentBase):
     class Config:
         from_attributes = True
 
-
-class User(UserBase):
-    id: str
-    status: str
-    role: UserRole
-
-    first_name: Optional[str] = None
-    father_name: Optional[str] = None
-    grand_father_name: Optional[str] = None
-    username: Optional[str] = None
-    biography: Optional[str] = None
-    research_interests: Optional[str] = None
-    phone_number: Optional[str] = None
-    profile_picture: Optional[str] = None
-    author_gender: Optional[str] = None
-
-    publication_isced_band: Optional[ISCEDBandCode] = None
-    author_category: Optional[AuthorCategoryCode] = None
-    author_academic_rank: Optional[AcademicRankCode] = None
-    author_qualification: Optional[QualificationCode] = None
-    author_employment_type: Optional[EmploymentTypeCode] = None
-    academic_title: Optional[AcademicTitle] = None
-
-    academic_unit: Optional[OrgUnit] = None
-    assignments: Optional[List[Assignment]] = []
-
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
 
 # --- Industry Request Schemas ---
 
@@ -195,6 +164,7 @@ class IndustryRequestCreate(IndustryRequestBase):
 class IndustryRequest(IndustryRequestBase):
     id: str
     industry_id: str
+    industry: Optional[Industry] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 
@@ -204,6 +174,45 @@ class IndustryRequest(IndustryRequestBase):
 
 class IndustryRequestForAdmin(IndustryRequest):
     industry: Industry
+
+    class Config:
+        from_attributes = True
+
+
+class AssignmentMe(Assignment):
+    request: IndustryRequestForAdmin
+
+    class Config:
+        from_attributes = True
+
+
+class User(UserBase):
+    id: str
+    status: str
+    role: UserRole
+
+    first_name: Optional[str] = None
+    father_name: Optional[str] = None
+    grand_father_name: Optional[str] = None
+    username: Optional[str] = None
+    biography: Optional[str] = None
+    research_interests: Optional[str] = None
+    phone_number: Optional[str] = None
+    profile_picture: Optional[str] = None
+    author_gender: Optional[str] = None
+
+    publication_isced_band: Optional[ISCEDBandCode] = None
+    author_category: Optional[AuthorCategoryCode] = None
+    author_academic_rank: Optional[AcademicRankCode] = None
+    author_qualification: Optional[QualificationCode] = None
+    author_employment_type: Optional[EmploymentTypeCode] = None
+    academic_title: Optional[AcademicTitle] = None
+
+    academic_unit: Optional[OrgUnit] = None
+    assignments: Optional[List[AssignmentMe]] = []
+
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

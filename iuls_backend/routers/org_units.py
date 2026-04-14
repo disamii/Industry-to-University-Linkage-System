@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-import crud,db
+import crud
+import db
 import schemas
-from models import  *
+from models import *
 import auth
 from exceptions import BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException
 from fastapi_pagination import Page
@@ -50,10 +51,6 @@ def read_org_unit(unit_id: str, db: Session = Depends(db.get_db)):
     if db_unit is None:
         raise NotFoundException(detail="Organizational Unit not found")
     return db_unit
-
-
-
-
 
 
 @router.get("/{unit_id}/subunits", response_model=List[schemas.OrgUnit])
