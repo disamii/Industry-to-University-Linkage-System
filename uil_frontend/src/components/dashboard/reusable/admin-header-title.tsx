@@ -6,19 +6,21 @@ import { Button } from "../../ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-type Link = {
+type LinkItem = {
+  // Renamed from Link to avoid conflict with Next.js Link
   linkLabel: string;
   href?: string;
   onClick?: () => void;
   Icon?: React.ElementType;
   variant?: "default" | "secondary";
+  customElement?: React.ReactNode;
 };
 
 type Props = {
   title?: string;
   desc?: string;
-  links?: Link | Link[];
-  backLink?: Link;
+  links?: LinkItem | LinkItem[];
+  backLink?: LinkItem;
 };
 
 const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
@@ -50,21 +52,38 @@ const AdminHeaderTitle = ({ title, desc, links, backLink }: Props) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap sm:flex-nowrap items-center space-x-4">
-        {linksArr.map((link, idx) => (
-          <CTA key={`${link.linkLabel}-${idx}`} link={link}>
-            {link.Icon && (
-              <link.Icon className="mr-2 w-5 h-5 group-hover:rotate-90 transition-transform" />
-            )}
-            {link.linkLabel}
-          </CTA>
-        ))}
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-4">
+        {linksArr.map((link, idx) => {
+          // 1. Guard against undefined/null items in the array
+          if (!link) return null;
+
+          return (
+            <CTA key={`${link.linkLabel || idx}-${idx}`} link={link}>
+              {link.Icon && (
+                <link.Icon className="mr-2 w-5 h-5 group-hover:rotate-90 transition-transform" />
+              )}
+              {/* 2. Safe access with optional chaining or fallback */}
+              {link.linkLabel}
+            </CTA>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-const CTA = ({ link, children }: { link: Link; children: React.ReactNode }) => {
+const CTA = ({
+  link,
+  children,
+}: {
+  link: LinkItem;
+  children: React.ReactNode;
+}) => {
+  // If a custom element is provided, render it directly
+  if (link.customElement) {
+    return <>{link.customElement}</>;
+  }
+
   if (link.href) {
     return (
       <Link href={link.href}>
@@ -82,7 +101,7 @@ const CTA = ({ link, children }: { link: Link; children: React.ReactNode }) => {
     <Button
       variant={link.variant}
       onClick={link.onClick}
-      className="group rounded-2xl h-12 font-bold"
+      className="group px-6 rounded-2xl h-12 font-bold"
     >
       {children}
     </Button>

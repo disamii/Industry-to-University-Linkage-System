@@ -9,6 +9,13 @@ import {
   StatusBadge,
 } from "@/components/dashboard/reusable/badges";
 import { QueryState } from "@/components/dashboard/reusable/query-state-ui";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { timeline } from "@/data/dummy-data";
 import { useGetIndustryRequestDetailForAdmin } from "@/data/industry_requests/industry_request-detail-query-for-admin";
 import { RequestStatus } from "@/lib/enums";
@@ -26,6 +33,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { AssignStaffDialog } from "../assignment/assign-staff-dialog";
+import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry_request-update-mutation";
 
 const ASSIGN_LABELS: Partial<Record<RequestStatus, string>> = {
   [RequestStatus.PENDING]: "Assign",
@@ -39,9 +47,16 @@ type Props = {
 
 const IndustryRequestDetailPageForAdmin = ({ id }: Props) => {
   const detailQuery = useGetIndustryRequestDetailForAdmin(id);
+
+  const [statusChangeDialogOpen, setStatusChangeDialogOpen] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
-  const onChangeStatus = () => {};
+  const { mutate, isPending: isUpdating } =
+    useIndustryRequestUpdateMutation(id);
+
+  const onStatusChange = (status: RequestStatus) => {
+    mutate({ status }, { onSuccess: () => setStatusChangeDialogOpen(false) });
+  };
 
   return (
     <QueryState<IndustryRequestResponseForAdmin>
@@ -69,10 +84,45 @@ const IndustryRequestDetailPageForAdmin = ({ id }: Props) => {
           ...(!isAssigned
             ? [
                 {
-                  onClick: onChangeStatus,
-                  Icon: ChartNoAxesGantt,
                   linkLabel: "Change Status",
-                  variant: "secondary" as const,
+                  customElement: (
+                    <DropdownMenu
+                      open={statusChangeDialogOpen}
+                      onOpenChange={setStatusChangeDialogOpen}
+                    >
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          className="group px-6 rounded-2xl h-12 font-bold"
+                        >
+                          <ChartNoAxesGantt className="mr-2 w-5 h-5" />
+                          Change Status
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          className="py-2"
+                          onClick={() =>
+                            onStatusChange(RequestStatus.IN_REVIEW)
+                          }
+                        >
+                          Mark as In Review
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="py-2"
+                          onClick={() => onStatusChange(RequestStatus.ASSIGNED)}
+                        >
+                          Mark as Assigned
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="py-2"
+                          onClick={() => onStatusChange(RequestStatus.REJECTED)}
+                        >
+                          Mark as Rejected
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ),
                 },
               ]
             : []),
@@ -92,14 +142,15 @@ const IndustryRequestDetailPageForAdmin = ({ id }: Props) => {
                 <PriorityBadge priority={request.priority} />
                 <DefaultBadge value={request.type.split("_").join(" ")} />
               </div>
-            </div>
 
-            <AssignStaffDialog
-              open={assignDialogOpen}
-              onOpenChange={setAssignDialogOpen}
-              requestInfo={request}
-              actionButtonLabel={label || ""}
-            />
+              {/* Assign Dialog */}
+              <AssignStaffDialog
+                open={assignDialogOpen}
+                onOpenChange={setAssignDialogOpen}
+                requestInfo={request}
+                actionButtonLabel={label || ""}
+              />
+            </div>
 
             {/* 2. TOP SECTION: REQUEST OVERVIEW (PRIMARY) */}
             <AdminCard
