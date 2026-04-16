@@ -13,7 +13,7 @@ services:
       - ./uil_backend/accounts/migrations:/app/accounts/migrations
       - ./uil_backend/authorization/migrations:/app/authorization/migrations
       - ./uil_backend/organizational_structure/migrations:/app/organizational_structure/migrations
-            - ./uil_backend/industry_linkage/migrations:/app/industry_linkage/migrations
+      - ./uil_backend/industry_linkage/migrations:/app/industry_linkage/migrations
 
       - ./uil_backend/media:/app/media
     develop:
