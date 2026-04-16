@@ -1,0 +1,52 @@
+# =========================
+# Git / IDE
+# =========================
+.git
+.vscode
+.idea
+.DS_Store
+
+# =========================
+# Node.js / Frontend
+# =========================
+node_modules
+dist
+build
+.npm
+.yarn
+.cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+pnpm-lock.yaml
+
+# =========================
+# Python / Django
+# =========================
+__pycache__
+*.py[cod]
+*.sqlite3
+*.sqlite3-journal
+.env
+.env.*
+venv
+env
+local_settings.py
+
+# ⚠️ DO NOT ignore migrations in Docker
+# They are required to run migrate inside the container
+# =========================
+
+# =========================
+# Django Static & Media
+# =========================
+staticfiles
+media
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+Dockerfile.*
