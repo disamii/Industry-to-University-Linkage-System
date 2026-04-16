@@ -46,7 +46,6 @@ class Assignment(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     request_id = Column(String, ForeignKey("industry_request.id"))
     staff_id = Column(String, ForeignKey("staff_profile.id"))
-    department_id = Column(String, ForeignKey("organizational_unit.id"))
     status = Column(String,nullable=False)
     progress = Column(String)
     assigned_at = Column(DateTime(timezone=True))
@@ -54,8 +53,6 @@ class Assignment(Base):
 
     request = relationship("IndustryRequest", back_populates="assignments")
     staff = relationship("StaffProfile", back_populates="assignments")  # FIX
-    department = relationship(
-        "OrganizationalUnit", back_populates="assignments", foreign_keys=[department_id])
 
 
 class PostType(Base):

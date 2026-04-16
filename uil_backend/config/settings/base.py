@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'authorization',
     'audit',
-    'organizational_structure'
+    'organizational_structure',
+    'industry_linkage'
     
 
 ]
