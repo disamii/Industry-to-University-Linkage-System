@@ -40,7 +40,7 @@ from io import BytesIO
 from authorization.permissions import HasRequiredPermissions,IsOwnerOrHasRequiredPermissions
 from authorization.utilis import get_scope
 from authorization.decorators import require_permissions
-from .services import read_users_from_excel
+from .services import read_users_from_excel, sso_from_rpms
 from .emails import  CustomConfirmationEmail, CustomOneTimePasswordEmail, CustomRejectionEmail
 import logging
 from .models import User
@@ -373,6 +373,19 @@ class PublicUserViewSet(ReadOnlyModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'first_name']
     search_fields = ['username', 'first_name', 'father_name', 'grand_father_name', 'email']
 
+
+@api_view(["POST"])
+@permission_classes([])
+def sso_login_view(request):
+    email = request.data.get("email")
+
+    if not email:
+        return Response(
+            {"error": "Email is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    result = sso_from_rpms(email)
+    return Response(result, status=status.HTTP_200_OK)
 
 
 

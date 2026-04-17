@@ -1,8 +1,17 @@
 import pandas as pd
-from rest_framework.exceptions import ValidationError
-import re
+from typing import Dict
 import logging
- 
+import re
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
+import httpx
+from typing import Optional, Dict, Any
+from django.contrib.auth import get_user_model
+from .serializers import UserFullSerializer
+RPMS_BASE_URL = "http://10.161.65.18:8000"
+RPMS_API_KEY = "sk_9f3a7c2d1b8e4f6a9c0d2e7f5a1b3c8d"
+User = get_user_model()
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,6 +29,7 @@ def split_name(full_name):
 
 
 def read_users_from_excel(file_obj):
+    
     """
     Reads users from Excel file.
     Expects columns: 'Full Name', 'Email'
@@ -65,3 +75,57 @@ def read_users_from_excel(file_obj):
     except Exception as e:
         logger.exception("Error reading Excel file")
         raise ValidationError(f"Error reading Excel file: {e}")
+
+def get_user_from_rpms(email: str) -> Optional[Dict[str, Any]]:
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(
+                f"{RPMS_BASE_URL}/auth/private/user/",
+                params={"email": email},
+                headers={"X-API-KEY": RPMS_API_KEY}
+            )
+
+        if response.status_code == 200:
+            return response.json()
+        return None
+
+    except Exception:
+        return None
+
+@transaction.atomic
+def process_academic_unit(unit_data: Dict) -> int:
+    from organizational_structure.models import OrganizationalUnit
+    hierarchy = unit_data.get("hierarchy", [])
+    parent = None
+    unit = None
+
+    for node in hierarchy:
+        unit, _ = OrganizationalUnit.objects.get_or_create(
+            name=node["name"],
+            unit_type=node["unit_type"],
+            parent=parent,
+            defaults={
+                "abbreviation": node.get("abbreviation"),
+                "description": node.get("description"),
+            },
+        )
+        parent = unit
+
+    return unit.id if unit else None
+
+
+def sso_from_rpms(email: str):
+    data = get_user_from_rpms(email)
+
+    if not data:
+        return {"error": "User not found in RPMS"}
+
+    user = User.objects.filter(email=email).first()
+    if user:
+        return UserFullSerializer(user).data
+    serializer = UserFullSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+
+    user = serializer.save()
+
+    return UserFullSerializer(user).data

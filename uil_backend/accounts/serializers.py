@@ -30,31 +30,7 @@ class UserFullSerializer(serializers.ModelSerializer):
             "is_superuser",
         ]
 
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     from research_paper.models import ResearcherProfile
-    #     # merge researcher profile into root
-    #     try:
-    #         profile = instance.researcherprofile
 
-    #         data.update({
-    #             "biography": profile.biography,
-    #             "research_interests": profile.research_interests,
-    #             "phone_number": profile.phone_number,
-    #             "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
-    #             "author_gender": profile.author_gender,
-    #             "publication_isced_band": profile.publication_isced_band,
-    #             "author_category": profile.author_category,
-    #             "author_academic_rank": profile.author_academic_rank,
-    #             "author_qualification": profile.author_qualification,
-    #             "author_employment_type": profile.author_employment_type,
-    #             "academic_title": profile.academic_title,
-    #         })
-
-    #     except ResearcherProfile.DoesNotExist:
-    #         pass
-
-    #     return data
 
 class UserSerializer(serializers.ModelSerializer):
     has_profile = serializers.SerializerMethodField()

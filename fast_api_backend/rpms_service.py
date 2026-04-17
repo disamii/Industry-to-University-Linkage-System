@@ -1,7 +1,5 @@
 import httpx
 from typing import Optional, Dict, Any
-    
-    
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Dict
