@@ -88,6 +88,30 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
             data["contact_email"] = user.email
 
         return data
+class IndustryRequestActionSerializer(serializers.ModelSerializer):
+    performed_by = serializers.StringRelatedField()
+    from_industry = serializers.StringRelatedField()
+    to_industry = serializers.StringRelatedField()
+    from_unit = serializers.StringRelatedField()
+    to_unit = serializers.StringRelatedField()
+    forwarded_to = serializers.StringRelatedField()
+    forwarded_from = serializers.StringRelatedField()
+
+    class Meta:
+        model = IndustryRequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+            "performed_by",
+            "from_industry",
+            "to_industry",
+            "from_unit",
+            "to_unit",
+            "forwarded_to",
+            "forwarded_from",
+            "created_at",
+        ]
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
@@ -230,6 +254,7 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
             serializer.save(request=industry_request)
 class IndustryRequestDetailSerializer(serializers.ModelSerializer):
     detail = serializers.SerializerMethodField()
+    actions = IndustryRequestActionSerializer(many=True, read_only=True)
 
     class Meta:
         model = IndustryRequest
@@ -238,6 +263,7 @@ class IndustryRequestDetailSerializer(serializers.ModelSerializer):
             "type",
             "title",
             "industry",
+            'actions',
             "description",
             "attachment",
             "created_at",
