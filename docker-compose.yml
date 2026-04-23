@@ -1,47 +1,51 @@
 services:
   backend:
-    build:
-      context: ./iuls_backend
-      dockerfile: Dockerfile
-    container_name: fastapi_backend
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    build: ./uil_backend
+    container_name: uil_backend
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      - mysql_db
     env_file:
-      - ./iuls_backend/.env
+      - ./uil_backend/.env.backend.dev
+
+    volumes:
+      - ./uil_backend/accounts/migrations:/app/accounts/migrations
+      - ./uil_backend/authorization/migrations:/app/authorization/migrations
+      - ./uil_backend/organizational_structure/migrations:/app/organizational_structure/migrations
+      - ./uil_backend/industry_linkage/migrations:/app/industry_linkage/migrations
+
+      - ./uil_backend/media:/app/media
     develop:
       watch:
         - action: sync
-          path: ./iuls_backend
+          path: ./uil_backend
           target: /app
-          ignore:
-            - venv/
-            - __pycache__/
-            - .git/
         - action: rebuild
-          path: ./iuls_backend/requirements.txt
+          path: ./uil_backend/requirements.txt
+        - action: rebuild
+          path: ./uil_backend/gunicorn_config.py
+        - action: rebuild
+          path: ./uil_backend/manage.py
+        - action: sync
+          path: ./uil_backend/entrypoint.sh
+          target: /app/entrypoint.sh
 
-  alembic:
-    build:
-      context: ./iuls_backend
-      dockerfile: Dockerfile
-    container_name: alembic_runner
-    command: alembic upgrade head
-    volumes:
-      - ./iuls_backend:/app
+  mysql_db:
+    image: mysql:8.0
+    container_name: uil_db
     env_file:
-      - ./iuls_backend/.env
-    depends_on:
-      - db
-    restart: "no"
+      - ./uil_backend/.env.backend.dev
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   frontend:
     build:
       context: ./uil_frontend
       dockerfile: Dockerfile
-    container_name: nextjs_frontend
+    container_name: uil_frontend
     ports:
       - "3000:3000"
     environment:
@@ -63,17 +67,5 @@ services:
         - action: rebuild
           path: ./uil_frontend/package.json
 
-  db:
-    container_name: fastapi_db
-    image: postgres:16
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: iuls
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: disSAMI!123
-    ports:
-      - "5432:5432"
-
 volumes:
-  postgres_data:
+  mysql_data:

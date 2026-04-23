@@ -45,3 +45,5 @@ postgres_data/
 
 # --- Docker ---
 .docker/
+**/venv/
+**/.venv/
