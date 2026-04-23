@@ -53,6 +53,11 @@ class IndustryRequest(AuditMixin,models.Model):
         on_delete=models.CASCADE,
         related_name="requests"
     )
+    requested_to=models.ForeignKey(
+            "organizational_structure.OrganizationalUnit",
+            on_delete=models.CASCADE,
+            related_name="industry_requests"
+        )
 
     description = models.TextField()
     attachment = models.FileField(

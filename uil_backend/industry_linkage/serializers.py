@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from django.contrib.auth.hashers import make_password
+from organizational_structure.serializers import OrganizationStructureListSerializer
 from .models import Industry,IndustryRequest,IndustryRequestAction,TechnologySupportRequest,ConsultancyRequest,TrainingRequest,RecruitmentRequest,RequestAssignment
 User = get_user_model()
 class IndustryCreateSerializer(serializers.ModelSerializer):
@@ -179,6 +180,7 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
             "id",
             "type",
             "title",
+            "requested_to",
             "industry",
             "description",
             "attachment",
@@ -255,7 +257,7 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
 class IndustryRequestDetailSerializer(serializers.ModelSerializer):
     detail = serializers.SerializerMethodField()
     actions = IndustryRequestActionSerializer(many=True, read_only=True)
-
+    requested_to=OrganizationStructureListSerializer(read_only=True)
     class Meta:
         model = IndustryRequest
         fields = [
@@ -264,6 +266,7 @@ class IndustryRequestDetailSerializer(serializers.ModelSerializer):
             "title",
             "industry",
             'actions',
+            'requested_to',
             "description",
             "attachment",
             "created_at",
