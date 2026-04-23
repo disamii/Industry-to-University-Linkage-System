@@ -250,19 +250,20 @@ class IndustryRequestDetailSerializer(serializers.ModelSerializer):
         """
 
         if obj.type == "tech_support":
-            instance = getattr(obj, "technologysupportrequest", None)
+            instance = getattr(obj, "tech_support", None)
+            print("printing here")
             return TechnologySupportRequestSerializer(instance).data if instance else None
 
         if obj.type == "consultancy":
-            instance = getattr(obj, "consultancyrequest", None)
+            instance = getattr(obj, "consultancy", None)
             return ConsultancyRequestSerializer(instance).data if instance else None
 
         if obj.type == "training":
-            instance = getattr(obj, "trainingrequest", None)
+            instance = getattr(obj, "training", None)
             return TrainingRequestSerializer(instance).data if instance else None
 
         if obj.type == "recruitment":
-            instance = getattr(obj, "recruitmentrequest", None)
+            instance = getattr(obj, "recruitment", None)
             return RecruitmentRequestSerializer(instance).data if instance else None
 
         return None
