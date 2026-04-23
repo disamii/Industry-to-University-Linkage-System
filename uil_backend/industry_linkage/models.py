@@ -21,7 +21,8 @@ class Industry(models.Model):
         related_name="industry_profile"
     )
     industry_email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20,blank=True, null=True)
+    contact_person_phone_number = models.CharField(max_length=20,blank=True, null=True)
     location = models.CharField(max_length=255)
     address = models.TextField()
     description = models.TextField(blank=True, null=True)

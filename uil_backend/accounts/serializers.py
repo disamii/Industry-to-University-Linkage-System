@@ -5,14 +5,11 @@ from rest_framework import serializers
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from collections import defaultdict
-
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from organizational_structure.models import OrganizationalUnit
-from authorization.models import RolePermission
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-# serializers.py
 from rest_framework import serializers
 from .models import User
 # from research_paper.models import ResearcherProfile
@@ -20,7 +17,6 @@ from .models import User
 
 class UserFullSerializer(serializers.ModelSerializer):
     from organizational_structure.serializers import OrganizationStructureDetailSerializer
-
     academic_unit = OrganizationStructureDetailSerializer(read_only=True)
     academic_unit_id = serializers.PrimaryKeyRelatedField(
         queryset=OrganizationalUnit.objects.all(),
@@ -263,3 +259,21 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Call original validation to get tokens
         data = super().validate({"username": username, "password": password})
         return data
+    
+
+class ContactPersonCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'father_name',
+                'grand_father_name', 'email', 'password']
+        read_only_fields = ['id']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.password = make_password(password)
+        user.save()
+        return user

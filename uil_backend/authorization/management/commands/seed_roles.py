@@ -6,17 +6,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         roles = [
-            "Researcher",
-            "College Vice Dean",
-            "College Dean",
-            "Central Director",
-            "Corporate Director",
-            "RCE VP",
-            "President",
-            "Library Staff",
-            "Publication Office",
-            "IT Directorate",
-            "Super Admin",
+            "Staff",
+            "Industry",
             "Admin"
         ]
 
