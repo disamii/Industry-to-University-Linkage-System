@@ -123,9 +123,14 @@ def sso_from_rpms(email: str):
     user = User.objects.filter(email=email).first()
     if user:
         return UserFullSerializer(user).data
+
+    academic_unit = data.get("academic_unit")
+    academic_unit_id = process_academic_unit(academic_unit)
+
+    data["academic_unit_id"] = academic_unit_id
+
     serializer = UserFullSerializer(data=data)
     serializer.is_valid(raise_exception=True)
-
     user = serializer.save()
 
     return UserFullSerializer(user).data

@@ -20,7 +20,13 @@ from .models import User
 
 class UserFullSerializer(serializers.ModelSerializer):
     from organizational_structure.serializers import OrganizationStructureDetailSerializer
+
     academic_unit = OrganizationStructureDetailSerializer(read_only=True)
+    academic_unit_id = serializers.PrimaryKeyRelatedField(
+        queryset=OrganizationalUnit.objects.all(),
+        source="academic_unit",
+        write_only=True
+    )
 
     class Meta:
         model = User
@@ -28,9 +34,12 @@ class UserFullSerializer(serializers.ModelSerializer):
             "groups",
             "user_permissions",
             "is_superuser",
+            "created_by",
+            "updated_by"
         ]
-
-
+        extra_kwargs = {
+            "password": {"write_only": True}
+        }
 
 class UserSerializer(serializers.ModelSerializer):
     has_profile = serializers.SerializerMethodField()
