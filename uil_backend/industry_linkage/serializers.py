@@ -13,6 +13,7 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
     contact_password = serializers.CharField(write_only=True)
 
     class Meta:
+
         model = Industry
         fields = [
             "id",
@@ -34,6 +35,8 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
+        from authorization.models import Role,UserRole
+
         # extract contact data
         full_name = validated_data.pop("contact_full_name")
         email = validated_data.pop("contact_email")
@@ -64,5 +67,13 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
             contact_person=user,
             **validated_data
         )
-
+        role, _ = Role.objects.get_or_create(
+            name="Industry",
+            defaults={"description": "Industry role"}
+        )
+        UserRole.objects.create(
+            user=user,
+            role=role,
+            organizational_unit=None   # scope null
+        )
         return industry

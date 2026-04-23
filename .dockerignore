@@ -6,9 +6,7 @@
 .idea
 .DS_Store
 
-# =========================
-# Node.js / Frontend
-# =========================
+
 node_modules
 dist
 build
@@ -22,9 +20,7 @@ pnpm-debug.log*
 package-lock.json
 pnpm-lock.yaml
 
-# =========================
-# Python / Django
-# =========================
+
 __pycache__
 *.py[cod]
 *.sqlite3
@@ -36,18 +32,9 @@ __pycache__
 env
 local_settings.py
 
-# ⚠️ DO NOT ignore migrations in Docker
-# They are required to run migrate inside the container
-# =========================
 
-# =========================
-# Django Static & Media
-# =========================
 staticfiles
 media
 
-# =========================
-# Docker
-# =========================
 docker-compose.override.yml
 Dockerfile.*
