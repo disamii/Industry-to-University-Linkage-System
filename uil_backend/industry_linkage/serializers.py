@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from django.contrib.auth.hashers import make_password
-from .models import Industry,IndustryRequest,IndustryRequestAction
+from .models import Industry,IndustryRequest,IndustryRequestAction,TechnologySupportRequest,ConsultancyRequest,TrainingRequest,RecruitmentRequest,RequestAssignment
 User = get_user_model()
 class IndustryCreateSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.CharField(write_only=True)
@@ -51,6 +51,7 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
             father_name=father_name,
             grand_father_name=grand_father_name,
             email=email,
+            status="approved",
             password=make_password(password),
         )
 
@@ -115,8 +116,156 @@ class IndustrySerializer(serializers.ModelSerializer):
 
     def get_contact_email(self, obj):
         return obj.contact_person.email
+class TechnologySupportRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TechnologySupportRequest
+        fields = [
+            "technology_required",
+            "required_duration",
+        ]
+class ConsultancyRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConsultancyRequest
+        fields = ["consultancy_type"]
+class TrainingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingRequest
+        fields = [
+            "training_type",
+            "number_of_trainees",
+            "trainee_level",
+        ]
+class RecruitmentRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecruitmentRequest
+        fields = [
+            "field_of_study",
+            "graduate_year",
+            "requirements",
+            "number_to_recruit",
+        ]
+class IndustryRequestCreateSerializer(serializers.ModelSerializer):
 
+    # type-specific payload (dynamic input)
+    extra_data = serializers.JSONField(write_only=True, required=False)
 
+    class Meta:
+        model = IndustryRequest
+        fields = [
+            "id",
+            "type",
+            "title",
+            "industry",
+            "description",
+            "attachment",
+            "extra_data",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at", "industry"]
+
+    def validate(self, attrs):
+        request_type = attrs.get("type")
+        extra_data = self.initial_data.get("extra_data", {})
+
+        # basic validation gate
+        if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
+            raise serializers.ValidationError("extra_data is required for this request type")
+
+        return attrs
+
+    def create(self, validated_data):
+        request = self.context["request"]
+        user = request.user
+
+        extra_data = self.initial_data.get("extra_data", {})
+
+        try:
+            industry = user.industry_profile
+        except Exception:
+            raise serializers.ValidationError("User has no industry profile")
+        validated_data.pop("extra_data", None)
+
+        with transaction.atomic():
+
+            # 1. base request
+            industry_request = IndustryRequest.objects.create(
+                created_by=user,
+                industry=industry,
+                **validated_data
+            )
+
+            # 2. action log
+            IndustryRequestAction.objects.create(
+                request=industry_request,
+                type="created",
+                description="Request created",
+                performed_by=user,
+                from_industry=industry,
+                created_by=user,
+                updated_by=user,
+            )
+
+            # 3. create subtype model
+            self._create_type_specific_model(industry_request, extra_data)
+
+        return industry_request
+    
+    def _create_type_specific_model(self, industry_request, extra_data):
+            REQUEST_SERIALIZER_MAP = {
+                "tech_support": TechnologySupportRequestSerializer,
+                "consultancy": ConsultancyRequestSerializer,
+                "training": TrainingRequestSerializer,
+                "recruitment": RecruitmentRequestSerializer,
+            }
+            request_type = industry_request.type
+
+            serializer_class = REQUEST_SERIALIZER_MAP.get(request_type)
+
+            if not serializer_class:
+                return  # or raise error
+
+            serializer = serializer_class(data=extra_data)
+            serializer.is_valid(raise_exception=True)
+
+            serializer.save(request=industry_request)
+class IndustryRequestDetailSerializer(serializers.ModelSerializer):
+    detail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = IndustryRequest
+        fields = [
+            "id",
+            "type",
+            "title",
+            "industry",
+            "description",
+            "attachment",
+            "created_at",
+            "detail",
+        ]
+
+    def get_detail(self, obj):
+        """
+        Dynamically return subtype data based on request type.
+        """
+
+        if obj.type == "tech_support":
+            instance = getattr(obj, "technologysupportrequest", None)
+            return TechnologySupportRequestSerializer(instance).data if instance else None
+
+        if obj.type == "consultancy":
+            instance = getattr(obj, "consultancyrequest", None)
+            return ConsultancyRequestSerializer(instance).data if instance else None
+
+        if obj.type == "training":
+            instance = getattr(obj, "trainingrequest", None)
+            return TrainingRequestSerializer(instance).data if instance else None
+
+        if obj.type == "recruitment":
+            instance = getattr(obj, "recruitmentrequest", None)
+            return RecruitmentRequestSerializer(instance).data if instance else None
+
+        return None
 class IndustryRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = IndustryRequest
@@ -130,34 +279,3 @@ class IndustryRequestSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at", "industry"]
-
-    def create(self, validated_data):
-        request = self.context["request"]
-        user = request.user
-
-        # resolve industry from user
-        try:
-            industry = user.industry_profile
-        except Industry.DoesNotExist:
-            raise serializers.ValidationError("User is not linked to any Industry profile.")
-
-        with transaction.atomic():
-            # 1. create request
-            industry_request = IndustryRequest.objects.create(
-                created_by=user,
-                industry=industry,
-                **validated_data
-            )
-
-            # 2. create action automatically
-            IndustryRequestAction.objects.create(
-                request=industry_request,
-                action_type="created",
-                description=f"Request '{industry_request.title}' created by {user.id}",
-                performed_by=user,
-                from_industry=industry,
-                created_by=user,
-                updated_by=user,
-            )
-
-        return industry_request

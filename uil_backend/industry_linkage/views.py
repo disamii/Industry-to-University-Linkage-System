@@ -1,12 +1,12 @@
-from rest_framework import viewsets
-from .serializers import IndustryCreateSerializer,IndustrySerializer,IndustryRequestSerializer
-from config.paginations import DefaultPagination
-from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Industry, IndustryRequest
+from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated,AllowAny
+from config.paginations import DefaultPagination
+from .models import Industry, IndustryRequest
 from .permissions import INDUSTRY_REQUEST_REQUIRED_PERMISSIONS,INDUSTRY_REQUIRED_PERMISSIONS
 from organizational_structure.models import OrganizationalUnit
+from .serializers import IndustryCreateSerializer, IndustryRequestDetailSerializer,IndustrySerializer,IndustryRequestSerializer,IndustryRequestCreateSerializer
 from authorization.permissions import HasRequiredPermissions,IsOwnerOrHasRequiredPermissions
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -39,7 +39,6 @@ class IndustryRequestViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at','title','industry__name']
     search_fields = ['industry__name']
     queryset = IndustryRequest.objects.all()
-    serializer_class = IndustryRequestSerializer
     pagination_class = DefaultPagination
 
 
@@ -54,3 +53,11 @@ class IndustryRequestViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
+    def get_serializer_class(self):
+        if self.action == "create":
+            return IndustryRequestCreateSerializer
+        elif self.action=="retrieve":
+            return IndustryRequestDetailSerializer
+        
+        return IndustryRequestSerializer
+    

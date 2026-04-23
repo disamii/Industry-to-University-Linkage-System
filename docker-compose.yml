@@ -20,8 +20,19 @@ services:
         - action: sync
           path: ./uil_backend
           target: /app
+          ignore:
+            - __pycache__/
+            - "*.pyc"
+            - "*.pyo"
+            - "*.pyd"
+            - .git/
+            - .vscode/
+            - .idea/
+            - media/
+            - "**/migrations/"
         - action: rebuild
           path: ./uil_backend/requirements.txt
+     
         - action: rebuild
           path: ./uil_backend/gunicorn_config.py
         - action: rebuild
