@@ -1,9 +1,7 @@
 import time
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Count, Sum, Q
-from django.core.cache import cache
-from django.shortcuts import get_object_or_404
-from datetime import datetime
+from django.db.models import Count
+
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -13,13 +11,13 @@ from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAuthenticated, NotFound
+from rest_framework.exceptions import NotAuthenticated
 from django.core.cache import cache
 from organizational_structure.models import OrganizationalUnit
 from authorization.permissions import HasRequiredPermissions, IsSuperAdmin
 from authorization.utilis import get_scope
-from .serializers import OrgStructureSummarySerializer, OrganizationStructureRootSerializer, OrganizationalUnitAnalyticsSerializer, OrganizationStructureDetailSerializer, OrganizationStructureListSerializer
-from .paginations import DefaultPagination
+from .serializers import OrgStructureSummarySerializer, OrganizationStructureRootSerializer, OrganizationStructureListSerializer
+from config.paginations import DefaultPagination
 CACHE_PREFIX = "unit_analytics"
 
 

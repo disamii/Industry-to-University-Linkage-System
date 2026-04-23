@@ -4,55 +4,48 @@ from authorization.constants import PERMISSIONS
 ROLE_PERMISSION_MAP = {
     "Super Admin": PERMISSIONS,
     
-    "Publication Office": [
-        "can_read_researcher_profile_list",
-        "can_read_publication_list",
-        "can_update_publication",
-        "can_delete_publication",
-        "can_update_publication_index",
-        "can_read_authorship_list",
-        "can_delete_authorship",
-        "can_update_authorship_status"
+    "Industry": [
+            "can_create_industry_request",
     ],
 
-    "College Vice Dean": [
+    # "College Vice Dean": [
 
-    ],
+    # ],
 
-    # College Dean
-    "College Dean": [
+    # # College Dean
+    # "College Dean": [
 
-    ],
+    # ],
 
-    # Library Staff
-    "Library Staff": [
+    # # Library Staff
+    # "Library Staff": [
 
-    ],
+    # ],
 
 
-    "IT Directorate": [
+    # "IT Directorate": [
 
-    ],
+    # ],
 
-    # Central Director
-    "Central Director": [
+    # # Central Director
+    # "Central Director": [
 
-    ],
+    # ],
 
-    # Corporate Director
-    "Corporate Director": [
+    # # Corporate Director
+    # "Corporate Director": [
 
-    ],
+    # ],
 
-    # RCE VP
-    "RCE VP": [
+    # # RCE VP
+    # "RCE VP": [
  
-    ],
+    # ],
 
-    # President
-    "President": [
+    # # President
+    # "President": [
 
-    ],
+    # ],
 }
 
 

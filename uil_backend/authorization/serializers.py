@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from organizational_structure.serializers import OrganizationStructurdeForProfileSerializer
 from accounts.serializers import UserSerializer
-from organizational_structure.models import OrganizationalUnit
 from .models import Role, Permission, UserRole
 
 
