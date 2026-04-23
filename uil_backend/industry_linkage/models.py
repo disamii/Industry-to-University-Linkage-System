@@ -1,10 +1,10 @@
 from django.db import models
 from django.conf import settings
-
+from audit.models import AuditMixin
 User = settings.AUTH_USER_MODEL
 
 
-class Industry(models.Model):
+class Industry(AuditMixin,models.Model):
     INDUSTRY_TYPE_CHOICES = [
         ("it", "IT"),
         ("manufacturing", "Manufacturing"),
@@ -28,13 +28,12 @@ class Industry(models.Model):
     description = models.TextField(blank=True, null=True)
     number_of_employees = models.PositiveIntegerField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.name
 
-class IndustryRequest(models.Model):
+class IndustryRequest(AuditMixin,models.Model):
     REQUEST_TYPE_CHOICES = [
         ("rnd", "Research & Development  Services"),
         ("tech_support", "Technology Support"),
@@ -49,6 +48,12 @@ class IndustryRequest(models.Model):
 
     type = models.CharField(max_length=50, choices=REQUEST_TYPE_CHOICES)
     title = models.CharField(max_length=255)
+    industry = models.ForeignKey(
+        Industry,
+        on_delete=models.CASCADE,
+        related_name="requests"
+    )
+
     description = models.TextField()
     attachment = models.FileField(
         upload_to="request_attachments/",
@@ -56,14 +61,10 @@ class IndustryRequest(models.Model):
         null=True
     )
 
-    
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        db_table = "requests"
 
-class IndustryRequestAction(models.Model):
+
+class IndustryRequestAction(AuditMixin,models.Model):
     ACTION_TYPES = [
         ("created", "Created"),
         ("assigned", "Assigned"),
@@ -76,7 +77,7 @@ class IndustryRequestAction(models.Model):
         related_name="actions"
     )
 
-    action_type = models.CharField(max_length=30, choices=ACTION_TYPES)
+    type = models.CharField(max_length=30, choices=ACTION_TYPES)
 
     description = models.TextField()  
 
@@ -135,7 +136,7 @@ class IndustryRequestAction(models.Model):
     )
 
 
-    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class RequestAssignment(models.Model):
     STATUS_CHOICES = [

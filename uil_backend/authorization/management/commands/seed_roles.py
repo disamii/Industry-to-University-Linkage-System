@@ -6,6 +6,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         roles = [
+            "Super Admin",
             "Staff",
             "Industry",
             "Admin"
