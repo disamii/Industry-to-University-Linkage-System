@@ -187,7 +187,11 @@ class RequestAssignment(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.request} ({self.role})"
+class RnDRequest(models.Model):
+    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="rnd")
 
+    problem_statement = models.TextField()
+    research_area = models.CharField(max_length=255)
 class TechnologySupportRequest(models.Model):
     request = models.OneToOneField( IndustryRequest, on_delete=models.CASCADE, related_name="tech_support")
     technology_required = models.CharField(max_length=255, blank=True,
@@ -218,3 +222,15 @@ class RecruitmentRequest(models.Model):
         null=True)
     number_to_recruit = models.PositiveIntegerField( blank=True,
         null=True)
+class InternshipRequest(models.Model):
+    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="internship")
+
+    field_of_study = models.CharField(max_length=255)
+    number_of_students = models.PositiveIntegerField()
+    timeframe = models.CharField(max_length=100)
+    activities = models.TextField()
+class TestingRequest(models.Model):
+    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="testing")
+
+    item_to_test = models.CharField(max_length=255)
+    test_type = models.CharField(max_length=255)

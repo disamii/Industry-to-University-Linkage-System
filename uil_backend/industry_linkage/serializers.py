@@ -4,7 +4,7 @@ from django.db import transaction
 
 from django.contrib.auth.hashers import make_password
 from organizational_structure.serializers import OrganizationStructureListSerializer
-from .models import Industry,IndustryRequest,IndustryRequestAction,TechnologySupportRequest,ConsultancyRequest,TrainingRequest,RecruitmentRequest,RequestAssignment
+from .models import Industry,IndustryRequest,IndustryRequestAction,TechnologySupportRequest,ConsultancyRequest,TrainingRequest,RecruitmentRequest,RequestAssignment,RnDRequest,InternshipRequest
 User = get_user_model()
 class IndustryCreateSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.CharField(write_only=True)
@@ -160,6 +160,29 @@ class TrainingRequestSerializer(serializers.ModelSerializer):
             "number_of_trainees",
             "trainee_level",
         ]
+class RnDRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RnDRequest
+        fields = [
+            "technology_required",
+            "required_duration",
+        ]
+class TestingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RnDRequest
+        fields = [
+            "item_to_test",
+            "test_type",
+        ]
+class InternshipRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InternshipRequest
+        fields = [
+            "field_of_study",
+            "number_of_students",
+            "timeframe",
+            "activities"
+        ]
 class RecruitmentRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecruitmentRequest
@@ -169,6 +192,7 @@ class RecruitmentRequestSerializer(serializers.ModelSerializer):
             "requirements",
             "number_to_recruit",
         ]
+        
 class IndustryRequestCreateSerializer(serializers.ModelSerializer):
 
     # type-specific payload (dynamic input)
@@ -242,6 +266,9 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
                 "consultancy": ConsultancyRequestSerializer,
                 "training": TrainingRequestSerializer,
                 "recruitment": RecruitmentRequestSerializer,
+                "rnd":RnDRequestSerializer,
+                "internship":InternshipRequestSerializer,
+                "testing":TestingRequestSerializer
             }
             request_type = industry_request.type
 
@@ -294,6 +321,16 @@ class IndustryRequestDetailSerializer(serializers.ModelSerializer):
         if obj.type == "recruitment":
             instance = getattr(obj, "recruitment", None)
             return RecruitmentRequestSerializer(instance).data if instance else None
+        
+        if obj.type == "testing":
+            instance = getattr(obj, "testing", None)
+            return TestingRequestSerializer(instance).data if instance else None
+        if obj.type == "internship":
+            instance = getattr(obj, "internship", None)
+            return InternshipRequestSerializer(instance).data if instance else None
+        if obj.type == "rnd":
+            instance = getattr(obj, "rnd", None)
+            return RnDRequestSerializer(instance).data if instance else None
 
         return None
 class IndustryRequestSerializer(serializers.ModelSerializer):
