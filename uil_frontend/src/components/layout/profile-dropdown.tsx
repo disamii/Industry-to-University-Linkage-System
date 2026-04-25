@@ -81,7 +81,7 @@ const ProfileDropdown = () => {
     getFullName(user.first_name, user.father_name, user.grand_father_name) ||
     user.email;
   const initials = getNameInitials(fullName);
-  const dashboardLink = getAdminHomepageLink(user.role);
+  const dashboardLink = getAdminHomepageLink(user.roles);
 
   return (
     <DropdownMenu>
