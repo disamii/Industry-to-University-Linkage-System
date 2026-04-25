@@ -29,7 +29,7 @@ export const useSignin = (onSuccess?: () => void) => {
         return {
           message: null,
           error:
-            validatedFields.error.flatten().fieldErrors.email?.[0] ||
+            validatedFields.error.flatten().fieldErrors.username?.[0] ||
             validatedFields.error.flatten().fieldErrors.password?.[0] ||
             "Invalid input",
           fields: rawData,

@@ -6,10 +6,14 @@ import {
   ISCEDBandCode,
   QualificationCode,
   UserRole,
+  UserStatus,
 } from "@/lib/enums";
 import { AssignmentResponse } from "./interfaces.assignments";
-import { OrgUnitResponse } from "./interfaces.org_units";
+import { AcademicUnit, OrgUnitResponse } from "./interfaces.org_units";
+import { Metadata } from "./interfaces";
 
+// Should be removed
+// ——————————————----------------————————————————————————
 export type UserBase = {
   email: string;
   role?: UserRole;
@@ -42,4 +46,20 @@ export type User = UserBase & {
 
   created_at?: string;
   updated_at?: string | null;
+};
+// ——————————————----------------————————————————————————
+
+export type UserProfile = Metadata & {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  father_name: string;
+  grand_father_name: string;
+  status: UserStatus;
+  is_active: boolean;
+  must_change_password: boolean;
+  last_login: string | null;
+  raw_password: string | null;
+  academic_unit: AcademicUnit;
 };

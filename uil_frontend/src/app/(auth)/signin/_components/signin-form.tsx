@@ -14,17 +14,17 @@ const SinginForm = () => {
     <form id="form-signin" action={formAction} className="space-y-6" noValidate>
       <div className="space-y-2.5">
         <Label
-          htmlFor="email"
+          htmlFor="username"
           className="font-bold text-muted-foreground text-xs uppercase tracking-widest"
         >
-          Email Address
+          Username/Email
         </Label>
         <Input
-          id="email"
-          type="email"
-          name="email"
-          placeholder="Enter your email address"
-          defaultValue={(state?.fields?.email as string) || ""}
+          id="username"
+          type="username"
+          name="username"
+          placeholder="Enter your username"
+          defaultValue={(state?.fields?.username as string) || ""}
           className="bg-background border-border rounded-xl focus-visible:ring-primary/20 h-12 transition-all"
         />
       </div>

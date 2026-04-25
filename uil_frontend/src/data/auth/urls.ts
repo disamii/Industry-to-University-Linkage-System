@@ -2,7 +2,7 @@ const base = `/auth`;
 
 export const authUrls = {
   base: () => base,
-  signin: () => `${base}/login`,
-  check_email: () => `${base}/check-email`,
-  refreshToken: () => `${base}/refresh`,
+  signin: () => `${base}/token/login/`,
+  check_email: () => `${base}/sso/login/`,
+  refreshToken: () => `${base}/refresh/`,
 };

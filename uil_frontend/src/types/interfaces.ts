@@ -1,5 +1,5 @@
 export type ApiErrorResponse = {
-  detail: string;
+  error: string;
 };
 
 export type ApiPaginatedResponse<T> = {
@@ -9,6 +9,13 @@ export type ApiPaginatedResponse<T> = {
   size: number;
   pages: number;
 };
+
+export interface Metadata {
+  created_at: string;
+  updated_at: string;
+  created_by?: number | null;
+  updated_by?: number | null;
+}
 
 type Trend = {
   value: string;

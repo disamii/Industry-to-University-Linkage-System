@@ -16,17 +16,20 @@ export async function middleware(request: NextRequest) {
   if (token && pathname.startsWith("/dashboard")) {
     try {
       const payload = decodeJwt(token);
-      const role = payload.role as UserRole;
+      let roles = payload.roles as UserRole[];
 
-      // 2. Role-based route guarding
+      if (roles.length === 0) {
+        roles = [UserRole.STAFF];
+      }
+
       const rolePaths: Record<string, UserRole> = {
         "/dashboard/office": UserRole.ADMIN,
         "/dashboard/industry": UserRole.INDUSTRY,
-        "/dashboard/staff": UserRole.USER,
+        "/dashboard/staff": UserRole.STAFF,
       };
 
       for (const [path, requiredRole] of Object.entries(rolePaths)) {
-        if (pathname.startsWith(path) && role !== requiredRole) {
+        if (pathname.startsWith(path) && !roles.includes(requiredRole)) {
           return NextResponse.redirect(
             new URL(LINKS.unauthorized, request.url),
           );

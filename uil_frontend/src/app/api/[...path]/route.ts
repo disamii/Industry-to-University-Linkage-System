@@ -15,7 +15,8 @@ async function handle(
   const url = new URL(req.url);
 
   // 2. Use the unwrapped 'path'
-  const target = `${BASE_URL}/${path.join("/")}${url.search}`;
+  const joinedPath = path.join("/").replace(/\/?$/, "/");
+  const target = `${BASE_URL}/${joinedPath}${url.search}`;
 
   const headers: Record<string, string> = {};
 

@@ -13,12 +13,13 @@ export const getAdminRole = (pathname: string) => {
   return "staff";
 };
 
-export const getAdminHomepageLink = (role: UserRole) => {
+export const getAdminHomepageLink = (roles: UserRole[]) => {
   let targetPath = "/dashboard";
 
-  if (role === UserRole.ADMIN) targetPath += "/office";
-  if (role === UserRole.INDUSTRY) targetPath += "/industry";
-  if (role === UserRole.USER) targetPath += "/staff";
+  if (roles.includes(UserRole.ADMIN)) targetPath += "/office";
+  if (roles.includes(UserRole.INDUSTRY)) targetPath += "/industry";
+  if (roles.length === 0 || roles.includes(UserRole.STAFF))
+    targetPath += "/staff";
 
   return targetPath;
 };

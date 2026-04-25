@@ -18,7 +18,7 @@ export async function safeApiRequest<T>(
 
       // Safe message for frontend
       const safeMessage =
-        axiosError.response?.data?.detail ||
+        axiosError.response?.data?.error ||
         "Something went wrong. Please try again.";
 
       throw new Error(safeMessage);

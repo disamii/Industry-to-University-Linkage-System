@@ -30,14 +30,14 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
   };
 
   const handleCheckEmail = (e?: React.FormEvent) => {
-    e?.preventDefault(); // FIX: Prevent page reload on form submit
+    e?.preventDefault();
     if (!email || isSubmitting) return;
 
     mutate(
       { email },
       {
         onSuccess: (data) => {
-          if (data.exists) {
+          if (data.id) {
             setRpmsUserData(data);
             setShowFoundDialog(true);
           } else {

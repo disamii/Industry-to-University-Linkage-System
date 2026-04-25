@@ -2,9 +2,28 @@
  * User
  */
 export enum UserRole {
-  USER = "user",
-  ADMIN = "admin",
-  INDUSTRY = "industry",
+  SUPER_ADMIN = "Super Admin",
+  ADMIN = "Admin",
+  STAFF = "Staff",
+  INDUSTRY = "Industry",
+}
+
+export enum UserStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
+/**
+ * Industry
+ */
+export enum IndustryType {
+  IT = "it",
+  Manufacturing = "manufacturing",
+  Construction = "construction",
+  Healthcare = "healthcare",
+  Education = "education",
+  Other = "other",
 }
 
 /**

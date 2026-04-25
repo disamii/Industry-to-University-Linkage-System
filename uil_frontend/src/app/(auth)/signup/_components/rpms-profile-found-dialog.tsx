@@ -16,6 +16,7 @@ import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import { AlertCircle, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useSignin } from "../../_hooks/useSignin";
+import { getFullName, getNameInitials } from "@/lib/helpers";
 
 type Props = {
   rpmsUserData: CheckStaffEmailResponse | null;
@@ -29,6 +30,11 @@ const RpmsProfileFoundDialog = ({
   setShowFoundDialog,
 }: Props) => {
   const [password, setPassword] = useState("");
+  const fullName = getFullName(
+    rpmsUserData?.first_name,
+    rpmsUserData?.father_name,
+    rpmsUserData?.grand_father_name,
+  );
 
   // Destructure state and formAction from our DRY hook
   const { state, formAction } = useSignin(() => {
@@ -45,7 +51,11 @@ const RpmsProfileFoundDialog = ({
           className="flex flex-col h-full"
         >
           {/* Hidden input to pass the email from rpmsUserData to the Server Action */}
-          <input type="hidden" name="email" value={rpmsUserData?.email || ""} />
+          <input
+            type="hidden"
+            name="username"
+            value={rpmsUserData?.email || ""}
+          />
 
           <div className="p-8 overflow-y-auto custom-scrollbar">
             <DialogHeader className="items-center space-y-4 text-center">
@@ -65,11 +75,11 @@ const RpmsProfileFoundDialog = ({
             <div className="space-y-6 mt-6">
               <div className="flex items-center gap-4 bg-muted/40 p-4 border border-border rounded-2xl">
                 <div className="flex justify-center items-center bg-primary/20 rounded-full w-10 h-10 font-bold text-primary text-sm shrink-0">
-                  {rpmsUserData?.name?.charAt(0)}
+                  {getNameInitials(fullName)}
                 </div>
                 <div className="overflow-hidden text-left">
                   <p className="font-bold text-sm truncate leading-tight">
-                    {rpmsUserData?.name}
+                    {fullName}
                   </p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
                     {rpmsUserData?.email}

@@ -50,7 +50,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // 1. Call your refresh endpoint
+        // 1. Call refresh endpoint
         // Since withCredentials: true is set, the refresh_token cookie is sent automatically
         await refreshTokenAction();
 

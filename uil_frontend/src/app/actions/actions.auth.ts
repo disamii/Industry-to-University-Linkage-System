@@ -12,36 +12,37 @@ import { getRefreshToken } from "@/data/auth/refresh-token-mutation";
 
 export async function signinAction(data: SigninInput) {
   const response = await signin(data);
-  const { access_token, refresh_token } = response;
+  // const { access_token, refresh_token } = response;
+  const { access } = response;
 
-  const payload = decodeJwt(access_token);
-  const role = payload.role as UserRole;
+  const payload = decodeJwt(access);
+  const roles = payload.roles as UserRole[];
 
   const cookieStore = await cookies();
 
   // Save JWT in httpOnly cookie
   cookieStore.set({
     name: "access_token",
-    value: access_token,
+    value: access,
     httpOnly: true,
     path: "/",
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
-  cookieStore.set({
-    name: "refresh_token",
-    value: refresh_token,
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  });
+  // cookieStore.set({
+  //   name: "refresh_token",
+  //   value: refresh_token,
+  //   httpOnly: true,
+  //   path: "/",
+  //   sameSite: "lax",
+  //   secure: process.env.NODE_ENV === "production",
+  // });
 
   // Fetch Profile immediately using the new token
   const userProfile = await getMe();
 
   // Map roles to paths
-  const targetPath = getAdminHomepageLink(role);
+  const targetPath = getAdminHomepageLink(roles);
 
   revalidatePath(targetPath);
 
@@ -57,26 +58,26 @@ export async function refreshTokenAction() {
   try {
     // Call your backend refresh endpoint
     const response = await getRefreshToken({ refresh_token: refreshToken });
-    const { access_token, refresh_token } = response;
+    const { access } = response;
 
     // Update the cookies
     cookieStore.set({
       name: "access_token",
-      value: access_token,
+      value: access,
       httpOnly: true,
       path: "/",
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });
 
-    cookieStore.set({
-      name: "refresh_token",
-      value: refresh_token,
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
+    // cookieStore.set({
+    //   name: "refresh_token",
+    //   value: refresh_token,
+    //   httpOnly: true,
+    //   path: "/",
+    //   sameSite: "lax",
+    //   secure: process.env.NODE_ENV === "production",
+    // });
 
     return { success: true };
   } catch {

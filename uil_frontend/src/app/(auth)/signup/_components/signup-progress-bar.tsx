@@ -6,7 +6,7 @@ type Props = {
 
 const SignupProgressBar = ({ step }: Props) => {
   const totalSteps = 2;
-  const progress = step === 3 ? 100 : (step / totalSteps) * 100;
+  const progress = step === 3 ? 100 : (step / (totalSteps + 1)) * 100;
 
   if (step >= 3) return null;
 
@@ -14,7 +14,7 @@ const SignupProgressBar = ({ step }: Props) => {
     <div className="space-y-3">
       <div className="flex justify-between items-end">
         <span className="font-bold text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-          Step 0{step}
+          Step 0{Math.floor(step)}
         </span>
         <span className="font-bold text-[10px] text-primary uppercase tracking-widest">
           {Math.round(progress)}% Complete
