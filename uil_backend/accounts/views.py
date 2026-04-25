@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.http import HttpResponse
-from django.db import  transaction
+from django.db import transaction
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -11,13 +11,13 @@ from datetime import timedelta
 
 from rest_framework import status as drf_status
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.filters import OrderingFilter,SearchFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.exceptions import ValidationError, NotFound, AuthenticationFailed, PermissionDenied,NotAuthenticated
-from rest_framework.permissions import  AllowAny
+from rest_framework.exceptions import ValidationError, NotFound, AuthenticationFailed, PermissionDenied, NotAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -37,11 +37,11 @@ from djoser import signals
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from io import BytesIO
-from authorization.permissions import HasRequiredPermissions,IsOwnerOrHasRequiredPermissions
+from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from authorization.utilis import get_scope
 from authorization.decorators import require_permissions
 from .services import read_users_from_excel, sso_from_rpms
-from .emails import  CustomConfirmationEmail, CustomOneTimePasswordEmail, CustomRejectionEmail
+from .emails import CustomConfirmationEmail, CustomOneTimePasswordEmail, CustomRejectionEmail
 import logging
 from .models import User
 from organizational_structure.models import OrganizationalUnit
@@ -60,12 +60,13 @@ from .permissions import USER_REQUIRED_PERMISSIONS
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
+
 class PrivateUserRetrieveView(APIView):
     def get(self, request):
         token = request.headers.get("X-API-KEY")
 
         if token != settings.PRIVATE_API_TOKEN:
-            print(token,settings.PRIVATE_API_TOKEN)
+            print(token, settings.PRIVATE_API_TOKEN)
             return Response({"detail": "Unauthorized"}, status=403)
 
         email = request.query_params.get("email")
@@ -79,29 +80,34 @@ class PrivateUserRetrieveView(APIView):
 
         serializer = UserFullSerializer(user)
         return Response(serializer.data)
+
+
 class CustomUserViewSet(UserViewSet):
     pagination_class = UserPagination
-    filter_backends = [DjangoFilterBackend,OrderingFilter,SearchFilter]
-    filterset_fields = ['status','is_superuser']
-    ordering_fields = ['created_at', 'updated_at','first_name']
-    search_fields = ['username', 'first_name', 'father_name', 'grand_father_name','email']
-    target_scope=None
-    
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['status', 'is_superuser']
+    ordering_fields = ['created_at', 'updated_at', 'first_name']
+    search_fields = ['username', 'first_name',
+                     'father_name', 'grand_father_name', 'email']
+    target_scope = None
 
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
-        self.required_permissions = USER_REQUIRED_PERMISSIONS.get(self.action, [])
-        if self.action in( "create","reset_password","reset_password_confirm"):
+        self.required_permissions = USER_REQUIRED_PERMISSIONS.get(
+            self.action, [])
+        if self.action in ("create", "reset_password", "reset_password_confirm"):
             permission_classes = [AllowAny]
-            
-        elif self.action in ("update", "partial_update","destroy"):
-            permission_classes = [IsAuthenticated, IsOwnerOrHasRequiredPermissions]
+
+        elif self.action in ("update", "partial_update", "destroy"):
+            permission_classes = [IsAuthenticated,
+                                  IsOwnerOrHasRequiredPermissions]
 
         elif self.action == "upload_users_excel":
             academic_unit_id = self.request.data.get("academic_unit")
             if academic_unit_id:
                 try:
-                    self.target_scope = OrganizationalUnit.objects.get(id=int(academic_unit_id))
+                    self.target_scope = OrganizationalUnit.objects.get(
+                        id=int(academic_unit_id))
                 except OrganizationalUnit.DoesNotExist:
                     self.target_scope = None
             else:
@@ -122,7 +128,8 @@ class CustomUserViewSet(UserViewSet):
         """enbales the list to be returned by the  scope of administatror"""
         user = self.request.user
         if not user.is_authenticated:
-            raise NotAuthenticated("Authentication credentials were not provided")
+            raise NotAuthenticated(
+                "Authentication credentials were not provided")
 
         scope = get_scope(user, self.required_permissions)
         parent_unit_id = self.request.query_params.get("academic_unit_scope")
@@ -142,8 +149,6 @@ class CustomUserViewSet(UserViewSet):
         else:
             scope_qs = scope
 
-
-
         queryset = User.objects.filter(
             academic_unit__in=scope_qs
         ).order_by('-created_at')
@@ -161,11 +166,10 @@ class CustomUserViewSet(UserViewSet):
         user = serializer.save()
         user.created_by = user
         user.updated_by = user
-        user.status='APPROVED'
+        user.status = 'APPROVED'
         user.save(update_fields=['created_by', 'updated_by', 'status'])
         signals.user_registered.send(
             sender=self.__class__, user=user, request=self.request)
-
 
         # protocol = self.request.scheme
         # domain = self.request.get_host()
@@ -179,7 +183,7 @@ class CustomUserViewSet(UserViewSet):
         #     token=token
         # )
         # email.send()
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.is_superuser:
@@ -188,16 +192,19 @@ class CustomUserViewSet(UserViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         return super().destroy(request, *args, **kwargs)
-    @action(detail=False,methods=["post"])
+
+    @action(detail=False, methods=["post"])
     def first_time_change_password(self, request):
-        serializer = FirstTimeChangePasswordSerializer(data=request.data, context={"request": request})
+        serializer = FirstTimeChangePasswordSerializer(
+            data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
 
         user = request.user
         user.set_password(serializer.validated_data["new_password"])
         user.must_change_password = False
         user.raw_password = ""
-        user.save(update_fields=["password","must_change_password", "raw_password"])
+        user.save(update_fields=["password",
+                  "must_change_password", "raw_password"])
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -212,7 +219,6 @@ class CustomUserViewSet(UserViewSet):
 
         users_data = read_users_from_excel(excel_file)
         BulkUserSerializer.validate_bulk(users_data)
-
 
         errors = []
         created_users = []
@@ -243,10 +249,11 @@ class CustomUserViewSet(UserViewSet):
                         user.set_password(otp_password)
                         user.raw_password = otp_password
                         user.must_change_password = True
-                        user.created_by=self.request.user
-                        user.academic_unit=academic_unit
+                        user.created_by = self.request.user
+                        user.academic_unit = academic_unit
                         user.save()
-                        email_obj = CustomOneTimePasswordEmail(user, otp_password)
+                        email_obj = CustomOneTimePasswordEmail(
+                            user, otp_password)
                         email_obj.send([user.email])
                         created_users.append(user)
                 except Exception as e:
@@ -269,7 +276,8 @@ class CustomUserViewSet(UserViewSet):
         user_id = request.data.get("user_id")
         user_ids = request.data.get("user_ids")
         if not user_id and not user_ids:
-            raise ValidationError({"detail": "Provide 'user_id' or 'user_ids'."})
+            raise ValidationError(
+                {"detail": "Provide 'user_id' or 'user_ids'."})
         if user_id:
             user_ids = [user_id]
         elif not isinstance(user_ids, list):
@@ -292,8 +300,8 @@ class CustomUserViewSet(UserViewSet):
 
         return Response(result, status=status.HTTP_200_OK)
 
-    @action(['PATCH'] ,detail=True)
-    def patch_status(self,request, id=None):
+    @action(['PATCH'], detail=True)
+    def patch_status(self, request, id=None):
         try:
             user = self.get_object()
             new_status = request.data.get("status")
@@ -337,14 +345,14 @@ class CustomUserViewSet(UserViewSet):
     #     try:
     #         uid = urlsafe_base64_decode(uid).decode()
     #         user = User.objects.get(pk=uid)
-            # self.check_object_permissions(request, user)
-            # check_object_permission(
-            #     request=request,
-            #     permission_class=HasRequiredPermissions,
-            #     obj=user,
-            #     required_permissions=USER_REQUIRED_PERMISSIONS.get('patch_status', []),
-            #     target_scope=user.academic_unit
-            # )
+        # self.check_object_permissions(request, user)
+        # check_object_permission(
+        #     request=request,
+        #     permission_class=HasRequiredPermissions,
+        #     obj=user,
+        #     required_permissions=USER_REQUIRED_PERMISSIONS.get('patch_status', []),
+        #     target_scope=user.academic_unit
+        # )
 
         #     if not default_token_generator.check_token(user, token):
         #         raise ValidationError("Invalid or expired activation link.")
@@ -363,7 +371,7 @@ class CustomUserViewSet(UserViewSet):
 class PublicUserViewSet(ReadOnlyModelViewSet):
     pagination_class = UserPagination
     permission_classes = [AllowAny]
-    serializer_class=UserSerializer
+    serializer_class = UserSerializer
     queryset = User.objects.all().select_related(
         'academic_unit'
     ).order_by('-created_at')
@@ -371,11 +379,13 @@ class PublicUserViewSet(ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['status', 'is_superuser']
     ordering_fields = ['created_at', 'updated_at', 'first_name']
-    search_fields = ['username', 'first_name', 'father_name', 'grand_father_name', 'email']
+    search_fields = ['username', 'first_name',
+                     'father_name', 'grand_father_name', 'email']
 
 
 @api_view(["POST"])
-@permission_classes([])
+@authentication_classes([])  # This removes the global authentication check
+@permission_classes([AllowAny])  # This ensures anyone can access it
 def sso_login_view(request):
     email = request.data.get("email")
 
@@ -388,37 +398,37 @@ def sso_login_view(request):
     return Response(result, status=status.HTTP_200_OK)
 
 
-
 @require_permissions(USER_REQUIRED_PERMISSIONS.get("dashboard_summary"))
 @api_view(['GET'])
 @permission_classes([HasRequiredPermissions])
 def dashboard_summary(request):
-    scope = get_scope(request.user,USER_REQUIRED_PERMISSIONS.get("dashboard_summary"))
+    scope = get_scope(
+        request.user, USER_REQUIRED_PERMISSIONS.get("dashboard_summary"))
     today = timezone.now().date()
     week_ago = today - timedelta(days=7)
     month_ago = today - timedelta(days=30)
-    total_users = User.objects.filter(            academic_unit__in=scope
-).count()
+    total_users = User.objects.filter(academic_unit__in=scope
+                                      ).count()
     pending_users = User.objects.filter(status='PENDING',            academic_unit__in=scope
-).count()
+                                        ).count()
     approved_users = User.objects.filter(status='APPROVED',            academic_unit__in=scope
-).count()
+                                         ).count()
     rejected_users = User.objects.filter(status='REJECTED',            academic_unit__in=scope
-).count()
+                                         ).count()
     active_users = User.objects.filter(is_active=True,            academic_unit__in=scope
-).count()
+                                       ).count()
     inactive_users = User.objects.filter(is_active=False,            academic_unit__in=scope
-).count()
+                                         ).count()
     superusers = User.objects.filter(is_superuser=True,            academic_unit__in=scope
-).count()
+                                     ).count()
     users_created_today = User.objects.filter(created_at__date=today,            academic_unit__in=scope
-).count()
+                                              ).count()
     users_created_this_week = User.objects.filter(
-                    academic_unit__in=scope,
+        academic_unit__in=scope,
 
         created_at__date__gte=week_ago).count()
     users_created_this_month = User.objects.filter(
-                    academic_unit__in=scope,
+        academic_unit__in=scope,
 
         created_at__date__gte=month_ago).count()
 
@@ -437,7 +447,6 @@ def dashboard_summary(request):
 
     serializer = DashboardSummarySerializer(summary_data)
     return Response(serializer.data)
-
 
 
 # @require_permissions(USER_REQUIRED_PERMISSIONS.get("user_excel_by_academic_unit"))
@@ -469,7 +478,8 @@ def user_excel_by_academic_unit(request, pk):
             for cell in col:
                 if cell.value:
                     max_length = max(max_length, len(str(cell.value)))
-            ws.column_dimensions[col_letter].width = max(min_width, min(max_length + 2, max_width))
+            ws.column_dimensions[col_letter].width = max(
+                min_width, min(max_length + 2, max_width))
 
     # 4️⃣ Create a workbook
     wb = Workbook()
@@ -485,7 +495,7 @@ def user_excel_by_academic_unit(request, pk):
 
         user = User.objects.filter(
             academic_unit__id__in=descendant_ids
-        ).select_related( "academic_unit")
+        ).select_related("academic_unit")
 
         if not user.exists():
             continue
@@ -536,6 +546,7 @@ def user_excel_by_academic_unit(request, pk):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
     def post(self, request, *args, **kwargs):
         try:
             response = super().post(request, *args, **kwargs)

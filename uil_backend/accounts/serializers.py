@@ -37,16 +37,20 @@ class UserFullSerializer(serializers.ModelSerializer):
             "password": {"write_only": True}
         }
 
+
 class UserSerializer(serializers.ModelSerializer):
     has_profile = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
-    academic_unit_response = OrganizationStructureListSerializer(source='academic_unit', read_only=True)
+    academic_unit_response = OrganizationStructureListSerializer(
+        source='academic_unit', read_only=True)
     roles = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'father_name',  'grand_father_name', 'email','academic_unit','academic_unit_response','created_at', 'updated_at', 'must_change_password',  'is_superuser', 'status', 'has_profile', 'profile_picture','roles','permissions']
-        read_only_fields = ('is_superuser','status')
+        fields = ['id', 'username', 'first_name', 'father_name',  'grand_father_name', 'email', 'academic_unit', 'academic_unit_response',
+                  'created_at', 'updated_at', 'must_change_password',  'is_superuser', 'status', 'has_profile', 'profile_picture', 'roles', 'permissions']
+        read_only_fields = ('is_superuser', 'status')
 
     def validate_academic_unit(self, value: OrganizationalUnit):
         if value is None:
@@ -60,26 +64,25 @@ class UserSerializer(serializers.ModelSerializer):
             )
 
         return value
+
     def get_has_profile(self, obj):
         return hasattr(obj, 'researcherprofile')
-    
-    def get_profile_picture(self, obj):
-        profile = getattr(obj, 'researcherprofile', None)
-        if profile and profile.profile_picture:
-            return profile.profile_picture.url
-        return None
-
 
     def get_profile_picture(self, obj):
         profile = getattr(obj, 'researcherprofile', None)
         if profile and profile.profile_picture:
             return profile.profile_picture.url
         return None
-        
+
+    def get_profile_picture(self, obj):
+        profile = getattr(obj, 'researcherprofile', None)
+        if profile and profile.profile_picture:
+            return profile.profile_picture.url
+        return None
+
     def get_roles(self, obj):
         if obj.is_superuser:
             return ["Super Admin"]
-        
 
         return list(
             obj.user_roles
@@ -87,19 +90,22 @@ class UserSerializer(serializers.ModelSerializer):
             .values_list('role__name', flat=True)
             .distinct()
         )
+
     def get_permissions(self, obj):
-        from authorization.models import Permission, RolePermission 
+        from authorization.models import Permission, RolePermission
         if obj.is_superuser:
-            all_perms = list(Permission.objects.values_list('code', flat=True).distinct())
-            all_perms.append("super_admin")  
+            all_perms = list(Permission.objects.values_list(
+                'code', flat=True).distinct())
+            all_perms.append("super_admin")
             return all_perms
 
         return list(
             RolePermission.objects
-                .filter(role__role_users__user=obj)
-                .values_list('permission__code', flat=True)
-                .distinct()
+            .filter(role__role_users__user=obj)
+            .values_list('permission__code', flat=True)
+            .distinct()
         )
+
 
 class UploadUsersExcelSerializer(serializers.Serializer):
     file = serializers.FileField()
@@ -111,7 +117,8 @@ class UploadUsersExcelSerializer(serializers.Serializer):
 class BulkUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name','father_name', 'grand_father_name', 'email']
+        fields = ['username', 'first_name',
+                  'father_name', 'grand_father_name', 'email']
         extra_kwargs = {
             'username': {'required': False},
             'grand_father_name': {'required': False, 'allow_blank': True, 'allow_null': True},
@@ -134,7 +141,8 @@ class BulkUserSerializer(serializers.ModelSerializer):
                 duplicate_rows.append(index + 1)
             seen.add(key)
             email_counts[email] += 1
-        repeated_emails = [email for email,count in email_counts.items() if count > 1]
+        repeated_emails = [email for email,
+                           count in email_counts.items() if count > 1]
         if repeated_emails:
             raise ValidationError({
                 "email": f"Duplicate email(s) found in upload: {', '.join(repeated_emails)}"
@@ -183,7 +191,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'father_name',
-                   'grand_father_name', 'email', 'password','academic_unit']
+                  'grand_father_name', 'email', 'password', 'academic_unit']
         read_only_fields = ['id']
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -193,6 +201,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.password = make_password(password)
         user.save()
         return user
+
     def validate_academic_unit(self, value: OrganizationalUnit):
         if value is None:
             raise serializers.ValidationError(
@@ -206,12 +215,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         return value
 
+
 class UserDeleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id']
-
-
 
 
 class DashboardSummarySerializer(serializers.Serializer):
@@ -227,11 +235,21 @@ class DashboardSummarySerializer(serializers.Serializer):
     users_created_this_month = serializers.IntegerField()
 
 
-
-
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    from django.contrib.auth import authenticate, get_user_model
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
 
+        token["roles"] = list(
+            user.user_roles
+            .select_related('role')
+            .values_list('role__name', flat=True)
+            .distinct()
+        )
+
+        return token
+
+    from django.contrib.auth import authenticate, get_user_model
     username_field = get_user_model().USERNAME_FIELD  # typically "username"
 
     def validate(self, attrs):
@@ -249,7 +267,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             else:
                 username = user_input
         except user_model.DoesNotExist:
-            raise serializers.ValidationError("No user found with this email/username.")
+            raise serializers.ValidationError(
+                "No user found with this email/username.")
 
         user = authenticate(username=username, password=password)
 
@@ -259,7 +278,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Call original validation to get tokens
         data = super().validate({"username": username, "password": password})
         return data
-    
+
 
 class ContactPersonCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -267,7 +286,7 @@ class ContactPersonCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'father_name',
-                'grand_father_name', 'email', 'password']
+                  'grand_father_name', 'email', 'password']
         read_only_fields = ['id']
         extra_kwargs = {'password': {'write_only': True}}
 
