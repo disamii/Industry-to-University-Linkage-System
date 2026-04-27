@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 // Layouts & Guards
-import AuthLayout from "@/layouts/AuthLayout";
-import MainLayout from "@/layouts/MainLayout";
+import AuthLayout from "@/layouts/auth-layout";
+import MainLayout from "@/layouts/main-layout";
 import ProtectedRoute from "./protected-route";
 
 // Route Modules

@@ -32,7 +32,7 @@ services:
             - "**/migrations/"
         - action: rebuild
           path: ./uil_backend/requirements.txt
-     
+
         - action: rebuild
           path: ./uil_backend/gunicorn_config.py
         - action: rebuild
@@ -51,31 +51,57 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-  frontend:
+  # frontend:
+  #   build:
+  #     context: ./uil_frontend
+  #     dockerfile: Dockerfile
+  #   container_name: uil_frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - API_DOCKER_INTERNAL_URL=http://backend:8000
+  #     - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+  #     - RUNNING_IN_DOCKER=true
+  #     - WATCHPACK_POLLING=true
+  #   depends_on:
+  #     - backend
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./uil_frontend
+  #         target: /app
+  #         ignore:
+  #           - node_modules/
+  #           - .next/
+  #           - .git/
+  #       - action: rebuild
+  #         path: ./uil_frontend/package.json
+
+  frontend_react:
     build:
-      context: ./uil_frontend
+      context: ./uil_frontend_react
       dockerfile: Dockerfile
-    container_name: uil_frontend
+    container_name: uil_frontend_react
     ports:
-      - "3000:3000"
+      - "5173:5173"
+    env_file:
+      - ./uil_frontend_react/.env.development
     environment:
-      - API_DOCKER_INTERNAL_URL=http://backend:8000
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
-      - RUNNING_IN_DOCKER=true
-      - WATCHPACK_POLLING=true
+      - VITE_API_BASE_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
     develop:
       watch:
         - action: sync
-          path: ./uil_frontend
+          path: ./uil_frontend_react
           target: /app
           ignore:
             - node_modules/
-            - .next/
+            - dist/
             - .git/
         - action: rebuild
-          path: ./uil_frontend/package.json
+          path: ./uil_frontend_react/package.json
 
 volumes:
   mysql_data:
