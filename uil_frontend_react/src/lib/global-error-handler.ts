@@ -1,14 +1,14 @@
-import type { ErrorResponse } from "@/types/interfaces";
+import type { ApiErrorResponse } from "@/types/interfaces";
 
-let globalToastHandler: ((error: ErrorResponse) => void) | null = null;
+let globalToastHandler: ((error: ApiErrorResponse) => void) | null = null;
 
 export const setGlobalToastHandler = (
-  handler: (error: ErrorResponse) => void,
+  handler: (error: ApiErrorResponse) => void,
 ) => {
   globalToastHandler = handler;
 };
 
-export const showErrorToast = (error: ErrorResponse) => {
+export const showErrorToast = (error: ApiErrorResponse) => {
   if (globalToastHandler) {
     globalToastHandler(error);
   } else {
@@ -16,14 +16,14 @@ export const showErrorToast = (error: ErrorResponse) => {
   }
 };
 
-export const processError = (error: unknown): ErrorResponse => {
+export const processError = (error: unknown): ApiErrorResponse => {
   if (
     error &&
     typeof error === "object" &&
     "status" in error &&
     "error" in error
   ) {
-    return error as ErrorResponse;
+    return error as ApiErrorResponse;
   }
 
   if (error instanceof TypeError && error.message.includes("fetch")) {

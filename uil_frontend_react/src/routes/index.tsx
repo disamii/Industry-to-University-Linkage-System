@@ -11,6 +11,7 @@ import { authRoutes } from "./auth-routes";
 import { officeRoutes } from "./office-routes";
 import { industryRoutes } from "./industry-routes";
 import { staffRoutes } from "./staff-routes";
+import { LINKS } from "@/lib/constants";
 
 export const router = createBrowserRouter([
   {
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
       },
 
       // 4. Catch-all 404
-      { path: "*", element: <Navigate to="/" replace /> },
+      { path: "*", element: <Navigate to={LINKS.not_found} replace /> },
     ],
   },
 ]);

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useSignin } from "../../_hooks/useSignin";
 import { LINKS } from "@/lib/constants";
 
-const SinginForm = () => {
+const SigninForm = () => {
   const { state, formAction } = useSignin();
 
   return (
@@ -59,4 +59,4 @@ const SinginForm = () => {
   );
 };
 
-export default SinginForm;
+export default SigninForm;

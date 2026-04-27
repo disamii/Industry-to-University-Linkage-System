@@ -8,10 +8,10 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
-import type { ErrorResponse } from "@/types/interfaces";
+import type { ApiErrorResponse } from "@/types/interfaces";
 
 export function useErrorToast() {
-  const showErrorToast = (error: ErrorResponse) => {
+  const showErrorToast = (error: ApiErrorResponse) => {
     const normalizedError = error.error?.toLowerCase();
 
     const getErrorConfig = () => {
@@ -21,10 +21,10 @@ export function useErrorToast() {
           return {
             icon: Lock,
             title: "Session Expired",
-            actionText: "Login",
+            actionText: "Sign In",
             actionFn: () => {
               localStorage.clear();
-              window.location.href = "/auth";
+              window.location.href = "/signin";
             },
           };
         case "forbidden":
