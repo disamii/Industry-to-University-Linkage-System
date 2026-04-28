@@ -70,7 +70,6 @@ class IndustryRequestViewSet(viewsets.ModelViewSet):
         if self.action == "create":
             return IndustryRequestCreateSerializer
         elif self.action=="retrieve":
-            print("am here doing what ")
             return IndustryRequestDetailSerializer
         return IndustryRequestSerializer
     
@@ -105,3 +104,25 @@ class IndustryRequestViewSet(viewsets.ModelViewSet):
 
         serializer = IndustryRequestSerializer(qs, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=["post"], url_path="actions")
+    def create_action(self, request, pk=None):
+        industry_request = self.get_object()
+
+        serializer = IndustryRequestActionCreateSerializer(
+            data=request.data,
+            context={"request": request}
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        action = serializer.save(request=industry_request)
+
+        return Response(
+            {
+                "id": action.id,
+                "message": "Action applied successfully"
+            },
+            status=status.HTTP_201_CREATED
+        )
+    
