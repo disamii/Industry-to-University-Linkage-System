@@ -1,20 +1,27 @@
-import { FormInput } from "@/components/reusable/form-components";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { useSignin } from "@/data/auth/signin-mutation";
 import { getMe } from "@/data/user/current_user-profile-query";
-import { LINKS } from "@/lib/constants";
-import { getAdminHomepageLink } from "@/lib/utils";
+import { cn, getAdminHomepageLink } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
-import { SigninInput, signinSchema } from "@/validation/validation.auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { SigninInput } from "@/validation/validation.auth";
+import { ReactNode } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
-const SinginForm = () => {
-  const form = useForm<SigninInput>({
-    resolver: zodResolver(signinSchema),
-  });
+type Props = {
+  form: UseFormReturn<SigninInput>;
+  className?: string;
+  onCloseDialog?: () => void;
+  children: ReactNode;
+};
+
+const SigninFormWrapper = ({
+  form,
+  className,
+  children,
+  onCloseDialog,
+}: Props) => {
   const { mutate, isPending } = useSignin();
   const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -34,6 +41,9 @@ const SinginForm = () => {
           // Save both to the persisted store
           setAuth(userData, token);
 
+          // Close the dialog if it's opened
+          onCloseDialog?.();
+
           // navigate(from, { replace: true });
           navigate(getAdminHomepageLink(userData.roles));
         } catch (error) {
@@ -47,31 +57,9 @@ const SinginForm = () => {
     <form
       id="form-signin"
       onSubmit={form.handleSubmit(onSubmit)}
-      className="space-y-6"
+      className={cn("space-y-6", className)}
     >
-      <FormInput
-        form={form}
-        name="username"
-        label="Username/Email"
-        placeholder="Enter your username"
-      />
-
-      <div className="relative">
-        <FormInput
-          form={form}
-          name="password"
-          label="Password"
-          placeholder="Enter your username"
-          type="password"
-        />
-
-        <Link
-          to={LINKS.forgot_password}
-          className="top-0 right-0 absolute hover:opacity-80 font-medium text-primary text-xs transition-opacity"
-        >
-          Forgot Password?
-        </Link>
-      </div>
+      {children}
 
       <Button
         type="submit"
@@ -86,4 +74,4 @@ const SinginForm = () => {
   );
 };
 
-export default SinginForm;
+export default SigninFormWrapper;

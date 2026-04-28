@@ -15,12 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
   label: string;
   name: Path<T>; // This ensures 'name' is a valid key of your schema
   placeholder: string;
+  className?: string;
 };
 
 type FormInputProps<T extends FieldValues> = BaseFormProps<T> & {
@@ -33,6 +35,7 @@ export const FormInput = <T extends FieldValues>({
   name,
   placeholder,
   type = "text",
+  className,
 }: FormInputProps<T>) => {
   return (
     <Controller
@@ -47,7 +50,17 @@ export const FormInput = <T extends FieldValues>({
             type={type}
             placeholder={placeholder}
             aria-invalid={fieldState.invalid}
-            className="py-5"
+            className={cn("py-5", className)}
+            value={field.value ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (type === "number") {
+                field.onChange(value === "" ? null : Number(value));
+              } else {
+                field.onChange(value);
+              }
+            }}
           />
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
@@ -66,6 +79,7 @@ export const FormTextArea = <T extends FieldValues>({
   label,
   placeholder,
   desc,
+  className,
 }: FormTextAreaProps<T>) => (
   <Controller
     name={name}
@@ -78,7 +92,7 @@ export const FormTextArea = <T extends FieldValues>({
           id={field.name}
           aria-invalid={fieldState.invalid}
           placeholder={placeholder}
-          className="min-h-30"
+          className={cn("min-h-30", className)}
         />
         {desc && <FieldDescription>{desc}</FieldDescription>}
         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -103,6 +117,7 @@ export const FormSelect = <T extends FieldValues>({
   desc,
   placeholder,
   position,
+  className,
 }: FormSelectProps<T>) => (
   <Controller
     name={name}
@@ -122,7 +137,7 @@ export const FormSelect = <T extends FieldValues>({
           <SelectTrigger
             id={field.name}
             aria-invalid={fieldState.invalid}
-            className="py-5 min-w-30"
+            className={cn("py-5 min-w-30", className)}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

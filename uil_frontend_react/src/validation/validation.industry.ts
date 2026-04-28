@@ -1,47 +1,7 @@
 import { IndustryType } from "@/lib/enums";
 import { z } from "zod";
 
-/*
 // --- Base Schema ---
-export const industryBaseSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  contact_person: z.string().nullish(),
-  phone: z.string().nullish(),
-  industry_type: z.string().nullish(),
-  efficiency_level: z.string().nullish(),
-  address: z.string().nullish(),
-  website: z.string().url("Invalid website URL").or(z.literal("")).nullish(),
-});
-
-// --- Create Schema ---
-export const industryCreateSchema = industryBaseSchema
-  .extend({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-export type IndustryCreateInput = z.infer<typeof industryCreateSchema>;
-
-export const industryDefaultValues = {
-  name: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  contact_person: "",
-  phone: "",
-  industry_type: "",
-  efficiency_level: "",
-  address: "",
-  website: "",
-};
-*/
-
-// Updated Base Schema
 export const industryBaseSchema = z.object({
   name: z.string().min(1, "Name is required"),
   industry_email: z.string().email("Invalid industry email address"), // Renamed to match Django model
@@ -58,7 +18,7 @@ export const industryBaseSchema = z.object({
   website: z.string().url("Invalid website URL").or(z.literal("")).nullish(),
 });
 
-// Updated Create Schema
+// --- Create Schema ---
 export const industryCreateSchema = industryBaseSchema
   .extend({
     contact_full_name: z.string().min(1, "Contact person name is required"),
@@ -77,7 +37,7 @@ export type IndustryCreateInput = z.infer<typeof industryCreateSchema>;
 
 // --- Update Schema ---
 export const industryUpdateSchema = industryBaseSchema
-  // .omit({ email: true })
+  .omit({ industry_email: true })
   .partial();
 
 export type IndustryUpdateInput = z.infer<typeof industryUpdateSchema>;
