@@ -18,10 +18,11 @@ export function ScrollToTop() {
 }
 
 export const getRoleByPath = (pathname: string) => {
-  if (pathname.startsWith("/dashboard/office")) return "office";
-  if (pathname.startsWith("/dashboard/industry")) return "industry";
+  if (pathname.startsWith("/dashboard/office")) return UserRole.ADMIN;
+  if (pathname.startsWith("/dashboard/industry")) return UserRole.INDUSTRY;
+  if (pathname.startsWith("/dashboard/staff")) return UserRole.STAFF;
 
-  return "staff";
+  return "";
 };
 
 export const getAdminHomepageLink = (roles: UserRole[]) => {

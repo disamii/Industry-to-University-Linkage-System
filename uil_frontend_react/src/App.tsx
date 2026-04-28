@@ -7,6 +7,7 @@ import { getQueryClient } from "./data/query-client";
 import { useErrorToast } from "./hooks/use-error-toast";
 import { setGlobalToastHandler } from "./lib/global-error-handler";
 import { router } from "./routes";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 function App() {
   const { showErrorToast } = useErrorToast();
@@ -18,10 +19,12 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <TooltipProvider>
+        <RouterProvider router={router} />
 
-      <CustomToaster />
-      <ReactQueryDevtools initialIsOpen={false} />
+        <CustomToaster />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

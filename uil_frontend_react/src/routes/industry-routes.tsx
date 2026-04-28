@@ -10,5 +10,5 @@ const withBase = (path: string) => `${base}/${path}`;
 export const industryRoutes: RouteObject[] = [
   { path: withBase(""), element: <IndustryDashboard /> },
   { path: withBase("requests"), element: <IndustryRequests /> },
-  { path: withBase("submit-request"), element: <IndustrySubmitRequest /> },
+  { path: withBase("requests/create"), element: <IndustrySubmitRequest /> },
 ];

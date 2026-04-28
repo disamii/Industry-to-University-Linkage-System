@@ -129,6 +129,15 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+
+    /* CUSTOM SCROLLBAR */
+    @apply [&::-webkit-scrollbar]:w-2;
+    @apply [&::-webkit-scrollbar-track]:bg-gray-200;
+    @apply [&::-webkit-scrollbar-thumb]:bg-gray-500;
+
+    /* Dark mode support */
+    @apply dark:[&::-webkit-scrollbar-track]:bg-neutral-700;
+    @apply dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500;
   }
   body {
     @apply bg-background text-foreground;

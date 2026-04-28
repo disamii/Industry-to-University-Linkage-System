@@ -7,9 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useNavigateHome } from "@/hooks/use-navigate-home";
 
 export default function NotFoundPage() {
+  const navigate = useNavigate();
+  const to = useNavigateHome();
+
   return (
     <div className="flex justify-center items-center bg-background p-4 w-full min-h-screen">
       <Card className="border-dashed w-full max-w-md">
@@ -33,10 +37,14 @@ export default function NotFoundPage() {
         </CardHeader>
         <CardFooter className="flex flex-col gap-2">
           <Button asChild className="w-full h-10">
-            <Link to="/">Return to Homepage</Link>
+            <Link to={to}>Return to Homepage</Link>
           </Button>
-          <Button variant="ghost" asChild className="w-full h-10">
-            <Link to="..">Go Back</Link>
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="w-full h-10"
+          >
+            Go Back
           </Button>
         </CardFooter>
       </Card>

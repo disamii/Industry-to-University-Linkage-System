@@ -1,3 +1,5 @@
+import { SidebarProvider } from "@/contexts/SidebarContext";
+import AdminLayout from "@/layouts/admin-layout";
 import { LINKS } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -33,7 +35,13 @@ const ProtectedRoute = () => {
     }
   }
 
-  return <Outlet />;
+  return (
+    <SidebarProvider>
+      <AdminLayout>
+        <Outlet />
+      </AdminLayout>
+    </SidebarProvider>
+  );
 };
 
 export default ProtectedRoute;

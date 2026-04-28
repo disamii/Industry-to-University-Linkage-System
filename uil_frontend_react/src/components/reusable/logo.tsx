@@ -1,24 +1,32 @@
-import logoImg from "/logo/uil-logo-no-bg.png";
+import { useNavigateHome } from "@/hooks/use-navigate-home";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import logoImg from "/logo/uil-logo-no-bg.png";
+
+type Props = {
+  size?: number;
+  hasLabel?: boolean;
+  forceLabel?: boolean;
+  label?: string;
+  className?: string;
+};
 
 const Logo = ({
   size = 64,
   hasLabel = false,
   forceLabel = false,
   label,
-}: {
-  size?: number;
-  hasLabel?: boolean;
-  forceLabel?: boolean;
-  label?: string;
-}) => {
+  className,
+}: Props) => {
+  const to = useNavigateHome();
+
   return (
     <Link
-      to="/"
+      to={to}
       className={cn(
         "flex items-center gap-3 hover:opacity-80 transition-opacity",
         label && "p-4",
+        className,
       )}
     >
       <div className="inline-block relative">
