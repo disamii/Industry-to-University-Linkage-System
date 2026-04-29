@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Use env vars with default fallback
-DB_HOST=${DATABASE_HOST:-uil_db}
+DB_HOST=${DATABASE_HOST:-mysql_db}
 DB_PORT=${DATABASE_PORT:-3306}
 
 echo "Waiting for database at $DB_HOST:$DB_PORT..."

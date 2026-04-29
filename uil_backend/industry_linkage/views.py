@@ -5,12 +5,13 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from config.paginations import DefaultPagination
 from .models import Industry, IndustryRequest
 from .permissions import INDUSTRY_REQUEST_REQUIRED_PERMISSIONS,INDUSTRY_REQUIRED_PERMISSIONS
-from organizational_structure.models import OrganizationalUnit
 from .serializers import IndustryCreateSerializer, IndustryRequestDetailSerializer,IndustrySerializer,IndustryRequestSerializer,IndustryRequestCreateSerializer
 from authorization.permissions import HasRequiredPermissions,IsOwnerOrHasRequiredPermissions
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied, NotAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from organizational_structure.models import OrganizationalUnit
+from authorization.utilis import get_scope
 
 class IndustryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -43,7 +44,6 @@ class IndustryViewSet(viewsets.ModelViewSet):
             industry = request.user.industry_profile
         except Industry.DoesNotExist:
             raise NotFound("Industry profile not found")
-
         serializer = IndustrySerializer(industry)
         return Response(serializer.data)
 class IndustryRequestViewSet(viewsets.ModelViewSet):
@@ -72,11 +72,49 @@ class IndustryRequestViewSet(viewsets.ModelViewSet):
         elif self.action=="retrieve":
             return IndustryRequestDetailSerializer
         return IndustryRequestSerializer
+    def get_object(self):
+        """it pass the scope of the target to the class and check object permission"""
+        obj = super().get_object()
+        self.target_scope = obj.requested_to
+        self.check_object_permissions(self.request, obj)
+        return obj
     
+    def get_queryset(self):
+        """enbales the list to be returned by the  scope of administatror"""
+        user = self.request.user
+        if not user.is_authenticated:
+            raise NotAuthenticated("Authentication credentials were not provided")
+
+        scope = get_scope(user, self.required_permissions)
+        parent_unit_id = self.request.query_params.get("academic_unit_scope")
+        if parent_unit_id:
+            try:
+                parent_unit = OrganizationalUnit.objects.get(
+                    id=int(parent_unit_id))
+            except OrganizationalUnit.DoesNotExist:
+                return IndustryRequest.objects.none()
+            if not parent_unit in scope:
+                return IndustryRequest.objects.none()
+            self.request.parent_scope = parent_unit
+
+            filter_scope = [parent_unit.id] + \
+                [u.id for u in parent_unit.get_all_descendants()]
+            scope_qs = OrganizationalUnit.objects.filter(id__in=filter_scope)
+        else:
+            scope_qs = scope
+
+        queryset = IndustryRequest.objects.filter(
+            requested_to__in=scope_qs
+        ).order_by('-created_at')
+        return queryset
+
     @action(detail=False, methods=['get'], url_path='by-industry/(?P<industry_id>[^/.]+)')
     def by_industry(self, request, industry_id=None):
-        qs = IndustryRequest.objects.filter(industry_id=industry_id).select_related("industry")
+        qs = self.get_queryset()  
 
+        qs = qs.filter(
+            industry_id=industry_id
+        ).select_related("industry")
         if not qs.exists():
             raise NotFound("No requests found for this industry")
 
