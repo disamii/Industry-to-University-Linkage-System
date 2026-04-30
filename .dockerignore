@@ -38,3 +38,12 @@ media
 
 docker-compose.override.yml
 Dockerfile.*
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+.env
+node_modules

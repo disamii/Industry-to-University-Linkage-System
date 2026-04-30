@@ -113,6 +113,41 @@ class IndustryRequestActionSerializer(serializers.ModelSerializer):
             "forwarded_from",
             "created_at",
         ]
+class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = IndustryRequestAction
+        fields = [
+            "request",
+            "type",
+            "description",
+            "from_industry",
+            "from_unit",
+            "to_industry",
+            "to_unit",
+            "forwarded_to",
+            "forwarded_from",
+        ]
+
+    def validate(self, attrs):
+        action_type = attrs.get("type")
+
+        if action_type == "assigned":
+            if not attrs.get("to_unit") and not attrs.get("to_industry"):
+                raise serializers.ValidationError("Assigned requires target")
+
+        if action_type == "forwarded":
+            if not attrs.get("forwarded_to"):
+                raise serializers.ValidationError("Forwarded requires forwarded_to")
+
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return IndustryRequestAction.objects.create(
+            performed_by=user,
+            **validated_data
+        )
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
