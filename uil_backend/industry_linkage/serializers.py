@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.db import transaction
+import json
 
 from django.contrib.auth.hashers import make_password
 from organizational_structure.serializers import OrganizationStructureListSerializer
@@ -128,7 +129,7 @@ class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
             "forwarded_to",
             "forwarded_from",
         ]
-
+    
     def validate(self, attrs):
         action_type = attrs.get("type")
 
@@ -248,38 +249,60 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "industry"]
 
-    def validate(self, attrs):
-        request_type = attrs.get("type")
+    # def validate(self, attrs):
+    #     request_type = attrs.get("type")
+    #     extra_data = self.initial_data.get("extra_data", {})
+
+    #     # basic validation gate
+    #     if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
+    #         raise serializers.ValidationError("extra_data is required for this request type")
+
+    #     return attrs
+    def _parse_extra_data(self):
         extra_data = self.initial_data.get("extra_data", {})
 
-        # basic validation gate
+        if isinstance(extra_data, str):
+            try:
+                extra_data = json.loads(extra_data)
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({"extra_data": "Invalid JSON format"})
+
+        return extra_data
+    def validate(self, attrs):
+        request_type = attrs.get("type")
+        extra_data = self._parse_extra_data()
+
         if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
             raise serializers.ValidationError("extra_data is required for this request type")
 
         return attrs
+    
+    def validate(self, attrs):
+        request_type = attrs.get("type")
+        extra_data = attrs.get("extra_data", {})
+
+        if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
+            raise serializers.ValidationError("extra_data is required")
+
+        return attrs
+
 
     def create(self, validated_data):
-        request = self.context["request"]
-        user = request.user
+        user = self.context["request"].user
 
-        extra_data = self.initial_data.get("extra_data", {})
+        extra_data = validated_data.pop("extra_data", {})
 
-        try:
-            industry = user.industry_profile
-        except Exception:
+        industry = getattr(user, "industry_profile", None)
+        if not industry:
             raise serializers.ValidationError("User has no industry profile")
-        validated_data.pop("extra_data", None)
 
         with transaction.atomic():
-
-            # 1. base request
             industry_request = IndustryRequest.objects.create(
                 created_by=user,
                 industry=industry,
                 **validated_data
             )
 
-            # 2. action log
             IndustryRequestAction.objects.create(
                 request=industry_request,
                 type="created",
@@ -290,7 +313,6 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
                 updated_by=user,
             )
 
-            # 3. create subtype model
             self._create_type_specific_model(industry_request, extra_data)
 
         return industry_request
