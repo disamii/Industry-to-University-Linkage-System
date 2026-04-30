@@ -7,7 +7,7 @@ export const INDUSTRY_REQUEST_FIELDS: Record<
   IndustryRequestType,
   readonly string[]
 > = {
-  [IndustryRequestType.RND]: ["technology_required", "required_duration"],
+  [IndustryRequestType.RND]: ["request", "problem_statement", "research_area"],
   [IndustryRequestType.TECH_SUPPORT]: [
     "technology_required",
     "required_duration",

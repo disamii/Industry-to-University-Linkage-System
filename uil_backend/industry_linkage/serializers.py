@@ -5,7 +5,7 @@ import json
 
 from django.contrib.auth.hashers import make_password
 from organizational_structure.serializers import OrganizationStructureListSerializer
-from .models import Industry, IndustryRequest, IndustryRequestAction, TechnologySupportRequest, ConsultancyRequest, TrainingRequest, RecruitmentRequest, RequestAssignment, RnDRequest, InternshipRequest
+from .models import Industry, IndustryRequest, IndustryRequestAction, TechnologySupportRequest, ConsultancyRequest, TrainingRequest, RecruitmentRequest, RequestAssignment, RnDRequest, InternshipRequest, TestingRequest
 User = get_user_model()
 
 
@@ -136,7 +136,7 @@ class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
             "forwarded_to",
             "forwarded_from",
         ]
-    
+
     def validate(self, attrs):
         action_type = attrs.get("type")
 
@@ -218,14 +218,15 @@ class RnDRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RnDRequest
         fields = [
-            "technology_required",
-            "required_duration",
+            "request",
+            "problem_statement",
+            "research_area",
         ]
 
 
 class TestingRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RnDRequest
+        model = TestingRequest
         fields = [
             "item_to_test",
             "test_type",
@@ -290,9 +291,11 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
             try:
                 extra_data = json.loads(extra_data)
             except json.JSONDecodeError:
-                raise serializers.ValidationError({"extra_data": "Invalid JSON format"})
+                raise serializers.ValidationError(
+                    {"extra_data": "Invalid JSON format"})
 
         return extra_data
+
     def validate(self, attrs):
         request_type = attrs.get("type")
         extra_data = self._parse_extra_data()
@@ -302,16 +305,15 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
                 "extra_data is required for this request type")
 
         return attrs
-    
-    def validate(self, attrs):
-        request_type = attrs.get("type")
-        extra_data = attrs.get("extra_data", {})
 
-        if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
-            raise serializers.ValidationError("extra_data is required")
+    # def validate(self, attrs):
+    #     request_type = attrs.get("type")
+    #     extra_data = attrs.get("extra_data", {})
 
-        return attrs
+    #     if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
+    #         raise serializers.ValidationError("extra_data is required")
 
+    #     return attrs
 
     def create(self, validated_data):
         user = self.context["request"].user

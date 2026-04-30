@@ -29,7 +29,7 @@ type BaseFormProps<T extends FieldValues> = {
 };
 
 const Asterisk = () => (
-  <span className="ml-1 font-medium text-destructive">*</span>
+  <span className="mt-1 font-medium text-destructive">*</span>
 );
 
 type FormInputProps<T extends FieldValues> = BaseFormProps<T> & {
