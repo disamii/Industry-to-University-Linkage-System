@@ -1,17 +1,18 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
 from .models import Industry, IndustryRequest
 from .permissions import INDUSTRY_REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
-from .serializers import IndustryCreateSerializer, IndustryRequestDetailSerializer, IndustrySerializer, IndustryRequestSerializer, IndustryRequestCreateSerializer
+from .serializers import IndustryCreateSerializer, IndustryRequestActionCreateSerializer, IndustryRequestDetailSerializer, IndustrySerializer, IndustryRequestSerializer, IndustryRequestCreateSerializer
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied, NotAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from organizational_structure.models import OrganizationalUnit
 from authorization.utilis import get_scope
+from rest_framework.parsers import FormParser, MultiPartParser
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -56,6 +57,7 @@ class IndustryRequestViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
     search_fields = ['industry__name']
     queryset = IndustryRequest.objects.all()
+    parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
 
     def perform_create(self, serializer):

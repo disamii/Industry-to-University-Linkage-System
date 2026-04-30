@@ -29,29 +29,14 @@ export enum IndustryType {
 /**
  * Industry Request
  */
-export enum RequestStatus {
-  PENDING = "PENDING",
-  IN_REVIEW = "IN_REVIEW",
-  ASSIGNED = "ASSIGNED",
-  REJECTED = "REJECTED",
-  // IN_PROGRESS = "IN_PROGRESS",
-  // COMPLETED = "COMPLETED",
-}
-
-export enum RequestPriority {
-  LOW = "LOW",
-  MEDIUM = "MEDIUM",
-  HIGH = "HIGH",
-}
-
-export enum RequestType {
-  TECHNICAL_SUPPORT = "technical_support",
-  RESEARCH_COLLABORATION = "research_collaboration",
-  WORKSHOP = "workshop",
-  SEMINAR = "seminar",
-  EMPLOYEE_TRAINING = "employee_training",
+export enum IndustryRequestType {
+  RND = "rnd",
+  TECH_SUPPORT = "tech_support",
+  CONSULTANCY = "consultancy",
+  TESTING = "testing",
+  TRAINING = "training",
   INTERNSHIP = "internship",
-  MAINTENANCE = "maintenance",
+  RECRUITMENT = "recruitment",
   OTHER = "other",
 }
 

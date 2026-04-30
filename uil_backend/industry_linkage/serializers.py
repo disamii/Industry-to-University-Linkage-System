@@ -4,8 +4,10 @@ from django.db import transaction
 
 from django.contrib.auth.hashers import make_password
 from organizational_structure.serializers import OrganizationStructureListSerializer
-from .models import Industry,IndustryRequest,IndustryRequestAction,TechnologySupportRequest,ConsultancyRequest,TrainingRequest,RecruitmentRequest,RequestAssignment,RnDRequest,InternshipRequest
+from .models import Industry, IndustryRequest, IndustryRequestAction, TechnologySupportRequest, ConsultancyRequest, TrainingRequest, RecruitmentRequest, RequestAssignment, RnDRequest, InternshipRequest
 User = get_user_model()
+
+
 class IndustryCreateSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.CharField(write_only=True)
     contact_email = serializers.EmailField(write_only=True)
@@ -85,10 +87,13 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
         user = getattr(self, "_created_user", None)
 
         if user:
-            data["contact_full_name"] = f"{user.first_name} {user.father_name} {user.grand_father_name}".strip()
+            data["contact_full_name"] = f"{user.first_name} {user.father_name} {user.grand_father_name}".strip(
+            )
             data["contact_email"] = user.email
 
         return data
+
+
 class IndustryRequestActionSerializer(serializers.ModelSerializer):
     performed_by = serializers.StringRelatedField()
     from_industry = serializers.StringRelatedField()
@@ -113,6 +118,8 @@ class IndustryRequestActionSerializer(serializers.ModelSerializer):
             "forwarded_from",
             "created_at",
         ]
+
+
 class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -138,7 +145,8 @@ class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
 
         if action_type == "forwarded":
             if not attrs.get("forwarded_to"):
-                raise serializers.ValidationError("Forwarded requires forwarded_to")
+                raise serializers.ValidationError(
+                    "Forwarded requires forwarded_to")
 
         return attrs
 
@@ -148,6 +156,8 @@ class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
             performed_by=user,
             **validated_data
         )
+
+
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
@@ -176,6 +186,8 @@ class IndustrySerializer(serializers.ModelSerializer):
 
     def get_contact_email(self, obj):
         return obj.contact_person.email
+
+
 class TechnologySupportRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = TechnologySupportRequest
@@ -183,10 +195,14 @@ class TechnologySupportRequestSerializer(serializers.ModelSerializer):
             "technology_required",
             "required_duration",
         ]
+
+
 class ConsultancyRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsultancyRequest
         fields = ["consultancy_type"]
+
+
 class TrainingRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainingRequest
@@ -195,6 +211,8 @@ class TrainingRequestSerializer(serializers.ModelSerializer):
             "number_of_trainees",
             "trainee_level",
         ]
+
+
 class RnDRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RnDRequest
@@ -202,6 +220,8 @@ class RnDRequestSerializer(serializers.ModelSerializer):
             "technology_required",
             "required_duration",
         ]
+
+
 class TestingRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RnDRequest
@@ -209,6 +229,8 @@ class TestingRequestSerializer(serializers.ModelSerializer):
             "item_to_test",
             "test_type",
         ]
+
+
 class InternshipRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = InternshipRequest
@@ -218,6 +240,8 @@ class InternshipRequestSerializer(serializers.ModelSerializer):
             "timeframe",
             "activities"
         ]
+
+
 class RecruitmentRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecruitmentRequest
@@ -227,7 +251,8 @@ class RecruitmentRequestSerializer(serializers.ModelSerializer):
             "requirements",
             "number_to_recruit",
         ]
-        
+
+
 class IndustryRequestCreateSerializer(serializers.ModelSerializer):
 
     # type-specific payload (dynamic input)
@@ -254,7 +279,8 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
 
         # basic validation gate
         if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
-            raise serializers.ValidationError("extra_data is required for this request type")
+            raise serializers.ValidationError(
+                "extra_data is required for this request type")
 
         return attrs
 
@@ -294,32 +320,35 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
             self._create_type_specific_model(industry_request, extra_data)
 
         return industry_request
-    
+
     def _create_type_specific_model(self, industry_request, extra_data):
-            REQUEST_SERIALIZER_MAP = {
-                "tech_support": TechnologySupportRequestSerializer,
-                "consultancy": ConsultancyRequestSerializer,
-                "training": TrainingRequestSerializer,
-                "recruitment": RecruitmentRequestSerializer,
-                "rnd":RnDRequestSerializer,
-                "internship":InternshipRequestSerializer,
-                "testing":TestingRequestSerializer
-            }
-            request_type = industry_request.type
+        REQUEST_SERIALIZER_MAP = {
+            "tech_support": TechnologySupportRequestSerializer,
+            "consultancy": ConsultancyRequestSerializer,
+            "training": TrainingRequestSerializer,
+            "recruitment": RecruitmentRequestSerializer,
+            "rnd": RnDRequestSerializer,
+            "internship": InternshipRequestSerializer,
+            "testing": TestingRequestSerializer
+        }
+        request_type = industry_request.type
 
-            serializer_class = REQUEST_SERIALIZER_MAP.get(request_type)
+        serializer_class = REQUEST_SERIALIZER_MAP.get(request_type)
 
-            if not serializer_class:
-                return  # or raise error
+        if not serializer_class:
+            return  # or raise error
 
-            serializer = serializer_class(data=extra_data)
-            serializer.is_valid(raise_exception=True)
+        serializer = serializer_class(data=extra_data)
+        serializer.is_valid(raise_exception=True)
 
-            serializer.save(request=industry_request)
+        serializer.save(request=industry_request)
+
+
 class IndustryRequestDetailSerializer(serializers.ModelSerializer):
     detail = serializers.SerializerMethodField()
     actions = IndustryRequestActionSerializer(many=True, read_only=True)
-    requested_to=OrganizationStructureListSerializer(read_only=True)
+    requested_to = OrganizationStructureListSerializer(read_only=True)
+
     class Meta:
         model = IndustryRequest
         fields = [
@@ -356,7 +385,7 @@ class IndustryRequestDetailSerializer(serializers.ModelSerializer):
         if obj.type == "recruitment":
             instance = getattr(obj, "recruitment", None)
             return RecruitmentRequestSerializer(instance).data if instance else None
-        
+
         if obj.type == "testing":
             instance = getattr(obj, "testing", None)
             return TestingRequestSerializer(instance).data if instance else None
@@ -368,6 +397,8 @@ class IndustryRequestDetailSerializer(serializers.ModelSerializer):
             return RnDRequestSerializer(instance).data if instance else None
 
         return None
+
+
 class IndustryRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = IndustryRequest

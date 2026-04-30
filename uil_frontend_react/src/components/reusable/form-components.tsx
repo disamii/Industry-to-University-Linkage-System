@@ -1,4 +1,3 @@
-import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
 import {
   Field,
   FieldContent,
@@ -7,7 +6,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -15,18 +13,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { Upload, XIcon } from "lucide-react";
+import React from "react";
+import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
   label: string;
   name: Path<T>; // This ensures 'name' is a valid key of your schema
-  placeholder: string;
+  placeholder?: string;
   className?: string;
+  required?: boolean; // Add this
 };
+
+const Asterisk = () => (
+  <span className="ml-1 font-medium text-destructive">*</span>
+);
 
 type FormInputProps<T extends FieldValues> = BaseFormProps<T> & {
   type?: string;
+  isNumber?: boolean;
 };
 
 export const FormInput = <T extends FieldValues>({
@@ -35,6 +43,7 @@ export const FormInput = <T extends FieldValues>({
   name,
   placeholder,
   type = "text",
+  required,
   className,
 }: FormInputProps<T>) => {
   return (
@@ -43,10 +52,14 @@ export const FormInput = <T extends FieldValues>({
       control={form.control}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+          <FieldLabel htmlFor={field.name} className="capitalize">
+            {label}
+            {required && <Asterisk />}
+          </FieldLabel>
           <Input
             {...field}
             id={field.name}
+            required={required}
             type={type}
             placeholder={placeholder}
             aria-invalid={fieldState.invalid}
@@ -79,6 +92,7 @@ export const FormTextArea = <T extends FieldValues>({
   label,
   placeholder,
   desc,
+  required,
   className,
 }: FormTextAreaProps<T>) => (
   <Controller
@@ -86,10 +100,14 @@ export const FormTextArea = <T extends FieldValues>({
     control={form.control}
     render={({ field, fieldState }) => (
       <Field data-invalid={fieldState.invalid}>
-        <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+        <FieldLabel htmlFor={field.name} className="capitalize">
+          {label}
+          {required && <Asterisk />}
+        </FieldLabel>
         <Textarea
           {...field}
           id={field.name}
+          required={required}
           aria-invalid={fieldState.invalid}
           placeholder={placeholder}
           className={cn("min-h-30", className)}
@@ -104,8 +122,9 @@ export const FormTextArea = <T extends FieldValues>({
 type FormSelectProps<T extends FieldValues> = BaseFormProps<T> & {
   orientation?: "vertical" | "horizontal" | "responsive";
   position?: "item-aligned" | "popper";
-  options: { value: string; label: string }[];
+  options: { value: string | number; label: string }[];
   desc?: string;
+  isNumber?: boolean;
 };
 
 export const FormSelect = <T extends FieldValues>({
@@ -118,6 +137,8 @@ export const FormSelect = <T extends FieldValues>({
   placeholder,
   position,
   className,
+  isNumber,
+  required,
 }: FormSelectProps<T>) => (
   <Controller
     name={name}
@@ -125,14 +146,25 @@ export const FormSelect = <T extends FieldValues>({
     render={({ field, fieldState }) => (
       <Field orientation={orientation} data-invalid={fieldState.invalid}>
         <FieldContent>
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+          <FieldLabel htmlFor={field.name} className="capitalize">
+            {label}
+            {required && <Asterisk />}
+          </FieldLabel>
           {desc && <FieldDescription>{desc}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </FieldContent>
         <Select
           name={field.name}
-          value={field.value}
-          onValueChange={field.onChange}
+          required={required}
+          value={
+            field.value !== undefined && field.value !== null
+              ? String(field.value)
+              : ""
+          }
+          onValueChange={(val) => {
+            // Cast back to number if requested
+            field.onChange(isNumber ? Number(val) : val);
+          }}
         >
           <SelectTrigger
             id={field.name}
@@ -143,7 +175,8 @@ export const FormSelect = <T extends FieldValues>({
           </SelectTrigger>
           <SelectContent position={position}>
             {options.map(({ value, label }, idx) => (
-              <SelectItem key={`${value}—${idx}`} value={value}>
+              // Ensure the Item value is always a string
+              <SelectItem key={`${value}—${idx}`} value={String(value)}>
                 {label}
               </SelectItem>
             ))}
@@ -153,3 +186,124 @@ export const FormSelect = <T extends FieldValues>({
     )}
   />
 );
+
+type FormUploadFileProps<T extends FieldValues> = BaseFormProps<T> & {
+  desc?: string;
+  accept?: string;
+  maxSizeMB?: number;
+};
+
+export const FormUploadFile = <T extends FieldValues>({
+  form,
+  name,
+  label,
+  desc,
+  className,
+  accept = "*/*",
+  maxSizeMB = 5,
+  required,
+}: FormUploadFileProps<T>) => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  return (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field, fieldState }) => {
+        const value = field.value as File | null | undefined;
+
+        const handleFileAction = (files: FileList | null) => {
+          const file = files?.[0] || null;
+          field.onChange(file);
+        };
+
+        const handleRemove = (e: React.MouseEvent) => {
+          e.stopPropagation(); // Prevent opening the file dialog
+          field.onChange(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // Reset input value
+          }
+        };
+
+        return (
+          <Field
+            data-invalid={fieldState.invalid}
+            className={cn("px-0", className)}
+          >
+            <FieldLabel htmlFor={field.name} className="capitalize">
+              {label}
+              {required && <Asterisk />}
+            </FieldLabel>
+
+            <div
+              className={cn(
+                "group relative flex flex-col justify-center items-center p-8 border-2 border-dashed rounded-md text-center transition-all cursor-pointer",
+                fieldState.invalid
+                  ? "border-destructive bg-destructive/5"
+                  : "border-border hover:bg-accent/50 hover:border-primary/50",
+              )}
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFileAction(e.dataTransfer.files);
+              }}
+            >
+              {/* Remove Button */}
+              {value instanceof File && (
+                <button
+                  type="button"
+                  onClick={handleRemove}
+                  className="top-2 right-2 absolute bg-destructive/10 hover:bg-destructive p-1.5 rounded-full text-destructive hover:text-white transition-colors"
+                  aria-label="Remove file"
+                >
+                  <XIcon className="w-4 h-4" />
+                </button>
+              )}
+
+              <div className="bg-muted mb-2 p-3 rounded-full">
+                <Upload className="w-5 h-5 text-muted-foreground" />
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-medium text-foreground text-sm">
+                  {value instanceof File ? (
+                    <span className="font-semibold text-primary break-all">
+                      {value.name}
+                    </span>
+                  ) : (
+                    "Choose a file or drag & drop"
+                  )}
+                </p>
+
+                <p className="text-muted-foreground text-xs">
+                  {value instanceof File ? (
+                    <span>({(value.size / 1024 / 1024).toFixed(2)} MB)</span>
+                  ) : (
+                    <span>Any file up to {maxSizeMB}MB</span>
+                  )}
+                </p>
+              </div>
+
+              <input
+                type="file"
+                id={field.name}
+                ref={fileInputRef}
+                className="hidden"
+                accept={accept}
+                onChange={(e) => handleFileAction(e.target.files)}
+              />
+            </div>
+
+            {desc && <FieldDescription>{desc}</FieldDescription>}
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        );
+      }}
+    />
+  );
+};

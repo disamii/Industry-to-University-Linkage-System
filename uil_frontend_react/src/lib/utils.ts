@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useLocation } from "react-router-dom";
@@ -69,3 +70,37 @@ export function formatDate(
   // fallback: normal readable format
   return format(parsedDate, options?.includeTime ? "PPP p" : "PPP"); // e.g., Apr 5, 2026 10:27 PM
 }
+
+/**
+ * Converts a flat object to FormData, skipping null/undefined values.
+ * Useful for Edit/Create toggles where empty fields shouldn't overwrite data.
+ */
+export const toFormData = (data: Record<string, any>): FormData => {
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    // 1. Skip null or undefined (prevents the error you saw)
+    if (value === null || value === undefined) {
+      return;
+    }
+
+    // 2. Handle Files/Blobs directly
+    if (value instanceof File || value instanceof Blob) {
+      formData.append(key, value);
+    }
+    // 3. Handle Dates (convert to ISO string)
+    else if (value instanceof Date) {
+      formData.append(key, value.toISOString());
+    }
+    // 4. Handle Objects/Arrays (stringify them if your backend expects JSON)
+    else if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+    }
+    // 5. Standard strings/numbers
+    else {
+      formData.append(key, String(value));
+    }
+  });
+
+  return formData;
+};
