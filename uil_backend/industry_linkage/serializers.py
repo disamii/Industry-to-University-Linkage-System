@@ -139,6 +139,10 @@ class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         action_type = attrs.get("type")
+        request_obj = self.context.get("request_obj")
+
+        if not request_obj:
+            raise serializers.ValidationError("Request context is required")
 
         if action_type == "assigned":
             if not attrs.get("to_unit") and not attrs.get("to_industry"):
@@ -146,11 +150,22 @@ class IndustryRequestActionCreateSerializer(serializers.ModelSerializer):
 
         if action_type == "forwarded":
             if not attrs.get("forwarded_to"):
-                raise serializers.ValidationError(
-                    "Forwarded requires forwarded_to")
+                raise serializers.ValidationError("Forwarded requires forwarded_to")
+
+        if action_type == "accept_forwarded":
+                    forwarded_action = request_obj.actions.filter(
+                        type="forwarded"
+                    ).order_by("-created_at").first()
+
+                    if not forwarded_action:
+                        raise serializers.ValidationError("No forwarded action found")
+
+                    if forwarded_action.forwarded_to_id == request_obj.requested_to_id:
+                        raise serializers.ValidationError(
+"No state change required: request already assigned to this unit."                        )
+
 
         return attrs
-
     def create(self, validated_data):
         user = self.context["request"].user
         return IndustryRequestAction.objects.create(
@@ -275,15 +290,6 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "industry"]
 
-    # def validate(self, attrs):
-    #     request_type = attrs.get("type")
-    #     extra_data = self.initial_data.get("extra_data", {})
-
-    #     # basic validation gate
-    #     if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
-    #         raise serializers.ValidationError("extra_data is required for this request type")
-
-    #     return attrs
     def _parse_extra_data(self):
         extra_data = self.initial_data.get("extra_data", {})
 
@@ -306,14 +312,6 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    # def validate(self, attrs):
-    #     request_type = attrs.get("type")
-    #     extra_data = attrs.get("extra_data", {})
-
-    #     if request_type in ["tech_support", "consultancy", "training", "recruitment"] and not extra_data:
-    #         raise serializers.ValidationError("extra_data is required")
-
-    #     return attrs
 
     def create(self, validated_data):
         user = self.context["request"].user
@@ -360,7 +358,7 @@ class IndustryRequestCreateSerializer(serializers.ModelSerializer):
         serializer_class = REQUEST_SERIALIZER_MAP.get(request_type)
 
         if not serializer_class:
-            return  # or raise error
+            return  
 
         serializer = serializer_class(data=extra_data)
         serializer.is_valid(raise_exception=True)

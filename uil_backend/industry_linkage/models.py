@@ -74,6 +74,7 @@ class IndustryRequestAction(AuditMixin,models.Model):
         ("created", "Created"),
         ("assigned", "Assigned"),
         ("forwarded", "Forwarded"),
+        ("accept_forwarded", "Accept Forwarded"),
         ("replied", "Replied"),
     ]
     request = models.ForeignKey(
@@ -85,7 +86,6 @@ class IndustryRequestAction(AuditMixin,models.Model):
     type = models.CharField(max_length=30, choices=ACTION_TYPES)
 
     description = models.TextField()  
-
 
     performed_by = models.ForeignKey(
         User,        
@@ -139,8 +139,6 @@ class IndustryRequestAction(AuditMixin,models.Model):
         blank=True,
         related_name="sent_forwards"
     )
-
-
 
 
 class RequestAssignment(models.Model):
@@ -231,6 +229,5 @@ class InternshipRequest(models.Model):
     activities = models.TextField()
 class TestingRequest(models.Model):
     request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="testing")
-
     item_to_test = models.CharField(max_length=255)
     test_type = models.CharField(max_length=255)
