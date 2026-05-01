@@ -21,17 +21,25 @@ const ProtectedRoute = () => {
     roles = [UserRole.STAFF];
   }
 
-  const rolePaths: Record<string, UserRole> = {
-    "/dashboard/office": UserRole.ADMIN,
-    "/dashboard/industry": UserRole.INDUSTRY,
-    "/dashboard/staff": UserRole.STAFF,
+  const rolePaths: Record<string, UserRole[]> = {
+    "/dashboard/office": [UserRole.ADMIN, UserRole.SUPER_ADMIN],
+    "/dashboard/industry": [UserRole.INDUSTRY],
+    "/dashboard/staff": [UserRole.STAFF],
   };
 
-  for (const [path, requiredRole] of Object.entries(rolePaths)) {
-    if (pathname.startsWith(path) && !roles.includes(requiredRole)) {
-      return (
-        <Navigate to={LINKS.unauthorized} state={{ from: location }} replace />
-      );
+  for (const [path, requiredRoles] of Object.entries(rolePaths)) {
+    if (pathname.startsWith(path)) {
+      const hasPermission = roles.some((role) => requiredRoles.includes(role));
+
+      if (!hasPermission) {
+        return (
+          <Navigate
+            to={LINKS.unauthorized}
+            state={{ from: location }}
+            replace
+          />
+        );
+      }
     }
   }
 

@@ -29,7 +29,8 @@ export const getRoleByPath = (pathname: string) => {
 export const getAdminHomepageLink = (roles: UserRole[]) => {
   let targetPath = "/dashboard";
 
-  if (roles.includes(UserRole.ADMIN)) targetPath += "/office";
+  if (roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN))
+    targetPath += "/office";
   if (roles.includes(UserRole.INDUSTRY)) targetPath += "/industry";
   if (roles.length === 0 || roles.includes(UserRole.STAFF))
     targetPath += "/staff";
