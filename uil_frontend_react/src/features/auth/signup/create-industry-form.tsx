@@ -197,7 +197,10 @@ const CreateIndustryForm = ({ setStep }: CreateIndustryFormProps) => {
     defaultValues: industryDefaultValues,
   });
 
-  const handleNext = async () => {
+  const handleNext = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const isValid = await form.trigger([
       "name",
       "industry_email",

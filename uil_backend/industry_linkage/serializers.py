@@ -4,7 +4,7 @@ from django.db import transaction, IntegrityError
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework import serializers
-from authorization.utilis import  is_unit_in_user_scope
+from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from .utils import clean_phone
@@ -300,6 +300,13 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at",]
 
+        extra_kwargs = {
+            "industry": {
+                "required": False,
+                "allow_null": True
+            }
+        }
+
     def _parse_extra_data(self):
         extra_data = self.initial_data.get("extra_data", {})
 
@@ -347,7 +354,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         requesting_entity = validated_data.pop("requesting_entity")
 
         industry_id = validated_data.pop("industry", None)
-        academic_unit_id = validated_data.pop("academic_unit", None)
+        academic_unit_id = validated_data.get("academic_unit", None)
 
         with transaction.atomic():
             if requesting_entity == "industry":
@@ -363,12 +370,12 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                             {"industry": "Industry id required or user must have industry profile"}
                         )
 
-                if not industry.contact_persons.filter(user=user).exists():
+                if industry.contact_person != user:
                     raise serializers.ValidationError(
                         "You are not allowed for this industry"
                     )
                 request = Request.objects.create(
-                    created_by=user,
+                    created_by_id=user.id,
                     industry=industry,
                     requesting_entity="industry",
                     **validated_data
@@ -380,8 +387,8 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     description="Request created",
                     performed_by=user,
                     from_industry=industry,
-                    created_by=user,
-                    updated_by=user,
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
 
                 )
             elif requesting_entity == "academic_unit":
@@ -400,7 +407,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                         "Not allowed for this academic unit")
 
                 request = Request.objects.create(
-                    created_by=user,
+                    created_by_id=user.id,
                     academic_unit_id=academic_unit_id,
                     requesting_entity="academic_unit",
                     **validated_data
@@ -412,8 +419,8 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     description="Request created",
                     performed_by=user,
                     from_unit_id=academic_unit_id,
-                    created_by=user,
-                    updated_by=user,
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
                 )
 
             else:
@@ -459,7 +466,8 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 class RequestDetailSerializer(serializers.ModelSerializer):
     detail = serializers.SerializerMethodField()
     actions = RequestActionSerializer(many=True, read_only=True)
-    requested_to = OrganizationStructureListSerializer(read_only=True)
+    academic_unit = OrganizationStructureListSerializer(read_only=True)
+    industry = IndustrySerializer(read_only=True)
 
     class Meta:
         model = Request
@@ -562,101 +570,3 @@ class TechTransferRequestSerializer(serializers.ModelSerializer):
         model = TechTransferRequest
         fields = "__all__"
         read_only_fields = ["id"]
-
-
-class RequestCreateSerializer(serializers.ModelSerializer):
-    extra_data = serializers.JSONField(write_only=True, required=False)
-
-    class Meta:
-        model = Request
-        fields = [
-            "id",
-            "type",
-            "title",
-            "requested_to",
-            "university",
-            "description",
-            "attachment",
-            "extra_data",
-            "created_at",
-        ]
-        read_only_fields = ["id", "created_at"]
-
-    def _parse_extra_data(self):
-        extra_data = self.initial_data.get("extra_data", {})
-
-        if isinstance(extra_data, str):
-            try:
-                extra_data = json.loads(extra_data)
-            except json.JSONDecodeError:
-                raise serializers.ValidationError(
-                    {"extra_data": "Invalid JSON format"}
-                )
-        return extra_data
-
-    def validate(self, attrs):
-        request_type = attrs.get("type")
-        extra_data = self._parse_extra_data()
-
-        REQUIRED_TYPES = [
-            "curriculum_review",
-            "industrial_visit",
-            "joint_research",
-            "guest_lecture",
-            "tech_transfer",
-        ]
-
-        if request_type in REQUIRED_TYPES and not extra_data:
-            raise serializers.ValidationError(
-                {"extra_data": "This field is required for this request type"}
-            )
-
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        extra_data = validated_data.pop("extra_data", {})
-
-        university = getattr(user, "university_profile", None)
-        if not university:
-            raise serializers.ValidationError("User has no university profile")
-
-        with transaction.atomic():
-            university_request = Request.objects.create(
-                created_by=user,
-                university=university,
-                **validated_data
-            )
-
-            RequestAction.objects.create(
-                request=university_request,
-                type="created",
-                description="Request created",
-                performed_by=user,
-                from_university=university,
-                created_by=user,
-                updated_by=user,
-            )
-
-            self._create_type_specific_model(university_request, extra_data)
-
-        return university_request
-
-    def _create_type_specific_model(self, university_request, extra_data):
-        REQUEST_SERIALIZER_MAP = {
-            "curriculum_review": CurriculumReviewRequestSerializer,
-            "industrial_visit": IndustrialVisitRequestSerializer,
-            "joint_research": JointResearchRequestSerializer,
-            "guest_lecture": GuestLectureRequestSerializer,
-            "tech_transfer": TechTransferRequestSerializer,
-        }
-
-        request_type = university_request.type
-        serializer_class = REQUEST_SERIALIZER_MAP.get(request_type)
-
-        if not serializer_class:
-            return
-
-        serializer = serializer_class(data=extra_data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(request=university_request)

@@ -5,7 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useSidebar } from "@/contexts/SidebarContext";
+import { useSidebar } from "@/contexts/sidebar-context";
 import { LINKS } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";
 import { getRoleByPath } from "@/lib/utils";

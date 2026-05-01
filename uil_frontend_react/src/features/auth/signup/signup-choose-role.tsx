@@ -47,7 +47,7 @@ const SignupChooseRole = ({ role, setRole, setStep }: Props) => {
               <r.Icon className="w-5 h-5" />
             </div>
             <div className="flex-1">
-              <div className="font-bold text-sm">{r.title}</div>
+              <div className="font-semibold text-sm">{r.title}</div>
               <div className="mt-1 font-medium text-[11px] text-muted-foreground leading-none">
                 {r.desc}
               </div>

@@ -294,5 +294,6 @@ class ContactPersonCreateSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.password = make_password(password)
+        user.status = "APPROVED"
         user.save()
         return user

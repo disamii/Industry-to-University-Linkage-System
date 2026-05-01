@@ -16,10 +16,9 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         # extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('status','APPROVED')
-        
-        return self.create_user(email, password, **extra_fields)
+        extra_fields.setdefault('status', 'APPROVED')
 
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -28,32 +27,33 @@ class User(AbstractBaseUser, PermissionsMixin):
         ("APPROVED", "Approved"),
         ("REJECTED", "Rejected"),
     ]
-    
+
     username = models.CharField(max_length=255, unique=True, null=False)
     first_name = models.CharField(max_length=255, null=True, blank=True)
     father_name = models.CharField(max_length=255, null=True, blank=True)
     grand_father_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(null=False, unique=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="PENDING")
     must_change_password = models.BooleanField(default=False)
     raw_password = models.CharField(max_length=128, null=True, blank=True)
-    academic_unit = models.ForeignKey("organizational_structure.OrganizationalUnit", 
-                                      on_delete=models.SET_NULL, 
-                                      null=True, 
-                                      blank=True,  
+    academic_unit = models.ForeignKey("organizational_structure.OrganizationalUnit",
+                                      on_delete=models.SET_NULL,
+                                      null=True,
+                                      blank=True,
                                       related_name="users")
     created_by = models.ForeignKey(
-        'self',  
-        on_delete=models.SET_NULL, 
-        null=True, 
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         related_name="users_created"
     )
-    
+
     updated_by = models.ForeignKey(
-        'self',  
-        on_delete=models.SET_NULL, 
-        null=True, 
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         related_name="users_updated"
     )
@@ -70,10 +70,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         parts = [self.first_name, self.father_name, self.grand_father_name]
         return " ".join(part for part in parts if part).strip()
-    
+
     def __str__(self):
         return f"{self.first_name} {self.father_name}"
-    
+
     def has_perm(self, perm_code: str, organizational_unit=None) -> bool:
         if self.is_superuser:
             return True
@@ -97,7 +97,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if organizational_unit.is_descendant_of(org_id):
                 return True
         return False
-    
+
     def is_owner(self, user) -> bool:
         """Return True if the given user is the creator of this object."""
         if not user.is_authenticated:
