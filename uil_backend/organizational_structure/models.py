@@ -35,23 +35,6 @@ class OrganizationalUnit(AuditMixin,models.Model):
         related_name='subnodes'
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='created_organization_structures',
-        null=True,   
-        blank=True
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='updated_organization_structures',
-        null=True,   
-        blank=True
-    )
-
     class Meta:
         verbose_name = "Organization Structure"
         verbose_name_plural = "Organization Structures"
