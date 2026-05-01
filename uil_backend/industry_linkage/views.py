@@ -9,7 +9,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
 from .models import Industry, Request
-from .permissions import INDUSTRY_REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
+from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from organizational_structure.models import OrganizationalUnit
 from authorization.utilis import get_scope, is_unit_in_user_scope
@@ -74,7 +74,7 @@ class RequestViewSet(
 
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
-        self.required_permissions = INDUSTRY_REQUEST_REQUIRED_PERMISSIONS.get(
+        self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("update", "partial_update", "destroy", "create", 'retrieve'):
             permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
@@ -126,7 +126,7 @@ class RequestManageViewSet(
     
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
-        self.required_permissions = INDUSTRY_REQUEST_REQUIRED_PERMISSIONS.get(
+        self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("destroy",  'retrieve'):
             permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
@@ -180,14 +180,14 @@ class RequestManageViewSet(
     def create_action(self, request, pk=None):
         action_type = request.data.get("type")
         if action_type == "accept_forwarded":
-            industry_request = Request.objects.get(pk=pk)
+            REQUEST = Request.objects.get(pk=pk)
         else:
-            industry_request = self.get_object()
+            REQUEST = self.get_object()
         serializer = RequestActionCreateSerializer(
             data=request.data,
             context={
                 "request": request,
-                "request_obj": industry_request
+                "request_obj": REQUEST
             }
         )
         serializer.is_valid(raise_exception=True)
@@ -196,20 +196,20 @@ class RequestManageViewSet(
 
         with transaction.atomic():
             if action_type == "accept_forwarded":
-                forwarded_action = industry_request.actions.filter(
+                forwarded_action = REQUEST.actions.filter(
                     type="forwarded"
                 ).order_by("-created_at").first()
                 unit_id = forwarded_action.forwarded_to_id
                 allowed = is_unit_in_user_scope(
                     user=request.user,
-                    permission_codes=["ACCEPT_FORWARD"],
+                    permission_codes=["can_create_request_action"],
                     academic_unit_id=unit_id
                 )
                 if not allowed:
                     return PermissionDenied()
-                industry_request.requested_to_id = unit_id
-                industry_request.save(update_fields=["requested_to"])
-            action = serializer.save(request=industry_request)
+                REQUEST.requested_to_id = unit_id
+                REQUEST.save(update_fields=["requested_to"])
+            action = serializer.save(request=REQUEST)
 
         return Response(
             {
