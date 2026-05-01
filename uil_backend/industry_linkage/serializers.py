@@ -1,11 +1,13 @@
 import json
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
+from django.db import transaction, IntegrityError
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework import serializers
-from authorization.utilis import is_unit_in_user_scope
+from authorization.utilis import  is_unit_in_user_scope
+from accounts.serializers import ContactPersonCreateSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
+from .utils import clean_phone
 from .models import (
     Industry,
     Request,
@@ -65,39 +67,29 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
         industry_name = validated_data.get("name")
         username = f"{industry_name}_{first_name}".lower().replace(" ", "")
+        with transaction.atomic():
+            user_serializer = ContactPersonCreateSerializer(data={
+                "username": username,
+                "first_name": first_name,
+                "father_name": father_name,
+                "grand_father_name": grand_father_name,
+                "email": email,
+                "password": password,
+            })
+            user_serializer.is_valid(raise_exception=True)
+            user = user_serializer.save()
 
-        user = User.objects.create(
-            username=username,
-            first_name=first_name,
-            father_name=father_name,
-            grand_father_name=grand_father_name,
-            email=email,
-            status="approved",
-            password=make_password(password),
-        )
+            industry = Industry.objects.create(
+                contact_person=user,
+                created_by_id=user.id,
+                updated_by_id=user.id,
+                **validated_data
+            )
 
-        industry = Industry.objects.create(
-            contact_person=user,
-            created_by=user.id,
-            updated_by=user.id,
-            **validated_data
-        )
+            role, _ = Role.objects.get_or_create(name="Industry")
+            UserRole.objects.create(user=user, role=role)
 
-        role, _ = Role.objects.get_or_create(
-            name="Industry",
-            defaults={"description": "Industry role"}
-        )
-
-        UserRole.objects.create(
-            user=user,
-            role=role,
-            organizational_unit=None
-        )
-
-        # attach for response
-        self._created_user = user
-
-        return industry
+            return industry
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
