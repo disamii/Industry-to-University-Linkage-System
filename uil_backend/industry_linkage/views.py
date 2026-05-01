@@ -1,19 +1,25 @@
+from rest_framework.parsers import FormParser, MultiPartParser
+from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import  NotFound, PermissionDenied, NotAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework import viewsets, status,mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .models import Industry, IndustryRequest
+from .models import Industry, Request
 from .permissions import INDUSTRY_REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
-from .serializers import IndustryCreateSerializer, IndustryRequestActionCreateSerializer, IndustryRequestDetailSerializer, IndustrySerializer, IndustryRequestSerializer, IndustryRequestCreateSerializer
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
-from rest_framework.exceptions import  NotFound, PermissionDenied, NotAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from organizational_structure.models import OrganizationalUnit
 from authorization.utilis import get_scope, is_unit_in_user_scope
-from rest_framework.parsers import FormParser, MultiPartParser
-from django.db import transaction
+from .serializers import (
+    IndustryCreateSerializer,
+    RequestActionCreateSerializer,
+    RequestDetailSerializer,
+    IndustrySerializer,
+    RequestSerializer,
+    RequestCreateSerializer)
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -50,20 +56,20 @@ class IndustryViewSet(viewsets.ModelViewSet):
         serializer = IndustrySerializer(industry)
         return Response(serializer.data)
 
-
-class IndustryRequestViewSet(
+class RequestViewSet(
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):  
-    filterset_fields = ['type', 'actions__type']
-    ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
+    filterset_fields = ['type', 'actions__type','requesting_entity','academic_unit','industry']
+    ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name','requesting_entity']
     search_fields = ['industry__name']
-    queryset = IndustryRequest.objects.all()
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    queryset = Request.objects.all()
 
 
     def get_permissions(self):
@@ -78,10 +84,10 @@ class IndustryRequestViewSet(
 
     def get_serializer_class(self):
         if self.action == "create":
-            return IndustryRequestCreateSerializer
+            return RequestCreateSerializer
         elif self.action == "retrieve":
-            return IndustryRequestDetailSerializer
-        return IndustryRequestSerializer
+            return RequestDetailSerializer
+        return RequestSerializer
 
     def get_object(self):
         """it pass the scope of the target to the class and check object permission"""
@@ -90,29 +96,22 @@ class IndustryRequestViewSet(
         self.check_object_permissions(self.request, obj)
         return obj
 
-
-
     @action(detail=False, methods=['get'], url_path='my-requests')
     def my_requests(self, request):
         try:
             industry = request.user.industry_profile
-        except Industry.DoesNotExist:
+        except (Industry.DoesNotExist, AttributeError):
             raise NotFound("Industry profile not found")
-
-        qs = IndustryRequest.objects.filter(
-            industry=industry).select_related("industry")
-
+        qs = self.get_queryset().filter(industry=industry).select_related("industry")
+        qs = self.filter_queryset(qs)
         page = self.paginate_queryset(qs)
         if page is not None:
-            serializer = IndustryRequestSerializer(page, many=True)
+            serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-
-        serializer = IndustryRequestSerializer(qs, many=True)
+        serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
-
-
-class IndustryRequestManageViewSet(    
+class RequestManageViewSet(    
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
@@ -120,7 +119,8 @@ class IndustryRequestManageViewSet(
     filterset_fields = ['type', 'actions__type']
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
     search_fields = ['industry__name']
-    queryset = IndustryRequest.objects.all()
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    queryset = Request.objects.all()
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
     
@@ -136,8 +136,8 @@ class IndustryRequestManageViewSet(
 
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return IndustryRequestDetailSerializer
-        return IndustryRequestSerializer
+            return RequestDetailSerializer
+        return RequestSerializer
 
     def get_object(self):
         """it pass the scope of the target to the class and check object permission"""
@@ -160,9 +160,9 @@ class IndustryRequestManageViewSet(
                 parent_unit = OrganizationalUnit.objects.get(
                     id=int(parent_unit_id))
             except OrganizationalUnit.DoesNotExist:
-                return IndustryRequest.objects.none()
+                return Request.objects.none()
             if not parent_unit in scope:
-                return IndustryRequest.objects.none()
+                return Request.objects.none()
             self.request.parent_scope = parent_unit
 
             filter_scope = [parent_unit.id] + \
@@ -171,7 +171,7 @@ class IndustryRequestManageViewSet(
         else:
             scope_qs = scope
 
-        queryset = IndustryRequest.objects.filter(
+        queryset = Request.objects.filter(
             requested_to__in=scope_qs
         ).order_by('-created_at')
         return queryset
@@ -180,10 +180,10 @@ class IndustryRequestManageViewSet(
     def create_action(self, request, pk=None):
         action_type = request.data.get("type")
         if action_type == "accept_forwarded":
-            industry_request = IndustryRequest.objects.get(pk=pk)
+            industry_request = Request.objects.get(pk=pk)
         else:
             industry_request = self.get_object()
-        serializer = IndustryRequestActionCreateSerializer(
+        serializer = RequestActionCreateSerializer(
             data=request.data,
             context={
                 "request": request,
@@ -231,8 +231,8 @@ class IndustryRequestManageViewSet(
 
         page = self.paginate_queryset(qs)
         if page is not None:
-            serializer = IndustryRequestSerializer(page, many=True)
+            serializer = RequestSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = IndustryRequestSerializer(qs, many=True)
+        serializer = RequestSerializer(qs, many=True)
         return Response(serializer.data)

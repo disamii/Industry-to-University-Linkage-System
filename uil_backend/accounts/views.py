@@ -99,8 +99,7 @@ class CustomUserViewSet(UserViewSet):
             permission_classes = [AllowAny]
 
         elif self.action in ("update", "partial_update", "destroy"):
-            permission_classes = [IsAuthenticated,
-                                  IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
 
         elif self.action == "upload_users_excel":
             academic_unit_id = self.request.data.get("academic_unit")

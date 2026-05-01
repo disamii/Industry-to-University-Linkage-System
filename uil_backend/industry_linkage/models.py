@@ -33,7 +33,7 @@ class Industry(AuditMixin,models.Model):
     def __str__(self):
         return self.name
 
-class IndustryRequest(AuditMixin,models.Model):
+class Request(AuditMixin,models.Model):
     REQUEST_TYPE_CHOICES = [
         ("rnd", "Research & Development  Services"),
         ("tech_support", "Technology Support"),
@@ -42,10 +42,25 @@ class IndustryRequest(AuditMixin,models.Model):
         ("training", "Training"),
         ("internship", "Internship/Externship"),
         ("recruitment", "Graduate Recruitment"),
-        ("other","Other")
-        
+        # universty request
+        ("curriculum_review", "Curriculum Review"),
+        ("industrial_visit", "Industrial Visit"),
+        ("joint_research", "Joint Research"),
+        ("guest_lecture", "Guest Lecturing"),
+        ("lab_access", "Equipment / Lab Access"),
+        ("tech_transfer", "IP / Technology Transfer"),
+        ("other", "Other"),
+    ]
+    REQUESTING_ENTITY_CHOICES = [
+        ("industry", "Industry"),
+        ("academic_unit", "Academic Unit"),
     ]
 
+    requesting_entity = models.CharField(
+        max_length=20,
+        choices=REQUESTING_ENTITY_CHOICES
+    )
+    
     type = models.CharField(max_length=50, choices=REQUEST_TYPE_CHOICES)
     title = models.CharField(max_length=255)
     industry = models.ForeignKey(
@@ -53,10 +68,10 @@ class IndustryRequest(AuditMixin,models.Model):
         on_delete=models.CASCADE,
         related_name="requests"
     )
-    requested_to=models.ForeignKey(
+    academic_unit=models.ForeignKey(
             "organizational_structure.OrganizationalUnit",
             on_delete=models.CASCADE,
-            related_name="industry_requests"
+            related_name="requested"
         )
 
     description = models.TextField()
@@ -66,10 +81,7 @@ class IndustryRequest(AuditMixin,models.Model):
         null=True
     )
 
-
-
-
-class IndustryRequestAction(AuditMixin,models.Model):
+class RequestAction(AuditMixin,models.Model):
     ACTION_TYPES = [
         ("created", "Created"),
         ("assigned", "Assigned"),
@@ -78,7 +90,7 @@ class IndustryRequestAction(AuditMixin,models.Model):
         ("replied", "Replied"),
     ]
     request = models.ForeignKey(
-        "IndustryRequest",
+        "Request",
         on_delete=models.CASCADE,
         related_name="actions"
     )
@@ -140,7 +152,6 @@ class IndustryRequestAction(AuditMixin,models.Model):
         related_name="sent_forwards"
     )
 
-
 class RequestAssignment(models.Model):
     STATUS_CHOICES = [
         ("in_progress", "In Progress"),
@@ -154,7 +165,7 @@ class RequestAssignment(models.Model):
     ]
 
     request = models.ForeignKey(
-        IndustryRequest,
+        Request,
         on_delete=models.CASCADE,
         related_name="assignments"
     )
@@ -185,25 +196,27 @@ class RequestAssignment(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.request} ({self.role})"
+
 class RnDRequest(models.Model):
-    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="rnd")
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="rnd")
 
     problem_statement = models.TextField()
     research_area = models.CharField(max_length=255)
+
 class TechnologySupportRequest(models.Model):
-    request = models.OneToOneField( IndustryRequest, on_delete=models.CASCADE, related_name="tech_support")
+    request = models.OneToOneField( Request, on_delete=models.CASCADE, related_name="tech_support")
     technology_required = models.CharField(max_length=255, blank=True,
         null=True)
     required_duration = models.CharField(max_length=100, blank=True,
         null=True)
 
 class ConsultancyRequest(models.Model):
-    request = models.OneToOneField( IndustryRequest, on_delete=models.CASCADE, related_name="consultancy")
+    request = models.OneToOneField( Request, on_delete=models.CASCADE, related_name="consultancy")
     consultancy_type = models.CharField(max_length=255, blank=True,
         null=True)
 
 class TrainingRequest(models.Model):
-    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="training")
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="training")
     training_type = models.CharField(max_length=255, blank=True,
         null=True)
     number_of_trainees = models.PositiveIntegerField()
@@ -211,7 +224,7 @@ class TrainingRequest(models.Model):
         null=True)
 
 class RecruitmentRequest(models.Model):
-    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="recruitment")
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="recruitment")
     field_of_study = models.CharField(max_length=255, blank=True,
         null=True)
     graduate_year = models.IntegerField(blank=True,
@@ -220,14 +233,71 @@ class RecruitmentRequest(models.Model):
         null=True)
     number_to_recruit = models.PositiveIntegerField( blank=True,
         null=True)
+
 class InternshipRequest(models.Model):
-    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="internship")
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="internship")
 
     field_of_study = models.CharField(max_length=255)
     number_of_students = models.PositiveIntegerField()
     timeframe = models.CharField(max_length=100)
     activities = models.TextField()
+
 class TestingRequest(models.Model):
-    request = models.OneToOneField(IndustryRequest, on_delete=models.CASCADE, related_name="testing")
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="testing")
     item_to_test = models.CharField(max_length=255)
     test_type = models.CharField(max_length=255)
+
+class CurriculumReviewRequest(models.Model):
+    request = models.OneToOneField(
+        Request,
+        on_delete=models.CASCADE,
+        related_name="curriculum_review"
+    )
+
+    course_name = models.CharField(max_length=255)
+    current_syllabus = models.FileField(upload_to="syllabus/")
+    desired_industry_expertise = models.TextField()
+
+class IndustrialVisitRequest(models.Model):
+    request = models.OneToOneField(
+        Request,
+        on_delete=models.CASCADE,
+        related_name="industrial_visit"
+    )
+
+    number_of_students = models.PositiveIntegerField()
+    preferred_datetime = models.DateTimeField()
+    department_to_visit = models.CharField(max_length=255)
+
+class JointResearchRequest(models.Model):
+    request = models.OneToOneField(
+        Request,
+        on_delete=models.CASCADE,
+        related_name="joint_research"
+    )
+
+    research_topic = models.CharField(max_length=255)
+    problem_statement = models.TextField()
+    expected_industry_contribution = models.TextField()
+
+class GuestLectureRequest(models.Model):
+    request = models.OneToOneField(
+        Request,
+        on_delete=models.CASCADE,
+        related_name="guest_lecture"
+    )
+
+    topic = models.CharField(max_length=255)
+    datetime = models.DateTimeField()
+    student_level = models.CharField(max_length=50)  
+    duration = models.CharField(max_length=100)
+
+class TechTransferRequest(models.Model):
+    request = models.OneToOneField(
+        Request,
+        on_delete=models.CASCADE,
+        related_name="tech_transfer"
+    )
+
+    innovation_description = models.TextField()
+    technology_readiness_level = models.CharField(max_length=50)
