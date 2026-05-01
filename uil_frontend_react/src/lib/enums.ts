@@ -41,6 +41,25 @@ export enum IndustryRequestType {
 }
 
 /**
+ * Org Units
+ */
+export enum OrgUnitType {
+  UNIVERSITY = "university",
+  CAMPUS = "campus",
+  COLLEGE = "college",
+  INSTITUTE = "institute",
+  FACULTY = "faculty",
+  SCHOOL = "school",
+  DEPARTMENT = "department",
+  ACADEMY = "academy",
+  RESEARCH_CENTER = "research_center",
+  SUPPORT_UNIT = "support_unit",
+  PROGRAM = "program",
+  OFFICE = "office",
+  OTHER = "other",
+}
+
+/**
  * Assignment Status
  */
 export enum AssignmentStatus {

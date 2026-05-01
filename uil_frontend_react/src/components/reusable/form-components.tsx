@@ -28,7 +28,7 @@ type BaseFormProps<T extends FieldValues> = {
   required?: boolean; // Add this
 };
 
-const Asterisk = () => (
+export const Asterisk = () => (
   <span className="mt-1 font-medium text-destructive">*</span>
 );
 

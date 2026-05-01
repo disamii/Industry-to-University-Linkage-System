@@ -1,10 +1,13 @@
 import {
+  Asterisk,
   FormInput,
   FormSelect,
   FormTextArea,
   FormUploadFile,
 } from "@/components/reusable/form-components";
+import { TreeSelect } from "@/components/reusable/tree-select";
 import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry_request-create-mutation";
 import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry_request-update-mutation";
@@ -12,6 +15,7 @@ import { INDUSTRY_REQUEST_FIELDS } from "@/lib/constants";
 import { IndustryRequestType } from "@/lib/enums";
 import { formatSelectOptions } from "@/lib/utils";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
+import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import {
   IndustryRequestCreateInput,
   industryRequestCreateSchema,
@@ -72,11 +76,18 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedType]);
 
+  const handleSelectUnit = (node: OrgUnitResponse) => {
+    form.setValue("requested_to", node.id, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
   return (
     <form
       id="form-create-edit-request"
       onSubmit={form.handleSubmit(onSubmit)}
-      className="space-y-8"
+      className="gap-6 space-y-8 grid grid-cols-2"
     >
       <FormInput
         form={form}
@@ -92,19 +103,25 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         name="description"
         label="Description"
         placeholder="Provide more details about the request..."
-        desc="Briefly explain the scope of work."
         required={true}
       />
 
-      <FormSelect
-        form={form}
-        name="requested_to"
-        label="Academic Unit"
-        options={[{ label: "BIT", value: 1 }]}
-        placeholder="Select type"
-        isNumber={true}
-        required={true}
-      />
+      <Field>
+        <FieldLabel htmlFor="requested_to" className="capitalize">
+          Academic Unit
+          <Asterisk />
+        </FieldLabel>
+
+        <TreeSelect
+          onSelect={handleSelectUnit}
+          placeholder="Choose a unit..."
+          selectedId={form.getValues("requested_to")}
+        />
+
+        {form.formState.errors.requested_to && (
+          <FieldError errors={[form.formState.errors.requested_to]} />
+        )}
+      </Field>
 
       <FormSelect
         form={form}
@@ -116,7 +133,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
       />
 
       {selectedType && (
-        <div className="gap-6 grid grid-cols-1 md:grid-cols-2">
+        <>
           {INDUSTRY_REQUEST_FIELDS[selectedType]?.map((field) => {
             const name = `extra_data.${field}` as const;
 
@@ -163,7 +180,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
               <FormInput {...props} key={field} type="text" required={true} />
             );
           })}
-        </div>
+        </>
       )}
 
       <FormUploadFile
@@ -173,13 +190,14 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         desc="Please upload the supporting documents for this project."
         accept=".pdf,.doc,.docx,.zip,.png,.jpg" // Or leave blank for any file
         maxSizeMB={5}
+        className="col-span-full"
       />
 
       <Button
         type="submit"
         form="form-create-edit-request"
         disabled={isSubmitting}
-        className="w-full h-10"
+        className="col-span-full w-full h-10"
       >
         {isSubmitting && <Spinner data-icon="inline-start" />}
         {isSubmitting

@@ -5,16 +5,22 @@ export interface ApiErrorResponse {
   details?: any;
 }
 
-// export type ApiErrorResponse = {
-//   error: string;
-// };
-
-export type ApiPaginatedResponse<T> = {
-  items: T;
+type Pagination = {
+  links: {
+    previous: string | null;
+    next: string | null;
+  };
   total: number;
-  page: number;
-  size: number;
-  pages: number;
+  page_size: number;
+  current_size: number;
+  total_pages: number;
+};
+
+export type ApiPaginatedResponse<T, CT = { total: number }> = {
+  counts?: CT;
+  pagination: Pagination;
+  results: T[];
+  // scope?: AcademicScope;
 };
 
 export interface Metadata {
@@ -50,3 +56,9 @@ export type TableColumn<T> =
       label: string;
       render: (_: undefined, row: T) => React.ReactNode;
     };
+
+export interface BaseTreeNode {
+  id: string | number;
+  label: string;
+  hasChildren?: boolean;
+}

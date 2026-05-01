@@ -1,5 +1,5 @@
 const IndustryDashboard = () => {
-  return <div>Industry</div>;
+  return <div>Industry Dashboard</div>;
 };
 
 export default IndustryDashboard;
