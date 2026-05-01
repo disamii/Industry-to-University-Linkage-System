@@ -1,9 +1,16 @@
 from django.db import models
+from django.core.validators import RegexValidator
+
 from django.conf import settings
 from audit.models import AuditMixin
 User = settings.AUTH_USER_MODEL
 
 
+
+phone_validator = RegexValidator(
+    regex=r'^\+?[0-9\-\s\(\)]{9,25}$',
+    message="Invalid phone format"
+)
 class Industry(AuditMixin,models.Model):
     INDUSTRY_TYPE_CHOICES = [
         ("it", "IT"),
@@ -13,16 +20,12 @@ class Industry(AuditMixin,models.Model):
         ("education", "Education"),
         ("other", "Other"),
     ]
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255,unique=True, null=False)
     industry_type = models.CharField(max_length=50, choices=INDUSTRY_TYPE_CHOICES)
-    contact_person = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="industry_profile"
-    )
-    industry_email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20,blank=True, null=True)
-    contact_person_phone_number = models.CharField(max_length=20,blank=True, null=True)
+    contact_person = models.OneToOneField(User,on_delete=models.CASCADE,related_name="industry_profile")
+    industry_email = models.EmailField(blank=True, null=True)
+    phone_number = models.CharField(max_length=20,blank=True, null=True, validators=[phone_validator])
+    contact_person_phone_number = models.CharField(max_length=20,blank=True, null=True,validators=[phone_validator])
     location = models.CharField(max_length=255)
     address = models.TextField()
     description = models.TextField(blank=True, null=True)
