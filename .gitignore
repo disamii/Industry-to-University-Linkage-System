@@ -25,23 +25,23 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# --- Backend (FastAPI / Python) ---
-iuls_backend/__pycache__/
-iuls_backend/venv/
-iuls_backend/env/
-iuls_backend/ENV/
-iuls_backend/.Python
-iuls_backend/*.pyc
-iuls_backend/*.py[cod]
-iuls_backend/*$py.class
-iuls_backend/*.so
+# --- Backend (Django / Python) ---
+uil_backend/__pycache__/
+uil_backend/venv/
+uil_backend/env/
+uil_backend/ENV/
+uil_backend/.Python
+uil_backend/*.pyc
+uil_backend/*.py[cod]
+uil_backend/*$py.class
+uil_backend/*.so
 *.pyc
-iuls_backend/versions/__pycache__/
+uil_backend/versions/__pycache__/
+uil_backend/media
+
 # --- Database ---
 *.db
 *.sqlite3
-# If you use a local folder for postgres volumes (like in your docker-compose)
-postgres_data/
 
 # --- Docker ---
 .docker/

@@ -4,7 +4,11 @@ import { z } from "zod";
 // --- Base Schema ---
 export const industryBaseSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  industry_email: z.string().email("Invalid industry email address"), // Renamed to match Django model
+  industry_email: z
+    .string()
+    .email({ message: "Invalid industry email address" })
+    .or(z.literal(""))
+    .nullish(),
   industry_type: z.nativeEnum(IndustryType),
   location: z.string().min(1, "Location is required"),
   address: z.string().min(1, "Address is required"),
@@ -45,7 +49,6 @@ export type IndustryUpdateInput = z.infer<typeof industryUpdateSchema>;
 // --- Default Values ---
 export const industryDefaultValues: IndustryCreateInput = {
   name: "",
-  industry_email: "",
   industry_type: IndustryType.IT,
   location: "",
   address: "",
