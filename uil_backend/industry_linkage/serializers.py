@@ -560,6 +560,108 @@ class RequestActionCreatedSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+class RequestActionRejectedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        attrs["type"] = "rejected"
+        return attrs
+
+    def create(self, validated_data):
+        return RequestAction.objects.create(**validated_data)
+
+class RequestActionCompletedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = self.context.get("request_obj")
+
+        attrs["type"] = "completed"
+
+
+        if not Assignment.objects.filter(request=request_obj).exists():
+            raise serializers.ValidationError(
+                "Cannot complete a request without assignment."
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+
+        return RequestAction.objects.create(  
+                    created_by_id=user.id,
+                    updated_by_id=user.id,                    
+                    **validated_data
+                    )
+
+class RequestActionRevokedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = self.context.get("request_obj")
+
+        attrs["type"] = "revoked"
+
+        assignment = Assignment.objects.filter(
+            request=request_obj,
+            status="active"
+        ).first()
+
+        if not assignment:
+            raise serializers.ValidationError(
+                "No active assignment found to revoke."
+            )
+
+        self.assignment = assignment
+
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+
+        with transaction.atomic():
+
+            # 1. cancel assignment
+            self.assignment.status = "cancelled"
+            self.assignment.save(update_fields=["status"])
+
+            # 2. log action
+            action = RequestAction.objects.create(
+                **validated_data,
+                created_by_id=user.id,
+                updated_by_id=user.id,
+            )
+
+        return action
+
+
+
+
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
     assigned_user = serializers.PrimaryKeyRelatedField(queryset=Assignment._meta.get_field('assigned_user').remote_field.model.objects.all())
     start_date = serializers.DateField()
@@ -631,6 +733,104 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 updated_by_id=user.id,
                 **validated_data
             )
+        return action
+
+class RequestActionReassignedSerializer(serializers.ModelSerializer):
+
+    assigned_user = serializers.PrimaryKeyRelatedField(
+        queryset=Assignment._meta.get_field("assigned_user")
+        .remote_field.model.objects.all(),
+        required=False
+    )
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
+    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+
+            "assigned_user",
+            "start_date",
+            "end_date",
+            "industry_mentor",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = self.context.get("request_obj")
+
+        attrs["type"] = "reassigned"
+
+        assignment = Assignment.objects.filter(
+            request=request_obj
+        ).first()
+        exists = Assignment.objects.filter(
+            request=request_obj,
+            assigned_user=attrs.get("assigned_user")
+        ).exists()
+
+        if exists:
+            raise serializers.ValidationError({
+                "assigned_user": "This user is already assigned to this request"
+            })
+        if not assignment:
+            raise serializers.ValidationError({
+                "request": "Cannot reassign before an assignment exists."
+            })
+
+        self.assignment = assignment
+
+        # use previous values if not provided
+        attrs["assigned_user"] = attrs.get("assigned_user") or assignment.assigned_user
+        attrs["start_date"] = attrs.get("start_date") or assignment.start_date
+        attrs["end_date"] = attrs.get("end_date") or assignment.end_date
+        attrs["industry_mentor"] = (
+            attrs.get("industry_mentor")
+            if attrs.get("industry_mentor") is not None
+            else assignment.industry_mentor
+        )
+
+        # date validation
+        if attrs["start_date"] > attrs["end_date"]:
+            raise serializers.ValidationError({
+                "end_date": "End date must be after start date"
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        request_obj = self.context.get("request_obj")
+        user = self.context["request"].user
+
+        with transaction.atomic():
+
+            # cancel previous assignment
+            self.assignment.status = "cancelled"
+            self.assignment.save(update_fields=["status"])
+
+            # create new assignment with merged values
+            new_assignment = Assignment.objects.create(
+                request=validated_data["request"],
+                assigned_user=validated_data["assigned_user"],
+                start_date=validated_data.pop("start_date"),
+                end_date=validated_data.pop("end_date"),
+                industry_mentor=validated_data.pop("industry_mentor"),
+                status="active",
+                created_by_id=user.id,
+                updated_by_id=user.id,
+            )
+
+            # log action
+            action = RequestAction.objects.create(                
+                **validated_data,               
+                created_by_id=user.id,
+                updated_by_id=user.id
+                )
+
         return action
 
 class RequestActionForwardedSerializer(serializers.ModelSerializer):
@@ -818,155 +1018,6 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
 
         return action
 
-class RequestActionRejectedSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-        ]
-        read_only_fields = ["id"]
-
-    def validate(self, attrs):
-        attrs["type"] = "rejected"
-        return attrs
-
-    def create(self, validated_data):
-        return RequestAction.objects.create(**validated_data)
-
-class RequestActionReassignedSerializer(serializers.ModelSerializer):
-
-    assigned_user = serializers.PrimaryKeyRelatedField(
-        queryset=Assignment._meta.get_field("assigned_user")
-        .remote_field.model.objects.all(),
-        required=False
-    )
-    start_date = serializers.DateField(required=False)
-    end_date = serializers.DateField(required=False)
-    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-
-            "assigned_user",
-            "start_date",
-            "end_date",
-            "industry_mentor",
-        ]
-        read_only_fields = ["id"]
-
-    def validate(self, attrs):
-        request_obj = self.context.get("request_obj")
-
-        attrs["type"] = "reassigned"
-
-        assignment = Assignment.objects.filter(
-            request=request_obj
-        ).first()
-        exists = Assignment.objects.filter(
-            request=request_obj,
-            assigned_user=attrs.get("assigned_user")
-        ).exists()
-
-        if exists:
-            raise serializers.ValidationError({
-                "assigned_user": "This user is already assigned to this request"
-            })
-        if not assignment:
-            raise serializers.ValidationError({
-                "request": "Cannot reassign before an assignment exists."
-            })
-
-        self.assignment = assignment
-
-        # use previous values if not provided
-        attrs["assigned_user"] = attrs.get("assigned_user") or assignment.assigned_user
-        attrs["start_date"] = attrs.get("start_date") or assignment.start_date
-        attrs["end_date"] = attrs.get("end_date") or assignment.end_date
-        attrs["industry_mentor"] = (
-            attrs.get("industry_mentor")
-            if attrs.get("industry_mentor") is not None
-            else assignment.industry_mentor
-        )
-
-        # date validation
-        if attrs["start_date"] > attrs["end_date"]:
-            raise serializers.ValidationError({
-                "end_date": "End date must be after start date"
-            })
-
-        return attrs
-
-    def create(self, validated_data):
-        request_obj = self.context.get("request_obj")
-        user = self.context["request"].user
-
-        with transaction.atomic():
-
-            # cancel previous assignment
-            self.assignment.status = "cancelled"
-            self.assignment.save(update_fields=["status"])
-
-            # create new assignment with merged values
-            new_assignment = Assignment.objects.create(
-                request=validated_data["request"],
-                assigned_user=validated_data["assigned_user"],
-                start_date=validated_data.pop("start_date"),
-                end_date=validated_data.pop("end_date"),
-                industry_mentor=validated_data.pop("industry_mentor"),
-                status="active",
-                created_by_id=user.id,
-                updated_by_id=user.id,
-            )
-
-            # log action
-            action = RequestAction.objects.create(                
-                **validated_data,               
-                created_by_id=user.id,
-                updated_by_id=user.id
-                )
-
-        return action
-
-class RequestActionCompletedSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-        ]
-        read_only_fields = ["id"]
-
-    def validate(self, attrs):
-        request_obj = self.context.get("request_obj")
-
-        attrs["type"] = "completed"
-
-
-        if not Assignment.objects.filter(request=request_obj).exists():
-            raise serializers.ValidationError(
-                "Cannot complete a request without assignment."
-            )
-
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-
-        return RequestAction.objects.create(  
-                    created_by_id=user.id,
-                    updated_by_id=user.id,                    
-                    **validated_data
-                    )
-
 class RequestActionRepliedSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -1027,55 +1078,9 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
                     updated_by_id=user.id ,                   
                     **validated_data
                     )
-from django.db import transaction
 
-class RequestActionRevokedSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-        ]
-        read_only_fields = ["id"]
 
-    def validate(self, attrs):
-        request_obj = self.context.get("request_obj")
-
-        attrs["type"] = "revoked"
-
-        assignment = Assignment.objects.filter(
-            request=request_obj,
-            status="active"
-        ).first()
-
-        if not assignment:
-            raise serializers.ValidationError(
-                "No active assignment found to revoke."
-            )
-
-        self.assignment = assignment
-
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-
-        with transaction.atomic():
-
-            # 1. cancel assignment
-            self.assignment.status = "cancelled"
-            self.assignment.save(update_fields=["status"])
-
-            # 2. log action
-            action = RequestAction.objects.create(
-                **validated_data,
-                created_by_id=user.id,
-                updated_by_id=user.id,
-            )
-
-        return action
 ACTION_SERIALIZERS = {
             "created":RequestActionCreatedSerializer,
             "assigned":RequestActionAssignedSerializer,
