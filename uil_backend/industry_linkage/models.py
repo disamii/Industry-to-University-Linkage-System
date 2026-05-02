@@ -90,7 +90,11 @@ class RequestAction(AuditMixin,models.Model):
         ("assigned", "Assigned"),
         ("forwarded", "Forwarded"),
         ("accept_forwarded", "Accept Forwarded"),
+        ("posted_as_thematic", "Posted as Thematic Call"),
         ("replied", "Replied"),
+        ("reject","Rejected"),
+        ("reassigned","Reassigned"),
+        ("completed","Completed")
     ]
     request = models.ForeignKey(
         "Request",
@@ -116,93 +120,32 @@ class RequestAction(AuditMixin,models.Model):
         blank=True,
         related_name="sent_transfers"
     )
-
-    from_unit = models.ForeignKey(
-        "organizational_structure.OrganizationalUnit",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="sent_transfers"
-    )
-
-    to_industry = models.ForeignKey(
-        Industry,        
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="received_transfers"
-    )
-
+    
     to_unit = models.ForeignKey(
         "organizational_structure.OrganizationalUnit",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="received_transfers"
+        related_name="received_unit_transfers"  # ✅ FIX
     )
-    forwarded_to = models.ForeignKey(
+    
+    from_unit = models.ForeignKey(
         "organizational_structure.OrganizationalUnit",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="received_forwards"
+        related_name="sent_unit_transfers"   # ✅ FIX
     )
-    forwarded_from  = models.ForeignKey(
-        "organizational_structure.OrganizationalUnit",
+    to_industry = models.ForeignKey(
+        Industry,        
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="sent_forwards"
-    )
-
-class RequestAssignment(models.Model):
-    STATUS_CHOICES = [
-        ("in_progress", "In Progress"),
-        ("cancelled", "Cancelled"),
-        ("completed", "Completed"),
-    ]
-
-    ROLE_CHOICES = [
-        ("pi", "Principal Investigator"),
-        ("member", "Member"),
-    ]
-
-    request = models.ForeignKey(
-        Request,
-        on_delete=models.CASCADE,
-        related_name="assignments"
-    )
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="assignments"
-    )
-
-    role = models.CharField(
-        max_length=10,
-        choices=ROLE_CHOICES,
-        default="member"
-    )
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default="assigned"
-    )
-
-    started_at = models.DateTimeField(null=True, blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-
-    assigned_at = models.DateTimeField(auto_now_add=True)
-
-
-    def __str__(self):
-        return f"{self.user} -> {self.request} ({self.role})"
+        related_name="received_transfers_industry"  # safer naming
+    )   
 
 class RnDRequest(models.Model):
     request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="rnd")
-
     problem_statement = models.TextField()
     research_area = models.CharField(max_length=255)
 
@@ -304,3 +247,43 @@ class TechTransferRequest(models.Model):
 
     innovation_description = models.TextField()
     technology_readiness_level = models.CharField(max_length=50)
+
+class Assignment(AuditMixin, models.Model):
+    # Core Relationships
+    request = models.ForeignKey(
+        "Request", 
+        on_delete=models.CASCADE, 
+        related_name="assignments"
+    )
+    assigned_user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name="university_assignments"
+    )
+
+    # Timing (Replaces 'duration' and 'deadline')
+    start_date = models.DateField(help_text="When the work begins")
+    end_date = models.DateField(help_text="When the work must be completed")
+
+    
+    # Industry Presence
+    industry_mentor = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        help_text="The industry person supervising the task"
+    )
+
+    status = models.CharField(
+            max_length=20,
+            choices=[
+                ("accepted", "Accepted"),    # User agreed to do it
+                ("rejected", "Rejected"),    # User declined (office needs to re-assign)
+                ("active", "Active"),        # Work is currently happening
+                ("completed", "Completed"),  # User finished the task
+                ("cancelled", "Cancelled"),  # Office or industry stopped the task
+            ],
+            default="pending"
+        )
+    class Meta:
+        unique_together = ('request', 'assigned_user')

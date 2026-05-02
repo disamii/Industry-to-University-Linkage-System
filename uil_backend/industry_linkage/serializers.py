@@ -1,13 +1,15 @@
 import json
 from django.contrib.auth import get_user_model
-from django.db import transaction, IntegrityError
 from django.db import transaction
+from rest_framework import serializers
+from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework import serializers
 from authorization.utilis import  is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
-from .utils import clean_phone
+from rest_framework.exceptions import PermissionDenied
 from .models import (
     Industry,
     Request,
@@ -24,9 +26,12 @@ from .models import (
     JointResearchRequest,
     GuestLectureRequest,
     TechTransferRequest,
+    Assignment
 )
 User = get_user_model()
 
+
+from bulletin.models import Post
 
 class IndustryCreateSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.CharField(write_only=True)
@@ -110,8 +115,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
     to_industry = serializers.StringRelatedField()
     from_unit = serializers.StringRelatedField()
     to_unit = serializers.StringRelatedField()
-    forwarded_to = serializers.StringRelatedField()
-    forwarded_from = serializers.StringRelatedField()
+
 
     class Meta:
         model = RequestAction
@@ -124,64 +128,8 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "to_industry",
             "from_unit",
             "to_unit",
-            "forwarded_to",
-            "forwarded_from",
             "created_at",
         ]
-
-
-class RequestActionCreateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = RequestAction
-        fields = [
-            "request",
-            "type",
-            "description",
-            "from_industry",
-            "from_unit",
-            "to_industry",
-            "to_unit",
-            "forwarded_to",
-            "forwarded_from",
-        ]
-
-    def validate(self, attrs):
-        action_type = attrs.get("type")
-        request_obj = self.context.get("request_obj")
-
-        if not request_obj:
-            raise serializers.ValidationError("Request context is required")
-
-        if action_type == "assigned":
-            if not attrs.get("to_unit") and not attrs.get("to_industry"):
-                raise serializers.ValidationError("Assigned requires target")
-
-        if action_type == "forwarded":
-            if not attrs.get("forwarded_to"):
-                raise serializers.ValidationError(
-                    "Forwarded requires forwarded_to")
-
-        if action_type == "accept_forwarded":
-            forwarded_action = request_obj.actions.filter(
-                type="forwarded"
-            ).order_by("-created_at").first()
-
-            if not forwarded_action:
-                raise serializers.ValidationError("No forwarded action found")
-
-            if forwarded_action.forwarded_to_id == request_obj.requested_to_id:
-                raise serializers.ValidationError(
-                    "No state change required: request already assigned to this unit.")
-
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        return RequestAction.objects.create(
-            performed_by=user,
-            **validated_data
-        )
 
 
 class IndustrySerializer(serializers.ModelSerializer):
@@ -660,3 +608,495 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         serializer = serializer_class(data=extra_data)
         serializer.is_valid(raise_exception=True)
         serializer.save(request=university_request)
+
+
+
+
+
+
+class RequestActionCreatedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = attrs.get("request")
+
+        exists = RequestAction.objects.filter(
+            request=request_obj,
+            type="created"
+        ).exists()
+
+        if exists:
+            raise serializers.ValidationError({
+                "type": "This request is already created."
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        validated_data["type"] = "created"
+        return super().create(validated_data)
+
+class RequestActionAssignedSerializer(serializers.ModelSerializer):
+    # Assignment fields
+    assigned_user = serializers.PrimaryKeyRelatedField(queryset=Assignment._meta.get_field('assigned_user').remote_field.model.objects.all())
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+
+            # assignment inputs
+            "assigned_user",
+            "start_date",
+            "end_date",
+            "industry_mentor",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = attrs.get("request")
+        assigned_user = attrs.get("assigned_user")
+        start_date = attrs.get("start_date")
+        end_date = attrs.get("end_date")
+
+        # enforce type
+        attrs["type"] = "assigned"
+
+        # date validation
+        if start_date > end_date:
+            raise serializers.ValidationError({
+                "end_date": "End date must be after start date"
+            })
+
+        # unique_together validation
+        exists = Assignment.objects.filter(
+            request=request_obj,
+            assigned_user=assigned_user
+        ).exists()
+
+        if exists:
+            raise serializers.ValidationError({
+                "assigned_user": "This user is already assigned to this request"
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        assigned_user = validated_data.pop("assigned_user")
+        start_date = validated_data.pop("start_date")
+        end_date = validated_data.pop("end_date")
+        industry_mentor = validated_data.pop("industry_mentor", None)
+
+        request_obj = validated_data["request"]
+        performed_by = validated_data.get("performed_by")
+
+        with transaction.atomic():
+
+            assignment = Assignment.objects.create(
+                request=request_obj,
+                assigned_user=assigned_user,
+                start_date=start_date,
+                end_date=end_date,
+                industry_mentor=industry_mentor,
+                created_by=performed_by,
+                updated_by=performed_by,
+            )
+
+            action = RequestAction.objects.create(
+                **validated_data
+            )
+
+        return action
+
+class RequestActionForwardedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+            'to_unit',
+            'from_unit'
+
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        from_unit = attrs.get("from_unit")
+        to_unit = attrs.get("to_unit")
+
+
+        attrs["type"] = "forwarded"
+
+        if not from_unit:
+            raise serializers.ValidationError({
+                "from_unit": "This field is required."
+            })
+
+        if not to_unit:
+            raise serializers.ValidationError({
+                "forwarded_to": "This field is required."
+            })
+
+        if from_unit == to_unit:
+            raise serializers.ValidationError({
+                "to_unit": "Cannot forward to the same unit."
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        return super().create(validated_data)
+
+class RequestActionAcceptForwardedSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = self.context["request_obj"]
+        user = self.context["request"].user
+
+        attrs["type"] = "accept_forwarded"
+
+        forwarded_action = request_obj.actions.filter(
+            type="forwarded"
+        ).order_by("-created_at").first()
+
+        if not forwarded_action:
+            raise serializers.ValidationError({
+                "type": "No forwarded action found for this request."
+            })
+
+        unit_id = forwarded_action.to_unit_id
+
+        allowed = is_unit_in_user_scope(
+            user=user,
+            permission_codes=["can_create_request_action"],
+            academic_unit_id=unit_id
+        )
+
+        if not allowed:
+            raise PermissionDenied("You are not allowed to accept this forward.")
+
+        self._target_unit_id = unit_id
+
+        return attrs
+
+    def create(self, validated_data):
+        
+        request_obj = self.context["request_obj"]
+
+        with transaction.atomic():
+            request_obj.requested_to_id = self._target_unit_id
+            request_obj.save(update_fields=["requested_to"])
+            action = RequestAction.objects.create(**validated_data)
+        return action
+
+class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
+    # Post fields
+    title = serializers.CharField()
+    content = serializers.CharField()
+    description = serializers.CharField()
+    is_internal_only = serializers.BooleanField(default=False)
+    expires_at = serializers.DateTimeField(required=False, allow_null=True)
+    image = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "performed_by",
+
+            # post fields
+            "title",
+            "content",
+            "description",
+            "is_internal_only",
+            "expires_at",
+            "image",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = attrs.get("request")
+
+        # enforce type
+        attrs["type"] = "posted_as_thematic"
+
+        # ✅ prevent duplicate thematic post
+        exists = RequestAction.objects.filter(
+            request=request_obj,
+            type="posted_as_thematic"
+        ).exists()
+
+        if exists:
+            raise serializers.ValidationError({
+                "type": "This request is already posted as thematic."
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        request_obj = validated_data["request"]
+        performed_by = validated_data.get("performed_by")
+
+        # extract post fields
+        post_data = {
+            "title": validated_data.pop("title"),
+            "content": validated_data.pop("content"),
+            "description": validated_data.pop("description"),
+            "is_internal_only": validated_data.pop("is_internal_only", False),
+            "expires_at": validated_data.pop("expires_at", None),
+            "image": validated_data.pop("image", None),
+        }
+
+        with transaction.atomic():
+            # ✅ create Post linked to Request
+            post = Post.objects.create(
+                **post_data,
+                post_type="thematic_area",
+                content_type=ContentType.objects.get_for_model(request_obj),
+                object_id=request_obj.id,
+                is_published=True,
+                published_at=timezone.now(),
+                created_by=performed_by,
+                updated_by=performed_by,
+            )
+
+            # ✅ create action
+            action = RequestAction.objects.create(
+                **validated_data
+            )
+
+        return action
+
+class RequestActionRejectedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        attrs["type"] = "reject"
+        return attrs
+
+    def create(self, validated_data):
+        return RequestAction.objects.create(**validated_data)
+
+class RequestActionReassignedSerializer(serializers.ModelSerializer):
+
+    assigned_user = serializers.PrimaryKeyRelatedField(
+        queryset=Assignment._meta.get_field("assigned_user")
+        .remote_field.model.objects.all(),
+        required=False
+    )
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
+    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+
+            "assigned_user",
+            "start_date",
+            "end_date",
+            "industry_mentor",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = attrs.get("request")
+
+        attrs["type"] = "reassigned"
+
+        assignment = Assignment.objects.filter(
+            request=request_obj
+        ).first()
+
+        if not assignment:
+            raise serializers.ValidationError({
+                "request": "Cannot reassign before an assignment exists."
+            })
+
+        self.assignment = assignment
+
+        # use previous values if not provided
+        attrs["assigned_user"] = attrs.get("assigned_user") or assignment.assigned_user
+        attrs["start_date"] = attrs.get("start_date") or assignment.start_date
+        attrs["end_date"] = attrs.get("end_date") or assignment.end_date
+        attrs["industry_mentor"] = (
+            attrs.get("industry_mentor")
+            if attrs.get("industry_mentor") is not None
+            else assignment.industry_mentor
+        )
+
+        # date validation
+        if attrs["start_date"] > attrs["end_date"]:
+            raise serializers.ValidationError({
+                "end_date": "End date must be after start date"
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        with transaction.atomic():
+
+            # cancel previous assignment
+            self.assignment.status = "cancelled"
+            self.assignment.save(update_fields=["status"])
+
+            # create new assignment with merged values
+            new_assignment = Assignment.objects.create(
+                request=validated_data["request"],
+                assigned_user=validated_data["assigned_user"],
+                start_date=validated_data["start_date"],
+                end_date=validated_data["end_date"],
+                industry_mentor=validated_data.get("industry_mentor"),
+                status="active"
+            )
+
+            # log action
+            action = RequestAction.objects.create(**validated_data)
+
+        return action
+
+class RequestActionCompletedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        request_obj = attrs.get("request")
+
+        attrs["type"] = "completed"
+
+        # optional rule: must have assignment first
+        if not Assignment.objects.filter(request=request_obj).exists():
+            raise serializers.ValidationError(
+                "Cannot complete a request without assignment."
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        return RequestAction.objects.create(**validated_data)
+
+class RequestActionRepliedSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "request",
+            "type",
+            "description",
+            "performed_by",
+            "from_unit",
+            "to_unit",
+            "from_industry",
+            "to_industry",
+        ]
+        read_only_fields = ["id"]
+        
+    def validate(self, attrs):
+
+        from_unit = attrs.get("from_unit")
+        from_industry = attrs.get("from_industry")
+        to_unit = attrs.get("to_unit")
+        to_industry = attrs.get("to_industry")
+
+        source_count = sum([
+            bool(from_unit),
+            bool(from_industry)
+        ])
+
+        if source_count != 1:
+            raise serializers.ValidationError(
+                "Exactly one source is required (unit or industry)."
+            )
+
+        target_count = sum([
+            bool(to_unit),
+            bool(to_industry)
+        ])
+
+        if target_count != 1:
+            raise serializers.ValidationError(
+                "Exactly one target is required (unit or industry)."
+            )
+
+        source_type = "unit" if from_unit else "industry"
+        target_type = "unit" if to_unit else "industry"
+
+        if source_type == target_type:
+            raise serializers.ValidationError(
+                "unit → unit and industry → industry are not allowed"
+            )
+
+        return attrs
+
+
+ACTION_SERIALIZERS = {
+            "create":RequestActionCreatedSerializer,
+            "assigned":RequestActionAssignedSerializer,
+            "forwarded": RequestActionForwardedSerializer,
+            "accept_forwarded": RequestActionAcceptForwardedSerializer,
+            "posted_as_thematic": RequestActionPostedThematicSerializer,
+            "replied": RequestActionRepliedSerializer,
+            "rejected":RequestActionRejectedSerializer,
+            "reassigned":RequestActionReassignedSerializer,
+            "completed":RequestActionCompletedSerializer,
+            
+        }

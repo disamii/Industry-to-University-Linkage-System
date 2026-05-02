@@ -1,7 +1,7 @@
 from rest_framework.parsers import FormParser, MultiPartParser
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import  NotFound, PermissionDenied, NotAuthenticated
+from rest_framework.exceptions import  NotFound, ValidationError, NotAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status,mixins
@@ -15,7 +15,7 @@ from organizational_structure.models import OrganizationalUnit
 from authorization.utilis import get_scope, is_unit_in_user_scope
 from .serializers import (
     IndustryCreateSerializer,
-    RequestActionCreateSerializer,
+    ACTION_SERIALIZERS,
     RequestDetailSerializer,
     IndustrySerializer,
     RequestSerializer,
@@ -178,47 +178,38 @@ class RequestManageViewSet(
 
     @action(detail=True, methods=["post"], url_path="actions")
     def create_action(self, request, pk=None):
+
+        request_obj = self.get_object()
         action_type = request.data.get("type")
-        if action_type == "accept_forwarded":
-            REQUEST = Request.objects.get(pk=pk)
-        else:
-            REQUEST = self.get_object()
-        serializer = RequestActionCreateSerializer(
+
+        serializer_class = ACTION_SERIALIZERS.get(action_type)
+
+        if not serializer_class:
+            raise ValidationError({"type": "Invalid action type"})
+        serializer = serializer_class(
             data=request.data,
             context={
                 "request": request,
-                "request_obj": REQUEST
+                "request_obj": request_obj
             }
         )
+
         serializer.is_valid(raise_exception=True)
-        
-        action_type = serializer.validated_data["type"]
 
         with transaction.atomic():
-            if action_type == "accept_forwarded":
-                forwarded_action = REQUEST.actions.filter(
-                    type="forwarded"
-                ).order_by("-created_at").first()
-                unit_id = forwarded_action.forwarded_to_id
-                allowed = is_unit_in_user_scope(
-                    user=request.user,
-                    permission_codes=["can_create_request_action"],
-                    academic_unit_id=unit_id
-                )
-                if not allowed:
-                    return PermissionDenied()
-                REQUEST.requested_to_id = unit_id
-                REQUEST.save(update_fields=["requested_to"])
-            action = serializer.save(request=REQUEST)
+            action = serializer.save(
+                request=request_obj,
+                performed_by=request.user
+            )
 
         return Response(
             {
                 "id": action.id,
+                "type": action.type,
                 "message": "Action applied successfully"
             },
             status=status.HTTP_201_CREATED
         )
-
     @action(detail=False, methods=['get'], url_path='by-industry/(?P<industry_id>[^/.]+)')
     def by_industry(self, request, industry_id=None):
         qs = self.get_queryset()
