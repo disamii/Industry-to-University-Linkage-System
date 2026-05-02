@@ -190,7 +190,6 @@ class RnDRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RnDRequest
         fields = [
-            "request",
             "problem_statement",
             "research_area",
         ]
@@ -300,13 +299,13 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         extra_data = validated_data.pop("extra_data", {})
         requesting_entity = validated_data.pop("requesting_entity")
 
-        industry_id = validated_data.pop("industry", None)
+        industry = validated_data.pop("industry", None)
         academic_unit_id = validated_data.get("academic_unit", None)
 
         with transaction.atomic():
             if requesting_entity == "industry":
-                if industry_id:
-                    industry = Industry.objects.filter(id=industry_id).first()
+                if industry:
+                    industry = Industry.objects.filter(id=industry.id).first()
                     if not industry:
                         raise serializers.ValidationError(
                             {"industry": "Invalid industry"})
@@ -409,7 +408,6 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
         serializer.save(request=industry_request)
 
-
 class RequestDetailSerializer(serializers.ModelSerializer):
     detail = serializers.SerializerMethodField()
     actions = RequestActionSerializer(many=True, read_only=True)
@@ -468,7 +466,6 @@ class RequestDetailSerializer(serializers.ModelSerializer):
 
         return serializer_class(instance).data
 
-
 class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     latest_action = serializers.SerializerMethodField()
@@ -481,7 +478,7 @@ class RequestSerializer(serializers.ModelSerializer):
             "title",
             "industry",
             "academic_unit",
-            "latest_action"
+            "latest_action",
             "description",
             "attachment",
             "created_at",
@@ -491,6 +488,7 @@ class RequestSerializer(serializers.ModelSerializer):
     def get_latest_action(self, obj):
         action = obj.actions.order_by("-created_at").first()
         return action.type if action else None
+
 class CurriculumReviewRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = CurriculumReviewRequest
@@ -525,109 +523,7 @@ class TechTransferRequestSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id"]
 
-
-class RequestCreateSerializer(serializers.ModelSerializer):
-    extra_data = serializers.JSONField(write_only=True, required=False)
-
-    class Meta:
-        model = Request
-        fields = [
-            "id",
-            "type",
-            "title",
-            "academic_unit",
-            "university",
-            "description",
-            "attachment",
-            "extra_data",
-            "created_at",
-        ]
-        read_only_fields = ["id", "created_at"]
-
-    def _parse_extra_data(self):
-        extra_data = self.initial_data.get("extra_data", {})
-
-        if isinstance(extra_data, str):
-            try:
-                extra_data = json.loads(extra_data)
-            except json.JSONDecodeError:
-                raise serializers.ValidationError(
-                    {"extra_data": "Invalid JSON format"}
-                )
-        return extra_data
-
-    def validate(self, attrs):
-        request_type = attrs.get("type")
-        extra_data = self._parse_extra_data()
-
-        REQUIRED_TYPES = [
-            "curriculum_review",
-            "industrial_visit",
-            "joint_research",
-            "guest_lecture",
-            "tech_transfer",
-        ]
-
-        if request_type in REQUIRED_TYPES and not extra_data:
-            raise serializers.ValidationError(
-                {"extra_data": "This field is required for this request type"}
-            )
-
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        extra_data = validated_data.pop("extra_data", {})
-
-        university = getattr(user, "university_profile", None)
-        if not university:
-            raise serializers.ValidationError("User has no university profile")
-
-        with transaction.atomic():
-            university_request = Request.objects.create(
-                created_by=user,
-                university=university,
-                **validated_data
-            )
-
-            RequestAction.objects.create(
-                request=university_request,
-                type="created",
-                description="Request created",
-                performed_by=user,
-                from_university=university,
-                created_by=user,
-                updated_by=user,
-            )
-
-            self._create_type_specific_model(university_request, extra_data)
-
-        return university_request
-
-    def _create_type_specific_model(self, university_request, extra_data):
-        REQUEST_SERIALIZER_MAP = {
-            "curriculum_review": CurriculumReviewRequestSerializer,
-            "industrial_visit": IndustrialVisitRequestSerializer,
-            "joint_research": JointResearchRequestSerializer,
-            "guest_lecture": GuestLectureRequestSerializer,
-            "tech_transfer": TechTransferRequestSerializer,
-        }
-
-        request_type = university_request.type
-        serializer_class = REQUEST_SERIALIZER_MAP.get(request_type)
-
-        if not serializer_class:
-            return
-
-        serializer = serializer_class(data=extra_data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(request=university_request)
-
-
-
-
-
-
+# action related serializer
 class RequestActionCreatedSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -1114,6 +1010,7 @@ ACTION_SERIALIZERS = {
             "completed":RequestActionCompletedSerializer,
             
         }
+
 class AssignmentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
@@ -1125,7 +1022,6 @@ class AssignmentListSerializer(serializers.ModelSerializer):
             "end_date",
             "status",
         ]
-
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
     class Meta:

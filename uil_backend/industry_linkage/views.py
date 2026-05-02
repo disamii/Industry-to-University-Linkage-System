@@ -68,10 +68,8 @@ class RequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    filterset_fields = ['type', 'actions__type',
-                        'requesting_entity', 'academic_unit', 'industry']
-    ordering_fields = ['created_at', 'updated_at',
-                       'title', 'industry__name', 'requesting_entity']
+    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
+    ordering_fields = ['created_at','updated_at','title', 'industry__name', 'requesting_entity']
     search_fields = ['industry__name']
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
@@ -83,8 +81,7 @@ class RequestViewSet(
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("update", "partial_update", "destroy", "create", 'retrieve'):
-            permission_classes = [IsAuthenticated,
-                                  IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
