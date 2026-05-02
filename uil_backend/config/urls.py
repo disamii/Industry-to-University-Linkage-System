@@ -25,5 +25,6 @@ urlpatterns = [
         {'get': 'activate_user'}), name='custom-user-activate'),
     path('organizational-structure/', include('organizational_structure.urls')),
     path('authorization/', include('authorization.urls')),
-    path('industry_linkage/',include('industry_linkage.urls'))
+    path('industry_linkage/',include('industry_linkage.urls')),
+    path('bulletin/',include('bulletin.urls'))
 ]

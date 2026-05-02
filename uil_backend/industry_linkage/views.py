@@ -1,25 +1,28 @@
 from rest_framework.parsers import FormParser, MultiPartParser
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import NotFound, PermissionDenied, NotAuthenticated
+from rest_framework.exceptions import  NotFound, ValidationError, NotAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status, mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .models import Industry, Request
+from .models import Industry, Request,Assignment
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from organizational_structure.models import OrganizationalUnit
 from authorization.utilis import get_scope, is_unit_in_user_scope
 from .serializers import (
     IndustryCreateSerializer,
-    RequestActionCreateSerializer,
+    ACTION_SERIALIZERS,
     RequestDetailSerializer,
     IndustrySerializer,
     RequestSerializer,
-    RequestCreateSerializer)
+    RequestCreateSerializer,
+    AssignmentDetailSerializer,
+    AssignmentListSerializer
+    )
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -73,8 +76,8 @@ class RequestViewSet(
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    queryset = Request.objects.all()
-
+    queryset = Request.objects.select_related("academic_unit").prefetch_related("actions")
+    
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
@@ -178,53 +181,44 @@ class RequestManageViewSet(
             scope_qs = scope
 
         queryset = Request.objects.filter(
-            requested_to__in=scope_qs
+            academic_unit__in=scope_qs
         ).order_by('-created_at')
         return queryset
 
     @action(detail=True, methods=["post"], url_path="actions")
     def create_action(self, request, pk=None):
+
+        request_obj = self.get_object()
         action_type = request.data.get("type")
-        if action_type == "accept_forwarded":
-            REQUEST = Request.objects.get(pk=pk)
-        else:
-            REQUEST = self.get_object()
-        serializer = RequestActionCreateSerializer(
+
+        serializer_class = ACTION_SERIALIZERS.get(action_type)
+
+        if not serializer_class:
+            raise ValidationError({"type": "Invalid action type"})
+        serializer = serializer_class(
             data=request.data,
             context={
                 "request": request,
-                "request_obj": REQUEST
+                "request_obj": request_obj
             }
         )
+
         serializer.is_valid(raise_exception=True)
 
-        action_type = serializer.validated_data["type"]
-
         with transaction.atomic():
-            if action_type == "accept_forwarded":
-                forwarded_action = REQUEST.actions.filter(
-                    type="forwarded"
-                ).order_by("-created_at").first()
-                unit_id = forwarded_action.forwarded_to_id
-                allowed = is_unit_in_user_scope(
-                    user=request.user,
-                    permission_codes=["can_create_request_action"],
-                    academic_unit_id=unit_id
-                )
-                if not allowed:
-                    return PermissionDenied()
-                REQUEST.requested_to_id = unit_id
-                REQUEST.save(update_fields=["academic_unit"])
-            action = serializer.save(request=REQUEST)
+            action = serializer.save(
+                request=request_obj,
+                performed_by=request.user
+            )
 
         return Response(
             {
                 "id": action.id,
+                "type": action.type,
                 "message": "Action applied successfully"
             },
             status=status.HTTP_201_CREATED
         )
-
     @action(detail=False, methods=['get'], url_path='by-industry/(?P<industry_id>[^/.]+)')
     def by_industry(self, request, industry_id=None):
         qs = self.get_queryset()
@@ -241,4 +235,51 @@ class RequestManageViewSet(
             return self.get_paginated_response(serializer.data)
 
         serializer = RequestSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class AssignmentViewSet(viewsets.ModelViewSet):
+    queryset = Assignment.objects.select_related("request", "assigned_user")
+    serializer_class = AssignmentDetailSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['status']
+    ordering_fields = ['start_date', 'end_date']
+    pagination_class = DefaultPagination
+    # -----------------------------
+    # SERIALIZER SWITCH
+    # -----------------------------
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AssignmentListSerializer
+        return AssignmentDetailSerializer
+
+    # -----------------------------
+    # BY USER
+    # /assignments/by-user/{user_id}/
+    # -----------------------------
+    @action(detail=False, methods=["get"], url_path="by-user/(?P<user_id>[^/.]+)")
+    def by_user(self, request, user_id=None):
+        qs = self.queryset.filter(assigned_user_id=user_id)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # BY REQUEST (REQUIREMENT)
+    # /assignments/by-request/{request_id}/
+    # -----------------------------
+    @action(detail=False, methods=["get"], url_path="by-request/(?P<request_id>[^/.]+)")
+    def by_request(self, request, request_id=None):
+        qs = self.queryset.filter(request_id=request_id)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # BY INDUSTRY
+    # (assuming request has industry FK)
+    # /assignments/by-industry/{industry_id}/
+    # -----------------------------
+    @action(detail=False, methods=["get"], url_path="by-industry/(?P<industry_id>[^/.]+)")
+    def by_industry(self, request, industry_id=None):
+        qs = self.queryset.filter(request__industry_id=industry_id)
+        serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)

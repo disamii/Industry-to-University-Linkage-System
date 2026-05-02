@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'audit',
     'organizational_structure',
     'industry_linkage',
-    'research_paper'
+    'research_paper',
+      'bulletin', 
     
 
 ]
