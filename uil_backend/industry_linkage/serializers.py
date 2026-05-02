@@ -518,3 +518,22 @@ class TechTransferRequestSerializer(serializers.ModelSerializer):
         model = TechTransferRequest
         fields = "__all__"
         read_only_fields = ["id"]
+
+
+class AssignmentListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = [
+            "id",
+            "request",
+            "assigned_user",
+            "start_date",
+            "end_date",
+            "status",
+        ]
+
+
+class AssignmentDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = "__all__"

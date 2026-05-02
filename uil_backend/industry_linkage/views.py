@@ -8,7 +8,7 @@ from rest_framework import viewsets, status, mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .models import Industry, Request
+from .models import Industry, Request,Assignment
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from organizational_structure.models import OrganizationalUnit
@@ -19,7 +19,10 @@ from .serializers import (
     RequestDetailSerializer,
     IndustrySerializer,
     RequestSerializer,
-    RequestCreateSerializer)
+    RequestCreateSerializer,
+    AssignmentDetailSerializer,
+    AssignmentListSerializer
+    )
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -232,4 +235,51 @@ class RequestManageViewSet(
             return self.get_paginated_response(serializer.data)
 
         serializer = RequestSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class AssignmentViewSet(viewsets.ModelViewSet):
+    queryset = Assignment.objects.select_related("request", "assigned_user")
+    serializer_class = AssignmentDetailSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['status']
+    ordering_fields = ['start_date', 'end_date']
+    pagination_class = DefaultPagination
+    # -----------------------------
+    # SERIALIZER SWITCH
+    # -----------------------------
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AssignmentListSerializer
+        return AssignmentDetailSerializer
+
+    # -----------------------------
+    # BY USER
+    # /assignments/by-user/{user_id}/
+    # -----------------------------
+    @action(detail=False, methods=["get"], url_path="by-user/(?P<user_id>[^/.]+)")
+    def by_user(self, request, user_id=None):
+        qs = self.queryset.filter(assigned_user_id=user_id)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # BY REQUEST (REQUIREMENT)
+    # /assignments/by-request/{request_id}/
+    # -----------------------------
+    @action(detail=False, methods=["get"], url_path="by-request/(?P<request_id>[^/.]+)")
+    def by_request(self, request, request_id=None):
+        qs = self.queryset.filter(request_id=request_id)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # BY INDUSTRY
+    # (assuming request has industry FK)
+    # /assignments/by-industry/{industry_id}/
+    # -----------------------------
+    @action(detail=False, methods=["get"], url_path="by-industry/(?P<industry_id>[^/.]+)")
+    def by_industry(self, request, industry_id=None):
+        qs = self.queryset.filter(request__industry_id=industry_id)
+        serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
