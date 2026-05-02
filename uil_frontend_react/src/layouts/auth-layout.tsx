@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 const AuthLayout = () => {
   return (
     <div className="flex flex-col justify-center items-center space-y-6 p-6 min-h-screen">
-      <main className="space-y-10 w-sm">
+      <main className="space-y-10">
         <AuthHeader />
         <Outlet />
         <AuthFooter />

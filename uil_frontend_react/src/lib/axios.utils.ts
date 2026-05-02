@@ -16,15 +16,13 @@ export async function safeApiRequest<T>(
       const axiosError = error as AxiosError<ApiErrorResponse>;
 
       if (isDev) {
-              // This logs the full object, which you can expand in the browser console
-              console.dir(axiosError.response?.data);
+        console.dir(axiosError.response?.data);
 
-              // Or more specifically:
-              console.error(
-                "Backend Error Detail:",
-                axiosError.response?.data?.error,
-              );
-            }
+        console.error(
+          "Backend Error Detail:",
+          axiosError.response?.data?.error,
+        );
+      }
 
       const message =
         axiosError.response?.data?.error ||

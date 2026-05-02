@@ -32,6 +32,18 @@ export const Asterisk = () => (
   <span className="mt-1 font-medium text-destructive">*</span>
 );
 
+export const RequiredFieldsDisclaimer = ({
+  className = "",
+}: {
+  className?: string;
+}) => {
+  return (
+    <p className={`text-sm text-muted-foreground ${className}`}>
+      <Asterisk /> indicates required fields
+    </p>
+  );
+};
+
 type FormInputProps<T extends FieldValues> = BaseFormProps<T> & {
   type?: string;
   isNumber?: boolean;
@@ -145,7 +157,7 @@ export const FormSelect = <T extends FieldValues>({
     control={form.control}
     render={({ field, fieldState }) => (
       <Field orientation={orientation} data-invalid={fieldState.invalid}>
-        <FieldContent>
+        <FieldContent className="flex-initial">
           <FieldLabel htmlFor={field.name} className="capitalize">
             {label}
             {required && <Asterisk />}
@@ -307,3 +319,23 @@ export const FormUploadFile = <T extends FieldValues>({
     />
   );
 };
+
+type FormSectionProps = {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+};
+
+export const FormSection = ({
+  title,
+  description,
+  children,
+}: FormSectionProps) => (
+  <section className="space-y-4">
+    <div className="pb-2 border-b">
+      <h3 className="font-semibold text-lg">{title}</h3>
+      <p className="text-muted-foreground text-sm">{description}</p>
+    </div>
+    <div className="space-y-2">{children}</div>
+  </section>
+);

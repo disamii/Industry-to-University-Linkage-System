@@ -5,7 +5,7 @@ import { z } from "zod";
 // --- Base Schema ---
 export const industryRequestBaseSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
-  requested_to: z.number().int().positive("Invalid organizational unit ID"),
+  academic_unit: z.number().int().positive("Invalid organizational unit ID"),
   description: z.string().min(1, "Description is required"),
   type: z.enum(IndustryRequestType),
   extra_data: z.record(z.string(), z.any()).optional(),

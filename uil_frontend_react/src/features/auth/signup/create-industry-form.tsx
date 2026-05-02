@@ -1,5 +1,6 @@
 import {
   FormInput,
+  FormSection,
   FormSelect,
   FormTextArea,
 } from "@/components/reusable/form-components";
@@ -23,78 +24,110 @@ const CompanyDetailsForm = () => {
   const form = useFormContext<IndustryCreateInput>();
 
   return (
-    <FieldGroup>
-      <FormInput
-        form={form}
-        name="name"
-        label="Company Name"
-        placeholder="Enter company name"
-      />
+    <FieldGroup className="space-y-4">
+      {/* --- Basic Information --- */}
+      <FormSection
+        title="Basic Information"
+        description="General identity and industry classification."
+      >
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+          <FormInput
+            form={form}
+            name="name"
+            label="Company Name"
+            placeholder="Enter company name"
+            required={true}
+          />
 
-      <FormSelect
-        form={form}
-        name="industry_type"
-        label="Industry Type"
-        options={formatSelectOptions(Object.values(IndustryType))}
-        placeholder="Select type"
-      />
+          <FormSelect
+            form={form}
+            name="industry_type"
+            label="Industry Type"
+            options={formatSelectOptions(Object.values(IndustryType))}
+            placeholder="Select type"
+            required={true}
+          />
+        </div>
+      </FormSection>
 
-      <div className="gap-2 grid grid-cols-1 md:grid-cols-2">
-        <FormInput
-          type="email"
-          form={form}
-          name="industry_email"
-          label="Company Email"
-          placeholder="Enter company Email"
-        />
+      {/* --- Contact Details --- */}
+      <FormSection
+        title="Contact Details"
+        description="How the company can be reached internally and externally."
+      >
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+          <FormInput
+            type="email"
+            form={form}
+            name="industry_email"
+            label="Company Email"
+            placeholder="Enter company Email"
+          />
 
-        <FormInput
-          form={form}
-          name="phone_number"
-          label="Company Phone Number"
-          placeholder="Enter phone number(+251...)"
-        />
-      </div>
+          <FormInput
+            form={form}
+            name="phone_number"
+            label="Company Phone Number"
+            placeholder="Enter company Phone Number"
+          />
+        </div>
+      </FormSection>
 
-      <FormTextArea
-        form={form}
-        name="description"
-        label="Description"
-        placeholder="Enter a description for your company"
-      />
+      {/* --- Location --- */}
+      <FormSection
+        title="Location"
+        description="Physical presence and geographic data."
+      >
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+          <FormInput
+            form={form}
+            name="location"
+            label="Location (City)"
+            placeholder="Enter your location (city)"
+            required={true}
+          />
 
-      <div className="gap-2 grid grid-cols-1 md:grid-cols-2">
-        <FormInput
-          form={form}
-          name="location"
-          label="Location (City)"
-          placeholder="Enter your location (city)"
-        />
+          <FormInput
+            form={form}
+            name="address"
+            label="Physical Address"
+            placeholder="Street, Building, Office No."
+            required={true}
+          />
+        </div>
+      </FormSection>
 
-        <FormInput
-          form={form}
-          name="address"
-          label="Physical Address"
-          placeholder="Street, Building, Office No."
-        />
-      </div>
+      {/* --- Additional Info --- */}
+      <FormSection
+        title="Additional Information"
+        description="Operational scale and online presence."
+      >
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+          <FormInput
+            type="number"
+            form={form}
+            name="number_of_employees"
+            label="Number of Employees"
+            placeholder="Enter your number of employees"
+          />
 
-      <div className="gap-2 grid grid-cols-1 md:grid-cols-2">
-        <FormInput
-          type="number"
-          form={form}
-          name="number_of_employees"
-          label="Number of Employees"
-          placeholder="Enter your number of employees"
-        />
+          <FormInput
+            form={form}
+            name="website"
+            label="Website (Optional)"
+            placeholder="Enter your website"
+          />
+        </div>
 
-        <FormInput
-          form={form}
-          name="website"
-          label="Website (Optional)"
-          placeholder="Enter your website"
-        />
-      </div>
+        <div className="mt-4">
+          <FormTextArea
+            form={form}
+            name="description"
+            label="Description"
+            placeholder="Enter a description for your company"
+          />
+        </div>
+      </FormSection>
     </FieldGroup>
   );
 };
@@ -110,6 +143,7 @@ const ContactDetailsForm = () => {
         name="contact_full_name"
         label="Full Name"
         placeholder="Enter contact person full name"
+        required={true}
       />
       <FormInput
         type="email"
@@ -117,6 +151,7 @@ const ContactDetailsForm = () => {
         name="contact_email"
         label="Email"
         placeholder="Enter contact person email"
+        required={true}
       />
       <FormInput
         form={form}
@@ -132,6 +167,7 @@ const ContactDetailsForm = () => {
           name="contact_password"
           label="Password"
           placeholder="Enter your password"
+          required={true}
         />
 
         <FormInput
@@ -140,6 +176,7 @@ const ContactDetailsForm = () => {
           name="confirm_password"
           label="Confirm Password"
           placeholder="Confirm your password"
+          required={true}
         />
       </div>
     </FieldGroup>
@@ -160,7 +197,10 @@ const CreateIndustryForm = ({ setStep }: CreateIndustryFormProps) => {
     defaultValues: industryDefaultValues,
   });
 
-  const handleNext = async () => {
+  const handleNext = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const isValid = await form.trigger([
       "name",
       "industry_email",
@@ -200,16 +240,16 @@ const CreateIndustryForm = ({ setStep }: CreateIndustryFormProps) => {
       <form
         id="form-create-industry"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-96"
+        className="flex flex-col space-y-4 mx-auto min-w-xl"
       >
         {subStep === 1 ? (
           <div className="animate-in fade-in">
-            <h3 className="mb-4 font-bold text-lg">Company Profile</h3>
+            <h3 className="mb-4 font-bold text-xl">Company Profile</h3>
             <CompanyDetailsForm />
           </div>
         ) : (
           <div className="animate-in fade-in">
-            <h3 className="mb-4 font-bold text-lg">Contact Person Account</h3>
+            <h3 className="mb-4 font-bold text-xl">Contact Person Account</h3>
             <ContactDetailsForm />
           </div>
         )}

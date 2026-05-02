@@ -6,38 +6,54 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { useDebounce } from "@/hooks/use-debounce";
-import TreeView from "./tree-view";
+import { Dispatch, ReactNode, SetStateAction } from "react";
+import TreeView, { UseChildrenHook } from "./tree-view";
 
-interface TreeSelectProps {
-  onSelect?: (node: OrgUnitResponse) => void;
+type Props<T> = {
+  // Searching
+  searchQuery: string;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  isSearching: boolean;
+
+  // Selecting
   selectedId?: number;
-  placeholder?: string;
-  className?: string;
-}
 
-export function TreeSelect({
-  onSelect,
-  placeholder = "Select an organizational unit...",
-  className,
-}: TreeSelectProps) {
-  const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedNode, setSelectedNode] = useState<OrgUnitResponse | null>(
-    null,
-  );
-  const debouncedSearch = useDebounce(searchQuery, 300);
+  // Label displayed on the popover trigger
+  DisplaySelectedItem: ReactNode;
 
-  const handleSelect = (node: OrgUnitResponse) => {
-    setSelectedNode(node);
-    onSelect?.(node);
-    setOpen(false);
-    setSearchQuery("");
-  };
+  // Root Data
+  isLoading: boolean;
+  results?: T[];
 
+  // getter functions
+  getHasChildren: (node: T) => boolean;
+  getKey: (node: T) => string | number;
+
+  // Children
+  renderItem: (node: T) => ReactNode;
+
+  // Popover controls
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+
+  useChildren: UseChildrenHook<T>;
+};
+
+export const TreeSelect = <T,>({
+  searchQuery,
+  setSearchQuery,
+  DisplaySelectedItem,
+  getHasChildren,
+  getKey,
+  isLoading,
+  results,
+  isSearching,
+  renderItem,
+  open,
+  setOpen,
+  useChildren,
+}: Props<T>) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -45,14 +61,15 @@ export function TreeSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("justify-between py-5 w-full font-normal", className)}
+          className={cn("justify-between py-5 w-full font-normal")}
         >
-          <span className="truncate">
-            {selectedNode ? selectedNode.name : placeholder}
-          </span>
-          <ChevronDown className="opacity-50 ml-2 w-4 h-4 shrink-0" />
+          <>
+            {DisplaySelectedItem}
+            <ChevronDown className="opacity-50 ml-2 w-4 h-4 shrink-0" />
+          </>
         </Button>
       </PopoverTrigger>
+
       <PopoverContent className="p-0 w-full" align="start">
         <Command shouldFilter={false}>
           <CommandInput
@@ -62,11 +79,16 @@ export function TreeSelect({
           />
 
           <TreeView
-            onSelect={handleSelect}
-            searchQuery={debouncedSearch as string}
+            getHasChildren={getHasChildren}
+            getKey={getKey}
+            isLoading={isLoading}
+            results={results}
+            isSearching={isSearching}
+            renderItem={renderItem}
+            useChildren={useChildren}
           />
         </Command>
       </PopoverContent>
     </Popover>
   );
-}
+};

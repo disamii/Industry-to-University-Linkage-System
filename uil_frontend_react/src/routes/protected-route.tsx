@@ -1,4 +1,4 @@
-import { SidebarProvider } from "@/contexts/SidebarContext";
+import { SidebarProvider } from "@/contexts/sidebar-context";
 import AdminLayout from "@/layouts/admin-layout";
 import { LINKS } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";

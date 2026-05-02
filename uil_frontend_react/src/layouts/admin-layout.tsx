@@ -1,4 +1,4 @@
-import { useSidebar } from "@/contexts/SidebarContext";
+import { useSidebar } from "@/contexts/sidebar-context";
 import AdminHeader from "@/features/dashboard/admin-header";
 import AdminSidebar from "@/features/dashboard/admin-sidebar";
 import { type ReactNode } from "react";

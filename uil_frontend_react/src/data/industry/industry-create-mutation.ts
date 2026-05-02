@@ -11,7 +11,6 @@ import { industryKeys } from "./keys";
 import toast from "react-hot-toast";
 
 export const industryCreate = (data: IndustryCreateInput) => {
-  console.log(data)
   return safeApiRequest(
     api.post<IndustryResponse>(
       industryUrls.register(),

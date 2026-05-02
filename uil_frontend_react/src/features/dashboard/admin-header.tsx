@@ -1,6 +1,6 @@
 import Logo from "@/components/reusable/logo";
 import ProfileDropdown from "@/components/reusable/profile-dropdown";
-import { useSidebar } from "@/contexts/SidebarContext";
+import { useSidebar } from "@/contexts/sidebar-context";
 import SidebarToggle from "./admin-sidebar-toggle";
 
 function AdminHeader() {
