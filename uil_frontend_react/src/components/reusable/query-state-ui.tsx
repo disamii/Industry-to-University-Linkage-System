@@ -1,7 +1,7 @@
 import { UseQueryResult } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import { Spinner } from "../ui/spinner";
-import { EmptyState } from "./empty-state";
+import EmptyState from "./empty-state";
 import { ErrorState } from "./error-state";
 
 type QueryStateGateProps<T> = {

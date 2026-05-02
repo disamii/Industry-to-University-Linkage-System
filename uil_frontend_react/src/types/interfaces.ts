@@ -57,8 +57,13 @@ export type TableColumn<T> =
       render: (_: undefined, row: T) => React.ReactNode;
     };
 
-export interface BaseTreeNode {
+export type BaseTreeNode = {
   id: string | number;
   label: string;
   hasChildren?: boolean;
-}
+};
+
+export type TableHead = {
+  content: string | number | React.ReactNode;
+  className?: string;
+};

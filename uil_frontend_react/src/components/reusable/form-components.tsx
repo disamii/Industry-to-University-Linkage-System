@@ -14,10 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { MAX_FILE_SIZE_MB } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Upload, XIcon } from "lucide-react";
+import { Upload } from "lucide-react";
 import React from "react";
 import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
+import XIconButton from "./x-icon-button";
 
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
@@ -212,7 +214,7 @@ export const FormUploadFile = <T extends FieldValues>({
   desc,
   className,
   accept = "*/*",
-  maxSizeMB = 5,
+  maxSizeMB = MAX_FILE_SIZE_MB,
   required,
 }: FormUploadFileProps<T>) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -229,8 +231,8 @@ export const FormUploadFile = <T extends FieldValues>({
           field.onChange(file);
         };
 
-        const handleRemove = (e: React.MouseEvent) => {
-          e.stopPropagation(); // Prevent opening the file dialog
+        const handleRemove = (e?: React.MouseEvent) => {
+          e?.stopPropagation(); // Prevent opening the file dialog
           field.onChange(null);
           if (fileInputRef.current) {
             fileInputRef.current.value = ""; // Reset input value
@@ -267,14 +269,10 @@ export const FormUploadFile = <T extends FieldValues>({
             >
               {/* Remove Button */}
               {value instanceof File && (
-                <button
-                  type="button"
-                  onClick={handleRemove}
-                  className="top-2 right-2 absolute bg-destructive/10 hover:bg-destructive p-1.5 rounded-full text-destructive hover:text-white transition-colors"
-                  aria-label="Remove file"
-                >
-                  <XIcon className="w-4 h-4" />
-                </button>
+                <XIconButton
+                  onRemove={handleRemove}
+                  className="top-2 right-2 absolute"
+                />
               )}
 
               <div className="bg-muted mb-2 p-3 rounded-full">
