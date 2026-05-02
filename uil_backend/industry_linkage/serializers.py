@@ -471,6 +471,9 @@ class RequestDetailSerializer(serializers.ModelSerializer):
 
 
 class RequestSerializer(serializers.ModelSerializer):
+    academic_unit = OrganizationStructureListSerializer(read_only=True)
+    latest_action = serializers.SerializerMethodField()
+
     class Meta:
         model = Request
         fields = [
@@ -478,13 +481,17 @@ class RequestSerializer(serializers.ModelSerializer):
             "type",
             "title",
             "industry",
+            "academic_unit",
+            "latest_action"
             "description",
             "attachment",
             "created_at",
         ]
         read_only_fields = ["id", "created_at", "industry"]
 
-
+    def get_latest_action(self, obj):
+        action = obj.actions.order_by("-created_at").first()
+        return action.type if action else None
 class CurriculumReviewRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = CurriculumReviewRequest

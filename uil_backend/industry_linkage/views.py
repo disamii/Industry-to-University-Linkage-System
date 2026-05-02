@@ -76,8 +76,8 @@ class RequestViewSet(
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    queryset = Request.objects.all()
-
+    queryset = Request.objects.select_related("academic_unit").prefetch_related("actions")
+    
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
