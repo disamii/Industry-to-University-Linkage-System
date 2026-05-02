@@ -27,7 +27,6 @@ class Post(AuditMixin, models.Model):
     related_object = GenericForeignKey('content_type', 'object_id')
     is_internal_only = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
-    description = models.TextField()  
     published_at = models.DateTimeField(null=True, blank=True)
     image = models.ImageField(upload_to="posts/", blank=True, null=True)    
     expires_at = models.DateTimeField(

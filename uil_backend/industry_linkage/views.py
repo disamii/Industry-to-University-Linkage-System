@@ -126,7 +126,6 @@ class RequestManageViewSet(
     search_fields = ['industry__name']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     queryset = Request.objects.all()
-    parser_classes = [MultiPartParser, FormParser]
     pagination_class = DefaultPagination
 
     def get_permissions(self):
@@ -205,7 +204,6 @@ class RequestManageViewSet(
         with transaction.atomic():
             action = serializer.save(
                 request=request_obj,
-                performed_by=request.user
             )
 
         return Response(
@@ -216,6 +214,7 @@ class RequestManageViewSet(
             },
             status=status.HTTP_201_CREATED
         )
+
     @action(detail=False, methods=['get'], url_path='by-industry/(?P<industry_id>[^/.]+)')
     def by_industry(self, request, industry_id=None):
         qs = self.get_queryset()

@@ -92,9 +92,10 @@ class RequestAction(AuditMixin,models.Model):
         ("accept_forwarded", "Accept Forwarded"),
         ("posted_as_thematic", "Posted as Thematic Call"),
         ("replied", "Replied"),
-        ("reject","Rejected"),
+        ("rejected","Rejected"),
         ("reassigned","Reassigned"),
-        ("completed","Completed")
+        ("completed","Completed"),
+        ("revoked","Revoked")
     ]
     request = models.ForeignKey(
         "Request",
@@ -103,14 +104,15 @@ class RequestAction(AuditMixin,models.Model):
     )
 
     type = models.CharField(max_length=30, choices=ACTION_TYPES)
-
+    
     description = models.TextField()  
-
-    performed_by = models.ForeignKey(
-        User,        
-        on_delete=models.SET_NULL,
+    
+    assigned_user = models.ForeignKey(
+        User, 
         null=True,
-        related_name="performed_actions"
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="assignends"
     )
 
     from_industry = models.ForeignKey(
@@ -126,7 +128,7 @@ class RequestAction(AuditMixin,models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="received_unit_transfers"  # ✅ FIX
+        related_name="received_unit_transfers"  
     )
     
     from_unit = models.ForeignKey(
@@ -134,14 +136,14 @@ class RequestAction(AuditMixin,models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="sent_unit_transfers"   # ✅ FIX
+        related_name="sent_unit_transfers"   
     )
     to_industry = models.ForeignKey(
         Industry,        
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="received_transfers_industry"  # safer naming
+        related_name="received_transfers_industry"  
     )   
 
 class RnDRequest(models.Model):
