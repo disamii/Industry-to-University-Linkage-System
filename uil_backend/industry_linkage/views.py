@@ -181,7 +181,7 @@ class RequestManageViewSet(
             scope_qs = scope
 
         queryset = Request.objects.filter(
-            requested_to__in=scope_qs
+            academic_unit__in=scope_qs
         ).order_by('-created_at')
         return queryset
 

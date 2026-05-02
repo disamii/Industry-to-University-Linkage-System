@@ -17,7 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from accounts.views import CustomUserViewSet
-from uil_backend import bulletin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
