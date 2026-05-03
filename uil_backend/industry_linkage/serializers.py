@@ -1124,3 +1124,42 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
             "end_date",
             "status",
         ]
+
+
+class LatestActionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+            "assigned_user",
+            "from_unit",
+            "to_unit",
+            "from_industry",
+            "to_industry",
+            "created_at",
+        ]
+
+
+class AdminRequestListSerializer(serializers.ModelSerializer):
+    latest_action = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Request
+        fields = [
+            "id",
+            "title",
+            "type",
+            "requesting_entity",
+            "industry",
+            "academic_unit",
+            "created_at",
+            "latest_action",
+        ]
+
+    def get_latest_action(self, obj):
+        action = getattr(obj, "latest_action_obj", None)
+        if not action:
+            return None
+        return LatestActionSerializer(action).data
