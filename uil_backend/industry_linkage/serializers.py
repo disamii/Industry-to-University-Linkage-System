@@ -1,13 +1,15 @@
 import json
+from pickle import TRUE
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from httpx import request
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework import serializers
 from authorization.utilis import is_unit_in_user_scope
-from accounts.serializers import ContactPersonCreateSerializer
+from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied
 from .models import (
@@ -1080,7 +1082,6 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
                     )
 
 
-
 ACTION_SERIALIZERS = {
             "created":RequestActionCreatedSerializer,
             "assigned":RequestActionAssignedSerializer,
@@ -1096,6 +1097,8 @@ ACTION_SERIALIZERS = {
         }
 
 class AssignmentListSerializer(serializers.ModelSerializer):
+    request=RequestSerializer(read_only=TRUE)
+    assigned_user=UserSerializer()
     class Meta:
         model = Assignment
         fields = [
@@ -1103,11 +1106,21 @@ class AssignmentListSerializer(serializers.ModelSerializer):
             "request",
             "assigned_user",
             "start_date",
+            "industry_mentor",
             "end_date",
             "status",
         ]
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
+    request=RequestDetailSerializer(read_only=True)
     class Meta:
         model = Assignment
-        fields = "__all__"
+        fields = [
+            "id",
+            "request",
+            "assigned_user",
+            "industry_mentor",
+            "start_date",
+            "end_date",
+            "status",
+        ]

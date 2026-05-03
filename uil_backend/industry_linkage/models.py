@@ -251,7 +251,6 @@ class TechTransferRequest(models.Model):
     technology_readiness_level = models.CharField(max_length=50)
 
 class Assignment(AuditMixin, models.Model):
-    # Core Relationships
     request = models.ForeignKey(
         "Request", 
         on_delete=models.CASCADE, 
@@ -262,13 +261,11 @@ class Assignment(AuditMixin, models.Model):
         on_delete=models.CASCADE, 
         related_name="university_assignments"
     )
-
-    # Timing (Replaces 'duration' and 'deadline')
+    
     start_date = models.DateField(help_text="When the work begins")
     end_date = models.DateField(help_text="When the work must be completed")
 
     
-    # Industry Presence
     industry_mentor = models.CharField(
         max_length=255, 
         blank=True, 
