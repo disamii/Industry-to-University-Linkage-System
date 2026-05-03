@@ -23,7 +23,7 @@ from .serializers import (
     AssignmentDetailSerializer,
     AssignmentListSerializer
     )
-
+from .paginations import IndustryPagination,RequestPagination,RequestForIndustryPagination
 
 class IndustryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -31,7 +31,7 @@ class IndustryViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'name']
     search_fields = ['name']
     queryset = Industry.objects.select_related("contact_person").all()
-    pagination_class = DefaultPagination
+    pagination_class = IndustryPagination
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -72,7 +72,7 @@ class RequestViewSet(
     ordering_fields = ['created_at','updated_at','title', 'industry__name', 'requesting_entity']
     search_fields = ['industry__name']
     parser_classes = [MultiPartParser, FormParser]
-    pagination_class = DefaultPagination
+    pagination_class = RequestForIndustryPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     queryset = Request.objects.select_related("academic_unit").prefetch_related("actions")
     
@@ -125,8 +125,8 @@ class RequestManageViewSet(
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
     search_fields = ['industry__name']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    queryset = Request.objects.all()
-    pagination_class = DefaultPagination
+    queryset = Request.objects.all().order_by('created_at')
+    pagination_class = RequestPagination
 
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
