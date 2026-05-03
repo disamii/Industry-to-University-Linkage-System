@@ -43,12 +43,9 @@ export async function safeApiRequest<T>(
   }
 }
 
-export type QueryParams = Record<
-  string,
-  string | number | boolean | undefined | null
->;
+type QueryParams = Record<string, string | number | boolean | undefined | null>;
 
-export const buildQueryParams = (params?: QueryParams) => {
+const buildQueryParams = (params?: QueryParams) => {
   if (!params) return {};
 
   return Object.fromEntries(

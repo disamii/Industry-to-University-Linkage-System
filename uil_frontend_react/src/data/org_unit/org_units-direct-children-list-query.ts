@@ -17,7 +17,7 @@ export const useGetOrgUnitDirectChildrenList = (
   enabled = true,
 ) =>
   useQuery({
-    queryKey: [...orgUnitKeys.direct_children_list(), params],
+    queryKey: orgUnitKeys.direct_children_list(params),
     queryFn: () => getOrgUnitDirectChildrenList(params),
     enabled,
     placeholderData: (previousData) => previousData,

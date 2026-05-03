@@ -1,4 +1,14 @@
 import {
+  Table as ShadTable,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ITableHead } from "@/types/interfaces";
+import React, {
   cloneElement,
   createContext,
   type ReactElement,
@@ -7,64 +17,58 @@ import {
   useEffect,
   useState,
 } from "react";
-import EmptyState from "./empty-state";
+import { Card, CardContent } from "../ui/card";
 
 type TableContextType = {
-  colCount?: number;
+  colCount: number;
   setColCount: (count: number) => void;
 };
 
 const TableContext = createContext<TableContextType>({
-  colCount: undefined,
+  colCount: 0,
   setColCount: () => {},
 });
 
 type TableProps = {
   children: ReactNode;
+  topCardRef?: React.Ref<HTMLDivElement>;
 };
 
-function Table({ children }: TableProps) {
+function Table({ children, topCardRef }: TableProps) {
   const [colCount, setColCount] = useState(0);
 
   return (
     <TableContext.Provider value={{ colCount, setColCount }}>
-      <div className="relative border sm:rounded-lg overflow-x-auto">
-        <table className="w-full text-sm text-left rtl:text-right">
-          {children}
-        </table>
-      </div>
+      <Card ref={topCardRef} className="p-0!">
+        <CardContent className="p-0!">
+          <ShadTable>{children}</ShadTable>
+        </CardContent>
+      </Card>
     </TableContext.Provider>
   );
 }
 
 type HeaderProps = {
-  heads: string[];
+  heads: ITableHead[];
 };
 
 function Header({ heads }: HeaderProps) {
   const { setColCount } = useContext(TableContext);
 
-  useEffect(
-    function () {
-      setColCount(heads.length);
-    },
-    [setColCount, heads.length],
-  );
+  useEffect(() => {
+    setColCount(heads.length);
+  }, [setColCount, heads.length]);
 
   return (
-    <thead className="bg-muted border-b text-sm uppercase">
-      <tr className="whitespace-nowrap">
-        {heads.map((header, index) => (
-          <th
-            key={index}
-            scope="col"
-            className="px-6 py-5 dark:font-medium font-semibold"
-          >
-            {header}
-          </th>
+    <TableHeader>
+      <TableRow>
+        {heads.map((header, inx) => (
+          <TableHead key={inx} className={header.className}>
+            {header.content}
+          </TableHead>
         ))}
-      </tr>
-    </thead>
+      </TableRow>
+    </TableHeader>
   );
 }
 
@@ -76,45 +80,21 @@ type BodyProps<T> = {
 function Body<T>({ data, render }: BodyProps<T>) {
   const { colCount } = useContext(TableContext);
 
-  if (!data?.length) return <EmptyState colCount={colCount} />;
+  if (!data?.length)
+    return (
+      <TableBody>
+        <TableRow>
+          <TableCell
+            colSpan={colCount}
+            className="py-8 text-muted-foreground text-center"
+          >
+            No data found!
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    );
 
-  return <tbody>{data?.map(render)}</tbody>;
-}
-
-type RowProps = {
-  children: ReactNode;
-  size?: "large" | "default";
-};
-
-function Row({ children, size = "default" }: RowProps) {
-  return (
-    <tr
-      className={`whitespace-nowrap border-b bg-foreground hover:bg-muted ${
-        size === "large" ? "text-base" : ""
-      }`}
-    >
-      {children}
-    </tr>
-  );
-}
-
-const tableDataStyles = {
-  regular: "px-6 py-3 font-medium",
-  image: "pb-2 pr-2 pt-1",
-  long: "px-6 py-3 whitespace-nowrap",
-} as const;
-
-type TableDataProps = {
-  type?: keyof typeof tableDataStyles;
-  children: ReactNode;
-};
-
-function TableData({ type = "regular", children }: TableDataProps) {
-  return (
-    <td scope="row" className={tableDataStyles[type]}>
-      {children}
-    </td>
-  );
+  return <TableBody>{data?.map(render)}</TableBody>;
 }
 
 type FooterProps = {
@@ -124,13 +104,15 @@ type FooterProps = {
 function Footer({ children }: FooterProps) {
   const { colCount } = useContext(TableContext);
 
-  return <tfoot>{cloneElement(children, { colCount })}</tfoot>;
+  if (React.isValidElement(children)) {
+    return <TableFooter>{cloneElement(children, { colCount })}</TableFooter>;
+  }
+
+  return <TableFooter>{children}</TableFooter>;
 }
 
 Table.Header = Header;
 Table.Body = Body;
-Table.Row = Row;
-Table.Data = TableData;
 Table.Footer = Footer;
 
 export default Table;

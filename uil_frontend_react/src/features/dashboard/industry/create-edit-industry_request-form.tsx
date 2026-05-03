@@ -9,41 +9,52 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry_request-create-mutation";
 import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry_request-update-mutation";
-import { INDUSTRY_REQUEST_FIELDS } from "@/lib/constants";
-import { IndustryRequestType } from "@/lib/enums";
+import { INDUSTRY_REQUEST_FIELDS, IndustryRequestType } from "@/lib/enums";
 import { formatSelectOptions } from "@/lib/utils";
-import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
+import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import {
   IndustryRequestCreateInput,
   industryRequestCreateSchema,
   industryRequestDefaultValues,
   IndustryRequestUpdateInput,
+  industryRequestUpdateSchema,
 } from "@/validation/validation.industry_requests";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  requestToEdit?: IndustryRequestResponse;
+  requestToEdit?: IndustryRequestDetailResponse;
 };
 
 const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
   const navigate = useNavigate();
   const isEditing = !!requestToEdit;
-  const defaultValues = isEditing
-    ? requestToEdit
-    : industryRequestDefaultValues;
+  const defaultValues = useMemo(() => {
+    if (isEditing && requestToEdit) {
+      return {
+        ...requestToEdit,
+        academic_unit: requestToEdit.academic_unit.id,
+        extra_data: requestToEdit.detail || {},
+      };
+    }
+    return industryRequestDefaultValues;
+  }, [requestToEdit, isEditing]);
 
-  const form = useForm<IndustryRequestCreateInput>({
-    resolver: zodResolver(industryRequestCreateSchema),
-    defaultValues,
-  });
+  const form = useForm<IndustryRequestCreateInput | IndustryRequestUpdateInput>(
+    {
+      resolver: zodResolver(
+        isEditing ? industryRequestUpdateSchema : industryRequestCreateSchema,
+      ),
+      defaultValues: defaultValues,
+    },
+  );
 
   const { mutate: createMutation, isPending: isCreating } =
     useIndustryRequestCreateMutation();
   const { mutate: updateMutation, isPending: isUpdating } =
-    useIndustryRequestUpdateMutation(requestToEdit?.id || "");
+    useIndustryRequestUpdateMutation(requestToEdit?.id);
   const isSubmitting = isCreating || isUpdating;
 
   const onSubmit = async (
@@ -69,10 +80,20 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
     name: "type",
   }) as keyof typeof INDUSTRY_REQUEST_FIELDS;
 
+  // Change this:
   useEffect(() => {
-    form.setValue("extra_data", {});
+    if (!isEditing && selectedType) {
+      form.setValue("extra_data", {});
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType]);
+  }, [selectedType, isEditing]);
+
+  useEffect(() => {
+    if (isEditing && requestToEdit) {
+      form.reset(defaultValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValues, form, isEditing]);
 
   return (
     <form
@@ -164,7 +185,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         name="attachment"
         label="Attachment"
         desc="Please upload the supporting documents for this project."
-        accept=".pdf,.doc,.docx,.zip,.png,.jpg" // Or leave blank for any file
+        accept=".pdf,.doc,.docx,.zip,.png,.jpg"
         maxSizeMB={5}
         className="col-span-full"
       />
@@ -179,7 +200,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         {isSubmitting
           ? "Processing..."
           : isEditing
-            ? "Edit Request"
+            ? "Update Request"
             : "Submit Request"}
       </Button>
     </form>

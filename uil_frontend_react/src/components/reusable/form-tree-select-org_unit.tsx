@@ -5,15 +5,29 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useGetOrgUnitDirectChildrenList } from "@/data/org_unit/org_units-direct-children-list-query";
 import { useOrgUnitTree } from "@/data/org_unit/use-org-unit-tree";
 import { OrgUnitResponse } from "@/types/interfaces.org_units";
-import { IndustryRequestCreateInput } from "@/validation/validation.industry_requests";
-import { UseFormReturn } from "react-hook-form";
+import {
+  IndustryRequestCreateInput,
+  IndustryRequestUpdateInput,
+} from "@/validation/validation.industry_requests";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import TreeItem from "./tree-item";
 
-const FormTreeSelectOrgUnit = ({
-  form,
-}: {
-  form: UseFormReturn<IndustryRequestCreateInput>;
-}) => {
+type Props = {
+  form: UseFormReturn<IndustryRequestCreateInput | IndustryRequestUpdateInput>;
+};
+
+const FormTreeSelectOrgUnit = ({ form }: Props) => {
+  const onSelect = (id: number) => {
+    form.setValue("academic_unit", id, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+  const selectedAcademicUnit = useWatch({
+    control: form.control,
+    name: "academic_unit",
+  });
+
   const {
     searchQuery,
     setSearchQuery,
@@ -24,14 +38,8 @@ const FormTreeSelectOrgUnit = ({
     results,
     selectedNode,
     handleSelect,
-  } = useOrgUnitTree((id) => {
-    form.setValue("academic_unit", id, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  });
+  } = useOrgUnitTree(onSelect, selectedAcademicUnit);
 
-  // Reusable child fetcher for the TreeView
   const useOrgUnitChildren: UseChildrenHook<OrgUnitResponse> = (
     node,
     enabled,
@@ -47,7 +55,7 @@ const FormTreeSelectOrgUnit = ({
       </FieldLabel>
 
       <TreeSelect
-        selectedId={form.getValues("academic_unit")}
+        selectedId={selectedAcademicUnit}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         DisplaySelectedItem={

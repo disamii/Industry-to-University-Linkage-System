@@ -15,7 +15,6 @@ export const industryRequestCreate = (data: IndustryRequestCreateInput) => {
   const validated = industryRequestCreateSchema.parse(data);
 
   const formData = toFormData(validated);
-
   formData.append("requesting_entity", "industry");
 
   // console.log(Object.fromEntries(formData.entries()));

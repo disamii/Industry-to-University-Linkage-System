@@ -18,6 +18,8 @@ export const industryRequestBaseSchema = z.object({
     .nullable(),
 });
 
+export type IndustryRequestBase = z.infer<typeof industryRequestBaseSchema>;
+
 // --- Create Schema ---
 export const industryRequestCreateSchema = industryRequestBaseSchema.extend({});
 
@@ -26,8 +28,21 @@ export type IndustryRequestCreateInput = z.infer<
 >;
 
 // --- Update Schema ---
-export const industryRequestUpdateSchema =
-  industryRequestCreateSchema.partial();
+export const industryRequestUpdateSchema = industryRequestCreateSchema
+  .partial()
+  .extend({
+    attachment: z
+      .union([
+        z.string(),
+        z
+          .instanceof(File)
+          .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
+            message: "Max size exceeded",
+          }),
+      ])
+      .optional()
+      .nullable(),
+  });
 
 export type IndustryRequestUpdateInput = z.infer<
   typeof industryRequestUpdateSchema

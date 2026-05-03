@@ -224,7 +224,9 @@ export const FormUploadFile = <T extends FieldValues>({
       name={name}
       control={form.control}
       render={({ field, fieldState }) => {
-        const value = field.value as File | null | undefined;
+        const value = field.value as File | null | undefined | string;
+        const isFileInstance = value instanceof File;
+        const isExistingFile = typeof value === "string" && value.length > 0;
 
         const handleFileAction = (files: FileList | null) => {
           const file = files?.[0] || null;
@@ -268,7 +270,7 @@ export const FormUploadFile = <T extends FieldValues>({
               }}
             >
               {/* Remove Button */}
-              {value instanceof File && (
+              {(isFileInstance || isExistingFile) && (
                 <XIconButton
                   onRemove={handleRemove}
                   className="top-2 right-2 absolute"
@@ -281,9 +283,14 @@ export const FormUploadFile = <T extends FieldValues>({
 
               <div className="space-y-1">
                 <p className="font-medium text-foreground text-sm">
-                  {value instanceof File ? (
+                  {isFileInstance ? (
                     <span className="font-semibold text-primary break-all">
                       {value.name}
+                    </span>
+                  ) : isExistingFile ? (
+                    <span className="font-semibold text-primary break-all">
+                      {/* Extract filename from URL or just show "Existing Attachment" */}
+                      {value.split("/").pop()}
                     </span>
                   ) : (
                     "Choose a file or drag & drop"
