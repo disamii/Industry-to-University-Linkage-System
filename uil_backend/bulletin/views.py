@@ -9,7 +9,8 @@ from config.paginations import DefaultPagination
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.select_related("content_type").all()
+
+    queryset = Post.objects.all()
     pagination_class = DefaultPagination
 
     filter_backends = [
@@ -39,14 +40,3 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return PostListSerializer
         return PostDetailSerializer
-    def get_queryset(self):
-        qs = Post.objects.select_related("content_type")
-
-        if self.action == "list":
-            return qs.only(
-                "id", "title", "post_type",
-                "is_published", "is_internal_only",
-                "published_at", "expires_at"
-            )
-
-        return qs

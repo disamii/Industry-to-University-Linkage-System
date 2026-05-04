@@ -23,6 +23,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('accounts.urls')),
+    path('audit/', include('audit.urls')),
+
     path('activate/<uid>/<token>/', CustomUserViewSet.as_view(
         {'get': 'activate_user'}), name='custom-user-activate'),
     path('organizational-structure/', include('organizational_structure.urls')),
