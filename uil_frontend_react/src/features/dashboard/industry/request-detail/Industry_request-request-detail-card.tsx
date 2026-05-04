@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import AttachmentView from "@/features/dashboard/industry/attachment-view";
+import AttachmentView from "@/features/dashboard/industry/request-detail/attachment-view";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import { Info } from "lucide-react";
 

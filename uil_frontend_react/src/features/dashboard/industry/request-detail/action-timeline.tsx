@@ -5,7 +5,10 @@ import { formatDate } from "@/lib/utils";
 import { RequestAction } from "@/types/interfaces.industry_requests";
 import { Calendar, Clock, Logs } from "lucide-react";
 import ActionTimelineDetailDialog from "./action-timeline-detail-dialog";
-import { actionIcons, actionStyles } from "./utils.actions";
+import {
+  actionIcons,
+  actionStyles,
+} from "../../../../lib/utils.industry_request-actions";
 
 type Props = {
   actions: RequestAction[];

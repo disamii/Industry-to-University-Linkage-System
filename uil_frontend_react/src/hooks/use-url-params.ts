@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 
-export const useUrlParams = () => {
+export const useUrlParams = <T extends object>() => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   /**
@@ -46,8 +46,21 @@ export const useUrlParams = () => {
   /**
    * Helper to get a single param with a fallback
    */
-  const getParam = (key: string, defaultValue: string = "") => {
-    return searchParams.get(key) || defaultValue;
+  const getParam = <K extends keyof T>(key: K, defaultValue: T[K]): T[K] => {
+    const value = searchParams.get(String(key));
+
+    if (value === null) return defaultValue;
+
+    // simple heuristic parsing
+    if (typeof defaultValue === "number") {
+      return Number(value) as T[K];
+    }
+
+    if (typeof defaultValue === "boolean") {
+      return (value === "true") as T[K];
+    }
+
+    return value as T[K];
   };
 
   return {

@@ -1,4 +1,4 @@
-import { IndustryRequestMineParams } from "@/types/interfaces.industry_requests";
+import { IndustryRequestMineParams } from "./industry_requests-mine-list-query";
 
 export const industryRequestKeys = {
   all: () => ["industry_request"] as const,

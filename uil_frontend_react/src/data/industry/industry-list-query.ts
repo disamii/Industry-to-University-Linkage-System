@@ -8,7 +8,7 @@ import { ApiPaginatedResponse } from "@/types/interfaces";
 
 export const getIndustryList = () => {
   return safeApiRequest(
-    api.get<ApiPaginatedResponse<IndustryResponse[]>>(industryUrls.base()),
+    api.get<ApiPaginatedResponse<IndustryResponse>>(industryUrls.base()),
   );
 };
 

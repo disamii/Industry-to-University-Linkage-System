@@ -8,7 +8,7 @@ import { industryKeys } from "./keys";
 
 export const getIndustryRequestsListByIndustryId = (id: string) => {
   return safeApiRequest(
-    api.get<ApiPaginatedResponse<IndustryRequestResponse[]>>(
+    api.get<ApiPaginatedResponse<IndustryRequestResponse>>(
       industryUrls.requests(id),
     ),
   );

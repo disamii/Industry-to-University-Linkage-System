@@ -1,10 +1,10 @@
 import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetIndustryRequestDetail } from "@/data/industry_requests/industry_request-detail-query";
-import ActionTimeline from "@/features/dashboard/industry/action-timeline";
-import IndustryRequestHeader from "@/features/dashboard/industry/industry_request-header";
-import RequestDetailCard from "@/features/dashboard/industry/Industry_request-request-detail-card";
-import OrgUnitCard from "@/features/dashboard/industry/org_unit-card";
+import ActionTimeline from "@/features/dashboard/industry/request-detail/action-timeline";
+import IndustryRequestHeader from "@/features/dashboard/industry/request-detail/industry_request-header";
+import RequestDetailCard from "@/features/dashboard/industry/request-detail/Industry_request-request-detail-card";
+import OrgUnitCard from "@/features/dashboard/industry/request-detail/org_unit-card";
 import { useParams } from "react-router-dom";
 
 const IndustryRequestDetailPage = () => {

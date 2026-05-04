@@ -9,6 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE, SELECT_PAGE_SIZE_OPTIONS } from "@/lib/constants";
+import { PageParams } from "@/types/interfaces";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 
@@ -25,11 +26,11 @@ export const Pagination: React.FC<PaginationProps> = ({
   colCount = 1,
   scrollRef,
 }) => {
-  const { getParam, setParams } = useUrlParams();
+  const { getParam, setParams } = useUrlParams<PageParams>();
 
   // Extract logic with defaults
-  const currentPage = Number(getParam("page", "1"));
-  const itemsPerPage = Number(getParam("page_size", PAGE_SIZE.toString()));
+  const currentPage = getParam("page", 1);
+  const itemsPerPage = getParam("page_size", PAGE_SIZE);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -41,7 +42,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const handleSizeChange = (value: string) => {
     // Update size and reset page to 1 simultaneously
-    setParams({ pageSize: value, page: 1 });
+    setParams({ page_size: value, page: 1 });
   };
 
   // --- Pagination Logic ---
@@ -68,6 +69,10 @@ export const Pagination: React.FC<PaginationProps> = ({
     prevPageRef.current = currentPage;
   }, [currentPage, scrollRef]);
 
+  const normalizedOptions = SELECT_PAGE_SIZE_OPTIONS.includes(itemsPerPage)
+    ? SELECT_PAGE_SIZE_OPTIONS
+    : [...SELECT_PAGE_SIZE_OPTIONS, itemsPerPage];
+
   const Content = (
     <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4 px-4 py-2">
       <div className="flex items-center gap-2">
@@ -80,11 +85,13 @@ export const Pagination: React.FC<PaginationProps> = ({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {SELECT_PAGE_SIZE_OPTIONS.map((count) => (
-              <SelectItem key={count} value={count.toString()}>
-                {count}
-              </SelectItem>
-            ))}
+            {normalizedOptions
+              .sort((a, b) => a - b)
+              .map((count) => (
+                <SelectItem key={count} value={count.toString()}>
+                  {count}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
         <span className="text-muted-foreground text-sm">

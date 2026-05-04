@@ -4,9 +4,11 @@ import { OrgUnitResponse } from "./interfaces.org_units";
 import { RequestingEntity } from "@/lib/enums";
 import { IndustryResponse } from "./interfaces.industry";
 
-export type IndustryRequestMineParams = {
-  page: number;
-  page_size: number;
+export type IndustryRequestMineStats = {
+  total_requests: number;
+  created_requests: number;
+  assigned_requests: number;
+  completed_requests: number;
 };
 
 export type ActionType =

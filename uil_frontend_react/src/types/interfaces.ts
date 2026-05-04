@@ -12,14 +12,15 @@ type Pagination = {
   };
   total: number;
   page_size: number;
-  current_size: number;
+  current_page: number;
   total_pages: number;
 };
 
-export type ApiPaginatedResponse<T, CT = { total: number }> = {
+export type ApiPaginatedResponse<T, CT = { total: number }, S = undefined> = {
   counts?: CT;
   pagination: Pagination;
   results: T[];
+  stats: S;
   // scope?: AcademicScope;
 };
 
@@ -39,4 +40,9 @@ export type BaseTreeNode = {
 export type ITableHead = {
   content: string | number | React.ReactNode;
   className?: string;
+};
+
+export type PageParams = {
+  page: number;
+  page_size: number;
 };

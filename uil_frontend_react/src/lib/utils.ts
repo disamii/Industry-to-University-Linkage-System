@@ -116,3 +116,12 @@ export const getAcademicUnitAbbr = (name: string, abbr?: string | null) => {
     .join("")
     .toUpperCase();
 };
+
+export const statCardColors: Record<string, string> = {
+  success: "bg-emerald-100 text-emerald-700",
+  warning: "bg-amber-100 text-amber-700",
+  info: "bg-sky-100 text-sky-700",
+  danger: "bg-rose-100 text-rose-700",
+  primary: "bg-violet-100 text-violet-700",
+  secondary: "bg-slate-100 text-slate-700",
+} as const;

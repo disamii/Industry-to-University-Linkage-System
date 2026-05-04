@@ -11,17 +11,24 @@ import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE } from "@/lib/constants";
 import { cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
-import { IndustryRequestMineResponse } from "@/types/interfaces.industry_requests";
+import {
+  IndustryRequestMineResponse,
+  IndustryRequestMineStats,
+} from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
 import IndustryRequestActions from "./indutry_request-actions";
-import { actionIcons, actionStyles } from "./utils.actions";
+import {
+  actionIcons,
+  actionStyles,
+} from "../../../lib/utils.industry_request-actions";
+import { IndustryRequestMineParams } from "@/data/industry_requests/industry_requests-mine-list-query";
 
 type RowProps = { item: IndustryRequestMineResponse; index: number };
 
 const IndustryRequestTableRow = ({ item, index }: RowProps) => {
-  const { getParam } = useUrlParams();
+  const { getParam } = useUrlParams<IndustryRequestMineParams>();
 
-  const currentPage = Number(getParam("page", "1"));
+  const currentPage = getParam("page", 1);
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
 
   const ActionIcon = actionIcons[item.latest_action];
@@ -91,7 +98,11 @@ const IndustryRequestTableRow = ({ item, index }: RowProps) => {
 };
 
 type TableProps = {
-  data: ApiPaginatedResponse<IndustryRequestMineResponse>;
+  data: ApiPaginatedResponse<
+    IndustryRequestMineResponse,
+    undefined,
+    IndustryRequestMineStats
+  >;
 };
 
 const IndustryRequestsTable = ({ data }: TableProps) => {

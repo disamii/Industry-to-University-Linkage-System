@@ -7,7 +7,10 @@ import {
 import { cn, formatDate } from "@/lib/utils";
 import { RequestAction } from "@/types/interfaces.industry_requests";
 import { Building2, Calendar, LucideIcon, MapPin, User } from "lucide-react";
-import { actionIcons, actionStyles } from "./utils.actions";
+import {
+  actionIcons,
+  actionStyles,
+} from "../../../../lib/utils.industry_request-actions";
 
 type DetailBoxProps = {
   Icon: LucideIcon;

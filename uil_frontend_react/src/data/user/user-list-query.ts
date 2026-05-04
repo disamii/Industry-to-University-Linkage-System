@@ -7,7 +7,7 @@ import { UserProfile } from "@/types/interfaces.user";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 
 export const getUsers = () =>
-  safeApiRequest(api.get<ApiPaginatedResponse<UserProfile[]>>(userUrls.base()));
+  safeApiRequest(api.get<ApiPaginatedResponse<UserProfile>>(userUrls.base()));
 
 export const useGetUsers = () => {
   return useQuery({

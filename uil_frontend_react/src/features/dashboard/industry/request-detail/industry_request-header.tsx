@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import IndustryRequestActions from "@/features/dashboard/industry/indutry_request-actions";
-import { actionStyles } from "@/features/dashboard/industry/utils.actions";
+import { actionStyles } from "@/lib/utils.industry_request-actions";
 import { cn, formatDate } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import { Building2, Calendar } from "lucide-react";
