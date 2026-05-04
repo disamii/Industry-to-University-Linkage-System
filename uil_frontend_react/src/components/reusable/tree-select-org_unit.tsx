@@ -4,29 +4,48 @@ import { UseChildrenHook } from "@/components/reusable/tree-view";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useGetOrgUnitDirectChildrenList } from "@/data/org_unit/org_units-direct-children-list-query";
 import { useOrgUnitTree } from "@/data/org_unit/use-org-unit-tree";
+import { useUrlParams } from "@/hooks/use-url-params";
 import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import {
   IndustryRequestCreateInput,
   IndustryRequestUpdateInput,
 } from "@/validation/validation.industry_requests";
-import { UseFormReturn, useWatch } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import TreeItem from "./tree-item";
+import { cn } from "@/lib/utils";
 
 type Props = {
-  form: UseFormReturn<IndustryRequestCreateInput | IndustryRequestUpdateInput>;
+  form?: UseFormReturn<IndustryRequestCreateInput | IndustryRequestUpdateInput>;
+  variant?: "form" | "filter";
 };
 
-const FormTreeSelectOrgUnit = ({ form }: Props) => {
+const TreeSelectOrgUnit = ({ form, variant = "form" }: Props) => {
+  const isForm = form && variant === "form";
+  const { getParam, setParams, removeParams } = useUrlParams<{
+    academic_unit?: number;
+  }>({ academic_unit: undefined });
+
   const onSelect = (id: number) => {
-    form.setValue("academic_unit", id, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    if (isForm) {
+      form?.setValue("academic_unit", id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      return;
+    } else {
+      if (id !== -1) {
+        setParams({ academic_unit: id });
+        return;
+      }
+
+      removeParams(["academic_unit"]);
+    }
   };
-  const selectedAcademicUnit = useWatch({
-    control: form.control,
-    name: "academic_unit",
-  });
+
+  const selectedAcademicUnit = isForm
+    ? form.watch("academic_unit")
+    : getParam("academic_unit");
 
   const {
     searchQuery,
@@ -39,6 +58,11 @@ const FormTreeSelectOrgUnit = ({ form }: Props) => {
     selectedNode,
     handleSelect,
   } = useOrgUnitTree(onSelect, selectedAcademicUnit);
+  const formattedResults = results
+    ? !isForm
+      ? [{ name: "All Units", id: -1 } as OrgUnitResponse, ...results]
+      : results
+    : [];
 
   const useOrgUnitChildren: UseChildrenHook<OrgUnitResponse> = (
     node,
@@ -48,11 +72,13 @@ const FormTreeSelectOrgUnit = ({ form }: Props) => {
   };
 
   return (
-    <Field>
-      <FieldLabel htmlFor="academic_unit" className="capitalize">
-        Academic Unit
-        <Asterisk />
-      </FieldLabel>
+    <Field className={cn(!isForm && "max-w-40")}>
+      {isForm && (
+        <FieldLabel htmlFor="academic_unit" className="capitalize">
+          Academic Unit
+          <Asterisk />
+        </FieldLabel>
+      )}
 
       <TreeSelect
         selectedId={selectedAcademicUnit}
@@ -66,7 +92,7 @@ const FormTreeSelectOrgUnit = ({ form }: Props) => {
         getHasChildren={(node) => node.total_subnodes > 0}
         getKey={(node) => node.id}
         isLoading={isLoading}
-        results={results}
+        results={formattedResults}
         isSearching={isSearching}
         renderItem={(node) => (
           <TreeItem onSelect={handleSelect} node={node}>
@@ -85,13 +111,14 @@ const FormTreeSelectOrgUnit = ({ form }: Props) => {
         open={open}
         setOpen={setOpen}
         useChildren={useOrgUnitChildren}
+        isForm={isForm}
       />
 
-      {form.formState.errors.academic_unit && (
-        <FieldError errors={[form.formState.errors.academic_unit]} />
+      {form?.formState.errors.academic_unit && (
+        <FieldError errors={[form?.formState.errors.academic_unit]} />
       )}
     </Field>
   );
 };
 
-export default FormTreeSelectOrgUnit;
+export default TreeSelectOrgUnit;

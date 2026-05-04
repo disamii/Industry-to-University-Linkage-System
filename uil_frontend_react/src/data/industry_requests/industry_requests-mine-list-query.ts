@@ -1,6 +1,7 @@
-import { useUrlParams } from "@/hooks/use-url-params";
+import { useIndustryRequestParams } from "@/features/dashboard/industry/request-table/use-industry_request-params";
+import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
-import { ApiPaginatedResponse, PageParams } from "@/types/interfaces";
+import { ApiPaginatedResponse } from "@/types/interfaces";
 import {
   IndustryRequestMineResponse,
   IndustryRequestMineStats,
@@ -8,14 +9,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
-import { PAGE_SIZE } from "@/lib/constants";
-import { useEffect, useMemo } from "react";
-import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 
-// Params
-export type IndustryRequestMineParams = PageParams & {};
-
-// Api Call
 export const getIndustryRequestMineList = createGetRequest<
   ApiPaginatedResponse<
     IndustryRequestMineResponse,
@@ -24,22 +18,9 @@ export const getIndustryRequestMineList = createGetRequest<
   >
 >(industryRequestUrls.mine());
 
-// React query hook
 export const useGetIndustryRequestMineList = () => {
   const queryClient = useQueryClient();
-  const { getParam } = useUrlParams<IndustryRequestMineParams>();
-
-  // Pages
-  const page = getParam("page", 1);
-  const page_size = getParam("page_size", PAGE_SIZE);
-
-  const params: IndustryRequestMineParams = useMemo(
-    () => ({
-      page,
-      page_size,
-    }),
-    [page, page_size],
-  );
+  const { params } = useIndustryRequestParams();
 
   const query = useQuery({
     queryKey: industryRequestKeys.mine(params),

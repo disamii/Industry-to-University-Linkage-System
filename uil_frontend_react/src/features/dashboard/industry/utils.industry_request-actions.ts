@@ -1,4 +1,4 @@
-import { ActionType } from "@/types/interfaces.industry_requests";
+import { ActionType } from "@/lib/enums";
 import {
   CheckCircle2,
   CheckSquare,

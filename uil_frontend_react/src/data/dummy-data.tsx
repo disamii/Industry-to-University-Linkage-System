@@ -1,7 +1,5 @@
-import {
-  ActionType,
-  RequestAction,
-} from "@/types/interfaces.industry_requests";
+import { ActionType } from "@/lib/enums";
+import { RequestAction } from "@/types/interfaces.industry_requests";
 
 export const actions: RequestAction[] = [
   {

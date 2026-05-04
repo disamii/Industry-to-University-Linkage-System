@@ -76,6 +76,18 @@ export enum RequestingEntity {
   ACADEMIC_UNIT = "academic_unit",
 }
 
+export enum ActionType {
+  CREATED = "created",
+  ASSIGNED = "assigned",
+  FORWARDED = "forwarded",
+  ACCEPT_FORWARDED = "accept_forwarded",
+  POSTED_AS_THEMATIC = "posted_as_thematic",
+  REPLIED = "replied",
+  REJECTED = "rejected",
+  REASSIGNED = "reassigned",
+  COMPLETED = "completed",
+}
+
 /**
  * Org Units
  */

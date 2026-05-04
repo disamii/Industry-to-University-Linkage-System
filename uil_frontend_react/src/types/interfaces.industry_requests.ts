@@ -1,7 +1,7 @@
 import { IndustryRequestBase } from "@/validation/validation.industry_requests";
 import { Metadata } from "./interfaces";
 import { OrgUnitResponse } from "./interfaces.org_units";
-import { RequestingEntity } from "@/lib/enums";
+import { ActionType, RequestingEntity } from "@/lib/enums";
 import { IndustryResponse } from "./interfaces.industry";
 
 export type IndustryRequestMineStats = {
@@ -10,17 +10,6 @@ export type IndustryRequestMineStats = {
   assigned_requests: number;
   completed_requests: number;
 };
-
-export type ActionType =
-  | "created"
-  | "assigned"
-  | "forwarded"
-  | "accept_forwarded"
-  | "posted_as_thematic"
-  | "replied"
-  | "rejected"
-  | "reassigned"
-  | "completed";
 
 export type RequestAction = Metadata & {
   id: number;

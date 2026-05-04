@@ -125,3 +125,22 @@ export const statCardColors: Record<string, string> = {
   primary: "bg-violet-100 text-violet-700",
   secondary: "bg-slate-100 text-slate-700",
 } as const;
+
+type SortResult<T extends string> = {
+  field: T;
+  dir: "asc" | "desc";
+};
+
+export function parseSort<T extends string>(
+  sort?: T | `-${T}`,
+): SortResult<T> | null {
+  if (!sort) return null;
+
+  const isDesc = sort.startsWith("-");
+  const field = (isDesc ? sort.slice(1) : sort) as T;
+
+  return {
+    field,
+    dir: isDesc ? "desc" : "asc",
+  };
+}

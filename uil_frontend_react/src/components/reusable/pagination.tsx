@@ -9,7 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE, SELECT_PAGE_SIZE_OPTIONS } from "@/lib/constants";
-import { PageParams } from "@/types/interfaces";
+import { PaginationParams } from "@/types/interfaces";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 
@@ -20,17 +20,24 @@ interface PaginationProps {
   scrollRef?: React.RefObject<HTMLDivElement | null>;
 }
 
+export const defaultPaginationParams: PaginationParams = {
+  page: 1,
+  page_size: PAGE_SIZE,
+};
+
 export const Pagination: React.FC<PaginationProps> = ({
   totalItems,
   variant = "default",
   colCount = 1,
   scrollRef,
 }) => {
-  const { getParam, setParams } = useUrlParams<PageParams>();
+  const { getParam, setParams } = useUrlParams<PaginationParams>(
+    defaultPaginationParams,
+  );
 
   // Extract logic with defaults
-  const currentPage = getParam("page", 1);
-  const itemsPerPage = getParam("page_size", PAGE_SIZE);
+  const currentPage = getParam("page");
+  const itemsPerPage = getParam("page_size");
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const totalPages = Math.ceil(totalItems / itemsPerPage);

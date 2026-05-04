@@ -38,6 +38,7 @@ type Props<T> = {
   setOpen: Dispatch<SetStateAction<boolean>>;
 
   useChildren: UseChildrenHook<T>;
+  isForm?: boolean;
 };
 
 export const TreeSelect = <T,>({
@@ -53,6 +54,7 @@ export const TreeSelect = <T,>({
   open,
   setOpen,
   useChildren,
+  isForm,
 }: Props<T>) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,7 +63,10 @@ export const TreeSelect = <T,>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("justify-between py-5 w-full font-normal")}
+          className={cn(
+            "justify-between py-5 w-full font-normal",
+            !isForm && "py-0 max-w-40!",
+          )}
         >
           <>
             {DisplaySelectedItem}

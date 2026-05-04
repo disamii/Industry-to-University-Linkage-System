@@ -1,3 +1,5 @@
+from .models import Request, RequestAction
+from django.db.models import OuterRef, Subquery, Count, Q
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Count, Q
@@ -21,7 +23,8 @@ class IndustryPagination(PageNumberPagination):
 
         if user and user.is_authenticated:
             if user.is_superuser:
-                self.scope = OrganizationalUnit.objects.filter(parent__isnull=True)
+                self.scope = OrganizationalUnit.objects.filter(
+                    parent__isnull=True)
             elif perms:
                 self.scope = get_parent_scope(user, perms)
 
@@ -67,28 +70,10 @@ class IndustryPagination(PageNumberPagination):
 
             "results": data,
         })
-        
-
-
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from django.db.models import OuterRef, Subquery, Count, Q
-from django.utils.timezone import now
-
-from organizational_structure.models import OrganizationalUnit
-from authorization.utilis import get_parent_scope
-from .models import Request, RequestAction
-
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from django.db.models import OuterRef, Subquery, Count, Q
-from django.utils.timezone import now
-
-from .models import Request, RequestAction
 
 
 class RequestForIndustryPagination(PageNumberPagination):
-    page_size = 20
+    page_size = 10
     page_size_query_param = "page_size"
 
     def paginate_queryset(self, queryset, request, view=None):
@@ -154,8 +139,9 @@ class RequestForIndustryPagination(PageNumberPagination):
             "results": data,
         })
 
+
 class RequestPagination(PageNumberPagination):
-    page_size = 20
+    page_size = 10
     page_size_query_param = "page_size"
 
     def paginate_queryset(self, queryset, request, view=None):
@@ -168,7 +154,8 @@ class RequestPagination(PageNumberPagination):
 
         if user and user.is_authenticated:
             if user.is_superuser:
-                self.scope = OrganizationalUnit.objects.filter(parent__isnull=True)
+                self.scope = OrganizationalUnit.objects.filter(
+                    parent__isnull=True)
             elif perms:
                 self.scope = get_parent_scope(user, perms)
 
@@ -186,6 +173,7 @@ class RequestPagination(PageNumberPagination):
         )
 
         return super().paginate_queryset(queryset, request, view)
+
     def get_paginated_response(self, data):
         current_year = now().year
 

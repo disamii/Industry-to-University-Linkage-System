@@ -1,8 +1,9 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetIndustryRequestMineList } from "@/data/industry_requests/industry_requests-mine-list-query";
-import IndustryRequestsStat from "@/features/dashboard/industry/industry_requests-stat";
-import IndustryRequestsTable from "@/features/dashboard/industry/industry_requests-table";
+import IndustryRequestsStat from "@/features/dashboard/industry/request-table/industry_requests-stat";
+import IndustryRequestsTable from "@/features/dashboard/industry/request-table/industry_requests-table";
+import IndustryRequestsTableOperations from "@/features/dashboard/industry/request-table/industry_requests-table-operations";
 
 const IndustryRequestsPage = () => {
   const query = useGetIndustryRequestMineList();
@@ -15,16 +16,12 @@ const IndustryRequestsPage = () => {
         hasBackBtn={false}
       />
 
-      {/* <UserTableOperations /> */}
-
-      <QueryState
-        query={query}
-        checkEmpty={(data) => data.results.length === 0}
-      >
+      <QueryState query={query} checkEmpty={(data) => !data}>
         {(data) => {
           return (
             <div className="space-y-6">
               <IndustryRequestsStat stats={data.stats} />
+              <IndustryRequestsTableOperations />
               <IndustryRequestsTable data={data} />
             </div>
           );

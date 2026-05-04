@@ -42,7 +42,9 @@ export type ITableHead = {
   className?: string;
 };
 
-export type PageParams = {
+export type PaginationParams = {
   page: number;
   page_size: number;
 };
+
+export type Sortable<T extends string> = T | `-${T}`;

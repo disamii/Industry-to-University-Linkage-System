@@ -4,7 +4,7 @@ import {
   FormTextArea,
   FormUploadFile,
 } from "@/components/reusable/form-components";
-import FormTreeSelectOrgUnit from "@/components/reusable/form-tree-select-org_unit";
+import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry_request-create-mutation";
@@ -119,7 +119,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         required={true}
       />
 
-      <FormTreeSelectOrgUnit form={form} />
+      <TreeSelectOrgUnit form={form} />
 
       <FormSelect
         form={form}

@@ -25,7 +25,7 @@ function EmptyState({ resourceName, colCount }: EmptyProps) {
   // When not inside a table (no colCount provided)
   return (
     <div className="flex justify-center items-center bg-destructive/30 p-4 rounded-md font-medium text-destructive text-xl">
-      No {resourceName} could be found 🧐
+      No {resourceName || "data"} could be found 🧐
     </div>
   );
 }

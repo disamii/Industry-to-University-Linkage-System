@@ -16,19 +16,21 @@ import {
   IndustryRequestMineStats,
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
-import IndustryRequestActions from "./indutry_request-actions";
+import IndustryRequestActions from "../indutry_request-actions";
+import { actionIcons, actionStyles } from "../utils.industry_request-actions";
 import {
-  actionIcons,
-  actionStyles,
-} from "../../../lib/utils.industry_request-actions";
-import { IndustryRequestMineParams } from "@/data/industry_requests/industry_requests-mine-list-query";
+  defaultIndustryRequestParams,
+  IndustryRequestParams,
+} from "./use-industry_request-params";
 
 type RowProps = { item: IndustryRequestMineResponse; index: number };
 
 const IndustryRequestTableRow = ({ item, index }: RowProps) => {
-  const { getParam } = useUrlParams<IndustryRequestMineParams>();
+  const { getParam } = useUrlParams<IndustryRequestParams>(
+    defaultIndustryRequestParams,
+  );
 
-  const currentPage = getParam("page", 1);
+  const currentPage = getParam("page");
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
 
   const ActionIcon = actionIcons[item.latest_action];
