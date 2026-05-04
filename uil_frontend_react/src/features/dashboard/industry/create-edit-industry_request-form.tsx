@@ -71,6 +71,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
     createMutation(data as IndustryRequestCreateInput, {
       onSuccess: () => {
         form.reset();
+        navigate("/dashboard/industry/requests");
       },
     });
   };

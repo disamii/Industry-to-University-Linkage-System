@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { format, formatDistanceToNow, isValid, parseISO } from "date-fns";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { twMerge } from "tailwind-merge";
 import { UserRole } from "./enums";
-import { ActionType } from "@/types/interfaces.industry_requests";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
@@ -116,16 +115,4 @@ export const getAcademicUnitAbbr = (name: string, abbr?: string | null) => {
     .map((w) => w[0])
     .join("")
     .toUpperCase();
-};
-
-export const actionStyles: Record<ActionType, string> = {
-  created: "bg-gray-100 text-gray-700",
-  assigned: "bg-blue-100 text-blue-700",
-  forwarded: "bg-indigo-100 text-indigo-700",
-  accept_forwarded: "bg-cyan-100 text-cyan-700",
-  posted_as_thematic: "bg-purple-100 text-purple-700",
-  replied: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-red-100 text-red-700",
-  reassigned: "bg-yellow-100 text-yellow-800",
-  completed: "bg-green-100 text-green-700",
 };

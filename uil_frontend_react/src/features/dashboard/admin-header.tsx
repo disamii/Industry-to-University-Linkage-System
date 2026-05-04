@@ -7,7 +7,7 @@ function AdminHeader() {
   const { showSidebar } = useSidebar();
 
   return (
-    <header className="top-0 sticky bg-white shadow-xs w-full">
+    <header className="top-0 z-40 sticky bg-white shadow-xs w-full">
       <nav
         className={`${showSidebar ? "ml-72 pl-4 pr-12" : "ml-20 px-6"} flex items-center justify-between p-6 py-4`}
       >

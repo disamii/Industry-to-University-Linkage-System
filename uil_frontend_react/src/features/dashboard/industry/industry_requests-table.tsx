@@ -1,41 +1,30 @@
-import ConfirmDelete from "@/components/reusable/confirm-delete-dialog";
 import { Pagination } from "@/components/reusable/pagination";
 import Table from "@/components/reusable/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry_request-delete-mutation";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE } from "@/lib/constants";
-import { actionStyles, cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
+import { cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { IndustryRequestMineResponse } from "@/types/interfaces.industry_requests";
-import { Eye, MoreVertical, Pencil, Trash } from "lucide-react";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
+import IndustryRequestActions from "./indutry_request-actions";
+import { actionIcons, actionStyles } from "./utils.actions";
 
 type RowProps = { item: IndustryRequestMineResponse; index: number };
 
 const IndustryRequestTableRow = ({ item, index }: RowProps) => {
-  const { mutate: deleteRequest, isPending: isDeleting } =
-    useIndustryRequestDeleteMutation();
-  const [DeleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
   const { getParam } = useUrlParams();
-  const navigate = useNavigate();
 
   const currentPage = Number(getParam("page", "1"));
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
+
+  const ActionIcon = actionIcons[item.latest_action];
 
   return (
     <TableRow>
@@ -82,7 +71,10 @@ const IndustryRequestTableRow = ({ item, index }: RowProps) => {
         </div>
       </TableCell>
       <TableCell>
-        <Badge className={cn(actionStyles[item.latest_action], "capitalize")}>
+        <Badge
+          className={cn(actionStyles[item.latest_action], "capitalize gap-1.5")}
+        >
+          <ActionIcon className="w-3 h-3" />
           {item.latest_action}
         </Badge>
       </TableCell>
@@ -92,43 +84,7 @@ const IndustryRequestTableRow = ({ item, index }: RowProps) => {
         </p>
       </TableCell>
       <TableCell className="text-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="hover:bg-muted p-2 rounded-md transition-colors">
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => navigate(`${item.id}`)}>
-              <Eye className="mr-2 w-4 h-4" />
-              View details
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onClick={() => navigate(`${item.id}/edit`)}>
-              <Pencil className="mr-2 w-4 h-4" />
-              Edit
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={() => setDeleteDialogOpen(true)}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash className="mr-2 w-4 h-4" />
-              Remove
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <ConfirmDelete
-          resourceName="Industry Request"
-          item={{ label: item.title, sublabel: item.description }}
-          isDeleting={isDeleting}
-          onDelete={deleteRequest}
-          targets={item.id}
-          open={DeleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-        />
+        <IndustryRequestActions {...item} />
       </TableCell>
     </TableRow>
   );

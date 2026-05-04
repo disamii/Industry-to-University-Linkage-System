@@ -1,4 +1,4 @@
-import { FileSearch } from "lucide-react";
+import BackButton from "@/components/reusable/back-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,11 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
 import { useNavigateHome } from "@/hooks/use-navigate-home";
+import { FileSearch } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function NotFoundPage() {
-  const navigate = useNavigate();
   const to = useNavigateHome();
 
   return (
@@ -39,13 +39,8 @@ export default function NotFoundPage() {
           <Button asChild className="w-full h-10">
             <Link to={to}>Return to Homepage</Link>
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="w-full h-10"
-          >
-            Go Back
-          </Button>
+
+          <BackButton />
         </CardFooter>
       </Card>
     </div>

@@ -20,7 +20,7 @@ export type ActionType =
   | "reassigned"
   | "completed";
 
-type Action = Metadata & {
+export type RequestAction = Metadata & {
   id: number;
   type: ActionType;
   description: string;
@@ -33,8 +33,8 @@ type Action = Metadata & {
   forwarded_from: string | null;
 };
 
-export type IndustryRequestResponse = IndustryRequestBase &
-  Metadata & { id: number };
+export type IndustryRequestResponse = Omit<IndustryRequestBase, "attachment"> &
+  Metadata & { id: number; attachment: string | null };
 
 export type IndustryRequestMineResponse = Omit<
   IndustryRequestResponse,
@@ -50,8 +50,8 @@ export type IndustryRequestDetailResponse = Omit<
   "academic_unit" | "extra_data"
 > & {
   industry: IndustryResponse;
-  detail: Record<string, string>;
-  actions: Action;
+  detail: Record<string, string> | null;
+  actions: RequestAction[];
   requesting_entity: RequestingEntity;
   academic_unit: OrgUnitResponse;
 };
