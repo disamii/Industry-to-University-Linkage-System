@@ -53,10 +53,14 @@ class Request(AuditMixin,models.Model):
         ("lab_access", "Equipment / Lab Access"),
         ("tech_transfer", "IP / Technology Transfer"),
         ("other", "Other"),
+        # 
+        
     ]
     REQUESTING_ENTITY_CHOICES = [
         ("industry", "Industry"),
         ("academic_unit", "Academic Unit"),
+        ("staff", "Staff"),
+        ("Student ", "Student"),
     ]
 
     requesting_entity = models.CharField(
@@ -76,7 +80,13 @@ class Request(AuditMixin,models.Model):
             on_delete=models.CASCADE,
             related_name="requested"
         )
-
+    
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="requests"
+    )
+    
     description = models.TextField()
     attachment = models.FileField(
         upload_to="request_attachments/",

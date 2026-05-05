@@ -1,14 +1,14 @@
 from rest_framework.parsers import FormParser, MultiPartParser
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import NotFound, ValidationError, NotAuthenticated
+from rest_framework.exceptions import  NotFound, ValidationError, NotAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status, mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .models import Industry, Request, Assignment
+from .models import Industry, Request,Assignment
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from organizational_structure.models import OrganizationalUnit
@@ -22,9 +22,8 @@ from .serializers import (
     RequestCreateSerializer,
     AssignmentDetailSerializer,
     AssignmentListSerializer
-)
-from .paginations import IndustryPagination, RequestPagination, RequestForIndustryPagination
-
+    )
+from .paginations import IndustryPagination,RequestPagination,RequestForIndustryPagination
 
 class IndustryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -43,9 +42,9 @@ class IndustryViewSet(viewsets.ModelViewSet):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = INDUSTRY_REQUIRED_PERMISSIONS.get(
             self.action, [])
-        if self.action in ["create"]:
+        if self.action in ("create"):
             permission_classes = [AllowAny]
-        elif self.action in ["update", "partial_update", "destroy"]:
+        elif self.action in ("update", "partial_update", "destroy"):
             permission_classes = [IsAuthenticated,
                                   IsOwnerOrHasRequiredPermissions]
         else:
@@ -69,30 +68,26 @@ class RequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    filterset_fields = ['type', 'actions__type',
-                        'requesting_entity', 'academic_unit', 'industry']
-    ordering_fields = ['created_at', 'updated_at',
-                       'title', 'industry__name', 'requesting_entity']
-    search_fields = ['industry__name', 'title']
+    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
+    ordering_fields = ['created_at','updated_at','title', 'industry__name', 'requesting_entity']
+    search_fields = ['industry__name']
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = RequestForIndustryPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    queryset = Request.objects.select_related(
-        "academic_unit").prefetch_related("actions")
-
+    queryset = Request.objects.select_related("academic_unit").prefetch_related("actions")
+    
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("update", "partial_update", "destroy", "create", 'retrieve'):
-            permission_classes = [IsAuthenticated,
-                                  IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action in ["create", "partial_update", "patch"]:
+        if self.action in ["create","partial_update","patch"]:
             return RequestCreateSerializer
         elif self.action == "retrieve":
             return RequestDetailSerializer
@@ -126,9 +121,9 @@ class RequestManageViewSet(
         mixins.RetrieveModelMixin,
         mixins.DestroyModelMixin,
         viewsets.GenericViewSet):
-    filterset_fields = ['type', 'actions__type', 'academic_unit', 'industry']
+    filterset_fields = ['type', 'actions__type']
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
-    search_fields = ['industry__name', 'title']
+    search_fields = ['industry__name']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     queryset = Request.objects.all().order_by('created_at')
     pagination_class = RequestPagination
@@ -138,8 +133,7 @@ class RequestManageViewSet(
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("destroy",  'retrieve'):
-            permission_classes = [IsAuthenticated,
-                                  IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated, IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
@@ -164,29 +158,26 @@ class RequestManageViewSet(
                 "Authentication credentials were not provided")
 
         scope = get_scope(user, self.required_permissions)
-        scope_qs = scope
+        parent_unit_id = self.request.query_params.get("academic_unit_scope")
+        if parent_unit_id:
+            try:
+                parent_unit = OrganizationalUnit.objects.get(
+                    id=int(parent_unit_id))
+            except OrganizationalUnit.DoesNotExist:
+                return Request.objects.none()
+            if not parent_unit in scope:
+                return Request.objects.none()
+            self.request.parent_scope = parent_unit
 
-        # parent_unit_id = self.request.query_params.get("academic_unit_scope")
-        # if parent_unit_id:
-        #     try:
-        #         parent_unit = OrganizationalUnit.objects.get(
-        #             id=int(parent_unit_id))
-        #     except OrganizationalUnit.DoesNotExist:
-        #         return Request.objects.none()
-        #     if not parent_unit in scope:
-        #         return Request.objects.none()
-        #     self.request.parent_scope = parent_unit
-
-        #     filter_scope = [parent_unit.id] + \
-        #         [u.id for u in parent_unit.get_all_descendants()]
-        #     scope_qs = OrganizationalUnit.objects.filter(id__in=filter_scope)
-        # else:
-        #     scope_qs = scope
+            filter_scope = [parent_unit.id] + \
+                [u.id for u in parent_unit.get_all_descendants()]
+            scope_qs = OrganizationalUnit.objects.filter(id__in=filter_scope)
+        else:
+            scope_qs = scope
 
         queryset = Request.objects.filter(
             academic_unit__in=scope_qs
         ).order_by('-created_at')
-        print(queryset.count())
         return queryset
 
     @action(detail=True, methods=["post"], url_path="actions")
@@ -252,7 +243,6 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     # -----------------------------
     # SERIALIZER SWITCH
     # -----------------------------
-
     def get_serializer_class(self):
         if self.action == "list":
             return AssignmentListSerializer

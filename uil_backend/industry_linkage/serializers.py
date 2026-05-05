@@ -209,22 +209,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         "You are not allowed for this industry"
                     )
-                request = Request.objects.create(
-                    created_by_id=user.id,
-                    industry=industry,
-                    requesting_entity="industry",
-                    **validated_data
-                )
 
-                RequestAction.objects.create(
-                    request=request,
-                    type="created",
-                    description="Request created",
-                    from_industry=industry,
-                    created_by_id=user.id,
-                    updated_by_id=user.id,
-
-                )
             elif requesting_entity == "academic_unit":
                 if not academic_unit_id:
                     raise serializers.ValidationError(
@@ -240,25 +225,25 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         "Not allowed for this academic unit")
 
-                request = Request.objects.create(
+            else:
+                raise serializers.ValidationError("Invalid requesting_entity")
+            
+            request = Request.objects.create(
                     created_by_id=user.id,
-                    academic_unit_id=academic_unit_id,
-                    requesting_entity="academic_unit",
+                    requested_by=user,
+                    industry=industry,
+                    requesting_entity="industry",
                     **validated_data
                 )
 
-                RequestAction.objects.create(
+            RequestAction.objects.create(
                     request=request,
                     type="created",
                     description="Request created",
-                    from_unit_id=academic_unit_id,
                     created_by_id=user.id,
                     updated_by_id=user.id,
+
                 )
-
-            else:
-                raise serializers.ValidationError("Invalid requesting_entity")
-
         return request
 
 
@@ -267,7 +252,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     industry = IndustrySerializer(read_only=True)
     supported_actions = serializers.SerializerMethodField()
-
+    requested_by=UserSerializer(read_only=True)
     class Meta:
         model = Request
         fields = [
@@ -278,6 +263,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "requesting_entity",
             'actions',
             'academic_unit',
+            'requested_by',
             "description",
             "attachment",
             "created_at",
@@ -292,6 +278,7 @@ class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     latest_action = serializers.SerializerMethodField()
     industry = IndustrySerializer(read_only=True)
+    requested_by=UserSerializer(read_only=True)
 
     class Meta:
         model = Request
@@ -301,6 +288,7 @@ class RequestSerializer(serializers.ModelSerializer):
             "title",
             "industry",
             "academic_unit",
+            "requested_by",
             "latest_action",
             "description",
             "attachment",
