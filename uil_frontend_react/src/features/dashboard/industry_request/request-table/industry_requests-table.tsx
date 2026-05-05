@@ -73,7 +73,9 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
       <TableCell>
         <div className="flex flex-col">
           {/* Primary */}
-          <p className="font-medium">{item.academic_unit.name}</p>
+          <p className="max-w-50 font-medium text-xs truncate">
+            {item.academic_unit.name}
+          </p>
 
           <Popover>
             <PopoverTrigger asChild>

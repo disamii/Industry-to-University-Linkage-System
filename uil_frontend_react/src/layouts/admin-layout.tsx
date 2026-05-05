@@ -16,7 +16,7 @@ export default function AdminLayout({ children }: AppLayoutProps) {
       <AdminHeader />
 
       <main
-        className={`${showSidebar ? "ml-80 py-10 pr-20" : "ml-30 py-10"}  flex-1 overflow-y-auto max-w-7xl px-2`}
+        className={`w-full ${showSidebar ? "pl-80 pr-40 py-10" : "pl-30 pr-15 py-10"}  flex-1 overflow-y-auto px-2 mx-auto`}
       >
         {children}
       </main>
