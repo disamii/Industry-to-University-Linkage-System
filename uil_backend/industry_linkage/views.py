@@ -87,7 +87,7 @@ class RequestViewSet(
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == "create":
+        if self.action in ["create","partial_update","patch"]:
             return RequestCreateSerializer
         elif self.action == "retrieve":
             return RequestDetailSerializer
