@@ -68,11 +68,11 @@ class OrganizationStructureViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user,
-                        updated_by=self.request.user)
+        serializer.save(created_by_id=self.request.user.id,
+                        updated_by_id=self.request.user.id)
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        serializer.save(updated_by_id=self.request.user.id)
 
     @action(detail=False, methods=['get'], url_path='summary-for-universities')
     def summary_for_universities(self, request):

@@ -595,7 +595,6 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
             ).exists()
 
         if exists:
-            # more validation gonna be added here a senario like assinged then cancelled then forwarding 
             raise serializers.ValidationError({
                 "request": "This request is already assigned and cannot be forwarded"
             })
@@ -762,9 +761,10 @@ ACTION_SERIALIZERS = {
             "accept_forwarded": RequestActionGenericSerializer,
             "revoked":RequestActionGenericSerializer,
             "cancelled":RequestActionGenericSerializer,
-            "replied": RequestActionRepliedSerializer,
             "rejected":RequestActionGenericSerializer,
             "completed":RequestActionGenericSerializer,
+            
+            "replied": RequestActionRepliedSerializer,
             "assigned":RequestActionAssignedSerializer,
             "reassigned":RequestActionAssignedSerializer,
             "forwarded": RequestActionForwardedSerializer,
