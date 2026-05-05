@@ -580,12 +580,11 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
             "type",
             "description",
             'to_unit',
-            'from_unit'
         ]
         read_only_fields = ["id"]
 
     def validate(self, attrs):
-        from_unit = attrs.get("from_unit")
+        request_obj = self.context.get("request_obj")
         to_unit = attrs.get("to_unit")
         request_obj = self.context.get("request_obj")
 
@@ -600,17 +599,12 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
                 "request": "This request is already assigned and cannot be forwarded"
             })
 
-        if not from_unit:
-            raise serializers.ValidationError({
-                "from_unit": "This field is required."
-            })
-
         if not to_unit:
             raise serializers.ValidationError({
                 "to_unit": "This field is required."
             })
 
-        if from_unit == to_unit:
+        if request_obj.academic_unit == to_unit:
             raise serializers.ValidationError({
                 "to_unit": "Cannot forward to the same unit."
             })
