@@ -164,26 +164,29 @@ class RequestManageViewSet(
                 "Authentication credentials were not provided")
 
         scope = get_scope(user, self.required_permissions)
-        parent_unit_id = self.request.query_params.get("academic_unit_scope")
-        if parent_unit_id:
-            try:
-                parent_unit = OrganizationalUnit.objects.get(
-                    id=int(parent_unit_id))
-            except OrganizationalUnit.DoesNotExist:
-                return Request.objects.none()
-            if not parent_unit in scope:
-                return Request.objects.none()
-            self.request.parent_scope = parent_unit
+        scope_qs = scope
 
-            filter_scope = [parent_unit.id] + \
-                [u.id for u in parent_unit.get_all_descendants()]
-            scope_qs = OrganizationalUnit.objects.filter(id__in=filter_scope)
-        else:
-            scope_qs = scope
+        # parent_unit_id = self.request.query_params.get("academic_unit_scope")
+        # if parent_unit_id:
+        #     try:
+        #         parent_unit = OrganizationalUnit.objects.get(
+        #             id=int(parent_unit_id))
+        #     except OrganizationalUnit.DoesNotExist:
+        #         return Request.objects.none()
+        #     if not parent_unit in scope:
+        #         return Request.objects.none()
+        #     self.request.parent_scope = parent_unit
+
+        #     filter_scope = [parent_unit.id] + \
+        #         [u.id for u in parent_unit.get_all_descendants()]
+        #     scope_qs = OrganizationalUnit.objects.filter(id__in=filter_scope)
+        # else:
+        #     scope_qs = scope
 
         queryset = Request.objects.filter(
             academic_unit__in=scope_qs
         ).order_by('-created_at')
+        print(queryset.count())
         return queryset
 
     @action(detail=True, methods=["post"], url_path="actions")

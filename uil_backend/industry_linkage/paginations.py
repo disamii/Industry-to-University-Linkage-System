@@ -144,40 +144,20 @@ class RequestPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
 
+
     def paginate_queryset(self, queryset, request, view=None):
         self.base_queryset = queryset
-
         user = getattr(request, "user", None)
         perms = getattr(request, "required_permissions", None)
-
         self.scope = None
-
         if user and user.is_authenticated:
-            if user.is_superuser:
-                self.scope = OrganizationalUnit.objects.filter(
-                    parent__isnull=True)
-            elif perms:
-                self.scope = get_parent_scope(user, perms)
-
-        # APPLY SCOPE
-        if self.scope:
-            queryset = queryset.filter(academic_unit__in=self.scope)
-
-        # annotate latest action
-        latest_action = RequestAction.objects.filter(
-            request=OuterRef("pk")
-        ).order_by("-created_at")
-
-        queryset = queryset.annotate(
-            last_action=Subquery(latest_action.values("type")[:1])
-        )
-
+            self.scope = get_parent_scope(user, perms)
         return super().paginate_queryset(queryset, request, view)
+
 
     def get_paginated_response(self, data):
         current_year = now().year
 
-        # 🔥 USE THE SAME QUERYSET AS PAGINATION RESULT
         qs = self.base_queryset
 
         latest_action = RequestAction.objects.filter(
