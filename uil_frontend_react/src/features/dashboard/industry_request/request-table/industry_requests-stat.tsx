@@ -1,9 +1,9 @@
 import StatCard, { Stat } from "@/components/reusable/stat-card";
-import { IndustryRequestMineStats } from "@/types/interfaces.industry_requests";
+import { IndustryRequestStats } from "@/types/interfaces.industry_requests";
 import { CheckCircle, Inbox, PlusCircle, UserCheck } from "lucide-react";
 
 type Props = {
-  stats: IndustryRequestMineStats;
+  stats: IndustryRequestStats;
 };
 
 const IndustryRequestsStat = ({ stats }: Props) => {

@@ -7,8 +7,8 @@ import {
 import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry_request-create-mutation";
-import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry_request-update-mutation";
+import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry/industry_request-create-mutation";
+import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry/industry_request-update-mutation";
 import { INDUSTRY_REQUEST_FIELDS, IndustryRequestType } from "@/lib/enums";
 import { formatSelectOptions } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";

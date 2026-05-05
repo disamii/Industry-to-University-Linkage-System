@@ -13,7 +13,7 @@ import { cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import {
   IndustryRequestMineResponse,
-  IndustryRequestMineStats,
+  IndustryRequestStats,
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
 import IndustryRequestActions from "../indutry_request-actions";
@@ -103,7 +103,7 @@ type TableProps = {
   data: ApiPaginatedResponse<
     IndustryRequestMineResponse,
     undefined,
-    IndustryRequestMineStats
+    IndustryRequestStats
   >;
 };
 

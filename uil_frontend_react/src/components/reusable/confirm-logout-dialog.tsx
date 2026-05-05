@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 const ConfirmLogoutDialog = ({ open, onOpenChange }: Props) => {
   const navigate = useNavigate();
   const { clearAuth, user } = useAuthStore();
+  const queryClient = useQueryClient();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,6 +41,7 @@ const ConfirmLogoutDialog = ({ open, onOpenChange }: Props) => {
           <Button
             onClick={() => {
               clearAuth();
+              queryClient.clear();
               navigate("/auth");
             }}
           >

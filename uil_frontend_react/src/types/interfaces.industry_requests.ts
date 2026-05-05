@@ -4,7 +4,7 @@ import { OrgUnitResponse } from "./interfaces.org_units";
 import { ActionType, RequestingEntity } from "@/lib/enums";
 import { IndustryResponse } from "./interfaces.industry";
 
-export type IndustryRequestMineStats = {
+export type IndustryRequestStats = {
   total_requests: number;
   created_requests: number;
   assigned_requests: number;
@@ -35,6 +35,8 @@ export type IndustryRequestMineResponse = Omit<
   academic_unit: OrgUnitResponse;
   latest_action: ActionType;
 };
+
+export type IndustryRequestOfficeResponse = IndustryRequestMineResponse & {};
 
 export type IndustryRequestDetailResponse = Omit<
   IndustryRequestResponse,

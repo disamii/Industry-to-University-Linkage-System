@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry_request-delete-mutation";
+import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry/industry_request-delete-mutation";
 import { cn } from "@/lib/utils";
 import {
   ChevronDown,

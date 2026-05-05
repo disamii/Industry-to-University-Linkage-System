@@ -1,7 +1,7 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import CreateEditIndustryRequestsForm from "@/features/dashboard/industry/create-edit-industry_request-form";
 
-const IndustrySubmitRequestPage = () => {
+const IndustryRequestSubmitPage = () => {
   return (
     <div className="space-y-3">
       <DashboardContentHeader
@@ -14,4 +14,4 @@ const IndustrySubmitRequestPage = () => {
   );
 };
 
-export default IndustrySubmitRequestPage;
+export default IndustryRequestSubmitPage;

@@ -1,5 +1,5 @@
 import OfficeDashboard from "@/pages/dashboard/office/office-dashboard";
-import OfficeIndustryRequests from "@/pages/dashboard/office/office-industry_requests";
+import OfficeIndustryRequests from "@/pages/dashboard/office/office-industry_requests-page";
 import { RouteObject } from "react-router-dom";
 
 const base = "dashboard/office";

@@ -1,4 +1,4 @@
-import { IndustryRequestParams } from "@/features/dashboard/industry/request-table/use-industry_request-params";
+import { IndustryRequestParams } from "@/features/dashboard/industry_request/request-table/use-industry_request-params";
 
 export const industryRequestKeys = {
   all: () => ["industry_request"] as const,

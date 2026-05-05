@@ -22,14 +22,16 @@ const ProtectedRoute = () => {
   }
 
   const rolePaths: Record<string, UserRole[]> = {
-    "/dashboard/office": [UserRole.ADMIN, UserRole.SUPER_ADMIN],
+    "/dashboard/office": [UserRole.ADMIN],
     "/dashboard/industry": [UserRole.INDUSTRY],
     "/dashboard/staff": [UserRole.STAFF],
   };
 
   for (const [path, requiredRoles] of Object.entries(rolePaths)) {
     if (pathname.startsWith(path)) {
-      const hasPermission = roles.some((role) => requiredRoles.includes(role));
+      const hasPermission = roles.some(
+        (role) => requiredRoles.includes(role) || role === UserRole.SUPER_ADMIN,
+      );
 
       if (!hasPermission) {
         return (

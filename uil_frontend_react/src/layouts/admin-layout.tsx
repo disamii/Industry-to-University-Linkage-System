@@ -1,6 +1,6 @@
 import { useSidebar } from "@/contexts/sidebar-context";
-import AdminHeader from "@/features/dashboard/admin-header";
-import AdminSidebar from "@/features/dashboard/admin-sidebar";
+import AdminHeader from "@/features/dashboard/layout/admin-header";
+import AdminSidebar from "@/features/dashboard/layout/admin-sidebar";
 import { type ReactNode } from "react";
 
 type AppLayoutProps = {

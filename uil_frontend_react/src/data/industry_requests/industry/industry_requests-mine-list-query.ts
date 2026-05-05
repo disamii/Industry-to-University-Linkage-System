@@ -1,10 +1,10 @@
-import { useIndustryRequestParams } from "@/features/dashboard/industry/request-table/use-industry_request-params";
+import { useIndustryRequestParams } from "@/features/dashboard/industry_request/request-table/use-industry_request-params";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 import {
   IndustryRequestMineResponse,
-  IndustryRequestMineStats,
+  IndustryRequestStats,
 } from "@/types/interfaces.industry_requests";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
@@ -14,7 +14,7 @@ export const getIndustryRequestMineList = createGetRequest<
   ApiPaginatedResponse<
     IndustryRequestMineResponse,
     undefined,
-    IndustryRequestMineStats
+    IndustryRequestStats
   >
 >(industryRequestUrls.mine());
 

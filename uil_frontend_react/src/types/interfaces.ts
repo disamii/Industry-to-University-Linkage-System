@@ -16,12 +16,16 @@ type Pagination = {
   total_pages: number;
 };
 
+type AcademicScope = {
+  academic_units: { id: number; name: string }[];
+};
+
 export type ApiPaginatedResponse<T, CT = { total: number }, S = undefined> = {
   counts?: CT;
   pagination: Pagination;
   results: T[];
   stats: S;
-  // scope?: AcademicScope;
+  scope?: AcademicScope;
 };
 
 export interface Metadata {
