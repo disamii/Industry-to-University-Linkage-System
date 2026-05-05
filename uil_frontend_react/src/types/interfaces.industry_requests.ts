@@ -36,7 +36,12 @@ export type IndustryRequestMineResponse = Omit<
   latest_action: ActionType;
 };
 
-export type IndustryRequestOfficeResponse = IndustryRequestMineResponse & {};
+export type IndustryRequestOfficeResponse = Omit<
+  IndustryRequestMineResponse,
+  "industry"
+> & {
+  industry: IndustryResponse;
+};
 
 export type IndustryRequestDetailResponse = Omit<
   IndustryRequestResponse,

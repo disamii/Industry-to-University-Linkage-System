@@ -10,6 +10,7 @@ export type IndustryRequestParams = PaginationParams & {
   academic_unit?: number;
   actions__type?: ActionType;
   ordering: Sortable<"created_at" | "title">;
+  industry?: number;
 };
 
 export const defaultIndustryRequestParams: IndustryRequestParams = {
@@ -34,6 +35,7 @@ const useIndustryRequestParams = () => {
   const type = getParam("type");
   const academic_unit = getParam("academic_unit");
   const actions__type = getParam("actions__type");
+  const industry = getParam("industry");
 
   const params: IndustryRequestParams = useMemo(
     () => ({
@@ -44,8 +46,18 @@ const useIndustryRequestParams = () => {
       type,
       academic_unit,
       actions__type,
+      industry,
     }),
-    [page, page_size, search, ordering, type, academic_unit, actions__type],
+    [
+      page,
+      page_size,
+      search,
+      ordering,
+      type,
+      academic_unit,
+      actions__type,
+      industry,
+    ],
   );
 
   return { params, setParams, removeParams, clearAllParams };

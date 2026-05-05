@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 export const industryCreate = (data: IndustryCreateInput) => {
   return safeApiRequest(
     api.post<IndustryResponse>(
-      industryUrls.register(),
+      industryUrls.base(),
       industryCreateSchema.parse(data),
     ),
   );

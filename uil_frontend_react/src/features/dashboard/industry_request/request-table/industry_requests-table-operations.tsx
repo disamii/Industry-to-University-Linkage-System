@@ -6,10 +6,17 @@ import {
   useIndustryRequestParams,
 } from "./use-industry_request-params";
 import { Filter } from "lucide-react";
+import { SelectItem } from "@/components/ui/select";
+import { useGetIndustryList } from "@/data/industry/industry-list-query";
 
-const IndustryRequestsTableOperations = () => {
+type Props = {
+  isOffice?: boolean;
+};
+
+const IndustryRequestsTableOperations = ({ isOffice }: Props) => {
   const { params, setParams, removeParams, clearAllParams } =
     useIndustryRequestParams();
+  const query = useGetIndustryList();
 
   return (
     <TableFilters.Root
@@ -28,9 +35,38 @@ const IndustryRequestsTableOperations = () => {
         />
 
         <TableFilters.Box Icon={Filter} name="Filters">
+          {isOffice && (
+            <TableFilters.Select
+              paramKey="industry"
+              placeholder="All Industries"
+              query={query}
+              checkEmpty={(data) => data.results.length === 0}
+              children={({ data, registerLabels }) => {
+                const map: Record<string, string> = {};
+
+                const items = data.results.map((item, idx) => {
+                  map[item.id] = item.name;
+
+                  return (
+                    <SelectItem
+                      key={`${item.id}—${idx}`}
+                      value={item.id.toString()}
+                    >
+                      {item.name}
+                    </SelectItem>
+                  );
+                });
+
+                registerLabels?.("industry", map);
+
+                return items;
+              }}
+            />
+          )}
+
           <TableFilters.Select
             paramKey="type"
-            placeholder="All Types"
+            placeholder="All Industry Types"
             options={Object.values(IndustryRequestType)}
           />
 
@@ -38,19 +74,27 @@ const IndustryRequestsTableOperations = () => {
 
           <TableFilters.Select
             paramKey="actions__type"
-            placeholder="All Action Types"
+            placeholder="All Activities"
             options={Object.values(ActionType)}
           />
         </TableFilters.Box>
       </TableFilters.Group>
 
-      <TableFilters.Search />
+      <TableFilters.Search
+        placeholder={
+          isOffice
+            ? "Search by industry or request title…"
+            : "Search by request title..."
+        }
+      />
 
       <TableFilters.ActiveFilters
         labels={{
+          page_size: "Items Per Page",
           type: "Type",
           actions__type: "Action Type",
           academic_unit: "Academic Unit",
+          industry: "Industry",
         }}
         defaults={defaultIndustryRequestParams}
       />

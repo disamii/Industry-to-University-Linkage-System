@@ -145,4 +145,7 @@
   html {
     @apply font-sans;
   }
+  [data-slot="select-value"] {
+    text-transform: capitalize !important;
+  }
 }

@@ -13,6 +13,7 @@ import { cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import {
   IndustryRequestMineResponse,
+  IndustryRequestOfficeResponse,
   IndustryRequestStats,
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
@@ -23,9 +24,13 @@ import {
   IndustryRequestParams,
 } from "./use-industry_request-params";
 
-type RowProps = { item: IndustryRequestMineResponse; index: number };
+type RowProps = {
+  item: IndustryRequestMineResponse | IndustryRequestOfficeResponse;
+  index: number;
+  isOffice?: boolean;
+};
 
-const IndustryRequestTableRow = ({ item, index }: RowProps) => {
+const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
   const { getParam } = useUrlParams<IndustryRequestParams>(
     defaultIndustryRequestParams,
   );
@@ -38,8 +43,17 @@ const IndustryRequestTableRow = ({ item, index }: RowProps) => {
   return (
     <TableRow>
       <TableCell>{currentIndex + index + 1}</TableCell>
+      {isOffice && (
+        <TableCell>
+          <h4 className="font-bold">
+            {(item as IndustryRequestOfficeResponse).industry.name}
+          </h4>
+        </TableCell>
+      )}
       <TableCell>
-        <h4 className="font-semibold">{item.title}</h4>
+        <h4 className={cn(isOffice ? "font-medium" : "font-semibold")}>
+          {item.title}
+        </h4>
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className="capitalize">
@@ -93,7 +107,7 @@ const IndustryRequestTableRow = ({ item, index }: RowProps) => {
         </p>
       </TableCell>
       <TableCell className="text-center">
-        <IndustryRequestActions {...item} />
+        <IndustryRequestActions {...item} isOffice={isOffice} />
       </TableCell>
     </TableRow>
   );
@@ -101,13 +115,14 @@ const IndustryRequestTableRow = ({ item, index }: RowProps) => {
 
 type TableProps = {
   data: ApiPaginatedResponse<
-    IndustryRequestMineResponse,
+    IndustryRequestMineResponse | IndustryRequestOfficeResponse,
     undefined,
     IndustryRequestStats
   >;
+  isOffice?: boolean;
 };
 
-const IndustryRequestsTable = ({ data }: TableProps) => {
+const IndustryRequestsTable = ({ data, isOffice }: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +137,7 @@ const IndustryRequestsTable = ({ data }: TableProps) => {
     //   ),
     // },
     { content: "#", className: "py-3" },
+    ...(isOffice ? [{ content: "Industry" }] : []),
     { content: "Title" },
     { content: "Type" },
     { content: "Description" },
@@ -129,7 +145,7 @@ const IndustryRequestsTable = ({ data }: TableProps) => {
     { content: "Latest Activity" },
     { content: "Submitted At" },
     { content: "Actions", className: "text-center" },
-  ];
+  ].filter(Boolean);
 
   return (
     <Table topCardRef={topCardRef}>
@@ -142,6 +158,7 @@ const IndustryRequestsTable = ({ data }: TableProps) => {
             key={`${item.id}—${idx}`}
             item={item}
             index={idx}
+            isOffice={isOffice}
           />
         )}
       />

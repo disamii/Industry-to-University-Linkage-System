@@ -468,6 +468,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
 class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     latest_action = serializers.SerializerMethodField()
+    industry = IndustrySerializer(read_only=True)
 
     class Meta:
         model = Request

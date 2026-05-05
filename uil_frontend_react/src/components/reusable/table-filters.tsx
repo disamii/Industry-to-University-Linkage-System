@@ -1,12 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useRef } from "react";
 import { Card } from "../ui/card";
+
+import { parseSort } from "@/lib/utils";
+import { ArrowUpDown, ListFilter, LucideIcon, XIcon } from "lucide-react";
+import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+import { useDebounce } from "@/hooks/use-debounce";
+import { UseQueryResult } from "@tanstack/react-query";
+import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
+import { QueryState } from "./query-state-ui";
 
 type FiltersContextType = {
   params: Record<string, any>;
   setParams: (p: Record<string, any>) => void;
   removeParams: (keys: any[]) => void;
   clearAllParams: () => void;
+
+  registerLabels?: (key: string, map: Record<string, string>) => void;
+  getLabel?: (key: string, value: any) => string;
+  getLabelMap?: (key: string) => Record<string, string>;
 };
 
 const FiltersContext = createContext<FiltersContextType | null>(null);
@@ -22,9 +44,24 @@ type RootProps = FiltersContextType & {
 };
 
 const Root = ({ children, ...ctx }: RootProps) => {
+  const labelMapsRef = useRef<Record<string, Record<string, string>>>({});
+
+  const registerLabels = (key: string, map: Record<string, string>) => {
+    labelMapsRef.current[key] = map;
+  };
+
+  const getLabel = (key: string, value: any) =>
+    labelMapsRef.current[key]?.[value] ?? value;
+
+  const getLabelMap = (key: string) => {
+    return labelMapsRef.current[key] ?? {};
+  };
+
   return (
-    <FiltersContext.Provider value={ctx}>
-      <div className="justify-start items-center gap-5 grid grid-cols-[1fr_auto]">
+    <FiltersContext.Provider
+      value={{ ...ctx, registerLabels, getLabel, getLabelMap }}
+    >
+      <div className="justify-start items-end gap-5 grid grid-cols-[1fr_auto]">
         {children}
       </div>
     </FiltersContext.Provider>
@@ -32,7 +69,7 @@ const Root = ({ children, ...ctx }: RootProps) => {
 };
 
 const Group = ({ children }: { children: ReactNode }) => (
-  <div className="flex items-stretch gap-4">{children}</div>
+  <div className="flex flex-wrap gap-4">{children}</div>
 );
 
 const Box = ({
@@ -53,17 +90,6 @@ const Box = ({
     {children}
   </Card>
 );
-
-import { parseSort } from "@/lib/utils";
-import { ArrowUpDown, ListFilter, LucideIcon, XIcon } from "lucide-react";
-import { Button } from "../ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
 type SortOption<T extends string> = {
   label: string;
@@ -130,51 +156,97 @@ const Sort = <T extends string>({
   );
 };
 
-type SelectFilterProps = {
+type SelectFilterProps<T> = {
   paramKey: string;
   placeholder: string;
-  options: string[];
+  options?: string[];
+
+  // When passing query
+  query?: UseQueryResult<T, Error>;
+  children?: ({
+    data,
+    registerLabels,
+  }: {
+    data: T;
+    registerLabels?: (key: string, map: Record<string, string>) => void;
+  }) => ReactNode;
+  checkEmpty?: (data: T) => boolean;
 };
 
-const SelectFilter = ({
+const SelectFilter = <T,>({
   paramKey,
   placeholder,
   options,
-}: SelectFilterProps) => {
-  const { params, setParams, removeParams } = useFilters();
+  query,
+  children,
+  checkEmpty,
+}: SelectFilterProps<T>) => {
+  const { params, setParams, removeParams, registerLabels, getLabelMap } =
+    useFilters();
+
+  const onValueChange = (value: string) => {
+    if (value === "all") {
+      removeParams([paramKey]);
+      return;
+    }
+
+    setParams({ [paramKey]: value });
+  };
+
+  useEffect(() => {
+    if (!options) return;
+
+    const existingMap = getLabelMap?.(paramKey);
+
+    if (!existingMap) return;
+
+    const newEntries: Record<string, string> = {};
+
+    for (const opt of options) {
+      if (!(opt in existingMap)) {
+        newEntries[opt] = opt.replaceAll("_", " ");
+      }
+    }
+
+    // ✅ only update if something new exists
+    if (Object.keys(newEntries).length > 0) {
+      registerLabels?.(paramKey, newEntries);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options, paramKey]);
 
   return (
-    <Select
-      value={params[paramKey] ?? "all"}
-      onValueChange={(value) =>
-        value !== "all"
-          ? setParams({ [paramKey]: value })
-          : removeParams([paramKey])
-      }
-    >
+    <Select value={params[paramKey] ?? "all"} onValueChange={onValueChange}>
       <SelectTrigger className="w-40 h-7">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
 
-      <SelectContent>
+      <SelectContent className="*:capitalize!">
         <SelectItem value="all">{placeholder}</SelectItem>
 
-        {options.map((opt) => (
-          <SelectItem key={opt} value={opt}>
-            {opt.replaceAll("_", " ")}
-          </SelectItem>
-        ))}
+        {!query &&
+          options &&
+          options.map((opt, idx) => (
+            <SelectItem key={`${opt}—${idx}`} value={opt}>
+              {opt.replaceAll("_", " ")}
+            </SelectItem>
+          ))}
+
+        {query && checkEmpty && children && (
+          <QueryState query={query} checkEmpty={checkEmpty}>
+            {(data) => children({ data, registerLabels })}
+          </QueryState>
+        )}
       </SelectContent>
     </Select>
   );
 };
 
-import { useDebounce } from "@/hooks/use-debounce";
-import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Input } from "../ui/input";
+type SearchInputProps = {
+  placeholder?: string;
+};
 
-const SearchInput = () => {
+const SearchInput = ({ placeholder = "Search..." }: SearchInputProps) => {
   const { setParams } = useFilters();
 
   const [value, setValue] = useState("");
@@ -186,13 +258,13 @@ const SearchInput = () => {
   }, [debounced]);
 
   return (
-    <div className="relative justify-self-end">
-      <Search className="top-2.5 left-2 absolute w-4 h-4" />
+    <div className="relative justify-self-end h-10">
+      <Search className="top-3 left-2 absolute w-4 h-4" />
       <Input
-        className="pl-8 w-80"
+        className="pl-8 border-primary w-80 h-full"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search..."
+        placeholder={placeholder}
       />
     </div>
   );
@@ -209,7 +281,7 @@ const ActiveFilters = ({
   labels = {},
   defaults = {},
 }: ActiveFiltersProps) => {
-  const { params, removeParams, clearAllParams } = useFilters();
+  const { params, removeParams, clearAllParams, getLabel } = useFilters();
 
   const entries = Object.entries(params).filter(([key, value]) => {
     if (!value) return false;
@@ -231,9 +303,11 @@ const ActiveFilters = ({
           className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md text-xs"
         >
           <span className="font-medium text-muted-foreground">
-            {labels[key]}:
+            {labels[key] || key}:
           </span>
-          <span className="font-medium">{value}</span>
+          <span className="font-medium capitalize">
+            {getLabel?.(key, value) ?? value}
+          </span>
 
           <button
             onClick={() => removeParams([key])}

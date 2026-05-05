@@ -24,6 +24,7 @@ type Props = {
   title: string;
   description: string;
   variant?: "table" | "detail";
+  isOffice?: boolean;
 };
 
 const IndustryRequestActions = ({
@@ -31,6 +32,7 @@ const IndustryRequestActions = ({
   title,
   description,
   variant = "table",
+  isOffice,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
     useIndustryRequestDeleteMutation();
@@ -63,20 +65,26 @@ const IndustryRequestActions = ({
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem
-            onClick={() => navigate(`/dashboard/industry/requests/${id}/edit`)}
-          >
-            <Pencil className="mr-2 w-4 h-4" />
-            Edit Request
-          </DropdownMenuItem>
+          {!isOffice && (
+            <>
+              <DropdownMenuItem
+                onClick={() =>
+                  navigate(`/dashboard/industry/requests/${id}/edit`)
+                }
+              >
+                <Pencil className="mr-2 w-4 h-4" />
+                Edit Request
+              </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => setDeleteDialogOpen(true)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash className="mr-2 w-4 h-4" />
-            Remove Request
-          </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setDeleteDialogOpen(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash className="mr-2 w-4 h-4" />
+                Remove Request
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

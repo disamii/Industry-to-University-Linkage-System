@@ -16,7 +16,7 @@ type Pagination = {
   total_pages: number;
 };
 
-type AcademicScope = {
+export type AcademicScope = {
   academic_units: { id: number; name: string }[];
 };
 

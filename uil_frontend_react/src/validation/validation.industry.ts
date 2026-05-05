@@ -2,7 +2,7 @@ import { IndustryType } from "@/lib/enums";
 import { z } from "zod";
 
 // --- Base Schema ---
-export const industryBaseSchema = z.object({
+const industryBaseSchema = z.object({
   name: z.string().min(1, "Name is required"),
   industry_email: z
     .string()
@@ -14,6 +14,8 @@ export const industryBaseSchema = z.object({
   address: z.string().min(1, "Address is required"),
   phone_number: z.string().nullish(),
   contact_person_phone_number: z.string().nullish(),
+  contact_full_name: z.string().min(1, "Contact person name is required"),
+  contact_email: z.string().email("Invalid contact email"),
   description: z
     .string()
     .max(500, "Description must not exceed 500 characters")
@@ -22,11 +24,11 @@ export const industryBaseSchema = z.object({
   website: z.string().url("Invalid website URL").or(z.literal("")).nullish(),
 });
 
+export type IndustryBase = z.infer<typeof industryBaseSchema>;
+
 // --- Create Schema ---
 export const industryCreateSchema = industryBaseSchema
   .extend({
-    contact_full_name: z.string().min(1, "Contact person name is required"),
-    contact_email: z.string().email("Invalid contact email"),
     contact_password: z
       .string()
       .min(8, "Password must be at least 8 characters"),

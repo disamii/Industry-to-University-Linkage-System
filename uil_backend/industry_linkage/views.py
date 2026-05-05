@@ -43,9 +43,9 @@ class IndustryViewSet(viewsets.ModelViewSet):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = INDUSTRY_REQUIRED_PERMISSIONS.get(
             self.action, [])
-        if self.action in ("create"):
+        if self.action in ["create"]:
             permission_classes = [AllowAny]
-        elif self.action in ("update", "partial_update", "destroy"):
+        elif self.action in ["update", "partial_update", "destroy"]:
             permission_classes = [IsAuthenticated,
                                   IsOwnerOrHasRequiredPermissions]
         else:
@@ -126,9 +126,9 @@ class RequestManageViewSet(
         mixins.RetrieveModelMixin,
         mixins.DestroyModelMixin,
         viewsets.GenericViewSet):
-    filterset_fields = ['type', 'actions__type']
+    filterset_fields = ['type', 'actions__type', 'academic_unit', 'industry']
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
-    search_fields = ['industry__name']
+    search_fields = ['industry__name', 'title']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     queryset = Request.objects.all().order_by('created_at')
     pagination_class = RequestPagination
