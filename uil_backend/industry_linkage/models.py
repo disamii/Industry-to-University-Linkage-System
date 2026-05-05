@@ -96,6 +96,7 @@ class RequestAction(AuditMixin,models.Model):
         REASSIGNED = "reassigned", "Reassigned"
         COMPLETED = "completed", "Completed"
         REVOKED = "revoked", "Revoked"
+        CANCELLED="canceled","Cancelled"
         
     request = models.ForeignKey(
         "Request",

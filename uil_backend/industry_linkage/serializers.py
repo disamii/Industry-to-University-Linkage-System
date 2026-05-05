@@ -268,7 +268,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
     actions = RequestActionSerializer(many=True, read_only=True)
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     industry = IndustrySerializer(read_only=True)
-
+    supported_actions = serializers.SerializerMethodField()
     class Meta:
         model = Request
         fields = [
@@ -284,42 +284,9 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "detail",
         ]
+    def get_supported_actions(self, obj):
+        return [choice.value for choice in RequestAction.ACTION_TYPES]
 
-    # def get_detail(self, obj):
-    #     """
-    #     Dynamically return subtype data based on request type.
-    #     """
-
-    #     # DETAIL_MAP = {
-    #     #     # Industry
-    #     #     "tech_support": ("tech_support", TechnologySupportRequestSerializer),
-    #     #     "consultancy": ("consultancy", ConsultancyRequestSerializer),
-    #     #     "training": ("training", TrainingRequestSerializer),
-    #     #     "recruitment": ("recruitment", RecruitmentRequestSerializer),
-    #     #     "rnd": ("rnd", RnDRequestSerializer),
-    #     #     "internship": ("internship", InternshipRequestSerializer),
-    #     #     "testing": ("testing", TestingRequestSerializer),
-
-    #     #     # Academic Unit
-    #     #     "curriculum_review": ("curriculum_review", CurriculumReviewRequestSerializer),
-    #     #     "industrial_visit": ("industrial_visit", IndustrialVisitRequestSerializer),
-    #     #     "joint_research": ("joint_research", JointResearchRequestSerializer),
-    #     #     "guest_lecture": ("guest_lecture", GuestLectureRequestSerializer),
-    #     #     "tech_transfer": ("tech_transfer", TechTransferRequestSerializer),
-    #     #     "lab_access": ("lab_access", None),  # add serializer if exists
-    #     # }
-
-    #     config = DETAIL_MAP.get(obj.type)
-    #     if not config:
-    #         return None
-
-    #     relation_name, serializer_class = config
-
-    #     instance = getattr(obj, relation_name, None)
-    #     if not instance or not serializer_class:
-    #         return None
-
-    #     return serializer_class(instance).data
 
 class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
