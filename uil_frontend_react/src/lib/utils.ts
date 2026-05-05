@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { format, formatDistanceToNow, isValid, parseISO } from "date-fns";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { twMerge } from "tailwind-merge";
 import { UserRole } from "./enums";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
@@ -104,4 +104,15 @@ export const toFormData = (data: Record<string, any>): FormData => {
   });
 
   return formData;
+};
+
+export const getAcademicUnitAbbr = (name: string, abbr?: string | null) => {
+  if (abbr) return abbr;
+
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
 };

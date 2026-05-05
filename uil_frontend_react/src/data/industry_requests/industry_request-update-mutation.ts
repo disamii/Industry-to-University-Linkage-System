@@ -8,24 +8,33 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
+import { toFormData } from "@/lib/utils"; // Added this
 import toast from "react-hot-toast";
 
-export const industryRequestUpdate = ({
+export const industryRequestUpdate = async ({
   id,
   data,
 }: {
-  id: string;
+  id?: number;
   data: IndustryRequestUpdateInput;
-}) => {
+}): Promise<IndustryRequestResponse> => {
+  if (!id) {
+    throw new Error("ID is required for update");
+  }
+
+  const validated = industryRequestUpdateSchema.parse(data);
+  const formData = toFormData(validated);
+
   return safeApiRequest(
-    api.patch<IndustryRequestResponse>(
-      industryRequestUrls.byId(id),
-      industryRequestUpdateSchema.parse(data),
-    ),
+    api.patch<IndustryRequestResponse>(industryRequestUrls.byId(id), formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   );
 };
 
-export const useIndustryRequestUpdateMutation = (id: string) => {
+export const useIndustryRequestUpdateMutation = (id?: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({

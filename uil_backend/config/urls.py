@@ -15,8 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from accounts.views import CustomUserViewSet
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +29,11 @@ urlpatterns = [
         {'get': 'activate_user'}), name='custom-user-activate'),
     path('organizational-structure/', include('organizational_structure.urls')),
     path('authorization/', include('authorization.urls')),
-    path('industry_linkage/',include('industry_linkage.urls')),
-    path('bulletin/',include('bulletin.urls'))
+    path('industry_linkage/', include('industry_linkage.urls')),
+    path('bulletin/', include('bulletin.urls'))
 ]
+
+# This checks your DEBUG variable and adds the /media/ route
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

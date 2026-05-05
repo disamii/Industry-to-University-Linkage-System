@@ -15,7 +15,7 @@ type BaseOrgUnit = {
 };
 
 export type OrgUnitResponse = BaseOrgUnit & {
-  parent: number;
+  parent: number | null;
   abbreviation: string | null;
   description: string | null;
   total_subnodes: number;

@@ -17,7 +17,7 @@ export const useGetOrgUnitsList = (
   enabled = true,
 ) =>
   useQuery({
-    queryKey: [...orgUnitKeys.list(), params],
+    queryKey: orgUnitKeys.list(params),
     queryFn: () => getOrgUnitsList(params),
     enabled,
   });

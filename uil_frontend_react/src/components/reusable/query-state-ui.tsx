@@ -1,21 +1,23 @@
 import { UseQueryResult } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import { Spinner } from "../ui/spinner";
-import { EmptyState } from "./empty-state";
+import EmptyState from "./empty-state";
 import { ErrorState } from "./error-state";
 
 type QueryStateGateProps<T> = {
   query: UseQueryResult<T, Error>;
   children: ReactNode | ((data: T) => ReactNode);
+  checkEmpty: (data: T) => boolean;
+
+  // Optional Props
   loadingComponent?: ReactNode;
   errorComponent?:
     | ReactNode
     | ((error: Error, refetch: () => void) => ReactNode);
   emptyComponent?: ReactNode;
-  checkEmpty: (data: T) => boolean;
 };
 
-export function QueryStateGate<T>({
+export function QueryState<T>({
   query,
   children,
   loadingComponent = <Spinner />,

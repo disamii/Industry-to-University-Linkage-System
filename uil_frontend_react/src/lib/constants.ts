@@ -1,39 +1,3 @@
-import { IndustryRequestType } from "./enums";
-
-/**
- * Industry Requests
- */
-export const INDUSTRY_REQUEST_FIELDS: Record<
-  IndustryRequestType,
-  readonly string[]
-> = {
-  [IndustryRequestType.RND]: ["request", "problem_statement", "research_area"],
-  [IndustryRequestType.TECH_SUPPORT]: [
-    "technology_required",
-    "required_duration",
-  ],
-  [IndustryRequestType.CONSULTANCY]: ["consultancy_type"],
-  [IndustryRequestType.TESTING]: ["item_to_test", "test_type"],
-  [IndustryRequestType.TRAINING]: [
-    "training_type",
-    "number_of_trainees",
-    "trainee_level",
-  ],
-  [IndustryRequestType.INTERNSHIP]: [
-    "field_of_study",
-    "number_of_students",
-    "timeframe",
-    "activities",
-  ],
-  [IndustryRequestType.RECRUITMENT]: [
-    "field_of_study",
-    "graduate_year",
-    "requirements",
-    "number_to_recruit",
-  ],
-  [IndustryRequestType.OTHER]: [],
-};
-
 /**
  * Contact Info
  */
@@ -64,4 +28,5 @@ export const LINKS = {
  * Others
  */
 export const PAGE_SIZE = 10;
-export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+export const SELECT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100, 200];
+export const MAX_FILE_SIZE_MB = 5;

@@ -285,41 +285,41 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "detail",
         ]
 
-    def get_detail(self, obj):
-        """
-        Dynamically return subtype data based on request type.
-        """
+    # def get_detail(self, obj):
+    #     """
+    #     Dynamically return subtype data based on request type.
+    #     """
 
-        DETAIL_MAP = {
-            # Industry
-            "tech_support": ("tech_support", TechnologySupportRequestSerializer),
-            "consultancy": ("consultancy", ConsultancyRequestSerializer),
-            "training": ("training", TrainingRequestSerializer),
-            "recruitment": ("recruitment", RecruitmentRequestSerializer),
-            "rnd": ("rnd", RnDRequestSerializer),
-            "internship": ("internship", InternshipRequestSerializer),
-            "testing": ("testing", TestingRequestSerializer),
+    #     # DETAIL_MAP = {
+    #     #     # Industry
+    #     #     "tech_support": ("tech_support", TechnologySupportRequestSerializer),
+    #     #     "consultancy": ("consultancy", ConsultancyRequestSerializer),
+    #     #     "training": ("training", TrainingRequestSerializer),
+    #     #     "recruitment": ("recruitment", RecruitmentRequestSerializer),
+    #     #     "rnd": ("rnd", RnDRequestSerializer),
+    #     #     "internship": ("internship", InternshipRequestSerializer),
+    #     #     "testing": ("testing", TestingRequestSerializer),
 
-            # Academic Unit
-            "curriculum_review": ("curriculum_review", CurriculumReviewRequestSerializer),
-            "industrial_visit": ("industrial_visit", IndustrialVisitRequestSerializer),
-            "joint_research": ("joint_research", JointResearchRequestSerializer),
-            "guest_lecture": ("guest_lecture", GuestLectureRequestSerializer),
-            "tech_transfer": ("tech_transfer", TechTransferRequestSerializer),
-            "lab_access": ("lab_access", None),  # add serializer if exists
-        }
+    #     #     # Academic Unit
+    #     #     "curriculum_review": ("curriculum_review", CurriculumReviewRequestSerializer),
+    #     #     "industrial_visit": ("industrial_visit", IndustrialVisitRequestSerializer),
+    #     #     "joint_research": ("joint_research", JointResearchRequestSerializer),
+    #     #     "guest_lecture": ("guest_lecture", GuestLectureRequestSerializer),
+    #     #     "tech_transfer": ("tech_transfer", TechTransferRequestSerializer),
+    #     #     "lab_access": ("lab_access", None),  # add serializer if exists
+    #     # }
 
-        config = DETAIL_MAP.get(obj.type)
-        if not config:
-            return None
+    #     config = DETAIL_MAP.get(obj.type)
+    #     if not config:
+    #         return None
 
-        relation_name, serializer_class = config
+    #     relation_name, serializer_class = config
 
-        instance = getattr(obj, relation_name, None)
-        if not instance or not serializer_class:
-            return None
+    #     instance = getattr(obj, relation_name, None)
+    #     if not instance or not serializer_class:
+    #         return None
 
-        return serializer_class(instance).data
+    #     return serializer_class(instance).data
 
 class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
@@ -879,94 +879,3 @@ class AdminRequestListSerializer(serializers.ModelSerializer):
         return LatestActionSerializer(action).data
 
 
-# class TechnologySupportRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TechnologySupportRequest
-#         fields = [
-#             "technology_required",
-#             "required_duration",
-#         ]
-
-
-# class ConsultancyRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ConsultancyRequest
-#         fields = ["consultancy_type"]
-
-
-# class TrainingRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TrainingRequest
-#         fields = [
-#             "training_type",
-#             "number_of_trainees",
-#             "trainee_level",
-#         ]
-
-
-# class RnDRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = RnDRequest
-#         fields = [
-#             "problem_statement",
-#             "research_area",
-#         ]
-
-
-# class TestingRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TestingRequest
-#         fields = [
-#             "item_to_test",
-#             "test_type",
-#         ]
-
-# class InternshipRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = InternshipRequest
-#         fields = [
-#             "field_of_study",
-#             "number_of_students",
-#             "timeframe",
-#             "activities"
-#         ]
-
-# class RecruitmentRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = RecruitmentRequest
-#         fields = [
-#             "field_of_study",
-#             "graduate_year",
-#             "requirements",
-#             "number_to_recruit",
-#         ]
-
-# class CurriculumReviewRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CurriculumReviewRequest
-#         fields = "__all__"
-#         read_only_fields = ["id"]
-
-# class IndustrialVisitRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = IndustrialVisitRequest
-#         fields = "__all__"
-#         read_only_fields = ["id"]
-
-# class JointResearchRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = JointResearchRequest
-#         fields = "__all__"
-#         read_only_fields = ["id"]
-
-# class GuestLectureRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = GuestLectureRequest
-#         fields = "__all__"
-#         read_only_fields = ["id"]
-
-# class TechTransferRequestSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TechTransferRequest
-#         fields = "__all__"
-#         read_only_fields = ["id"]

@@ -1,11 +1,7 @@
-import { z } from "zod";
-import { industryBaseSchema } from "@/validation/validation.industry";
+import { IndustryCreateInput } from "@/validation/validation.industry";
+import { Metadata } from "./interfaces";
 
-export const industrySchema = industryBaseSchema.extend({
-  id: z.string(),
-  status: z.string(),
-  created_at: z.coerce.date(),
-  updated_at: z.coerce.date().nullish(),
-});
-
-export type IndustryResponse = z.infer<typeof industrySchema>;
+export type IndustryResponse = IndustryCreateInput &
+  Metadata & {
+    id: number;
+  };

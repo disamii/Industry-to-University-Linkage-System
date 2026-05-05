@@ -1,4 +1,4 @@
-import { MAX_FILE_SIZE } from "@/lib/constants";
+import { MAX_FILE_SIZE_MB } from "@/lib/constants";
 import { IndustryRequestType } from "@/lib/enums";
 import { z } from "zod";
 
@@ -11,12 +11,14 @@ export const industryRequestBaseSchema = z.object({
   extra_data: z.record(z.string(), z.any()).optional(),
   attachment: z
     .instanceof(File)
-    .refine((file) => file.size <= MAX_FILE_SIZE, {
+    .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
       message: "Max size exceeded",
     })
     .optional()
     .nullable(),
 });
+
+export type IndustryRequestBase = z.infer<typeof industryRequestBaseSchema>;
 
 // --- Create Schema ---
 export const industryRequestCreateSchema = industryRequestBaseSchema.extend({});
@@ -26,8 +28,21 @@ export type IndustryRequestCreateInput = z.infer<
 >;
 
 // --- Update Schema ---
-export const industryRequestUpdateSchema =
-  industryRequestCreateSchema.partial();
+export const industryRequestUpdateSchema = industryRequestCreateSchema
+  .partial()
+  .extend({
+    attachment: z
+      .union([
+        z.string(),
+        z
+          .instanceof(File)
+          .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
+            message: "Max size exceeded",
+          }),
+      ])
+      .optional()
+      .nullable(),
+  });
 
 export type IndustryRequestUpdateInput = z.infer<
   typeof industryRequestUpdateSchema

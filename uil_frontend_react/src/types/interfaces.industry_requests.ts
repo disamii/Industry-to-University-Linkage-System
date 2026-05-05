@@ -1,20 +1,57 @@
-import { industryRequestBaseSchema } from "@/validation/validation.industry_requests";
-import { z } from "zod";
-import { industrySchema } from "./interfaces.industry";
+import { IndustryRequestBase } from "@/validation/validation.industry_requests";
+import { Metadata } from "./interfaces";
+import { OrgUnitResponse } from "./interfaces.org_units";
+import { RequestingEntity } from "@/lib/enums";
+import { IndustryResponse } from "./interfaces.industry";
 
-export const industryRequestSchema = industryRequestBaseSchema.extend({
-  id: z.string(),
-  industry_id: z.string(),
-  created_at: z.coerce.date(),
-  updated_at: z.coerce.date().nullish(),
-});
+export type IndustryRequestMineParams = {
+  page: number;
+  page_size: number;
+};
 
-export type IndustryRequestResponse = z.infer<typeof industryRequestSchema>;
+export type ActionType =
+  | "created"
+  | "assigned"
+  | "forwarded"
+  | "accept_forwarded"
+  | "posted_as_thematic"
+  | "replied"
+  | "rejected"
+  | "reassigned"
+  | "completed";
 
-export const industryRequestSchemaForAdmin = industryRequestSchema.extend({
-  industry: z.optional(industrySchema),
-});
+export type RequestAction = Metadata & {
+  id: number;
+  type: ActionType;
+  description: string;
+  performed_by: string;
+  from_industry: string | null;
+  to_industry: string | null;
+  from_unit: string | null;
+  to_unit: string | null;
+  forwarded_to: string | null;
+  forwarded_from: string | null;
+};
 
-export type IndustryRequestResponseForAdmin = z.infer<
-  typeof industryRequestSchemaForAdmin
->;
+export type IndustryRequestResponse = Omit<IndustryRequestBase, "attachment"> &
+  Metadata & { id: number; attachment: string | null };
+
+export type IndustryRequestMineResponse = Omit<
+  IndustryRequestResponse,
+  "academic_unit" | "extra_data"
+> & {
+  industry: number;
+  academic_unit: OrgUnitResponse;
+  latest_action: ActionType;
+};
+
+export type IndustryRequestDetailResponse = Omit<
+  IndustryRequestResponse,
+  "academic_unit" | "extra_data"
+> & {
+  industry: IndustryResponse;
+  detail: Record<string, string> | null;
+  actions: RequestAction[];
+  requesting_entity: RequestingEntity;
+  academic_unit: OrgUnitResponse;
+};
