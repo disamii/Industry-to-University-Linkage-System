@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getFullName, getNameInitials } from "@/lib/helpers";
+import { getFullName, getNameInitials } from "@/lib/utils";
 import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import { SigninInput, signinSchema } from "@/validation/validation.auth";
 import { zodResolver } from "@hookform/resolvers/zod";

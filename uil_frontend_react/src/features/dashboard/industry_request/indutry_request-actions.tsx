@@ -25,12 +25,14 @@ import {
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ACTION_CONFIG } from "./utils.industry_request-actions";
+import { ActionDialog } from "./perform-action-form-dialog";
 
 type Props = {
   id: number;
   title: string;
   description: string;
   variant?: "table" | "detail";
+  supported_actions?: ActionType[];
 };
 
 const IndustryRequestActions = ({
@@ -38,6 +40,7 @@ const IndustryRequestActions = ({
   title,
   description,
   variant = "table",
+  supported_actions,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
     useIndustryRequestDeleteMutation();
@@ -47,6 +50,18 @@ const IndustryRequestActions = ({
 
   const { pathname } = useLocation();
   const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
+
+  // Perform Actions
+  const actionsToPerform = Object.values(ActionType).filter((type) =>
+    supported_actions?.includes(type),
+  );
+  const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
+  const [actionDialogOpen, setActionDialogOpen] = useState(false);
+
+  const handleActionClick = (type: ActionType) => {
+    setSelectedAction(type);
+    setActionDialogOpen(true);
+  };
 
   return (
     <>
@@ -94,7 +109,7 @@ const IndustryRequestActions = ({
             </>
           )}
 
-          {isOffice && (
+          {isOffice && actionsToPerform.length !== 0 && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="whitespace-nowrap">
                 <Wrench className="size-3.5" />
@@ -103,16 +118,17 @@ const IndustryRequestActions = ({
 
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  {Object.values(ActionType).map((type, idx) => {
-                    const { Icon, color } = ACTION_CONFIG[type];
+                  {actionsToPerform.map((type, idx) => {
+                    const { Icon, color, label } = ACTION_CONFIG[type];
 
                     return (
                       <DropdownMenuItem
                         key={`${type}-${idx}`}
-                        className={cn(color)}
+                        className={cn(color, "bg-transparent")}
+                        onClick={() => handleActionClick(type)}
                       >
                         <Icon className="size-3.5" />
-                        {type}
+                        {label}
                       </DropdownMenuItem>
                     );
                   })}
@@ -123,8 +139,15 @@ const IndustryRequestActions = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <ActionDialog
+        requestId={id}
+        actionType={selectedAction}
+        open={actionDialogOpen}
+        onOpenChange={setActionDialogOpen}
+      />
+
       <ConfirmDelete
-        resourceName="Industry Request"
+        resourceName="Request"
         item={{ label: title, sublabel: description }}
         isDeleting={isDeleting}
         onDelete={(targets) =>

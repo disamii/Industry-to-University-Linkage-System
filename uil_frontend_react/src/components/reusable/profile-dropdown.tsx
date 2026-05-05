@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ConfirmLogoutDialog from "./confirm-logout-dialog";
 import UserAvatar from "./user-avatar";
 import { useState } from "react";
-import { getFullName } from "@/lib/helpers";
+import { getFullName } from "@/lib/utils";
 
 interface ProfileDropdownProps {
   className?: string;

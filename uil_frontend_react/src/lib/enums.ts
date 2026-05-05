@@ -55,6 +55,7 @@ export enum ActionType {
   REJECTED = "rejected",
   REASSIGNED = "reassigned",
   COMPLETED = "completed",
+  REVOKED = "revoked",
 }
 
 /**

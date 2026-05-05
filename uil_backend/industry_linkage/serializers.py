@@ -104,7 +104,6 @@ class RequestActionSerializer(serializers.ModelSerializer):
     from_unit = serializers.StringRelatedField()
     to_unit = serializers.StringRelatedField()
 
-
     class Meta:
         model = RequestAction
         fields = [
@@ -264,11 +263,11 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
 
 class RequestDetailSerializer(serializers.ModelSerializer):
-    detail = serializers.SerializerMethodField()
     actions = RequestActionSerializer(many=True, read_only=True)
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     industry = IndustrySerializer(read_only=True)
     supported_actions = serializers.SerializerMethodField()
+
     class Meta:
         model = Request
         fields = [
@@ -282,8 +281,9 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "description",
             "attachment",
             "created_at",
-            "detail",
+            "supported_actions"
         ]
+
     def get_supported_actions(self, obj):
         return [choice.value for choice in RequestAction.ACTION_TYPES]
 
@@ -345,16 +345,16 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "type": "This request is already created."
                 })
-        
+
         # check wether there is already forward request and accepting user is in that scope
         elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
             forwarded_action = request_obj.actions.filter(
-            type=RequestAction.ACTION_TYPES.FORWARDED
+                type=RequestAction.ACTION_TYPES.FORWARDED
             ).order_by("-created_at").first()
             if not forwarded_action:
                 raise serializers.ValidationError({
-                        "type": "No forwarded action found for this request."
-                    })
+                    "type": "No forwarded action found for this request."
+                })
 
             unit_id = forwarded_action.to_unit_id
 
@@ -365,31 +365,32 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             )
 
             if not allowed:
-                raise PermissionDenied("You are not allowed to accept this forward.")
+                raise PermissionDenied(
+                    "You are not allowed to accept this forward.")
             self._target_unit_id = unit_id
-            
+
         elif action_type in [
-                RequestAction.ACTION_TYPES.REVOKED,
-                RequestAction.ACTION_TYPES.CANCELLED,
-                RequestAction.ACTION_TYPES.COMPLETED
-            ]:
+            RequestAction.ACTION_TYPES.REVOKED,
+            RequestAction.ACTION_TYPES.CANCELLED,
+            RequestAction.ACTION_TYPES.COMPLETED
+        ]:
             assignment = Assignment.objects.filter(
-                    request=request_obj,
-                    status__in=[
-                        Assignment.AssignmentStatus.ACCEPTED,
-                        Assignment.AssignmentStatus.ACCEPTED
-                    ]
-                ).first()
+                request=request_obj,
+                status__in=[
+                    Assignment.AssignmentStatus.ACCEPTED,
+                    Assignment.AssignmentStatus.ACCEPTED
+                ]
+            ).first()
             if assignment:
                 self.assignment = assignment
-            
-            if action_type== RequestAction.ACTION_TYPES.REVOKED:
-                
+
+            if action_type == RequestAction.ACTION_TYPES.REVOKED:
+
                 if not assignment:
                     raise serializers.ValidationError(
                         "No active assignment found to revoke."
                     )
-        
+
         return attrs
 
     def create(self, validated_data):
@@ -406,24 +407,25 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 if getattr(self, "assignment", None):
                     self.assignment.status = Assignment.AssignmentStatus.CANCELLED
                     self.assignment.save(update_fields=["status"])
-            
+
             elif action_type in [
                 RequestAction.ACTION_TYPES.COMPLETED,
             ]:
                 if getattr(self, "assignment", None):
                     self.assignment.status = Assignment.AssignmentStatus.COMPLETED
                     self.assignment.save(update_fields=["status"])
-            
-            elif action_type== RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
+
+            elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
                 request_obj.academic_unit_id = self._target_unit_id
                 request_obj.save(update_fields=["academic_unit"])
-                
+
             return RequestAction.objects.create(
                 request=request_obj,
                 created_by_id=user.id,
                 updated_by_id=user.id,
                 **validated_data
             )
+
 
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
     assigned_user = serializers.PrimaryKeyRelatedField(
@@ -434,7 +436,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
     )
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
-    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    industry_mentor = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = RequestAction
@@ -471,7 +474,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
         if action_type == "assigned":
             if not all([assigned_user, start_date, end_date]):
-                raise serializers.ValidationError("Missing required assignment fields")
+                raise serializers.ValidationError(
+                    "Missing required assignment fields")
 
             exists = Assignment.objects.filter(
                 request=request_obj,
@@ -572,6 +576,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
         return action
 
+
 class RequestActionForwardedSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -592,7 +597,7 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         attrs["type"] = "forwarded"
         exists = Assignment.objects.filter(
             request=request_obj
-            ).exists()
+        ).exists()
 
         if exists:
             raise serializers.ValidationError({
@@ -614,11 +619,12 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         action = RequestAction.objects.create(
-                created_by_id=user.id,
-                updated_by_id=user.id,
-                **validated_data
-            )
+            created_by_id=user.id,
+            updated_by_id=user.id,
+            **validated_data
+        )
         return action
+
 
 class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
     # Post fields
@@ -694,8 +700,9 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
 
         return action
 
+
 class RequestActionRepliedSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = RequestAction
         fields = [
@@ -708,7 +715,7 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
             "to_industry",
         ]
         read_only_fields = ["id"]
-        
+
     def validate(self, attrs):
 
         from_unit = attrs.get("from_unit")
@@ -749,32 +756,34 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
 
-        return RequestAction.objects.create(  
-                    created_by_id=user.id,
-                    updated_by_id=user.id ,                   
-                    **validated_data
-                    )
+        return RequestAction.objects.create(
+            created_by_id=user.id,
+            updated_by_id=user.id,
+            **validated_data
+        )
 
 
 ACTION_SERIALIZERS = {
-            "created":RequestActionGenericSerializer,
-            "accept_forwarded": RequestActionGenericSerializer,
-            "revoked":RequestActionGenericSerializer,
-            "cancelled":RequestActionGenericSerializer,
-            "rejected":RequestActionGenericSerializer,
-            "completed":RequestActionGenericSerializer,
-            
-            "replied": RequestActionRepliedSerializer,
-            "assigned":RequestActionAssignedSerializer,
-            "reassigned":RequestActionAssignedSerializer,
-            "forwarded": RequestActionForwardedSerializer,
-            "posted_as_thematic": RequestActionPostedThematicSerializer,
-            
-        }
+    "created": RequestActionGenericSerializer,
+    "accept_forwarded": RequestActionGenericSerializer,
+    "revoked": RequestActionGenericSerializer,
+    "cancelled": RequestActionGenericSerializer,
+    "rejected": RequestActionGenericSerializer,
+    "completed": RequestActionGenericSerializer,
+
+    "replied": RequestActionRepliedSerializer,
+    "assigned": RequestActionAssignedSerializer,
+    "reassigned": RequestActionAssignedSerializer,
+    "forwarded": RequestActionForwardedSerializer,
+    "posted_as_thematic": RequestActionPostedThematicSerializer,
+
+}
+
 
 class AssignmentListSerializer(serializers.ModelSerializer):
-    request=RequestSerializer(read_only=TRUE)
-    assigned_user=UserSerializer()
+    request = RequestSerializer(read_only=TRUE)
+    assigned_user = UserSerializer()
+
     class Meta:
         model = Assignment
         fields = [
@@ -787,8 +796,10 @@ class AssignmentListSerializer(serializers.ModelSerializer):
             "status",
         ]
 
+
 class AssignmentDetailSerializer(serializers.ModelSerializer):
-    request=RequestDetailSerializer(read_only=True)
+    request = RequestDetailSerializer(read_only=True)
+
     class Meta:
         model = Assignment
         fields = [
@@ -839,5 +850,3 @@ class AdminRequestListSerializer(serializers.ModelSerializer):
         if not action:
             return None
         return LatestActionSerializer(action).data
-
-
