@@ -6,7 +6,7 @@ import { useGetOrgUnitDirectChildrenList } from "./org_units-direct-children-lis
 import { useGetOrgUnitsList } from "./org_units-list-query";
 
 export const useOrgUnitTree = (
-  onSelectAction: (id: number) => void,
+  onSelectAction?: (id: number) => void,
   selectedId?: number,
 ) => {
   const [selectedNode, setSelectedNode] = useState<OrgUnitResponse | null>(
@@ -31,7 +31,7 @@ export const useOrgUnitTree = (
 
   const handleSelect = (node: OrgUnitResponse) => {
     setSelectedNode(node);
-    onSelectAction(node.id);
+    onSelectAction?.(node.id);
     setOpen(false);
     setSearchQuery("");
   };

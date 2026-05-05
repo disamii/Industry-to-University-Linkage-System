@@ -80,10 +80,12 @@ type TreeViewProps<T> = {
   getHasChildren?: (node: T) => boolean;
   renderItem: (node: T) => ReactNode;
   useChildren: UseChildrenHook<T>;
+  className?: string;
 };
 
 const TreeView = <T,>(props: TreeViewProps<T>) => {
-  const { isLoading, isSearching, results, getKey, renderItem } = props;
+  const { isLoading, isSearching, results, getKey, renderItem, className } =
+    props;
   const [expandedNodes, setExpandedNodes] = useState<Set<number | string>>(
     new Set(),
   );
@@ -103,7 +105,7 @@ const TreeView = <T,>(props: TreeViewProps<T>) => {
     <TreeContext.Provider
       value={{ ...props, expandedNodes, onToggleExpand: handleToggleExpand }}
     >
-      <div className="p-2 max-h-80 overflow-y-auto">
+      <div className={cn("p-2 overflow-y-auto", className)}>
         {isLoading ? (
           <Spinner />
         ) : results?.length ? (

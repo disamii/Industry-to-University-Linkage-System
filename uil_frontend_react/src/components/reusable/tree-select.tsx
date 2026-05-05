@@ -91,6 +91,7 @@ export const TreeSelect = <T,>({
             isSearching={isSearching}
             renderItem={renderItem}
             useChildren={useChildren}
+            className="max-h-80"
           />
         </Command>
       </PopoverContent>

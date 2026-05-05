@@ -22,8 +22,8 @@ const IndustryRequestsOfficePage = () => {
           return (
             <div className="space-y-6">
               <IndustryRequestsStat stats={data.stats} />
-              <IndustryRequestsTableOperations isOffice={true} />
-              <IndustryRequestsTable data={data} isOffice={true} />
+              <IndustryRequestsTableOperations />
+              <IndustryRequestsTable data={data} />
             </div>
           );
         }}

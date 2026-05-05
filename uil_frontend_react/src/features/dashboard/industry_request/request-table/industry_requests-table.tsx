@@ -9,7 +9,12 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE } from "@/lib/constants";
-import { cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
+import {
+  cn,
+  formatDate,
+  getAcademicUnitAbbr,
+  getRoleByPath,
+} from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import {
   IndustryRequestMineResponse,
@@ -18,16 +23,18 @@ import {
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
 import IndustryRequestActions from "../indutry_request-actions";
-import { actionIcons, actionStyles } from "../utils.industry_request-actions";
+import { ACTION_CONFIG } from "../utils.industry_request-actions";
 import {
   defaultIndustryRequestParams,
   IndustryRequestParams,
 } from "./use-industry_request-params";
+import { useLocation } from "react-router-dom";
+import { UserRole } from "@/lib/enums";
 
 type RowProps = {
   item: IndustryRequestMineResponse | IndustryRequestOfficeResponse;
   index: number;
-  isOffice?: boolean;
+  isOffice: boolean;
 };
 
 const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
@@ -38,7 +45,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
   const currentPage = getParam("page");
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
 
-  const ActionIcon = actionIcons[item.latest_action];
+  const { Icon: ActionIcon, color } = ACTION_CONFIG[item.latest_action];
 
   return (
     <TableRow>
@@ -94,9 +101,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
         </div>
       </TableCell>
       <TableCell>
-        <Badge
-          className={cn(actionStyles[item.latest_action], "capitalize gap-1.5")}
-        >
+        <Badge className={cn(color, "capitalize gap-1.5")}>
           <ActionIcon className="w-3 h-3" />
           {item.latest_action}
         </Badge>
@@ -107,7 +112,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
         </p>
       </TableCell>
       <TableCell className="text-center">
-        <IndustryRequestActions {...item} isOffice={isOffice} />
+        <IndustryRequestActions {...item} />
       </TableCell>
     </TableRow>
   );
@@ -119,12 +124,14 @@ type TableProps = {
     undefined,
     IndustryRequestStats
   >;
-  isOffice?: boolean;
 };
 
-const IndustryRequestsTable = ({ data, isOffice }: TableProps) => {
+const IndustryRequestsTable = ({ data }: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
+
+  const { pathname } = useLocation();
+  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
 
   const tableHeads: ITableHead[] = [
     // {

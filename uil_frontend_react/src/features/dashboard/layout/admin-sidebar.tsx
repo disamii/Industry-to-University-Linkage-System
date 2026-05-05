@@ -20,7 +20,9 @@ import {
   Lightbulb,
   LucideIcon,
   Send,
+  Settings,
   SquarePen,
+  UserCheck,
   Users,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -38,32 +40,41 @@ const ROUTES: Record<
   [UserRole.ADMIN]: {
     label: "Office Portal",
     links: [
-      { href: "/dashboard/office", icon: LayoutDashboard, label: "Overview" },
-      { href: "/dashboard/office/requests", icon: FileText, label: "Requests" },
+      { href: "/dashboard/office", icon: LayoutDashboard, label: "Dashboard" },
+      {
+        href: "/dashboard/office/requests",
+        icon: ClipboardList,
+        label: "Request Management",
+      },
       {
         href: "/dashboard/office/assignments",
-        icon: ClipboardList,
-        label: "Assignments",
+        icon: UserCheck,
+        label: "Assignment Management",
       },
       {
         href: "/dashboard/office/posts",
         icon: SquarePen,
-        label: "Posts",
+        label: "Post Management",
       },
       {
         href: "/dashboard/office/staff",
         icon: Users,
-        label: "Staff Directory",
+        label: "Staff Management",
       },
       {
         href: "/dashboard/office/partners",
         icon: Building2,
-        label: "Partners",
+        label: "Industry Management",
       },
       {
         href: "/dashboard/office/analytics",
         icon: FileBarChart,
         label: "Analytics",
+      },
+      {
+        href: "/dashboard/office/site-config",
+        icon: Settings,
+        label: "Site Configuration",
       },
     ],
   },
@@ -95,7 +106,7 @@ const ROUTES: Record<
   [UserRole.STAFF]: {
     label: "Staff Portal",
     links: [
-      { href: "/dashboard/staff", icon: LayoutDashboard, label: "Task Board" },
+      { href: "/dashboard/staff", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/dashboard/staff/tasks", icon: CheckSquare, label: "My Tasks" },
     ],
   },

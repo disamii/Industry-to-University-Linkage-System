@@ -4,10 +4,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry/industry_request-delete-mutation";
-import { cn } from "@/lib/utils";
+import { ActionType, UserRole } from "@/lib/enums";
+import { cn, getRoleByPath } from "@/lib/utils";
 import {
   ChevronDown,
   Eye,
@@ -15,16 +20,17 @@ import {
   Pencil,
   Settings2,
   Trash,
+  Wrench,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ACTION_CONFIG } from "./utils.industry_request-actions";
 
 type Props = {
   id: number;
   title: string;
   description: string;
   variant?: "table" | "detail";
-  isOffice?: boolean;
 };
 
 const IndustryRequestActions = ({
@@ -32,13 +38,15 @@ const IndustryRequestActions = ({
   title,
   description,
   variant = "table",
-  isOffice,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
     useIndustryRequestDeleteMutation();
   const [DeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const isTable = variant === "table";
+
+  const { pathname } = useLocation();
+  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
 
   return (
     <>
@@ -84,6 +92,33 @@ const IndustryRequestActions = ({
                 Remove Request
               </DropdownMenuItem>
             </>
+          )}
+
+          {isOffice && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="whitespace-nowrap">
+                <Wrench className="size-3.5" />
+                Perform Actions
+              </DropdownMenuSubTrigger>
+
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {Object.values(ActionType).map((type, idx) => {
+                    const { Icon, color } = ACTION_CONFIG[type];
+
+                    return (
+                      <DropdownMenuItem
+                        key={`${type}-${idx}`}
+                        className={cn(color)}
+                      >
+                        <Icon className="size-3.5" />
+                        {type}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

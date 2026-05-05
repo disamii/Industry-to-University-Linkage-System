@@ -1,6 +1,6 @@
 import { TableFilters } from "@/components/reusable/table-filters";
 import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
-import { ActionType, IndustryRequestType } from "@/lib/enums";
+import { ActionType, IndustryRequestType, UserRole } from "@/lib/enums";
 import {
   defaultIndustryRequestParams,
   useIndustryRequestParams,
@@ -8,15 +8,16 @@ import {
 import { Filter } from "lucide-react";
 import { SelectItem } from "@/components/ui/select";
 import { useGetIndustryList } from "@/data/industry/industry-list-query";
+import { useLocation } from "react-router-dom";
+import { getRoleByPath } from "@/lib/utils";
 
-type Props = {
-  isOffice?: boolean;
-};
-
-const IndustryRequestsTableOperations = ({ isOffice }: Props) => {
+const IndustryRequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
     useIndustryRequestParams();
   const query = useGetIndustryList();
+
+  const { pathname } = useLocation();
+  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
 
   return (
     <TableFilters.Root
@@ -66,7 +67,7 @@ const IndustryRequestsTableOperations = ({ isOffice }: Props) => {
 
           <TableFilters.Select
             paramKey="type"
-            placeholder="All Industry Types"
+            placeholder="All Request Types"
             options={Object.values(IndustryRequestType)}
           />
 

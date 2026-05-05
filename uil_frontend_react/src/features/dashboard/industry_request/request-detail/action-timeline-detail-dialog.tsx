@@ -5,9 +5,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn, formatDate } from "@/lib/utils";
-import { RequestAction } from "@/types/interfaces.industry_requests";
+import { RequestAction } from "@/types/interfaces.actions";
 import { Building2, Calendar, LucideIcon, MapPin, User } from "lucide-react";
-import { actionIcons, actionStyles } from "../utils.industry_request-actions";
+import { ACTION_CONFIG } from "../utils.industry_request-actions";
 
 type DetailBoxProps = {
   Icon: LucideIcon;
@@ -32,7 +32,7 @@ const DetailBox = ({ Icon, label, value }: DetailBoxProps) => {
 type Props = { action: RequestAction };
 
 const ActionTimelineDetailDialog = ({ action }: Props) => {
-  const Icon = actionIcons[action.type];
+  const { Icon, color } = ACTION_CONFIG[action.type];
 
   return (
     <DialogContent className="sm:max-w-175">
@@ -40,13 +40,13 @@ const ActionTimelineDetailDialog = ({ action }: Props) => {
         <div
           className={cn(
             "flex items-center gap-1 px-2 py-1 rounded-lg w-fit",
-            actionStyles[action.type],
+            color,
           )}
         >
           <Icon className="w-4 h-4" />
           <Badge
             variant="secondary"
-            className={`capitalize text-[10px] font-bold px-2 text-sm leading-none ${actionStyles[action.type]} bg-transparent`}
+            className={`capitalize text-[10px] font-bold px-2 text-sm leading-none ${color} bg-transparent`}
           >
             {action.type.replace(/_/g, " ")}
           </Badge>

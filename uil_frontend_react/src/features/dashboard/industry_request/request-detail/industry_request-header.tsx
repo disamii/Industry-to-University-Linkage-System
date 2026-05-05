@@ -1,9 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import IndustryRequestActions from "@/features/dashboard/industry_request/indutry_request-actions";
-import { actionStyles } from "@/features/dashboard/industry_request/utils.industry_request-actions";
-import { cn, formatDate } from "@/lib/utils";
+import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.industry_request-actions";
+import { UserRole } from "@/lib/enums";
+import { cn, formatDate, getRoleByPath } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import { Building2, Calendar } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 type Props = IndustryRequestDetailResponse & {};
 
@@ -15,15 +17,29 @@ const IndustryRequestHeader = ({
   created_at,
   academic_unit,
   actions,
+  industry,
 }: Props) => {
   const latestAction = actions[0];
+  const { pathname } = useLocation();
+  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
 
   return (
     <div className="flex justify-between items-start col-span-full">
       <div className="flex-1 space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="font-bold text-3xl">{title}</h1>
-          <Badge className="capitalize">{type}</Badge>
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="font-bold text-primary text-3xl">{title}</h1>
+            <Badge className="capitalize" variant="secondary">
+              {type}
+            </Badge>
+          </div>
+
+          {isOffice && industry?.name && (
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground text-xs">Industry:</span>
+              <span className="font-medium text-base">{industry.name}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-4 text-muted-foreground text-xs">
@@ -35,7 +51,9 @@ const IndustryRequestHeader = ({
             <Building2 className="w-3.5 h-3.5" />
             {academic_unit.name}
           </div>
-          <Badge className={cn(actionStyles[latestAction.type], "capitalize")}>
+          <Badge
+            className={cn(ACTION_CONFIG[latestAction.type].color, "capitalize")}
+          >
             {latestAction.type}
           </Badge>
         </div>

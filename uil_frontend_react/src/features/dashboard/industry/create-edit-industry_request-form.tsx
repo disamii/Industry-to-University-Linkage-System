@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry/industry_request-create-mutation";
 import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry/industry_request-update-mutation";
-import { INDUSTRY_REQUEST_FIELDS, IndustryRequestType } from "@/lib/enums";
+import { IndustryRequestType } from "@/lib/enums";
+import { INDUSTRY_REQUEST_FIELDS } from "@/lib/mappings";
 import { formatSelectOptions } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import {

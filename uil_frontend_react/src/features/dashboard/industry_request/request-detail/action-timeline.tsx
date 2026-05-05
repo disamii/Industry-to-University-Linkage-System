@@ -2,10 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/utils";
-import { RequestAction } from "@/types/interfaces.industry_requests";
+import { RequestAction } from "@/types/interfaces.actions";
 import { Calendar, Clock, Logs } from "lucide-react";
 import ActionTimelineDetailDialog from "./action-timeline-detail-dialog";
-import { actionIcons, actionStyles } from "../utils.industry_request-actions";
+import { ACTION_CONFIG } from "../utils.industry_request-actions";
 
 type Props = {
   actions: RequestAction[];
@@ -33,7 +33,7 @@ const ActionTimeline = ({ actions }: Props) => {
               .slice()
               .reverse()
               .map((action, index) => {
-                const Icon = actionIcons[action.type];
+                const { Icon, color } = ACTION_CONFIG[action.type];
 
                 return (
                   <Dialog key={action.id}>
@@ -48,7 +48,7 @@ const ActionTimeline = ({ actions }: Props) => {
                           {/* Timeline dot with icon */}
                           <div className="z-10 relative shrink-0">
                             <div
-                              className={`w-10 h-10 rounded-full ${actionStyles[action.type]} flex items-center justify-center shadow-sm ring-4 ring-background`}
+                              className={`w-10 h-10 rounded-full ${color} flex items-center justify-center shadow-sm ring-4 ring-background`}
                             >
                               <Icon className="w-5 h-5" />
                             </div>
@@ -66,7 +66,7 @@ const ActionTimeline = ({ actions }: Props) => {
                               <div className="flex items-center gap-3">
                                 <Badge
                                   variant="secondary"
-                                  className={`capitalize text-[10px] font-bold px-2 py-0 h-5 leading-none ${actionStyles[action.type]}`}
+                                  className={`capitalize text-[10px] font-bold px-2 py-0 h-5 leading-none ${color}`}
                                 >
                                   {action.type.replace(/_/g, " ")}
                                 </Badge>
