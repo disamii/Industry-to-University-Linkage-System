@@ -85,25 +85,26 @@ class Request(AuditMixin,models.Model):
     )
 
 class RequestAction(AuditMixin,models.Model):
-    ACTION_TYPES = [
-        ("created", "Created"),
-        ("assigned", "Assigned"),
-        ("forwarded", "Forwarded"),
-        ("accept_forwarded", "Accept Forwarded"),
-        ("posted_as_thematic", "Posted as Thematic Call"),
-        ("replied", "Replied"),
-        ("rejected","Rejected"),
-        ("reassigned","Reassigned"),
-        ("completed","Completed"),
-        ("revoked","Revoked")
-    ]
+    class ACTION_TYPES(models.TextChoices):
+        CREATED = "created", "Created"
+        ASSIGNED = "assigned", "Assigned"
+        FORWARDED = "forwarded", "Forwarded"
+        ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
+        POSTED_AS_THEMATIC = "posted_as_thematic", "Posted as Thematic Call"
+        REPLIED = "replied", "Replied"
+        REJECTED = "rejected", "Rejected"
+        REASSIGNED = "reassigned", "Reassigned"
+        COMPLETED = "completed", "Completed"
+        REVOKED = "revoked", "Revoked"
+        CANCELLED="canceled","Cancelled"
+        
     request = models.ForeignKey(
         "Request",
         on_delete=models.CASCADE,
         related_name="actions"
     )
 
-    type = models.CharField(max_length=30, choices=ACTION_TYPES)
+    type = models.CharField(max_length=30, choices=ACTION_TYPES.choices)
     
     description = models.TextField()  
     
@@ -146,116 +147,20 @@ class RequestAction(AuditMixin,models.Model):
         related_name="received_transfers_industry"  
     )   
 
-class RnDRequest(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="rnd")
-    problem_statement = models.TextField()
-    research_area = models.CharField(max_length=255)
-
-class TechnologySupportRequest(models.Model):
-    request = models.OneToOneField( Request, on_delete=models.CASCADE, related_name="tech_support")
-    technology_required = models.CharField(max_length=255, blank=True,
-        null=True)
-    required_duration = models.CharField(max_length=100, blank=True,
-        null=True)
-
-class ConsultancyRequest(models.Model):
-    request = models.OneToOneField( Request, on_delete=models.CASCADE, related_name="consultancy")
-    consultancy_type = models.CharField(max_length=255, blank=True,
-        null=True)
-
-class TrainingRequest(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="training")
-    training_type = models.CharField(max_length=255, blank=True,
-        null=True)
-    number_of_trainees = models.PositiveIntegerField()
-    trainee_level = models.CharField(max_length=100, blank=True,
-        null=True)
-
-class RecruitmentRequest(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="recruitment")
-    field_of_study = models.CharField(max_length=255, blank=True,
-        null=True)
-    graduate_year = models.IntegerField(blank=True,
-        null=True)
-    requirements = models.TextField( blank=True,
-        null=True)
-    number_to_recruit = models.PositiveIntegerField( blank=True,
-        null=True)
-
-class InternshipRequest(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="internship")
-
-    field_of_study = models.CharField(max_length=255)
-    number_of_students = models.PositiveIntegerField()
-    timeframe = models.CharField(max_length=100)
-    activities = models.TextField()
-
-class TestingRequest(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name="testing")
-    item_to_test = models.CharField(max_length=255)
-    test_type = models.CharField(max_length=255)
-
-class CurriculumReviewRequest(models.Model):
-    request = models.OneToOneField(
-        Request,
-        on_delete=models.CASCADE,
-        related_name="curriculum_review"
-    )
-
-    course_name = models.CharField(max_length=255)
-    current_syllabus = models.FileField(upload_to="syllabus/")
-    desired_industry_expertise = models.TextField()
-
-class IndustrialVisitRequest(models.Model):
-    request = models.OneToOneField(
-        Request,
-        on_delete=models.CASCADE,
-        related_name="industrial_visit"
-    )
-
-    number_of_students = models.PositiveIntegerField()
-    preferred_datetime = models.DateTimeField()
-    department_to_visit = models.CharField(max_length=255)
-
-class JointResearchRequest(models.Model):
-    request = models.OneToOneField(
-        Request,
-        on_delete=models.CASCADE,
-        related_name="joint_research"
-    )
-
-    research_topic = models.CharField(max_length=255)
-    problem_statement = models.TextField()
-    expected_industry_contribution = models.TextField()
-
-class GuestLectureRequest(models.Model):
-    request = models.OneToOneField(
-        Request,
-        on_delete=models.CASCADE,
-        related_name="guest_lecture"
-    )
-
-    topic = models.CharField(max_length=255)
-    datetime = models.DateTimeField()
-    student_level = models.CharField(max_length=50)  
-    duration = models.CharField(max_length=100)
-
-class TechTransferRequest(models.Model):
-    request = models.OneToOneField(
-        Request,
-        on_delete=models.CASCADE,
-        related_name="tech_transfer"
-    )
-
-    innovation_description = models.TextField()
-    technology_readiness_level = models.CharField(max_length=50)
-
 class Assignment(AuditMixin, models.Model):
+    class AssignmentStatus(models.TextChoices):
+        ACCEPTED = "accepted", "Accepted"
+        REJECTED = "rejected", "Rejected"
+        ACTIVE = "active", "Active"
+        COMPLETED = "completed", "Completed"
+        CANCELLED = "cancelled", "Cancelled"
+    
     request = models.ForeignKey(
         "Request", 
         on_delete=models.CASCADE, 
         related_name="assignments"
     )
+    
     assigned_user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
@@ -274,15 +179,9 @@ class Assignment(AuditMixin, models.Model):
     )
 
     status = models.CharField(
-            max_length=20,
-            choices=[
-                ("accepted", "Accepted"),    # User agreed to do it
-                ("rejected", "Rejected"),    # User declined (office needs to re-assign)
-                ("active", "Active"),        # Work is currently happening
-                ("completed", "Completed"),  # User finished the task
-                ("cancelled", "Cancelled"),  # Office or industry stopped the task
-            ],
-            default="pending"
-        )
+        max_length=20,
+        choices=AssignmentStatus.choices,
+        default=AssignmentStatus.ACTIVE,
+    )
     class Meta:
         unique_together = ('request', 'assigned_user')
