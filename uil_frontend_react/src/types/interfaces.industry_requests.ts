@@ -40,6 +40,7 @@ export type IndustryRequestDetailResponse = Omit<
   actions: RequestAction[];
   requesting_entity: RequestingEntity;
   academic_unit: OrgUnitResponse;
+  supported_actions: ActionType[];
 };
 
 export type IndustryRequestDetailOfficeResponse =

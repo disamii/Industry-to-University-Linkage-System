@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import IndustryRequestActions from "@/features/dashboard/industry_request/indutry_request-actions";
 import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.industry_request-actions";
-import { ActionType, UserRole } from "@/lib/enums";
+import { UserRole } from "@/lib/enums";
 import { cn, formatDate, getRoleByPath } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import { Building2, Calendar } from "lucide-react";
@@ -18,6 +18,7 @@ const IndustryRequestHeader = ({
   academic_unit,
   actions,
   industry,
+  supported_actions,
 }: Props) => {
   const latestAction = actions[0];
   const { pathname } = useLocation();
@@ -65,7 +66,7 @@ const IndustryRequestHeader = ({
         title={title}
         description={description}
         variant="detail"
-        supported_actions={Object.values(ActionType)}
+        supported_actions={supported_actions}
       />
     </div>
   );

@@ -227,23 +227,23 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
             else:
                 raise serializers.ValidationError("Invalid requesting_entity")
-            
+
             request = Request.objects.create(
-                    created_by_id=user.id,
-                    requested_by=user,
-                    industry=industry,
-                    requesting_entity="industry",
-                    **validated_data
-                )
+                created_by_id=user.id,
+                requested_by=user,
+                industry=industry,
+                requesting_entity="industry",
+                **validated_data
+            )
 
             RequestAction.objects.create(
-                    request=request,
-                    type="created",
-                    description="Request created",
-                    created_by_id=user.id,
-                    updated_by_id=user.id,
+                request=request,
+                type="created",
+                description="Request created",
+                created_by_id=user.id,
+                updated_by_id=user.id,
 
-                )
+            )
         return request
 
 
@@ -252,7 +252,8 @@ class RequestDetailSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     industry = IndustrySerializer(read_only=True)
     supported_actions = serializers.SerializerMethodField()
-    requested_by=UserSerializer(read_only=True)
+    requested_by = UserSerializer(read_only=True)
+
     class Meta:
         model = Request
         fields = [
@@ -278,7 +279,7 @@ class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     latest_action = serializers.SerializerMethodField()
     industry = IndustrySerializer(read_only=True)
-    requested_by=UserSerializer(read_only=True)
+    requested_by = UserSerializer(read_only=True)
 
     class Meta:
         model = Request
@@ -628,9 +629,9 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "type",
+            "description",
             "title",
             "content",
-            "description",
             "is_internal_only",
             "expires_at",
             "image",
@@ -759,9 +760,10 @@ ACTION_SERIALIZERS = {
     "rejected": RequestActionGenericSerializer,
     "completed": RequestActionGenericSerializer,
 
-    "replied": RequestActionRepliedSerializer,
     "assigned": RequestActionAssignedSerializer,
     "reassigned": RequestActionAssignedSerializer,
+
+    "replied": RequestActionRepliedSerializer,
     "forwarded": RequestActionForwardedSerializer,
     "posted_as_thematic": RequestActionPostedThematicSerializer,
 
