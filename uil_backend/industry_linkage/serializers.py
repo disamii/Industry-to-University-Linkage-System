@@ -11,7 +11,7 @@ from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied
-from .enums import ActionTypes, RequestingEntity
+from .enums import ActionTypes, AssignmentStatus, RequestingEntity
 from .models import (
     Industry,
     Request,
@@ -349,7 +349,7 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             assignment = Assignment.objects.filter(
                 request=request_obj,
                 status__in=[
-                    Assignment.AssignmentStatus.ACCEPTED
+                    AssignmentStatus.ACCEPTED
                 ]
             ).first()
             if assignment:
@@ -369,14 +369,14 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 ActionTypes.CANCELLED,
             ]:
                 if getattr(self, "assignment", None):
-                    self.assignment.status = Assignment.AssignmentStatus.CANCELLED
+                    self.assignment.status = AssignmentStatus.CANCELLED
                     self.assignment.save(update_fields=["status"])
 
             elif action_type in [
                 ActionTypes.COMPLETED,
             ]:
                 if getattr(self, "assignment", None):
-                    self.assignment.status = Assignment.AssignmentStatus.COMPLETED
+                    self.assignment.status = AssignmentStatus.COMPLETED
                     self.assignment.save(update_fields=["status"])
 
             elif action_type == ActionTypes.ACCEPT_FORWARDED:
@@ -445,8 +445,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             assignment = Assignment.objects.filter(
                 request=request_obj,
                 status__in=[
-                    Assignment.AssignmentStatus.ACCEPTED,
-                    Assignment.AssignmentStatus.PENDING
+                    AssignmentStatus.ACCEPTED,
+                    AssignmentStatus.PENDING
                 ]
             ).first()
 
@@ -494,7 +494,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 assignment.start_date = start_date
                 assignment.end_date = end_date
                 assignment.industry_mentor = industry_mentor
-                assignment.status = Assignment.AssignmentStatus.PENDING
+                assignment.status = AssignmentStatus.PENDING
                 assignment.updated_by_id = user.id
                 assignment.save()
 
@@ -523,20 +523,20 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     start_date=start_date,
                     end_date=end_date,
                     industry_mentor=industry_mentor,
-                    status=Assignment.AssignmentStatus.PENDING,
+                    status=AssignmentStatus.PENDING,
                     created_by_id=user.id,
                     updated_by_id=user.id,
                 )
 
                 if action_type == ActionTypes.REASSIGNED:
                     # fix: you were using self.assignment (bug)
-                    assignment.status = Assignment.AssignmentStatus.CANCELLED
+                    assignment.status = AssignmentStatus.CANCELLED
                     assignment.save(update_fields=["status"])
 
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
-                    type=action_type,
+                    # type=action_type,
                     resulted_content_type=ContentType.objects.get_for_model(
                         Assignment),
                     resulted_object_id=assignment.id,
@@ -719,6 +719,13 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
         if to_info:
             validated_data['to_content_type'] = to_info['content_type']
             validated_data['to_object_id'] = to_info['object_id']
+
+        user = self.context["request"].user
+        return RequestAction.objects.create(
+            created_by_id=user.id,
+            updated_by_id=user.id,
+            **validated_data
+        )
 
 # Assignment Related related serializer
 

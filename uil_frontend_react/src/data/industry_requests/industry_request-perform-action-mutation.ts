@@ -15,7 +15,7 @@ export const performAction = (
   const formData = toFormData(data);
   const id = formData.get("id");
 
-  if (!id) throw new Error("Please provide request id");
+  if (!id) throw new Error("Please provide request id first");
 
   return safeApiRequest(
     api.post<RequestResponse>(
@@ -36,8 +36,7 @@ export const usePerformActionMutation = () => {
   return useMutation({
     mutationFn: performAction,
     onSuccess: (data) => {
-      console.log(data);
-      toast.success(`Request ${data.type}  successfully`);
+      toast.success(`Request ${data.type.split("_").join(" ")} successfully`);
 
       queryClient.invalidateQueries({
         queryKey: industryRequestOfficeKeys.all(),

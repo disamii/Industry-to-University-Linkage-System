@@ -24,7 +24,7 @@ import {
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
 import { useLocation } from "react-router-dom";
-import IndustryRequestActions from "../indutry_request-actions";
+import IndustryRequestActions from "../industry_request-actions";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
 import {
   defaultIndustryRequestParams,

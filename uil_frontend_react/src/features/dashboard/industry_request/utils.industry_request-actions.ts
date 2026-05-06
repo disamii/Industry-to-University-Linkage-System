@@ -66,7 +66,7 @@ const fieldDefinitions: Record<
   assigned_user: {
     label: "Assign To",
     type: "select",
-    validation: (z) => z.string().min(1, "Please select a user"),
+    validation: (z) => z.coerce.number(),
   },
   start_date: {
     label: "Start Date",
@@ -103,7 +103,7 @@ const fieldDefinitions: Record<
   is_internal_only: {
     label: "Internal Only",
     type: "checkbox",
-    validation: (z) => z.boolean(),
+    validation: (z) => z.coerce.boolean(),
   },
   expires_at: { label: "Expires At", type: "date" },
   image: {

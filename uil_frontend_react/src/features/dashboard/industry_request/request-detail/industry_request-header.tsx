@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import IndustryRequestActions from "@/features/dashboard/industry_request/indutry_request-actions";
+import IndustryRequestActions from "@/features/dashboard/industry_request/industry_request-actions";
 import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.industry_request-actions";
 import { UserRole } from "@/lib/enums";
 import { cn, formatDate, getRoleByPath } from "@/lib/utils";

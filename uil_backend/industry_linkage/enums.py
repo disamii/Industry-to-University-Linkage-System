@@ -1,10 +1,11 @@
 from django.db import models
 
+
 class RequestingEntity(models.TextChoices):
-        INDUSTRY = "industry", "Industry"
-        ACADEMIC_UNIT = "academic_unit", "Academic Unit"
-        STAFF = "staff", "Staff"
-        STUDENT = "student", "Student"
+    INDUSTRY = "industry", "Industry"
+    ACADEMIC_UNIT = "academic_unit", "Academic Unit"
+    STAFF = "staff", "Staff"
+    STUDENT = "student", "Student"
 
 
 class RequestType(models.TextChoices):
@@ -40,34 +41,36 @@ class ActionTypes(models.TextChoices):
     REASSIGNED = "reassigned", "Reassigned"
     COMPLETED = "completed", "Completed"
     REVOKED = "revoked", "Revoked"
-    CANCELLED="cancelled","Cancelled"
+    CANCELLED = "cancelled", "Cancelled"
     ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
     REPLIED = "replied", "Replied"
-    REVERTED="reverted","Reverted"
+    REVERTED = "reverted", "Reverted"
+
 
 class AssignmentStatus(models.TextChoices):
-    PENDING = "pending", "Pending"   
+    PENDING = "pending", "Pending"
     ACCEPTED = "accepted", "Accepted"
     REJECTED = "rejected", "Rejected"
     IN_PROGRESS = "in_progress", "In Progress"
     COMPLETED = "completed", "Completed"
     CANCELLED = "cancelled", "Cancelled"
-    
+
+
 ENTITY_MAP = {
-        RequestingEntity.STAFF: {
-            "app": "auth",
-            "model": "user",
-        },
-        RequestingEntity.STUDENT: {
-            "app": "auth",
-            "model": "user",
-        },
-        RequestingEntity.INDUSTRY: {
-            "app": "industry_linkage",
-            "model": "industry",
-        },
-        RequestingEntity.ACADEMIC_UNIT: {
-            "app": "organizational_structure",
-            "model": "organizationalunit",
-        },
-    }
+    RequestingEntity.STAFF: {
+        "app": "auth",
+        "model": "user",
+    },
+    RequestingEntity.STUDENT: {
+        "app": "auth",
+        "model": "user",
+    },
+    RequestingEntity.INDUSTRY: {
+        "app": "industry_linkage",
+        "model": "industry",
+    },
+    RequestingEntity.ACADEMIC_UNIT: {
+        "app": "organizational_structure",
+        "model": "organizationalunit",
+    },
+}
