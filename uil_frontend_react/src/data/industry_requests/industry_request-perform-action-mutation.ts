@@ -39,7 +39,6 @@ export const usePerformActionMutation = () => {
           ...industryRequestKeys.all(),
         ],
       });
-      toast.success("Action performed successfully");
     },
     onError: (error: any) =>
       toast.error(error.message || "Failed to perform the action"),

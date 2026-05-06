@@ -33,6 +33,7 @@ import {
   FormFieldConfig,
 } from "./utils.industry_request-actions";
 import { FieldValues, UseFormReturn } from "react-hook-form";
+import toast from "react-hot-toast";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -169,6 +170,21 @@ const PerformActionFormDialog = ({
   const config = actionType ? ACTION_CONFIG[actionType] : null;
   const form = useDynamicForm(config?.formFields || []);
 
+  const { mutate, isPending } = usePerformActionMutation();
+  // useMutation({
+
+  const onSubmit = (data: any) => {
+    const formattedData = { ...data, type: actionType, id: requestId };
+
+    mutate(formattedData, {
+      onSuccess: () => {
+        onOpenChange(false);
+        form.reset();
+        toast.success(`${config?.label} successful`);
+      },
+    });
+  };
+
   useEffect(() => {
     if (!open) form.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,33 +195,7 @@ const PerformActionFormDialog = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionType]);
 
-  const { mutate, isPending } = usePerformActionMutation();
-  // useMutation({
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   mutationFn: async (values: Record<string, any>) => {
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     console.log(`Submitting ${actionType} for request ${requestId}:`, values);
-  //     return { success: true };
-  //   },
-  //   onSuccess: () => {
-  //     toast.success(`${config?.label} successful`);
-  //     queryClient.invalidateQueries({
-  //       queryKey: [
-  //         ...industryRequestKeys.detail(requestId),
-  //         ...industryRequestOfficeKeys.detail(requestId),
-  //       ],
-  //     });
-  //     onOpenChange(false);
-  //     form.reset();
-  //   },
-  //   onError: () => toast.error("Something went wrong"),
-  // });
-
   if (!config) return null;
-
-  const onSubmit = (data: any) => {
-    mutate({ ...data, type: actionType, id: requestId });
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
