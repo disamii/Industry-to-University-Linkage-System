@@ -70,14 +70,13 @@ export const FormInput = <T extends FieldValues>({
   type = "text",
   required,
   className,
-  hidden,
 }: FormInputProps<T>) => {
   return (
     <Controller
       name={name}
       control={form.control}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid} hidden={hidden}>
+        <Field data-invalid={fieldState.invalid}>
           <FieldLabel htmlFor={field.name} className="capitalize">
             {label}
             {required && <Asterisk />}

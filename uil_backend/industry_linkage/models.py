@@ -1,3 +1,5 @@
+from unittest import result
+
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -58,7 +60,6 @@ class Request(AuditMixin,models.Model):
         ("exhibition_call","Exhibition Call"),
         ("joint_ommunity_engagement","Joint Community engagement"),
         ("other", "Other"),
-        # 
         
     ]
     REQUESTING_ENTITY_CHOICES = [
@@ -124,13 +125,22 @@ class RequestAction(AuditMixin,models.Model):
     
     description = models.TextField()  
     is_active = models.BooleanField(default=True)
-    assignment = models.ForeignKey(
-        "Assignment", 
+    
+    resulted_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        related_name="requestaction_resulted"
     )
 
+    resulted_object_id = models.PositiveIntegerField(null=True, blank=True)
+
+    resulted_object = GenericForeignKey(
+        "resulted_content_type",
+        "resulted_object_id"
+    )
+    
     from_content_type = models.ForeignKey(
         ContentType, 
         on_delete=models.CASCADE, 
@@ -156,12 +166,13 @@ class RequestAction(AuditMixin,models.Model):
 
 class Assignment(AuditMixin, models.Model):
     class AssignmentStatus(models.TextChoices):
+        PENDING = "pending", "Pending"   
         ACCEPTED = "accepted", "Accepted"
         REJECTED = "rejected", "Rejected"
-        ACTIVE = "active", "Active"
+        IN_PROGRESS = "in_progress", "In Progress"
         COMPLETED = "completed", "Completed"
         CANCELLED = "cancelled", "Cancelled"
-    
+        
     request = models.ForeignKey(
         "Request", 
         on_delete=models.CASCADE, 
@@ -188,7 +199,7 @@ class Assignment(AuditMixin, models.Model):
     status = models.CharField(
         max_length=20,
         choices=AssignmentStatus.choices,
-        default=AssignmentStatus.ACTIVE,
+        default=AssignmentStatus.PENDING,
     )
     class Meta:
         unique_together = ('request', 'assigned_user')

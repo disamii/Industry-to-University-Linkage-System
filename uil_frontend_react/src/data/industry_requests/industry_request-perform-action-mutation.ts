@@ -1,21 +1,20 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { toFormData } from "@/lib/utils";
 import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
-import { IndustryRequestCreateInput } from "@/validation/validation.industry_requests";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { industryRequestKeys } from "../industry/keys";
-import { industryRequestOfficeKeys } from "./keys";
-import { industryRequestOfficeUrls } from "./urls";
+import { industryRequestKeys } from "./industry/keys";
+import { industryRequestOfficeKeys } from "./office/keys";
+import { industryRequestOfficeUrls } from "./office/urls";
+import { toFormData } from "@/lib/utils";
 
-export const performActionOffice = (data: IndustryRequestCreateInput) => {
+export const performAction = (data: any) => {
   // const validated = industryRequestCreateSchema.parse(data);
   const formData = toFormData(data);
 
   return safeApiRequest(
     api.post<IndustryRequestResponse>(
-      industryRequestOfficeUrls.base(),
+      industryRequestOfficeUrls.perform_action(),
       formData,
       {
         headers: {
@@ -30,8 +29,10 @@ export const usePerformActionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: performActionOffice,
-    onSuccess: () => {
+    mutationFn: performAction,
+    onSuccess: (data: any) => {
+      console.log(data);
+
       queryClient.invalidateQueries({
         queryKey: [
           ...industryRequestOfficeKeys.all(),

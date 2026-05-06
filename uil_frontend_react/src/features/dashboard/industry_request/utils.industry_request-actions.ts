@@ -16,8 +16,6 @@ import {
 import * as z from "zod";
 
 export type ActionFormFields =
-  | "id"
-  | "type"
   | "description"
   | "assigned_user"
   | "start_date"
@@ -46,23 +44,10 @@ export type FormFieldConfig = {
     | "checkbox"
     | "file";
   validation?: (z: typeof import("zod")) => z.ZodTypeAny;
-  hidden?: boolean;
   isOptional?: boolean;
 };
 
 const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
-  id: {
-    validation: (z) => z.number(),
-    hidden: true,
-  },
-  type: {
-    validation: (z) =>
-      z.enum(
-        ActionType,
-        `Action should be one of ${Object.values(ActionType).join(",")}`,
-      ),
-    hidden: true,
-  },
   description: {
     label: "Description",
     type: "textarea",
@@ -138,7 +123,7 @@ const FIELDS = Object.entries(fieldDefinitions).reduce(
   {} as Record<ActionFormFields, FormFieldConfig>,
 );
 
-const BASE_FIELDS = [FIELDS.id, FIELDS.type, FIELDS.description];
+const BASE_FIELDS = [FIELDS.description];
 
 const ASSIGNMENT_FIELDS = [
   ...BASE_FIELDS,

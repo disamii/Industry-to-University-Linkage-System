@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   FormCombobox,
   FormInput,
@@ -18,48 +19,155 @@ import {
   defaultIndustryParams,
   useGetIndustryList,
 } from "@/data/industry/industry-list-query";
-import { industryRequestKeys } from "@/data/industry_requests/industry/keys";
-import { industryRequestOfficeKeys } from "@/data/industry_requests/office/keys";
+import { usePerformActionMutation } from "@/data/industry_requests/industry_request-perform-action-mutation";
 import { defaultUserParams, useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { ActionType } from "@/lib/enums";
-import { getFullName } from "@/lib/utils";
+import { cn, getFullName } from "@/lib/utils";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import { UserProfile } from "@/types/interfaces.user";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import toast from "react-hot-toast";
 import {
   ACTION_CONFIG,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 
-interface ActionDialogProps {
-  requestId: number;
-  actionType: ActionType | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+type FormFieldProps<T extends FieldValues> = {
+  field: FormFieldConfig;
+  form: UseFormReturn<T>;
+};
 
-const PerformActionFormDialog = ({
-  requestId,
-  actionType,
-  open,
-  onOpenChange,
-}: ActionDialogProps) => {
-  const queryClient = useQueryClient();
+const FormField = <T extends FieldValues>({
+  field,
+  form,
+}: FormFieldProps<T>) => {
   const { params: industryParams, setParams: setIndustryParams } = useUrlParams(
     defaultIndustryParams,
   );
   const { params: userParams, setParams: setUserParams } =
     useUrlParams(defaultUserParams);
 
-  const config = actionType ? ACTION_CONFIG[actionType] : null;
-  const form = useDynamicForm(config?.formFields || []);
-
   const industriesQuery = useGetIndustryList(industryParams);
   const usersQuery = useGetUsers(userParams);
+
+  const { name, label, placeholder, isOptional } = field;
+  const commonProps = {
+    form,
+    name: name as any,
+    label,
+    placeholder,
+    required: !isOptional,
+  };
+
+  const SELECT_CONFIGS = {
+    user: {
+      query: usersQuery,
+      searchPlaceholder: "User",
+      setParams: setUserParams,
+      getLabel: (item: UserProfile) => getFullName(item),
+      placeholder: "Select a user...",
+    },
+    industry: {
+      query: industriesQuery,
+      searchPlaceholder: "Industries",
+      setParams: setIndustryParams,
+      getLabel: (item: IndustryResponse) => item.name,
+      placeholder: "Select industry...",
+    },
+  };
+
+  switch (field.type) {
+    case "textarea":
+      return <FormTextArea {...commonProps} key={commonProps.name} />;
+
+    case "date":
+    case "text":
+    case "number":
+    case "checkbox":
+      return (
+        <FormInput {...commonProps} key={commonProps.name} type={field.type} />
+      );
+
+    case "file":
+      return <FormUploadFile {...commonProps} key={commonProps.name} />;
+
+    case "select": {
+      const labelLower = field.label.toLowerCase();
+
+      // 1. Handle TreeSelect (Units) separately as it's a different component
+      if (labelLower.includes("unit")) {
+        return (
+          <TreeSelectOrgUnit
+            {...commonProps}
+            variant="form"
+            key={commonProps.name}
+          />
+        );
+      }
+
+      // 2. Determine if we are dealing with a User or Industry
+      const type = labelLower.includes("assign")
+        ? "user"
+        : labelLower.includes("industry")
+          ? "industry"
+          : null;
+
+      if (!type) return null;
+
+      const config = SELECT_CONFIGS[type];
+
+      return (
+        <FormCombobox
+          {...commonProps}
+          key={commonProps.name}
+          placeholder={config.placeholder}
+          query={config.query}
+          checkEmpty={(data) => data.results.length === 0}
+          onSearch={(search) => config.setParams({ search })}
+          searchPlaceholder={`Search ${config.searchPlaceholder}...`}
+          position="popper"
+        >
+          {(data, setOpen) => (
+            <CommandGroup>
+              {data.results.map((item) => (
+                <CommandItem
+                  key={item.id}
+                  onSelect={() => {
+                    form.setValue(commonProps.name, item.id as any);
+                    setOpen(false);
+                  }}
+                >
+                  {config.getLabel(item as any)}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+        </FormCombobox>
+      );
+    }
+
+    default:
+      return null;
+  }
+};
+
+type PerformActionDialogProps = {
+  requestId: number;
+  actionType: ActionType | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+const PerformActionFormDialog = ({
+  requestId,
+  actionType,
+  open,
+  onOpenChange,
+}: PerformActionDialogProps) => {
+  const config = actionType ? ACTION_CONFIG[actionType] : null;
+  const form = useDynamicForm(config?.formFields || []);
 
   useEffect(() => {
     if (!open) form.reset();
@@ -71,139 +179,53 @@ const PerformActionFormDialog = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionType]);
 
-  const { mutate, isPending } = useMutation({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutationFn: async (values: Record<string, any>) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(`Submitting ${actionType} for request ${requestId}:`, values);
-      return { success: true };
-    },
-    onSuccess: () => {
-      toast.success(`${config?.label} successful`);
-      queryClient.invalidateQueries({
-        queryKey: [
-          ...industryRequestKeys.detail(requestId),
-          ...industryRequestOfficeKeys.detail(requestId),
-        ],
-      });
-      onOpenChange(false);
-      form.reset();
-    },
-    onError: () => toast.error("Something went wrong"),
-  });
+  const { mutate, isPending } = usePerformActionMutation();
+  // useMutation({
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   mutationFn: async (values: Record<string, any>) => {
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+  //     console.log(`Submitting ${actionType} for request ${requestId}:`, values);
+  //     return { success: true };
+  //   },
+  //   onSuccess: () => {
+  //     toast.success(`${config?.label} successful`);
+  //     queryClient.invalidateQueries({
+  //       queryKey: [
+  //         ...industryRequestKeys.detail(requestId),
+  //         ...industryRequestOfficeKeys.detail(requestId),
+  //       ],
+  //     });
+  //     onOpenChange(false);
+  //     form.reset();
+  //   },
+  //   onError: () => toast.error("Something went wrong"),
+  // });
 
   if (!config) return null;
 
-  const renderField = (field: FormFieldConfig) => {
-    const { name, label, placeholder, hidden, isOptional } = field;
-    const commonProps = {
-      form,
-      key: name,
-      name,
-      label,
-      placeholder,
-      hidden,
-      required: !isOptional,
-    };
-
-    const SELECT_CONFIGS = {
-      user: {
-        query: usersQuery,
-        searchPlaceholder: "User",
-        setParams: setUserParams,
-        getLabel: (item: UserProfile) => getFullName(item),
-        placeholder: "Select a user...",
-      },
-      industry: {
-        query: industriesQuery,
-        searchPlaceholder: "Industries",
-        setParams: setIndustryParams,
-        getLabel: (item: IndustryResponse) => item.name,
-        placeholder: "Select industry...",
-      },
-    };
-
-    switch (field.type) {
-      case "textarea":
-        return <FormTextArea {...commonProps} />;
-
-      case "date":
-      case "text":
-      case "number":
-      case "checkbox":
-        return <FormInput {...commonProps} type={field.type} />;
-
-      case "file":
-        return <FormUploadFile {...commonProps} />;
-
-      case "select": {
-        const labelLower = field.label.toLowerCase();
-
-        // 1. Handle TreeSelect (Units) separately as it's a different component
-        if (labelLower.includes("unit")) {
-          return <TreeSelectOrgUnit variant="form" {...commonProps} />;
-        }
-
-        // 2. Determine if we are dealing with a User or Industry
-        const type = labelLower.includes("assign")
-          ? "user"
-          : labelLower.includes("industry")
-            ? "industry"
-            : null;
-
-        if (!type) return null;
-
-        const config = SELECT_CONFIGS[type];
-
-        return (
-          <FormCombobox
-            {...commonProps}
-            placeholder={config.placeholder}
-            query={config.query}
-            checkEmpty={(data) => data.results.length === 0}
-            onSearch={(search) => config.setParams({ search })}
-            searchPlaceholder={`Search ${config.searchPlaceholder}...`}
-            position="popper"
-          >
-            {(data, setOpen) => (
-              <CommandGroup>
-                {data.results.map((item) => (
-                  <CommandItem
-                    key={item.id}
-                    onSelect={() => {
-                      form.setValue(name, item.id);
-                      setOpen(false);
-                    }}
-                  >
-                    {config.getLabel(item as any)}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-          </FormCombobox>
-        );
-      }
-
-      default:
-        return null;
-    }
+  const onSubmit = (data: any) => {
+    mutate({ ...data, type: actionType, id: requestId });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106.25 max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center gap-2">
-            <config.Icon className="size-5" />
+          <div
+            className={cn(
+              "flex items-center gap-1 px-3 py-1.5 rounded-md w-fit",
+              cn(config.color),
+            )}
+          >
+            <config.Icon className="size-4" />
             <DialogTitle>{config.label}</DialogTitle>
           </div>
         </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit((v) => mutate(v))}
-          className="space-y-4"
-        >
-          {config.formFields.map(renderField)}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {config.formFields.map((field) => (
+            <FormField key={field.name} field={field} form={form} />
+          ))}
 
           <DialogFooter>
             <Button
