@@ -1,6 +1,5 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { appToast } from "@/lib/toast";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import {
   IndustryUpdateInput,
@@ -9,6 +8,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { industryKeys } from "./keys";
 import { industryUrls } from "./urls";
+import toast from "react-hot-toast";
 
 export const industryUpdate = ({
   id,
@@ -32,9 +32,9 @@ export const useIndustryUpdateMutation = (id: string) => {
     mutationFn: (data: IndustryUpdateInput) => industryUpdate({ id, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryKeys.all() });
-      appToast.success("Industry updated successfully");
+      toast.success("Industry updated successfully");
     },
     onError: (error: any) =>
-      appToast.error(error.message || "Failed to industry request"),
+      toast.error(error.message || "Failed to industry request"),
   });
 };

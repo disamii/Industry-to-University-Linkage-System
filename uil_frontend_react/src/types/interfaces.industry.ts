@@ -7,6 +7,6 @@ export type IndustryParams = {
 
 export type IndustryResponse = IndustryBase &
   Metadata & {
-    id: string;
+    id: number;
     status: string;
   };

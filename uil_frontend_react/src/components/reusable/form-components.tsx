@@ -155,7 +155,10 @@ export const FormTextArea = <T extends FieldValues>({
   />
 );
 
-type FormSelectProps<T extends FieldValues, Q = unknown> = BaseFormProps<T> & {
+type FormComboboxProps<
+  T extends FieldValues,
+  Q = unknown,
+> = BaseFormProps<T> & {
   orientation?: "vertical" | "horizontal" | "responsive";
   position?: "item-aligned" | "popper";
 
@@ -178,6 +181,7 @@ type FormSelectProps<T extends FieldValues, Q = unknown> = BaseFormProps<T> & {
 
   desc?: string;
   isNumber?: boolean;
+  getDisplayValue?: (value: any, data?: Q) => string;
 };
 
 export const FormCombobox = <T extends FieldValues, Q = unknown>({
@@ -197,7 +201,8 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
   isNumber,
   required,
   searchable = true,
-}: FormSelectProps<T, Q>) => {
+  getDisplayValue,
+}: FormComboboxProps<T, Q>) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 300);
@@ -231,10 +236,11 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
                 className={cn("justify-between py-5 min-w-30", className)}
               >
                 {field.value
-                  ? // Logic to find label for the trigger
+                  ? (getDisplayValue?.(field.value, query?.data) ??
                     options?.find(
                       (opt) => String(opt.value) === String(field.value),
-                    )?.label || "Selected" // Fallback for dynamic query labels
+                    )?.label ??
+                    "Selected")
                   : (placeholder ?? "Select...")}
                 <ChevronsUpDown className="opacity-50 ml-2 w-4 h-4 shrink-0" />
               </Button>
