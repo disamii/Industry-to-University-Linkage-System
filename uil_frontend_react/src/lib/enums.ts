@@ -40,9 +40,11 @@ export enum IndustryRequestType {
   OTHER = "other",
 }
 
-export enum RequestingEntity {
+export enum Entity {
   INDUSTRY = "industry",
   ACADEMIC_UNIT = "academic_unit",
+  STAFF = "staff",
+  STUDENT = "student",
 }
 
 export enum ActionType {

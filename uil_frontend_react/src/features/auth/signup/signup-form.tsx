@@ -3,6 +3,7 @@ import CreateIndustryForm from "./create-industry-form";
 import CheckStaffEmailForm from "./check-staff-email-form";
 import SignupChooseRole from "./signup-choose-role";
 import SignupSuccess from "./signup-success";
+import { UserRole } from "@/lib/enums";
 
 type Props = {
   step: number;
@@ -10,7 +11,7 @@ type Props = {
 };
 
 const SignupForm = ({ step, setStep }: Props) => {
-  const [role, setRole] = useState<"industry" | "staff" | null>(null);
+  const [role, setRole] = useState<UserRole | null>(null);
 
   return (
     <>
@@ -20,7 +21,7 @@ const SignupForm = ({ step, setStep }: Props) => {
         )}
 
         {step === 2 &&
-          (role === "staff" ? (
+          (UserRole.STAFF ? (
             <CheckStaffEmailForm setStep={setStep} />
           ) : (
             <CreateIndustryForm setStep={setStep} />

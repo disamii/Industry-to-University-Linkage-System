@@ -23,17 +23,17 @@ import { usePerformActionMutation } from "@/data/industry_requests/industry_requ
 import { defaultUserParams, useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
 import { useUrlParams } from "@/hooks/use-url-params";
-import { ActionType } from "@/lib/enums";
+import { ActionType, Entity } from "@/lib/enums";
 import { cn, getFullName } from "@/lib/utils";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import { UserProfile } from "@/types/interfaces.user";
 import { useEffect } from "react";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 import {
   ACTION_CONFIG,
+  ActionFormFields,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
-import { FieldValues, UseFormReturn } from "react-hook-form";
-import toast from "react-hot-toast";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -159,6 +159,8 @@ type PerformActionDialogProps = {
   actionType: ActionType | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  from_entity?: Entity;
+  to_entity?: Entity;
 };
 
 const PerformActionFormDialog = ({
@@ -166,21 +168,28 @@ const PerformActionFormDialog = ({
   actionType,
   open,
   onOpenChange,
+  from_entity,
+  to_entity,
 }: PerformActionDialogProps) => {
   const config = actionType ? ACTION_CONFIG[actionType] : null;
   const form = useDynamicForm(config?.formFields || []);
 
   const { mutate, isPending } = usePerformActionMutation();
-  // useMutation({
 
-  const onSubmit = (data: any) => {
-    const formattedData = { ...data, type: actionType, id: requestId };
+  const onSubmit = (data: Record<ActionFormFields, string | number>) => {
+    let formattedData: Record<ActionFormFields, any> = {
+      ...data,
+      type: actionType,
+      id: requestId,
+    };
+
+    if (actionType === ActionType.REPLIED && from_entity && to_entity)
+      formattedData = { ...formattedData, from_entity, to_entity };
 
     mutate(formattedData, {
       onSuccess: () => {
         onOpenChange(false);
         form.reset();
-        toast.success(`${config?.label} successful`);
       },
     });
   };

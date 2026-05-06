@@ -10,12 +10,13 @@ import toast from "react-hot-toast";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
 import { toFormData } from "@/lib/utils";
+import { Entity } from "@/lib/enums";
 
 export const industryRequestCreate = (data: IndustryRequestCreateInput) => {
   const validated = industryRequestCreateSchema.parse(data);
 
   const formData = toFormData(validated);
-  formData.append("requesting_entity", "industry");
+  formData.append("requesting_entity", Entity.INDUSTRY);
 
   // console.log(Object.fromEntries(formData.entries()));
 

@@ -1,20 +1,25 @@
+import { ActionFormFields } from "@/features/dashboard/industry_request/utils.industry_request-actions";
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
+import { toFormData } from "@/lib/utils";
+import { RequestResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { industryRequestKeys } from "./industry/keys";
 import { industryRequestOfficeKeys } from "./office/keys";
 import { industryRequestOfficeUrls } from "./office/urls";
-import { toFormData } from "@/lib/utils";
 
-export const performAction = (data: any) => {
-  // const validated = industryRequestCreateSchema.parse(data);
+export const performAction = (
+  data: Record<ActionFormFields, string | number>,
+) => {
   const formData = toFormData(data);
+  const id = formData.get("id");
+
+  if (!id) throw new Error("Please provide request id");
 
   return safeApiRequest(
-    api.post<IndustryRequestResponse>(
-      industryRequestOfficeUrls.perform_action(),
+    api.post<RequestResponse>(
+      industryRequestOfficeUrls.perform_action(Number(id)),
       formData,
       {
         headers: {
@@ -30,14 +35,15 @@ export const usePerformActionMutation = () => {
 
   return useMutation({
     mutationFn: performAction,
-    onSuccess: (data: any) => {
+    onSuccess: (data) => {
       console.log(data);
+      toast.success(`Request ${data.type}  successfully`);
 
       queryClient.invalidateQueries({
-        queryKey: [
-          ...industryRequestOfficeKeys.all(),
-          ...industryRequestKeys.all(),
-        ],
+        queryKey: industryRequestOfficeKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: industryRequestKeys.all(),
       });
     },
     onError: (error: any) =>

@@ -1,6 +1,7 @@
+from django.db import transaction
 import re
 from rest_framework.exceptions import ValidationError
-from  .models import RequestAction
+from .models import RequestAction
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 
@@ -12,7 +13,7 @@ def clean_phone(value: str) -> str:
 def validate_action_or_raise(request, action_type):
 
     active_actions = request.actions.filter(is_active=True)
-    
+
     if action_type == RequestAction.ACTION_TYPES.INITIATED:
         if active_actions.filter(type=RequestAction.ACTION_TYPES.INITIATED).exists():
             raise ValidationError({
@@ -45,15 +46,15 @@ def validate_action_or_raise(request, action_type):
             raise ValidationError({
                 "action": "Already assigned. Revoke first."
             })
-    
+
     elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
-            if not active_actions.filter(type=RequestAction.ACTION_TYPES.FORWARDED).exists():
-                raise ValidationError({
-                    "action": "Cannot accept. No active forwarded request."
-                })
+        if not active_actions.filter(type=RequestAction.ACTION_TYPES.FORWARDED).exists():
+            raise ValidationError({
+                "action": "Cannot accept. No active forwarded request."
+            })
 
     elif action_type == RequestAction.ACTION_TYPES.REVOKED:
-        
+
         if not active_actions.filter(
             type__in=[
                 RequestAction.ACTION_TYPES.ASSIGNED,
@@ -63,9 +64,8 @@ def validate_action_or_raise(request, action_type):
             raise ValidationError({
                 "action": "Cannot revoke. No active assignment "
             })
-            
-    
-    elif action_type==RequestAction.ACTION_TYPES.REASSIGNED:
+
+    elif action_type == RequestAction.ACTION_TYPES.REASSIGNED:
         if active_actions.filter(
             type__in=[
                 RequestAction.ACTION_TYPES.ASSIGNED,
@@ -75,7 +75,7 @@ def validate_action_or_raise(request, action_type):
             raise ValidationError({
                 "action": "Already assigned. Revoke first."
             })
-    elif action_type==RequestAction.ACTION_TYPES.POSTED_AS_THEMATIC:
+    elif action_type == RequestAction.ACTION_TYPES.POSTED_AS_THEMATIC:
         if active_actions.filter(
             type__in=[
                 RequestAction.ACTION_TYPES.FORWARDED
@@ -140,7 +140,7 @@ def deactivate_previous_actions(request_obj, action_type):
                 RequestAction.ACTION_TYPES.REASSIGNED,
             ]
         ).update(is_active=False)
-        
+
 
 class ForwardTarget(serializers.Field):
 
@@ -150,6 +150,7 @@ class ForwardTarget(serializers.Field):
         "INDUSTRY": {"app": "industry_linkage", "model": "industry"},
         "ACADEMIC_UNIT": {"app": "organizational_structure", "model": "organizationalunit"},
     }
+
     def to_internal_value(self, object_id):
         if not object_id:
             raise serializers.ValidationError(
@@ -157,16 +158,16 @@ class ForwardTarget(serializers.Field):
             )
         mapping = self.ENTITY_MAP["ACADEMIC_UNIT"]
         content_type = ContentType.objects.get(
-                app_label=mapping["app"],
-                model=mapping["model"]
-            )
+            app_label=mapping["app"],
+            model=mapping["model"]
+        )
         model_class = content_type.model_class()
         if not model_class.objects.filter(id=object_id).exists():
             raise serializers.ValidationError(
                 {"id": f"ACADEMIC_UNIT with id={object_id} does not exist."}
             )
         return {
-            "entity":"ACADEMIC_UNIT",
+            "entity": "ACADEMIC_UNIT",
             "content_type": content_type,
             "object_id": object_id
         }
@@ -205,12 +206,10 @@ class EntityReceiverField(serializers.Field):
                 f"Internal configuration error: model class for {entity_constant} not found."
             )
         return {
-            "entity":entity_constant,
+            "entity": entity_constant,
             "content_type": content_type,
         }
-from django.db import transaction
 
-from django.db import transaction
 
 def revert_action_util(action, note=""):
     original_type = action.type

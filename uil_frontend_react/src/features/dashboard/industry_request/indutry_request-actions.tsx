@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry/industry_request-delete-mutation";
 import { ActionType, UserRole } from "@/lib/enums";
+import { mapEntity } from "@/lib/mappings";
 import { cn, getRoleByPath } from "@/lib/utils";
 import {
   ChevronDown,
@@ -24,8 +25,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ACTION_CONFIG } from "./utils.industry_request-actions";
 import PeformActionFormDialog from "./perform-action-form-dialog";
+import { ACTION_CONFIG } from "./utils.industry_request-actions";
 
 type Props = {
   id: number;
@@ -49,7 +50,10 @@ const IndustryRequestActions = ({
   const isTable = variant === "table";
 
   const { pathname } = useLocation();
-  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
+  const currentRole = getRoleByPath(pathname);
+
+  const isOffice = currentRole === UserRole.ADMIN;
+  const currentEntity = currentRole ? mapEntity[currentRole] : undefined;
 
   // Perform Actions
   const actionsToPerform = Object.values(ActionType).filter((type) =>
@@ -144,6 +148,8 @@ const IndustryRequestActions = ({
         actionType={selectedAction}
         open={actionDialogOpen}
         onOpenChange={setActionDialogOpen}
+        from_entity={currentEntity?.from}
+        to_entity={currentEntity?.to}
       />
 
       <ConfirmDelete

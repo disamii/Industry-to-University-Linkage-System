@@ -105,7 +105,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
       <TableCell>
         <Badge className={cn(color, "capitalize gap-1.5")}>
           <ActionIcon className="w-3 h-3" />
-          {item.latest_action}
+          {item.latest_action.split("_").join(" ")}
         </Badge>
       </TableCell>
       <TableCell>

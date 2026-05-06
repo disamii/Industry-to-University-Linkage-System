@@ -8,28 +8,34 @@ import {
   MessageSquare,
   Plus,
   RefreshCw,
-  ShieldMinus,
+  ShieldBan,
   UserCheck,
   XCircle,
-  XIcon,
 } from "lucide-react";
 import * as z from "zod";
 
-export type ActionFormFields =
+export type ImplicitActionFormFields =
+  | "id"
+  | "type"
+  | "from_entity"
+  | "to_entity";
+
+export type ExplicitActionFormFields =
   | "description"
   | "assigned_user"
   | "start_date"
   | "end_date"
   | "industry_mentor"
-  | "from_unit"
-  | "to_unit"
-  | "from_industry"
-  | "to_industry"
+  | "target_unit"
   | "title"
   | "content"
   | "is_internal_only"
   | "expires_at"
   | "image";
+
+export type ActionFormFields =
+  | ImplicitActionFormFields
+  | ExplicitActionFormFields;
 
 export type FormFieldConfig = {
   name: string;
@@ -47,7 +53,10 @@ export type FormFieldConfig = {
   isOptional?: boolean;
 };
 
-const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
+const fieldDefinitions: Record<
+  ExplicitActionFormFields,
+  Partial<FormFieldConfig>
+> = {
   description: {
     label: "Description",
     type: "textarea",
@@ -75,15 +84,10 @@ const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
     validation: (z) => z.string().optional(),
     isOptional: true,
   },
-  from_unit: { label: "From Unit", type: "select" },
-  to_unit: { label: "To Unit", type: "select" },
-  from_industry: {
-    label: "From Industry",
+  target_unit: {
+    label: "Target Unit",
     type: "select",
-  },
-  to_industry: {
-    label: "To Industry",
-    type: "select",
+    validation: (z) => z.coerce.number(),
   },
   title: {
     label: "Post Title",
@@ -111,7 +115,7 @@ const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
 
 const FIELDS = Object.entries(fieldDefinitions).reduce(
   (acc, [key, config]) => {
-    acc[key as ActionFormFields] = {
+    acc[key as ExplicitActionFormFields] = {
       name: key,
       label: config.label || key,
       placeholder: config.placeholder || "",
@@ -120,7 +124,7 @@ const FIELDS = Object.entries(fieldDefinitions).reduce(
     };
     return acc;
   },
-  {} as Record<ActionFormFields, FormFieldConfig>,
+  {} as Record<ExplicitActionFormFields, FormFieldConfig>,
 );
 
 const BASE_FIELDS = [FIELDS.description];
@@ -144,63 +148,61 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
   [ActionType.INITIATED]: {
     label: "Initiate Request",
     Icon: Plus,
-    color: "bg-zinc-100 text-zinc-700",
+    color: "bg-zinc-100 text-zinc-700", // Neutral starting point
     formFields: [...BASE_FIELDS],
   },
   [ActionType.ACCEPT_FORWARDED]: {
     label: "Accept Forward",
     Icon: CheckCircle2,
-    color: "bg-cyan-100 text-cyan-700",
+    color: "bg-teal-100 text-teal-700", // Distinct from green "Complete"
     formFields: [...BASE_FIELDS],
   },
   [ActionType.REVOKED]: {
     label: "Revoke Assignment",
-    Icon: ShieldMinus,
-    color: "bg-red-100 text-red-700",
+    Icon: ShieldBan,
+    color: "bg-orange-100 text-orange-700", // Warning but not a "failure"
     formFields: [...BASE_FIELDS],
   },
   [ActionType.CANCELLED]: {
     label: "Cancel Request",
-    Icon: XIcon,
-    color: "bg-red-100 text-red-700",
+    Icon: XCircle,
+    color: "bg-slate-200 text-slate-600", // Muted/Disabled look
     formFields: [...BASE_FIELDS],
   },
   [ActionType.REJECTED]: {
     label: "Reject",
     Icon: XCircle,
-    color: "bg-red-100 text-red-700",
+    color: "bg-red-100 text-red-700", // Critical negative
     formFields: [...BASE_FIELDS],
   },
   [ActionType.COMPLETED]: {
     label: "Mark Complete",
     Icon: CheckSquare,
-    color: "bg-emerald-100 text-emerald-700",
+    color: "bg-emerald-100 text-emerald-700", // Success
     formFields: [...BASE_FIELDS],
   },
-
   [ActionType.ASSIGNED]: {
     label: "Assign User",
     Icon: UserCheck,
-    color: "bg-blue-100 text-blue-700",
+    color: "bg-blue-100 text-blue-700", // Primary action
     formFields: [...ASSIGNMENT_FIELDS],
   },
   [ActionType.REASSIGNED]: {
     label: "Reassign",
     Icon: RefreshCw,
-    color: "bg-amber-100 text-amber-800",
+    color: "bg-amber-100 text-amber-800", // Change/Attention
     formFields: [...ASSIGNMENT_FIELDS],
   },
-
   [ActionType.FORWARDED]: {
     label: "Forward",
     Icon: Forward,
-    color: "bg-indigo-100 text-indigo-700",
-    formFields: [...BASE_FIELDS, FIELDS.to_unit],
+    color: "bg-indigo-100 text-indigo-700", // Movement
+    formFields: [...BASE_FIELDS, FIELDS.target_unit],
   },
   [ActionType.POSTED_AS_THEMATIC]: {
     label: "Post as Thematic",
     Icon: FileText,
-    color: "bg-fuchsia-100 text-fuchsia-700",
+    color: "bg-fuchsia-100 text-fuchsia-700", // Special highlight
     formFields: [
       ...BASE_FIELDS,
       FIELDS.title,
@@ -213,13 +215,7 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
   [ActionType.REPLIED]: {
     label: "Reply",
     Icon: MessageSquare,
-    color: "bg-lime-100 text-lime-700",
-    formFields: [
-      ...BASE_FIELDS,
-      FIELDS.from_unit,
-      FIELDS.to_unit,
-      FIELDS.from_industry,
-      FIELDS.to_industry,
-    ],
+    color: "bg-sky-100 text-sky-700",
+    formFields: [...BASE_FIELDS],
   },
 };

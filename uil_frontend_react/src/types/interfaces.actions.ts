@@ -13,3 +13,9 @@ export type RequestAction = Metadata & {
   forwarded_to: string | null;
   forwarded_from: string | null;
 };
+
+export type RequestResponse = {
+  id: number;
+  type: ActionType;
+  message: string;
+};

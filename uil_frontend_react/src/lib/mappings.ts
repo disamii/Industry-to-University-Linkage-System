@@ -13,7 +13,7 @@ export const variantContainers: Record<ComponentVariant, string> = {
 /**
  * Industry Request
  */
-import { IndustryRequestType } from "./enums";
+import { Entity, IndustryRequestType, UserRole } from "./enums";
 
 export const INDUSTRY_REQUEST_FIELDS: Record<
   IndustryRequestType,
@@ -44,4 +44,12 @@ export const INDUSTRY_REQUEST_FIELDS: Record<
     "number_to_recruit",
   ],
   [IndustryRequestType.OTHER]: [],
+};
+
+export const mapEntity: Partial<
+  Record<UserRole, { from: Entity; to: Entity }>
+> = {
+  [UserRole.INDUSTRY]: { from: Entity.INDUSTRY, to: Entity.ACADEMIC_UNIT },
+  [UserRole.ADMIN]: { from: Entity.ACADEMIC_UNIT, to: Entity.INDUSTRY },
+  [UserRole.STAFF]: { from: Entity.STAFF, to: Entity.INDUSTRY },
 };

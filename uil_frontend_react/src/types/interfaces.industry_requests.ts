@@ -1,4 +1,4 @@
-import { ActionType, RequestingEntity } from "@/lib/enums";
+import { ActionType, Entity } from "@/lib/enums";
 import { IndustryRequestBase } from "@/validation/validation.industry_requests";
 import { Metadata } from "./interfaces";
 import { RequestAction } from "./interfaces.actions";
@@ -38,7 +38,7 @@ export type IndustryRequestDetailResponse = Omit<
   industry: IndustryResponse;
   detail: Record<string, string> | null;
   actions: RequestAction[];
-  requesting_entity: RequestingEntity;
+  requesting_entity: Entity;
   academic_unit: OrgUnitResponse;
   supported_actions: ActionType[];
 };

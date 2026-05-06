@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
-import { Building2, User } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 type Props = {
   industry: IndustryRequestDetailResponse["industry"];

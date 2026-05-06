@@ -1,23 +1,22 @@
 import { Button } from "@/components/ui/button";
+import { UserRole } from "@/lib/enums";
 import { ArrowRight, Building2, GraduationCap } from "lucide-react";
 
-type Role = "industry" | "staff";
-
 type Props = {
-  role: Role | null;
-  setRole: (value: Role) => void;
+  role: Partial<UserRole> | null;
+  setRole: (value: Partial<UserRole>) => void;
   setStep: (value: number) => void;
 };
 
 const roleOptions = [
   {
-    value: "industry",
+    value: UserRole.INDUSTRY,
     title: "Industry Partner",
     desc: "Direct signup for companies",
     Icon: Building2,
   },
   {
-    value: "staff",
+    value: UserRole.STAFF,
     title: "University Staff",
     desc: "Authenticate via RPMS Profile",
     Icon: GraduationCap,
@@ -38,7 +37,7 @@ const SignupChooseRole = ({ role, setRole, setStep }: Props) => {
         {roleOptions.map((r) => (
           <button
             key={r.value}
-            onClick={() => setRole(r.value as Role)}
+            onClick={() => setRole(r.value as UserRole)}
             className={`group p-3 border rounded-md text-left transition-all flex items-center gap-4 w-full ${role === r.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}
           >
             <div
