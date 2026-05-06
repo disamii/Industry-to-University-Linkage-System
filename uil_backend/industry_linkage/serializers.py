@@ -19,6 +19,7 @@ from .models import (
     Assignment
 )
 from bulletin.models import Post
+from bulletin.serializers import PostListSerializer
 from .utils import ForwardTarget, EntityReceiverField, validate_action_or_raise
 User = get_user_model()
 
@@ -99,26 +100,56 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
         return data
 
 
+class GenericActorField(serializers.Field):
+
+    def to_representation(self, obj):
+        if not obj:
+            return None
+
+        content_type = ContentType.objects.get_for_model(obj)
+
+        model_name = content_type.model  # e.g. "user", "industry"
+
+        serializer_class = CONTENT_TYPE_SERIALIZER_MAP.get(model_name)
+
+        if not serializer_class:
+            return {
+                "id": obj.id,
+                "type": model_name,
+                "repr": str(obj),
+            }
+
+        return serializer_class(obj, context=self.context).data
 class RequestActionSerializer(serializers.ModelSerializer):
     possible_actions = serializers.SerializerMethodField()
-
+    actor_from = GenericActorField()
+    actor_to = GenericActorField()
+    resulted_object=GenericActorField()
     class Meta:
         model = RequestAction
         fields = [
             "id",
             "type",
             "description",
+            "actor_from",
+            "actor_to",
+            "resulted_object",
             "awaiting_decision",
             "possible_actions",
             "created_at",
         ]
+        
+        
+        
     def get_possible_actions(self, obj):
         from .enums import ACTION_TRANSITIONS
-
         if not obj.awaiting_decision:
             return [ActionTypes.REVERTED]
-
         return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
+
+
+
+
 
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
@@ -834,4 +865,13 @@ ACTION_SERIALIZERS = {
     "forwarded": RequestActionForwardedSerializer,
     "replied": RequestActionRepliedSerializer,
 
+}
+
+
+CONTENT_TYPE_SERIALIZER_MAP = {
+    "industry": IndustrySerializer,
+    "user": UserSerializer,
+    "assignment": AssignmentListSerializer,
+    "post": PostListSerializer,
+    "organizationalunit": OrganizationStructureListSerializer,
 }
