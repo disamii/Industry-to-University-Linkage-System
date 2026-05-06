@@ -59,6 +59,7 @@ export enum ActionType {
   COMPLETED = "completed",
   REVOKED = "revoked",
   CANCELLED = "cancelled",
+  REVERTED="reverted"
 }
 
 /**

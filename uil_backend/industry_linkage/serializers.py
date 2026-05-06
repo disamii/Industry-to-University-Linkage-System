@@ -99,58 +99,6 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
         return data
 
-
-class GenericActorField(serializers.Field):
-
-    def to_representation(self, obj):
-        if not obj:
-            return None
-
-        content_type = ContentType.objects.get_for_model(obj)
-
-        model_name = content_type.model  # e.g. "user", "industry"
-
-        serializer_class = CONTENT_TYPE_SERIALIZER_MAP.get(model_name)
-
-        if not serializer_class:
-            return {
-                "id": obj.id,
-                "type": model_name,
-                "repr": str(obj),
-            }
-
-        return serializer_class(obj, context=self.context).data
-class RequestActionSerializer(serializers.ModelSerializer):
-    possible_actions = serializers.SerializerMethodField()
-    actor_from = GenericActorField()
-    actor_to = GenericActorField()
-    resulted_object=GenericActorField()
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-            "actor_from",
-            "actor_to",
-            "resulted_object",
-            "awaiting_decision",
-            "possible_actions",
-            "created_at",
-        ]
-        
-        
-        
-    def get_possible_actions(self, obj):
-        from .enums import ACTION_TRANSITIONS
-        if not obj.awaiting_decision:
-            return [ActionTypes.REVERTED]
-        return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
-
-
-
-
-
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
@@ -179,6 +127,54 @@ class IndustrySerializer(serializers.ModelSerializer):
 
     def get_contact_email(self, obj):
         return obj.contact_person.email
+
+class GenericActorField(serializers.Field):
+
+    def to_representation(self, obj):
+        if not obj:
+            return None
+
+        content_type = ContentType.objects.get_for_model(obj)
+
+        model_name = content_type.model  # e.g. "user", "industry"
+
+        serializer_class = CONTENT_TYPE_SERIALIZER_MAP.get(model_name)
+
+        if not serializer_class:
+            return {
+                "id": obj.id,
+                "type": model_name,
+                "repr": str(obj),
+            }
+
+        return serializer_class(obj, context=self.context).data
+
+class RequestActionSerializer(serializers.ModelSerializer):
+    possible_actions = serializers.SerializerMethodField()
+    actor_from = GenericActorField()
+    actor_to = GenericActorField()
+    resulted_object=GenericActorField()
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+            "actor_from",
+            "actor_to",
+            "resulted_object",
+            "awaiting_decision",
+            "possible_actions",
+            "created_at",
+        ]
+        
+        
+        
+    def get_possible_actions(self, obj):
+        from .enums import ACTION_TRANSITIONS
+        if not obj.awaiting_decision:
+            return [ActionTypes.REVERTED]
+        return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):
@@ -332,6 +328,41 @@ class RequestSerializer(serializers.ModelSerializer):
         return action.type if action else None
 
 
+
+class IndustryDetailSerializer(serializers.ModelSerializer):
+    contact_full_name = serializers.SerializerMethodField()
+    contact_email = serializers.SerializerMethodField()
+
+    # 👇 nested requests
+    requests = RequestSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Industry
+        fields = [
+            "id",
+            "name",
+            "industry_type",
+            "industry_email",
+            "phone_number",
+            "location",
+            "address",
+            "description",
+            "number_of_employees",
+            "website",
+            "contact_person_phone_number",
+            "contact_full_name",
+            "contact_email",
+            "requests",   # 👈 important
+        ]
+
+    def get_contact_full_name(self, obj):
+        user = obj.contact_person
+        return f"{user.first_name} {user.father_name} {user.grand_father_name}".strip()
+
+    def get_contact_email(self, obj):
+        return obj.contact_person.email
+
+
 # action related serializer
 class RequestActionGenericSerializer(serializers.ModelSerializer):
 
@@ -435,7 +466,6 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 awaiting_decision=False,
                 **validated_data
             )
-
 
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
     assigned_users = serializers.PrimaryKeyRelatedField(
