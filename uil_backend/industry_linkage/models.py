@@ -1,3 +1,5 @@
+from unittest import result
+
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -124,13 +126,22 @@ class RequestAction(AuditMixin,models.Model):
     
     description = models.TextField()  
     is_active = models.BooleanField(default=True)
-    assignment = models.ForeignKey(
-        "Assignment", 
+    
+    resulted_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        related_name="requestaction_resulted"
     )
 
+    resulted_object_id = models.PositiveIntegerField(null=True, blank=True)
+
+    resulted_object = GenericForeignKey(
+        "resulted_content_type",
+        "resulted_object_id"
+    )
+    
     from_content_type = models.ForeignKey(
         ContentType, 
         on_delete=models.CASCADE, 

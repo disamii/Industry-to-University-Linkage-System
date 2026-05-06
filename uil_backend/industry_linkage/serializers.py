@@ -479,7 +479,6 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             self.assignment = assignment
 
         return attrs
-
     def create(self, validated_data):
         request_obj = self.context.get("request_obj")
         user = self.context["request"].user
@@ -491,11 +490,15 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         industry_mentor = validated_data.pop("industry_mentor", None)
 
         with transaction.atomic():
+
             assignment = Assignment.objects.filter(
                 request=request_obj,
                 assigned_user=assigned_user
             ).first()
 
+            # -------------------------
+            # UPDATE EXISTING ASSIGNMENT
+            # -------------------------
             if assignment:
                 assignment.assigned_user = assigned_user
                 assignment.start_date = start_date
@@ -504,24 +507,26 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 assignment.status = Assignment.AssignmentStatus.PENDING
                 assignment.updated_by_id = user.id
                 assignment.save()
-                
-                action_type = validated_data.pop("type")
 
                 action = RequestAction.objects.create(
-                created_by_id=user.id,
-                updated_by_id=user.id,
-                type=RequestAction.ACTION_TYPES.REASSIGNED,
-                assignment=assignment,
-                **validated_data
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
+                    type=RequestAction.ACTION_TYPES.REASSIGNED,
+                    resulted_content_type=ContentType.objects.get_for_model(Assignment),
+                    resulted_object_id=assignment.id,
+                    **validated_data
                 )
 
                 return action
-                
-            elif action_type in[
-            RequestAction.ACTION_TYPES.REASSIGNED,
-            RequestAction.ACTION_TYPES.ASSIGNED,
-                ]:
-                assignment=Assignment.objects.create(
+
+            # -------------------------
+            # CREATE NEW ASSIGNMENT
+            # -------------------------
+            elif action_type in [
+                RequestAction.ACTION_TYPES.ASSIGNED,
+                RequestAction.ACTION_TYPES.REASSIGNED,
+            ]:
+                assignment = Assignment.objects.create(
                     request=request_obj,
                     assigned_user=assigned_user,
                     start_date=start_date,
@@ -531,23 +536,24 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     created_by_id=user.id,
                     updated_by_id=user.id,
                 )
-                
-                if action_type ==RequestAction.ACTION_TYPES.REASSIGNED:
-                    self.assignment.status = Assignment.AssignmentStatus.CANCELLED
-                    self.assignment.save(update_fields=["status"])
-            
-            action = RequestAction.objects.create(
-                created_by_id=user.id,
-                updated_by_id=user.id,
-                assignment=assignment,
-                **validated_data
-            )
 
-        return action
+                if action_type == RequestAction.ACTION_TYPES.REASSIGNED:
+                    # fix: you were using self.assignment (bug)
+                    assignment.status = Assignment.AssignmentStatus.CANCELLED
+                    assignment.save(update_fields=["status"])
 
+                action = RequestAction.objects.create(
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
+                    type=action_type,
+                    resulted_content_type=ContentType.objects.get_for_model(Assignment),
+                    resulted_object_id=assignment.id,
+                    **validated_data
+                )
+
+                return action
 
 class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
-    # Post fields
     title = serializers.CharField()
     content = serializers.CharField()
     description = serializers.CharField()
@@ -568,24 +574,6 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
             "image",
         ]
         read_only_fields = ["id"]
-
-    def validate(self, attrs):
-        request_obj = self.context.get("request_obj")
-
-        # enforce type
-        attrs["type"] = "posted_as_thematic"
-
-        exists = RequestAction.objects.filter(
-            request=request_obj,
-            type="posted_as_thematic"
-        ).exists()
-
-        if exists:
-            raise serializers.ValidationError({
-                "type": "This request is already posted as thematic."
-            })
-
-        return attrs
 
     def create(self, validated_data):
         request_obj = self.context.get("request_obj")
@@ -615,6 +603,8 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
             action = RequestAction.objects.create(
                 created_by_id=user.id,
                 updated_by_id=user.id,
+                resulted_content_type=ContentType.objects.get_for_model(Post),
+                resulted_object_id=post.id,
                 **validated_data
             )
 
@@ -631,22 +621,51 @@ class EntityReceiverField(serializers.Field):
 
     def to_internal_value(self, data):
         if not isinstance(data, dict):
-            raise serializers.ValidationError("Data must be a dictionary containing 'id' and 'entity'.")
+            raise serializers.ValidationError(
+                "Invalid input. Expected a dictionary with 'id' and 'entity'."
+            )
+
         entity_constant = data.get("entity", "").upper()
         object_id = data.get("id")
 
         if entity_constant not in self.ENTITY_MAP:
-            raise serializers.ValidationError(f"Invalid entity. Choose from: {list(self.ENTITY_MAP.keys())}")
+            raise serializers.ValidationError(
+                f"Invalid entity. Allowed values: {list(self.ENTITY_MAP.keys())}."
+            )
+
+        if not object_id:
+            raise serializers.ValidationError(
+                {"id": "'id' is required and must be a valid identifier."}
+            )
+
         mapping = self.ENTITY_MAP[entity_constant]
-        
+
         try:
-            content_type = ContentType.objects.get(app_label=mapping["app"], model=mapping["model"])
-            return {
-                "content_type": content_type,
-                "object_id": object_id
-            }
+            content_type = ContentType.objects.get(
+                app_label=mapping["app"],
+                model=mapping["model"]
+            )
         except ContentType.DoesNotExist:
-            raise serializers.ValidationError(f"Internal configuration error: {entity_constant} model not found.")
+            raise serializers.ValidationError(
+                f"Internal configuration error: {entity_constant} model not found."
+            )
+
+        # ✅ validate object existence
+        model_class = content_type.model_class()
+        if not model_class:
+            raise serializers.ValidationError(
+                f"Internal configuration error: model class for {entity_constant} not found."
+            )
+
+        if not model_class.objects.filter(id=object_id).exists():
+            raise serializers.ValidationError(
+                {"id": f"{entity_constant} with id={object_id} does not exist."}
+            )
+
+        return {
+            "content_type": content_type,
+            "object_id": object_id
+        }
 
 class RequestActionForwardedSerializer(serializers.ModelSerializer):
     to_data = EntityReceiverField(write_only=True)
@@ -676,7 +695,7 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
                 )
         if not is_org_unit:
             raise serializers.ValidationError({
-                "entity":"can only be academic unit"
+                "entity":"can only be 'ACADEMIC_UNIT'"
             })
 
         if target_ct == unit_ct and str(target_id) == str(request_obj.academic_unit_id):
@@ -697,8 +716,8 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         validated_data['request'] = request_obj
 
         return RequestAction.objects.create(
-            created_by=user,
-            updated_by=user,
+            created_by_id=user.id,
+            updated_by_id=user.id,
             **validated_data
         )
 
@@ -833,10 +852,10 @@ ACTION_SERIALIZERS = {
     "rejected": RequestActionGenericSerializer,
     "completed": RequestActionGenericSerializer,
 
-    "replied": RequestActionRepliedSerializer,
     "assigned": RequestActionAssignedSerializer,
     "reassigned": RequestActionAssignedSerializer,
-    "forwarded": RequestActionForwardedSerializer,
     "posted_as_thematic": RequestActionPostedThematicSerializer,
+    "forwarded": RequestActionForwardedSerializer,
+    "replied": RequestActionRepliedSerializer,
 
 }

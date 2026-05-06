@@ -73,6 +73,33 @@ def validate_action_or_raise(request, action_type):
             raise ValidationError({
                 "action": "Already assigned. Revoke first."
             })
+    elif action_type==RequestAction.ACTION_TYPES.POSTED_AS_THEMATIC:
+        if active_actions.filter(
+            type__in=[
+                RequestAction.ACTION_TYPES.FORWARDED
+            ]
+        ).exists():
+            raise ValidationError({
+                "action": "Already forwarded. Revert that  first."
+            })
+
+        if active_actions.filter(
+            type__in=[
+                RequestAction.ACTION_TYPES.ASSIGNED,
+            ]
+        ).exists():
+            raise ValidationError({
+                "action": "Already assigned. Revoke first."
+            })
+
+        if active_actions.filter(
+            type__in=[
+                RequestAction.ACTION_TYPES.POSTED_AS_THEMATIC
+            ]
+        ).exists():
+            raise ValidationError({
+                "action": "Already posted. Revert that  first."
+            })
 
 
 def deactivate_previous_actions(request_obj, action_type):
