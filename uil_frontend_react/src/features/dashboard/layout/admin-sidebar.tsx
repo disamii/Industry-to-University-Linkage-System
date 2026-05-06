@@ -67,11 +67,6 @@ const ROUTES: Record<
         label: "Industry Management",
       },
       {
-        href: "/dashboard/office/analytics",
-        icon: FileBarChart,
-        label: "Analytics",
-      },
-      {
         href: "/dashboard/office/site-config",
         icon: Settings,
         label: "Site Configuration",

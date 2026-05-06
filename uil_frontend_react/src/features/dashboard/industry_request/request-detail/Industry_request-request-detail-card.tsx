@@ -25,9 +25,7 @@ const RequestDetailCard = ({
           {/* Description */}
           <div className="space-y-2">
             <p className="font-semibold text-base">Description</p>
-            <p className="bg-muted/50 p-4 rounded-lg text-muted-foreground">
-              {description}
-            </p>
+            <p className="bg-muted/50 p-4 rounded-lg">{description}</p>
           </div>
 
           <Separator />

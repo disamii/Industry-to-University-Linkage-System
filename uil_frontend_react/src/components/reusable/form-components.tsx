@@ -44,11 +44,7 @@ export const Asterisk = () => (
   <span className="mt-1 font-medium text-destructive">*</span>
 );
 
-export const RequiredFieldsDisclaimer = ({
-  className = "",
-}: {
-  className?: string;
-}) => {
+export const RequiredFieldsDisclaimer = ({ className = "" }) => {
   return (
     <p className={`text-sm text-muted-foreground ${className}`}>
       <Asterisk /> indicates required fields
@@ -71,32 +67,48 @@ export const FormInput = <T extends FieldValues>({
   required,
   className,
 }: FormInputProps<T>) => {
+  const isCheckbox = type === "checkbox";
+
   return (
     <Controller
       name={name}
       control={form.control}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={field.name} className="capitalize">
+        <Field
+          data-invalid={fieldState.invalid}
+          orientation={isCheckbox ? "horizontal" : "vertical"}
+        >
+          <FieldLabel
+            htmlFor={field.name}
+            className={cn("capitalize", isCheckbox && "flex-initial!")}
+          >
             {label}
-            {required && <Asterisk />}
+            {required && !isCheckbox && <Asterisk />}
           </FieldLabel>
+
           <Input
             {...field}
             id={field.name}
-            required={required}
             type={type}
-            placeholder={placeholder}
-            aria-invalid={fieldState.invalid}
-            className={cn("py-5", className)}
-            value={field.value ?? ""}
+            placeholder={isCheckbox ? undefined : placeholder}
+            // Use 'checked' for checkboxes, 'value' for everything else
+            checked={isCheckbox ? !!field.value : undefined}
+            value={isCheckbox ? undefined : (field.value ?? "")}
+            className={cn(
+              !isCheckbox && "py-5",
+              isCheckbox && "h-4 w-4", // Checkboxes usually need fixed dimensions
+              className,
+            )}
             onChange={(e) => {
-              const value = e.target.value;
-
-              if (type === "number") {
-                field.onChange(value === "" ? null : Number(value));
+              // Checkboxes use e.target.checked
+              if (isCheckbox) {
+                field.onChange(e.target.checked);
+              } else if (type === "number") {
+                field.onChange(
+                  e.target.value === "" ? null : Number(e.target.value),
+                );
               } else {
-                field.onChange(value);
+                field.onChange(e.target.value);
               }
             }}
           />
@@ -132,7 +144,6 @@ export const FormTextArea = <T extends FieldValues>({
         <Textarea
           {...field}
           id={field.name}
-          required={required}
           aria-invalid={fieldState.invalid}
           placeholder={placeholder}
           className={cn("min-h-30", className)}

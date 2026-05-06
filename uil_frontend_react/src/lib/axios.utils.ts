@@ -8,29 +8,45 @@ export async function safeApiRequest<T>(
 ): Promise<T> {
   try {
     const response = await request;
+
     return response.data;
   } catch (error: unknown) {
     const isDev = import.meta.env.DEV;
 
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
+      const responseData = axiosError.response?.data;
 
       if (isDev) {
-        console.dir(axiosError.response?.data);
-
-        console.error(
-          "Backend Error Detail:",
-          axiosError.response?.data?.error,
-        );
+        console.dir(responseData);
+        console.error("Backend Error Detail:", responseData);
       }
 
-      const message =
-        axiosError.response?.data?.error ||
-        "Something went wrong. Please try again.";
+      const isValidationError = responseData?.error === "validation_error";
+
+      let message: string;
+
+      if (isDev) {
+        // Full detail in development
+        message =
+          responseData?.details?.join(" ") ||
+          responseData?.message ||
+          responseData?.error ||
+          "Something went wrong. Please try again.";
+      } else {
+        // Safe production messages
+        if (isValidationError) {
+          message =
+            responseData?.details?.join(" ") ||
+            "Invalid input. Please check your data.";
+        } else {
+          message = "Something went wrong. Please try again.";
+        }
+      }
 
       throw new ApiError(message, {
         status: axiosError.response?.status,
-        data: axiosError.response?.data,
+        data: isDev ? responseData : undefined, // hide in prod
         code: axiosError.code,
       });
     }
@@ -39,7 +55,11 @@ export async function safeApiRequest<T>(
       console.error("Unexpected error:", error);
     }
 
-    throw new ApiError("Network error. Please check your connection.");
+    throw new ApiError(
+      isDev
+        ? "Unexpected error occurred."
+        : "Network error. Please check your connection.",
+    );
   }
 }
 

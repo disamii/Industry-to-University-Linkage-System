@@ -108,9 +108,9 @@ class RequestForIndustryPagination(PageNumberPagination):
         stats = qs.aggregate(
             total_requests=Count("id"),
 
-            created_requests=Count(
+            initiated_requests=Count(
                 "id",
-                filter=Q(last_action="created")
+                filter=Q(last_action="initiated")
             ),
 
             assigned_requests=Count(
@@ -144,7 +144,6 @@ class RequestPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
 
-
     def paginate_queryset(self, queryset, request, view=None):
         self.base_queryset = queryset
         user = getattr(request, "user", None)
@@ -153,7 +152,6 @@ class RequestPagination(PageNumberPagination):
         if user and user.is_authenticated:
             self.scope = get_parent_scope(user, perms)
         return super().paginate_queryset(queryset, request, view)
-
 
     def get_paginated_response(self, data):
         current_year = now().year
@@ -171,9 +169,9 @@ class RequestPagination(PageNumberPagination):
         stats = qs.aggregate(
             total_requests=Count("id"),
 
-            created_requests=Count(
+            initiated_requests=Count(
                 "id",
-                filter=Q(last_action="created")
+                filter=Q(last_action="initiated")
             ),
 
             assigned_requests=Count(

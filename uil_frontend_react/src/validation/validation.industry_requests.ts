@@ -12,7 +12,7 @@ export const industryRequestBaseSchema = z.object({
   attachment: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
-      message: "Max size exceeded",
+      message: `Max size is ${MAX_FILE_SIZE_MB}MB`,
     })
     .optional()
     .nullable(),

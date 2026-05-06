@@ -122,20 +122,26 @@ const IndustryRequestActions = ({
 
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  {actionsToPerform.map((type, idx) => {
-                    const { Icon, color, label } = ACTION_CONFIG[type];
+                  {actionsToPerform
+                    .filter(
+                      (action) =>
+                        action !== ActionType.REVOKED &&
+                        action !== ActionType.ACCEPT_FORWARDED,
+                    )
+                    .map((type, idx) => {
+                      const { Icon, color, label } = ACTION_CONFIG[type];
 
-                    return (
-                      <DropdownMenuItem
-                        key={`${type}-${idx}`}
-                        className={cn(color, "bg-transparent")}
-                        onClick={() => handleActionClick(type)}
-                      >
-                        <Icon className="size-3.5" />
-                        {label}
-                      </DropdownMenuItem>
-                    );
-                  })}
+                      return (
+                        <DropdownMenuItem
+                          key={`${type}-${idx}`}
+                          className={cn(color, "bg-transparent")}
+                          onClick={() => handleActionClick(type)}
+                        >
+                          <Icon className="size-3.5" />
+                          {label}
+                        </DropdownMenuItem>
+                      );
+                    })}
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
@@ -144,7 +150,7 @@ const IndustryRequestActions = ({
       </DropdownMenu>
 
       <PeformActionFormDialog
-        requestId={id}
+        request={{ id, title }}
         actionType={selectedAction}
         open={actionDialogOpen}
         onOpenChange={setActionDialogOpen}

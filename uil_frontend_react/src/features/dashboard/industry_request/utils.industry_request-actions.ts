@@ -1,3 +1,4 @@
+import { MAX_FILE_SIZE_MB } from "@/lib/constants";
 import { ActionType } from "@/lib/enums";
 import {
   CheckCircle2,
@@ -100,16 +101,31 @@ const fieldDefinitions: Record<
     placeholder: "Write the post content here...",
     validation: (z) => z.string().min(10, "Content is too short"),
   },
+  expires_at: { label: "Expires At", type: "date" },
   is_internal_only: {
     label: "Internal Only",
     type: "checkbox",
     validation: (z) => z.coerce.boolean(),
   },
-  expires_at: { label: "Expires At", type: "date" },
   image: {
     label: "Cover Image",
     type: "file",
-    validation: (z) => z.any(),
+    validation: (z) =>
+      z
+        .instanceof(File)
+        .refine(
+          (file) =>
+            ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+          {
+            message: "Only JPG, PNG, or WEBP images are allowed",
+          },
+        )
+        .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
+          message: `Max size is ${MAX_FILE_SIZE_MB}MB`,
+        })
+        .optional()
+        .nullable(),
+    isOptional: true,
   },
 };
 
@@ -207,8 +223,8 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
       ...BASE_FIELDS,
       FIELDS.title,
       FIELDS.content,
-      FIELDS.is_internal_only,
       FIELDS.expires_at,
+      // FIELDS.is_internal_only,
       FIELDS.image,
     ],
   },

@@ -11,6 +11,7 @@ import { CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -34,6 +35,7 @@ import {
   ActionFormFields,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
+import { Spinner } from "@/components/ui/spinner";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -155,7 +157,7 @@ const FormField = <T extends FieldValues>({
 };
 
 type PerformActionDialogProps = {
-  requestId: number;
+  request: { id: number; title: string };
   actionType: ActionType | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -164,7 +166,7 @@ type PerformActionDialogProps = {
 };
 
 const PerformActionFormDialog = ({
-  requestId,
+  request,
   actionType,
   open,
   onOpenChange,
@@ -180,7 +182,7 @@ const PerformActionFormDialog = ({
     let formattedData: Record<ActionFormFields, any> = {
       ...data,
       type: actionType,
-      id: requestId,
+      id: request.id,
     };
 
     if (actionType === ActionType.REPLIED && from_entity && to_entity)
@@ -210,15 +212,15 @@ const PerformActionFormDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106.25 max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <div
-            className={cn(
-              "flex items-center gap-1 px-3 py-1.5 rounded-md w-fit",
-              cn(config.color),
-            )}
-          >
-            <config.Icon className="size-4" />
-            <DialogTitle>{config.label}</DialogTitle>
-          </div>
+          <DialogTitle className="font-semibold text-xl">
+            {request.title || "Perform Action"}
+          </DialogTitle>
+
+          <DialogDescription>
+            Fill out the details below to proceed with the{" "}
+            <span className="font-semibold">{config.label.toLowerCase()}</span>{" "}
+            action.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -235,8 +237,24 @@ const PerformActionFormDialog = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Processing..." : "Confirm Action"}
+            <Button
+              type="submit"
+              disabled={isPending}
+              className={cn(
+                config.color,
+                `hover:${config.color} hover:brightness-95 transition-all`,
+              )}
+            >
+              {isPending ? (
+                <>
+                  <Spinner variant="small" /> Processing...
+                </>
+              ) : (
+                <>
+                  <config.Icon className="size-4" />
+                  {config.label}
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -9,7 +9,7 @@ type Props = {
 const IndustryRequestsStat = ({ stats }: Props) => {
   const {
     total_requests,
-    created_requests,
+    initiated_requests,
     assigned_requests,
     completed_requests,
   } = stats;
@@ -22,8 +22,8 @@ const IndustryRequestsStat = ({ stats }: Props) => {
       colorVariant: "info",
     },
     {
-      title: "Created Requests",
-      value: created_requests.toString(),
+      title: "Initiated Requests",
+      value: initiated_requests.toString(),
       Icon: PlusCircle,
       colorVariant: "secondary",
     },

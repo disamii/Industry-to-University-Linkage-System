@@ -7,7 +7,7 @@ import { OrgUnitResponse } from "./interfaces.org_units";
 
 export type IndustryRequestStats = {
   total_requests: number;
-  created_requests: number;
+  initiated_requests: number;
   assigned_requests: number;
   completed_requests: number;
 };
