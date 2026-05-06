@@ -134,10 +134,10 @@ class Assignment(AuditMixin, models.Model):
         related_name="assignments"
     )
     
-    assigned_user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name="university_assignments"
+
+    assigned_users = models.ManyToManyField(
+        User,
+        related_name="assignments"
     )
     
     start_date = models.DateField(help_text="When the work begins")
@@ -156,5 +156,3 @@ class Assignment(AuditMixin, models.Model):
         choices=AssignmentStatus.choices,
         default=AssignmentStatus.PENDING,
     )
-    class Meta:
-        unique_together = ('request', 'assigned_user')
