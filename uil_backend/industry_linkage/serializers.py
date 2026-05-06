@@ -11,6 +11,7 @@ from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied
+from .enums import ActionTypes, RequestingEntity
 from .models import (
     Industry,
     Request,
@@ -164,18 +165,6 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             }
         }
 
-    def _parse_extra_data(self):
-        extra_data = self.initial_data.get("extra_data", {})
-
-        if isinstance(extra_data, str):
-            try:
-                extra_data = json.loads(extra_data)
-            except json.JSONDecodeError:
-                raise serializers.ValidationError(
-                    {"extra_data": "Invalid JSON format"})
-
-        return extra_data
-
     def create(self, validated_data):
         user = self.context["request"].user
 
@@ -190,13 +179,12 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     industry = Industry.objects.filter(id=industry.id).first()
                     if not industry:
                         raise serializers.ValidationError(
-                            {"industry": "Invalid industry"})
+                            "Invalid industry")
                 else:
                     industry = getattr(user, "industry_profile", None)
                     if not industry:
                         raise serializers.ValidationError(
-                            {"industry": "Industry id required or user must have industry profile"}
-                        )
+                            "Industry id required or user must have industry profile")
 
                 if industry.contact_person != user:
                     raise serializers.ValidationError(
@@ -206,7 +194,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             elif requesting_entity == "academic_unit":
                 if not academic_unit_id:
                     raise serializers.ValidationError(
-                        {"academic_unit": "This field is required"})
+                        "academic_unit field is required")
 
                 allowed = is_unit_in_user_scope(
                     user=user,
@@ -231,7 +219,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
             RequestAction.objects.create(
                 request=request,
-                type=RequestAction.ACTION_TYPES.INITIATED,
+                type=ActionTypes.INITIATED,
                 description="Request created",
                 created_by_id=user.id,
                 updated_by_id=user.id,
@@ -267,8 +255,8 @@ class RequestDetailSerializer(serializers.ModelSerializer):
     def get_supported_actions(self, obj):
         return [
             choice.value
-            for choice in RequestAction.ACTION_TYPES
-            if choice != RequestAction.ACTION_TYPES.INITIATED
+            for choice in ActionTypes
+            if choice != ActionTypes.INITIATED
         ]
 
 
@@ -320,10 +308,10 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
         action_type = attrs.get("type")
 
-        if action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
+        if action_type == ActionTypes.ACCEPT_FORWARDED:
 
             forwarded_action = request_obj.actions.filter(
-                type=RequestAction.ACTION_TYPES.FORWARDED
+                type=ActionTypes.FORWARDED
             ).order_by("-created_at").first()
             if not forwarded_action:
                 raise serializers.ValidationError(
@@ -354,9 +342,9 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             self._target_unit_id = unit_id
 
         elif action_type in [
-            RequestAction.ACTION_TYPES.REVOKED,
-            RequestAction.ACTION_TYPES.CANCELLED,
-            RequestAction.ACTION_TYPES.COMPLETED
+            ActionTypes.REVOKED,
+            ActionTypes.CANCELLED,
+            ActionTypes.COMPLETED
         ]:
             assignment = Assignment.objects.filter(
                 request=request_obj,
@@ -377,21 +365,21 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             if action_type in [
-                RequestAction.ACTION_TYPES.REVOKED,
-                RequestAction.ACTION_TYPES.CANCELLED,
+                ActionTypes.REVOKED,
+                ActionTypes.CANCELLED,
             ]:
                 if getattr(self, "assignment", None):
                     self.assignment.status = Assignment.AssignmentStatus.CANCELLED
                     self.assignment.save(update_fields=["status"])
 
             elif action_type in [
-                RequestAction.ACTION_TYPES.COMPLETED,
+                ActionTypes.COMPLETED,
             ]:
                 if getattr(self, "assignment", None):
                     self.assignment.status = Assignment.AssignmentStatus.COMPLETED
                     self.assignment.save(update_fields=["status"])
 
-            elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
+            elif action_type == ActionTypes.ACCEPT_FORWARDED:
 
                 request_obj.academic_unit_id = self._target_unit_id
                 request_obj.save(update_fields=["academic_unit"])
@@ -444,9 +432,9 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
         # date validation
         if start_date and end_date and start_date > end_date:
-            raise serializers.ValidationError({
-                "end_date": "End date must be after start date"
-            })
+            raise serializers.ValidationError(
+                "End date must be after start date"
+            )
 
         if action_type == "assigned":
             if not all([assigned_user, start_date, end_date]):
@@ -463,9 +451,9 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             ).first()
 
             if not assignment:
-                raise serializers.ValidationError({
-                    "request": "No active assignment to reassign"
-                })
+                raise serializers.ValidationError(
+                    "No active assignment to be reassigned"
+                )
 
             # fallback values
             attrs["assigned_user"] = assigned_user or assignment.assigned_user
@@ -513,7 +501,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
-                    type=RequestAction.ACTION_TYPES.REASSIGNED,
+                    type=ActionTypes.REASSIGNED,
                     resulted_content_type=ContentType.objects.get_for_model(
                         Assignment),
                     resulted_object_id=assignment.id,
@@ -526,8 +514,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             # CREATE NEW ASSIGNMENT
             # -------------------------
             elif action_type in [
-                RequestAction.ACTION_TYPES.ASSIGNED,
-                RequestAction.ACTION_TYPES.REASSIGNED,
+                ActionTypes.ASSIGNED,
+                ActionTypes.REASSIGNED,
             ]:
                 assignment = Assignment.objects.create(
                     request=request_obj,
@@ -540,7 +528,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     updated_by_id=user.id,
                 )
 
-                if action_type == RequestAction.ACTION_TYPES.REASSIGNED:
+                if action_type == ActionTypes.REASSIGNED:
                     # fix: you were using self.assignment (bug)
                     assignment.status = Assignment.AssignmentStatus.CANCELLED
                     assignment.save(update_fields=["status"])
@@ -629,8 +617,7 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         to_info = attrs.get("target_unit")
 
         if not to_info:
-            raise serializers.ValidationError(
-                {"target_unit": "This field is required."})
+            raise serializers.ValidationError("This field is required.")
 
         target_ct = to_info['content_type']
         target_id = to_info['object_id']
@@ -641,9 +628,9 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         )
 
         if target_ct == unit_ct and str(target_id) == str(request_obj.academic_unit_id):
-            raise serializers.ValidationError({
-                "target_unit": "Cannot forward to the same unit that owns the request."
-            })
+            raise serializers.ValidationError(
+                "    Cannot forward to the same unit that owns the request."
+            )
 
         return attrs
 
@@ -689,43 +676,35 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
         if from_info and to_info:
             is_same_type = from_info['content_type'] == to_info['content_type']
             if is_same_type:
-                raise serializers.ValidationError({
-                    "target_unit": "You cannot perform this action to yourself (source and destination are the same)."
-                })
-
-        if (from_info.get("entity") in ["STAFF", "STUDENT"] or to_info.get("entity") in ["STAFF", "STUDENT"]):
-
+                raise serializers.ValidationError(
+                    "You cannot perform this action to yourself (source and destination are the same).")
+        # staff or student
+        if (from_info.get("entity") in [RequestingEntity.STAFF, RequestingEntity.STUDENT] or to_info.get("entity") in [RequestingEntity.STAFF, RequestingEntity.STUDENT]):
             if request_obj.requested_by_id != user.id:
-                raise serializers.ValidationError({
-                    "target or source error": "Only with or by  requester this action can performed."
-                })
-
-            staff_student_entities = {"STAFF", "STUDENT"}
-
+                raise serializers.ValidationError(
+                    "Only with or by  requester this action can performed.")
+            staff_student_entities = {
+                RequestingEntity.STAFF, RequestingEntity.STUDENT}
             if from_info.get("entity") in staff_student_entities:
                 from_info["object_id"] = request_obj.requested_by_id
-
             if to_info.get("entity") in staff_student_entities:
                 to_info["object_id"] = request_obj.requested_by_id
-
-        if (from_info.get("entity") == "INDUSTRY" or to_info.get("entity") == "INDUSTRY"):
-            if from_info['entity'] == "INDUSTRY":
+        # industry
+        if (from_info.get("entity") == RequestingEntity.INDUSTRY or to_info.get("entity") == RequestingEntity.INDUSTRY):
+            if from_info['entity'] == RequestingEntity.INDUSTRY:
                 try:
                     industry = user.industry_profile
                     from_info["object_id"] = industry.id
-
                 except (Industry.DoesNotExist, AttributeError):
-                    raise serializers.ValidationError({
-                        "": ""
-                    })
-            if to_info['entity'] == "INDUSTRY":
+                    raise serializers.ValidationError("there is no associated industry with this user "
+                                                      )
+            if to_info['entity'] == RequestingEntity.INDUSTRY:
                 to_info["object_id"] = request_obj.industry.id
-
-        if (from_info.get("entity") == "ACADEMIC_UNIT" or to_info.get("entity") == "ACADEMIC_UNIT"):
-
-            if from_info['entity'] == "ACADEMIC_UNIT":
+        # academic unit
+        if (from_info.get("entity") == RequestingEntity.ACADEMIC_UNIT or to_info.get("entity") == RequestingEntity.ACADEMIC_UNIT):
+            if from_info['entity'] == RequestingEntity.ACADEMIC_UNIT:
                 from_info["object_id"] = request_obj.academic_unit.id
-            if to_info['entity'] == "ACADEMIC_UNIT":
+            if to_info['entity'] == RequestingEntity.ACADEMIC_UNIT:
                 to_info["object_id"] = request_obj.academic_unit.id
         return attrs
 
