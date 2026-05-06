@@ -14,7 +14,7 @@ def clean_phone(value: str) -> str:
 
 def validate_action_or_raise(request, action_type):
 
-    active_actions = request.actions.filter(is_active=True)
+    active_actions = request.actions.filter(awaiting_decision=True)
 
     if action_type == ActionTypes.INITIATED:
         if active_actions.filter(type=ActionTypes.INITIATED).exists():
@@ -103,7 +103,7 @@ def validate_action_or_raise(request, action_type):
 
 
 def deactivate_previous_actions(request_obj, action_type):
-    qs = request_obj.actions.filter(is_active=True)
+    qs = request_obj.actions.filter(awaiting_decision=True)
 
     if action_type == ActionTypes.ASSIGNED:
         qs.filter(
@@ -111,17 +111,17 @@ def deactivate_previous_actions(request_obj, action_type):
                 ActionTypes.ASSIGNED,
                 ActionTypes.REASSIGNED,
             ]
-        ).update(is_active=False)
+        ).update(awaiting_decision=False)
 
     elif action_type == ActionTypes.FORWARDED:
         qs.filter(
             type=ActionTypes.FORWARDED
-        ).update(is_active=False)
+        ).update(awaiting_decision=False)
 
     elif action_type == ActionTypes.ACCEPT_FORWARDED:
         qs.filter(
             type=ActionTypes.FORWARDED
-        ).update(is_active=False)
+        ).update(awaiting_decision=False)
 
     elif action_type == ActionTypes.REVOKED:
         qs.filter(
@@ -129,7 +129,7 @@ def deactivate_previous_actions(request_obj, action_type):
                 ActionTypes.ASSIGNED,
                 ActionTypes.REASSIGNED,
             ]
-        ).update(is_active=False)
+        ).update(awaiting_decision=False)
 
     elif action_type == ActionTypes.REASSIGNED:
         qs.filter(
@@ -137,7 +137,7 @@ def deactivate_previous_actions(request_obj, action_type):
                 ActionTypes.ASSIGNED,
                 ActionTypes.REASSIGNED,
             ]
-        ).update(is_active=False)
+        ).update(awaiting_decision=False)
 
 
 class ForwardTarget(serializers.Field):
@@ -201,7 +201,7 @@ def revert_action_util(action, note=""):
         if obj:
             obj.delete()
         action.type = ActionTypes.REVERTED
-        action.is_active = False
+        action.awaiting_decision = False
         action.description = (
             f"{action.description} | "
             f"REVERTED FROM: {original_type} | "
@@ -213,10 +213,75 @@ def revert_action_util(action, note=""):
 
         action.save(update_fields=[
             "type",
-            "is_active",
+            "awaiting_decision",
             "description",
             "resulted_content_type",
             "resulted_object_id",
         ])
 
     return action
+
+
+
+from .enums import ActionTypes
+
+
+ACTION_TRANSITIONS = {
+    ActionTypes.INITIATED: [
+        ActionTypes.FORWARDED,
+        ActionTypes.ASSIGNED,
+        ActionTypes.POSTED_AS_THEMATIC,
+        ActionTypes.CANCELLED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.FORWARDED: [
+        ActionTypes.ACCEPT_FORWARDED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.ACCEPT_FORWARDED: [
+        ActionTypes.ASSIGNED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.ASSIGNED: [
+        ActionTypes.REASSIGNED,
+        ActionTypes.REVOKED,
+        ActionTypes.COMPLETED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REASSIGNED: [
+        ActionTypes.REVOKED,
+        ActionTypes.COMPLETED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.POSTED_AS_THEMATIC: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REVOKED: [
+        ActionTypes.ASSIGNED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REJECTED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.COMPLETED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.CANCELLED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REPLIED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REVERTED: [],  
+}

@@ -275,7 +275,7 @@ class RequestManageViewSet(
             {
                 "id": action.id,
                 "type": action.type,
-                "is_active": action.is_active,
+                "awaiting_decision": action.awaiting_decision,
                 "message": "Action reverted successfully"
             },
             status=status.HTTP_200_OK

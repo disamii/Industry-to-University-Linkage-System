@@ -107,7 +107,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "id",
             "type",
             "description",
-            "is_active",
+            "awaiting_decision",
             "created_at",
         ]
 
@@ -387,6 +387,7 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             return RequestAction.objects.create(
                 created_by_id=user.id,
                 updated_by_id=user.id,
+                awaiting_decision=False,
                 **validated_data
             )
 
@@ -500,6 +501,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
+                    awaiting_decision=True,
                     updated_by_id=user.id,
                     type=ActionTypes.REASSIGNED,
                     resulted_content_type=ContentType.objects.get_for_model(
@@ -536,9 +538,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
-                    # type=action_type,
-                    resulted_content_type=ContentType.objects.get_for_model(
-                        Assignment),
+                    awaiting_decision=True,
+                    resulted_content_type=ContentType.objects.get_for_model(Assignment),
                     resulted_object_id=assignment.id,
                     **validated_data
                 )
@@ -596,6 +597,7 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
             action = RequestAction.objects.create(
                 created_by_id=user.id,
                 updated_by_id=user.id,
+                awaiting_decision=True,
                 resulted_content_type=ContentType.objects.get_for_model(Post),
                 resulted_object_id=post.id,
                 **validated_data
@@ -724,6 +726,8 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
         return RequestAction.objects.create(
             created_by_id=user.id,
             updated_by_id=user.id,
+            awaiting_decision=False,
+
             **validated_data
         )
 

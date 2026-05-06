@@ -84,7 +84,8 @@ class RequestAction(AuditMixin,models.Model):
     type = models.CharField(max_length=30, choices=ActionTypes.choices)
     
     description = models.TextField()  
-    is_active = models.BooleanField(default=True)
+    # for action that needs response we call them active 
+    awaiting_decision = models.BooleanField(default=False)
     
     resulted_content_type = models.ForeignKey(
         ContentType,
