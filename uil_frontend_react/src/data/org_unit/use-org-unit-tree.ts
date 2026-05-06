@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useDebounce } from "@/hooks/use-debounce";
 import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import { useEffect, useState } from "react";
@@ -37,8 +38,14 @@ export const useOrgUnitTree = (
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (selectedId && selectedNodeData) setSelectedNode(selectedNodeData);
+    if (!selectedId) {
+      setSelectedNode(null);
+      return;
+    }
+
+    if (selectedNodeData) {
+      setSelectedNode(selectedNodeData);
+    }
   }, [selectedId, selectedNodeData]);
 
   return {
