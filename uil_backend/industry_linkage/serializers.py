@@ -11,6 +11,7 @@ from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied
+from .enums import ActionTypes, RequestingEntity
 from .models import (
     Industry,
     Request,
@@ -219,7 +220,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
             RequestAction.objects.create(
                     request=request,
-                    type=RequestAction.ACTION_TYPES.INITIATED,
+                    type=ActionTypes.INITIATED,
                     description="Request created",
                     created_by_id=user.id,
                     updated_by_id=user.id,
@@ -254,8 +255,8 @@ class RequestDetailSerializer(serializers.ModelSerializer):
     def get_supported_actions(self, obj):
         return [
             choice.value
-            for choice in RequestAction.ACTION_TYPES
-            if choice != RequestAction.ACTION_TYPES.INITIATED
+            for choice in ActionTypes
+            if choice != ActionTypes.INITIATED
         ]
 
 
@@ -307,10 +308,10 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
         action_type = attrs.get("type")
 
-        if action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
+        if action_type == ActionTypes.ACCEPT_FORWARDED:
 
             forwarded_action = request_obj.actions.filter(
-                type=RequestAction.ACTION_TYPES.FORWARDED
+                type=ActionTypes.FORWARDED
             ).order_by("-created_at").first()
             if not forwarded_action:
                 raise serializers.ValidationError("No forwarded action found to accept.")
@@ -338,9 +339,9 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             self._target_unit_id = unit_id
 
         elif action_type in [
-            RequestAction.ACTION_TYPES.REVOKED,
-            RequestAction.ACTION_TYPES.CANCELLED,
-            RequestAction.ACTION_TYPES.COMPLETED
+            ActionTypes.REVOKED,
+            ActionTypes.CANCELLED,
+            ActionTypes.COMPLETED
         ]:
             assignment = Assignment.objects.filter(
                 request=request_obj,
@@ -361,21 +362,21 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             if action_type in [
-                RequestAction.ACTION_TYPES.REVOKED,
-                RequestAction.ACTION_TYPES.CANCELLED,
+                ActionTypes.REVOKED,
+                ActionTypes.CANCELLED,
             ]:
                 if getattr(self, "assignment", None):
                     self.assignment.status = Assignment.AssignmentStatus.CANCELLED
                     self.assignment.save(update_fields=["status"])
 
             elif action_type in [
-                RequestAction.ACTION_TYPES.COMPLETED,
+                ActionTypes.COMPLETED,
             ]:
                 if getattr(self, "assignment", None):
                     self.assignment.status = Assignment.AssignmentStatus.COMPLETED
                     self.assignment.save(update_fields=["status"])
 
-            elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
+            elif action_type == ActionTypes.ACCEPT_FORWARDED:
                 
                 request_obj.academic_unit_id = self._target_unit_id
                 request_obj.save(update_fields=["academic_unit"])
@@ -497,7 +498,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
-                    type=RequestAction.ACTION_TYPES.REASSIGNED,
+                    type=ActionTypes.REASSIGNED,
                     resulted_content_type=ContentType.objects.get_for_model(Assignment),
                     resulted_object_id=assignment.id,
                     **validated_data
@@ -509,8 +510,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             # CREATE NEW ASSIGNMENT
             # -------------------------
             elif action_type in [
-                RequestAction.ACTION_TYPES.ASSIGNED,
-                RequestAction.ACTION_TYPES.REASSIGNED,
+                ActionTypes.ASSIGNED,
+                ActionTypes.REASSIGNED,
             ]:
                 assignment = Assignment.objects.create(
                     request=request_obj,
@@ -523,7 +524,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     updated_by_id=user.id,
                 )
 
-                if action_type == RequestAction.ACTION_TYPES.REASSIGNED:
+                if action_type == ActionTypes.REASSIGNED:
                     # fix: you were using self.assignment (bug)
                     assignment.status = Assignment.AssignmentStatus.CANCELLED
                     assignment.save(update_fields=["status"])
@@ -666,38 +667,31 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
                 is_same_type = from_info['content_type'] == to_info['content_type']
                 if is_same_type :
                     raise serializers.ValidationError("You cannot perform this action to yourself (source and destination are the same).")
-            
-            if ( from_info.get("entity") in ["STAFF", "STUDENT"] or to_info.get("entity") in ["STAFF", "STUDENT"]):
-                
+            # staff or student
+            if (from_info.get("entity") in [RequestingEntity.STAFF, RequestingEntity.STUDENT] or to_info.get("entity") in [RequestingEntity.STAFF, RequestingEntity.STUDENT]):
                 if request_obj.requested_by_id != user.id:
                     raise serializers.ValidationError("Only with or by  requester this action can performed.")
-                
-                staff_student_entities = {"STAFF", "STUDENT"}
-
+                staff_student_entities = {RequestingEntity.STAFF, RequestingEntity.STUDENT}
                 if from_info.get("entity") in staff_student_entities:
                     from_info["object_id"] = request_obj.requested_by_id
-
                 if to_info.get("entity") in staff_student_entities:
                     to_info["object_id"] = request_obj.requested_by_id
-
-            if ( from_info.get("entity") =="INDUSTRY" or to_info.get("entity") =="INDUSTRY"):
-                if from_info['entity']=="INDUSTRY":
+            # industry
+            if (from_info.get("entity") ==RequestingEntity.INDUSTRY or to_info.get("entity") ==RequestingEntity.INDUSTRY):
+                if from_info['entity']==RequestingEntity.INDUSTRY:
                             try:
                                 industry = user.industry_profile
                                 from_info["object_id"] = industry.id
-                                
                             except (Industry.DoesNotExist, AttributeError):
                                 raise serializers.ValidationError("there is no associated industry with this user "
                                 )
-                if to_info['entity']=="INDUSTRY":
+                if to_info['entity']==RequestingEntity.INDUSTRY:
                     to_info["object_id"] = request_obj.industry.id
-                
-                
-            if ( from_info.get("entity") =="ACADEMIC_UNIT" or to_info.get("entity") =="ACADEMIC_UNIT"):
-
-                if from_info['entity']=="ACADEMIC_UNIT":
+            # academic unit 
+            if (from_info.get("entity") ==RequestingEntity.ACADEMIC_UNIT or to_info.get("entity") ==RequestingEntity.ACADEMIC_UNIT):
+                if from_info['entity']==RequestingEntity.ACADEMIC_UNIT:
                     from_info["object_id"] = request_obj.academic_unit.id
-                if to_info['entity']=="ACADEMIC_UNIT":
+                if to_info['entity']==RequestingEntity.ACADEMIC_UNIT:
                     to_info["object_id"] = request_obj.academic_unit.id
             return attrs
 

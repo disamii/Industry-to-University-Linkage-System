@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from audit.models import AuditMixin
+from .enums import ActionTypes, AssignmentStatus, RequestType, RequestingEntity
 User = settings.AUTH_USER_MODEL
 
 
@@ -40,41 +41,13 @@ class Industry(AuditMixin,models.Model):
         return self.name
 
 class Request(AuditMixin,models.Model):
-    REQUEST_TYPE_CHOICES = [
-        ("rnd", "Research & Development  Services"),
-        ("tech_support", "Technology Support"),
-        ("consultancy", "Consultancy"),
-        ("testing", "Testing & QA"),
-        ("training", "Training"),
-        ("internship", "Internship/Externship"),
-        ("recruitment", "Graduate Recruitment"),
-        # universty request
-        ("curriculum_review", "Curriculum Review"),
-        ("industrial_visit", "Industrial Visit"),
-        ("joint_research", "Joint Research"),
-        ("guest_lecture", "Guest Lecturing"),
-        ("lab_access", "Equipment / Lab Access"),
-        ("tech_transfer", "IP / Technology Transfer"),
-        ("workshop_call","Workshop Call"),
-        ("conference _call","Conference  Call"),
-        ("exhibition_call","Exhibition Call"),
-        ("joint_ommunity_engagement","Joint Community engagement"),
-        ("other", "Other"),
-        
-    ]
-    REQUESTING_ENTITY_CHOICES = [
-        ("industry", "Industry"),
-        ("academic_unit", "Academic Unit"),
-        ("staff", "Staff"),
-        ("Student ", "Student"),
-    ]
 
     requesting_entity = models.CharField(
         max_length=20,
-        choices=REQUESTING_ENTITY_CHOICES
+        choices=RequestingEntity.choices,
     )
     
-    type = models.CharField(max_length=50, choices=REQUEST_TYPE_CHOICES)
+    type = models.CharField(max_length=50, choices=RequestType.choices)
     title = models.CharField(max_length=255)
     industry = models.ForeignKey(
         Industry,
@@ -101,27 +74,14 @@ class Request(AuditMixin,models.Model):
     )
 
 class RequestAction(AuditMixin,models.Model):
-    class ACTION_TYPES(models.TextChoices):
-        INITIATED = "initiated", "Initiated"
-        ASSIGNED = "assigned", "Assigned"
-        FORWARDED = "forwarded", "Forwarded"
-        POSTED_AS_THEMATIC = "posted_as_thematic", "Posted as Thematic Call"
-        REJECTED = "rejected", "Rejected"
-        REASSIGNED = "reassigned", "Reassigned"
-        COMPLETED = "completed", "Completed"
-        REVOKED = "revoked", "Revoked"
-        CANCELLED="cancelled","Cancelled"
-        ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
-        REPLIED = "replied", "Replied"
-        REVERTED="reverted","Reverted"
-    
+
     request = models.ForeignKey(
         "Request",
         on_delete=models.CASCADE,
         related_name="actions"
     )
 
-    type = models.CharField(max_length=30, choices=ACTION_TYPES.choices)
+    type = models.CharField(max_length=30, choices=ActionTypes.choices)
     
     description = models.TextField()  
     is_active = models.BooleanField(default=True)
@@ -165,14 +125,8 @@ class RequestAction(AuditMixin,models.Model):
         verbose_name_plural = "Request Actions"
 
 class Assignment(AuditMixin, models.Model):
-    class AssignmentStatus(models.TextChoices):
-        PENDING = "pending", "Pending"   
-        ACCEPTED = "accepted", "Accepted"
-        REJECTED = "rejected", "Rejected"
-        IN_PROGRESS = "in_progress", "In Progress"
-        COMPLETED = "completed", "Completed"
-        CANCELLED = "cancelled", "Cancelled"
-        
+
+    
     request = models.ForeignKey(
         "Request", 
         on_delete=models.CASCADE, 
