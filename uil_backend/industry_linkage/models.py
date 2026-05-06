@@ -156,12 +156,13 @@ class RequestAction(AuditMixin,models.Model):
 
 class Assignment(AuditMixin, models.Model):
     class AssignmentStatus(models.TextChoices):
+        PENDING = "pending", "Pending"   
         ACCEPTED = "accepted", "Accepted"
         REJECTED = "rejected", "Rejected"
-        ACTIVE = "active", "Active"
+        IN_PROGRESS = "in_progress", "In Progress"
         COMPLETED = "completed", "Completed"
         CANCELLED = "cancelled", "Cancelled"
-    
+        
     request = models.ForeignKey(
         "Request", 
         on_delete=models.CASCADE, 
@@ -188,7 +189,7 @@ class Assignment(AuditMixin, models.Model):
     status = models.CharField(
         max_length=20,
         choices=AssignmentStatus.choices,
-        default=AssignmentStatus.ACTIVE,
+        default=AssignmentStatus.PENDING,
     )
     class Meta:
         unique_together = ('request', 'assigned_user')

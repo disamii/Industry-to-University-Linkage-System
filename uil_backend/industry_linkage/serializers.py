@@ -99,10 +99,7 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
 
 class RequestActionSerializer(serializers.ModelSerializer):
-    from_industry = serializers.StringRelatedField()
-    to_industry = serializers.StringRelatedField()
-    from_unit = serializers.StringRelatedField()
-    to_unit = serializers.StringRelatedField()
+
 
     class Meta:
         model = RequestAction
@@ -110,10 +107,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "id",
             "type",
             "description",
-            "from_industry",
-            "to_industry",
-            "from_unit",
-            "to_unit",
+            "is_active",
             "created_at",
         ]
 
@@ -456,23 +450,14 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             if not all([assigned_user, start_date, end_date]):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
-
-            exists = Assignment.objects.filter(
-                request=request_obj,
-                assigned_user=assigned_user
-            ).exists()
-
-            if exists:
-                raise serializers.ValidationError({
-                    "assigned_user": "This user is already assigned"
-                })
+            
 
         elif action_type == "reassigned":
             assignment = Assignment.objects.filter(
                 request=request_obj,
                 status__in=[
                     Assignment.AssignmentStatus.ACCEPTED,
-                    Assignment.AssignmentStatus.ACTIVE
+                    Assignment.AssignmentStatus.PENDING
                 ]
                 ).first()
 
@@ -480,17 +465,6 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "request": "No active assignment to reassign"
                 })
-
-            if assigned_user:
-                exists = Assignment.objects.filter(
-                    request=request_obj,
-                    assigned_user=assigned_user
-                ).exists()
-
-                if exists:
-                    raise serializers.ValidationError({
-                        "assigned_user": "This user is already assigned"
-                    })
 
             # fallback values
             attrs["assigned_user"] = assigned_user or assignment.assigned_user
@@ -517,36 +491,51 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         industry_mentor = validated_data.pop("industry_mentor", None)
 
         with transaction.atomic():
+            assignment = Assignment.objects.filter(
+                request=request_obj,
+                assigned_user=assigned_user
+            ).first()
 
-            if action_type == RequestAction.ACTION_TYPES.ASSIGNED:
+            if assignment:
+                assignment.assigned_user = assigned_user
+                assignment.start_date = start_date
+                assignment.end_date = end_date
+                assignment.industry_mentor = industry_mentor
+                assignment.status = Assignment.AssignmentStatus.PENDING
+                assignment.updated_by_id = user.id
+                assignment.save()
+                
+                action_type = validated_data.pop("type")
+
+                action = RequestAction.objects.create(
+                created_by_id=user.id,
+                updated_by_id=user.id,
+                type=RequestAction.ACTION_TYPES.REASSIGNED,
+                assignment=assignment,
+                **validated_data
+                )
+
+                return action
+                
+            elif action_type in[
+            RequestAction.ACTION_TYPES.REASSIGNED,
+            RequestAction.ACTION_TYPES.ASSIGNED,
+                ]:
                 assignment=Assignment.objects.create(
                     request=request_obj,
                     assigned_user=assigned_user,
                     start_date=start_date,
                     end_date=end_date,
                     industry_mentor=industry_mentor,
-                    status=Assignment.AssignmentStatus.ACTIVE,
+                    status=Assignment.AssignmentStatus.PENDING,
                     created_by_id=user.id,
                     updated_by_id=user.id,
                 )
-
-            elif action_type == RequestAction.ACTION_TYPES.REASSIGNED:
-                # cancel old
-                self.assignment.status = Assignment.AssignmentStatus.CANCELLED
-                self.assignment.save(update_fields=["status"])
-
-                # create new
-                assignment=Assignment.objects.create(
-                    request=request_obj,
-                    assigned_user=assigned_user,
-                    start_date=start_date,
-                    end_date=end_date,
-                    industry_mentor=industry_mentor,
-                    status="active",
-                    created_by_id=user.id,
-                    updated_by_id=user.id,
-                )
-
+                
+                if action_type ==RequestAction.ACTION_TYPES.REASSIGNED:
+                    self.assignment.status = Assignment.AssignmentStatus.CANCELLED
+                    self.assignment.save(update_fields=["status"])
+            
             action = RequestAction.objects.create(
                 created_by_id=user.id,
                 updated_by_id=user.id,
