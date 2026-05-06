@@ -84,7 +84,7 @@ const AttachmentView = ({ attachment }: AttachmentViewProps) => {
         <div className="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4 bg-muted/50 p-4 rounded-lg">
           <div className="flex items-center min-w-0">
             {getFileIcon()}
-            <p className="font-medium text-sm truncate capitalize">
+            <p className="max-w-sm font-medium text-sm truncate capitalize">
               {fileName}
             </p>
           </div>

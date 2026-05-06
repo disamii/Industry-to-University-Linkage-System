@@ -7,8 +7,9 @@ export const industryRequestBaseSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
   academic_unit: z.number().int().positive("Invalid organizational unit ID"),
   description: z.string().min(1, "Description is required"),
-  type: z.enum(IndustryRequestType),
-  extra_data: z.record(z.string(), z.any()).optional(),
+  type: z.enum(IndustryRequestType, {
+    error_Map: () => ({ message: "Please select a request type" }),
+  }),
   attachment: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
@@ -51,4 +52,5 @@ export type IndustryRequestUpdateInput = z.infer<
 export const industryRequestDefaultValues = {
   title: "",
   description: "",
+  type: undefined, // Ensure type is undefined initially to trigger the disabled state
 };

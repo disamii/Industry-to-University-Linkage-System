@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry/industry_request-create-mutation";
 import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry/industry_request-update-mutation";
 import { IndustryRequestType } from "@/lib/enums";
-import { INDUSTRY_REQUEST_FIELDS } from "@/lib/mappings";
+import { INDUSTRY_REQUEST_HINTS, RequestHint } from "@/lib/mappings";
 import { formatSelectOptions } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import {
@@ -21,7 +21,7 @@ import {
   industryRequestUpdateSchema,
 } from "@/validation/validation.industry_requests";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -32,12 +32,12 @@ type Props = {
 const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
   const navigate = useNavigate();
   const isEditing = !!requestToEdit;
+
   const defaultValues = useMemo(() => {
     if (isEditing && requestToEdit) {
       return {
         ...requestToEdit,
         academic_unit: requestToEdit.academic_unit.id,
-        extra_data: requestToEdit.detail || {},
       };
     }
     return industryRequestDefaultValues;
@@ -52,6 +52,24 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
     },
   );
 
+  const selectedType = useWatch({
+    control: form.control,
+    name: "type",
+  }) as IndustryRequestType;
+
+  // Helper to get dynamic description hints
+  const descriptionContent = useMemo((): RequestHint => {
+    if (!selectedType) {
+      return {
+        placeholder: "Please select a type first...",
+        helpText: "Select a request type to enable this field.",
+      };
+    }
+
+    // Direct lookup from the mapping file
+    return INDUSTRY_REQUEST_HINTS[selectedType];
+  }, [selectedType]);
+
   const { mutate: createMutation, isPending: isCreating } =
     useIndustryRequestCreateMutation();
   const { mutate: updateMutation, isPending: isUpdating } =
@@ -61,41 +79,14 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
   const onSubmit = async (
     data: IndustryRequestCreateInput | IndustryRequestUpdateInput,
   ) => {
-    if (isEditing) {
-      updateMutation(data as IndustryRequestUpdateInput, {
-        onSuccess: () => {
-          navigate("/dashboard/industry/requests");
-        },
-      });
-      return;
-    }
-    createMutation(data as IndustryRequestCreateInput, {
+    const mutation = isEditing ? updateMutation : createMutation;
+    mutation(data as any, {
       onSuccess: () => {
-        form.reset();
+        if (!isEditing) form.reset();
         navigate("/dashboard/industry/requests");
       },
     });
   };
-
-  const selectedType = useWatch({
-    control: form.control,
-    name: "type",
-  }) as keyof typeof INDUSTRY_REQUEST_FIELDS;
-
-  // Change this:
-  useEffect(() => {
-    if (!isEditing && selectedType) {
-      form.setValue("extra_data", {});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType, isEditing]);
-
-  useEffect(() => {
-    if (isEditing && requestToEdit) {
-      form.reset(defaultValues);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValues, form, isEditing]);
 
   return (
     <form
@@ -108,19 +99,8 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         name="title"
         label="Request Title"
         placeholder="Enter a descriptive title"
-        type="text"
         required
       />
-
-      <FormTextArea
-        form={form}
-        name="description"
-        label="Description"
-        placeholder="Provide more details about the request..."
-        required
-      />
-
-      <TreeSelectOrgUnit form={form} />
 
       <FormCombobox
         form={form}
@@ -131,63 +111,32 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         required
       />
 
-      {selectedType && (
-        <>
-          {INDUSTRY_REQUEST_FIELDS[selectedType]?.map((field) => {
-            const name = `extra_data.${field}` as const;
+      <div className="col-span-full">
+        <FormTextArea
+          form={form}
+          name="description"
+          label="Description"
+          placeholder={descriptionContent.placeholder}
+          desc={descriptionContent.helpText}
+          disabled={!selectedType}
+          required
+          className="min-h-30"
+        />
+      </div>
 
-            const props = {
-              form: form,
-              name: name,
-              label: field.replaceAll("_", " "),
-              placeholder: "Enter a value",
-            };
-
-            // number fields
-            if (
-              [
-                "number_of_trainees",
-                "number_of_students",
-                "graduate_year",
-                "number_to_recruit",
-              ].includes(field)
-            ) {
-              return (
-                <FormInput {...props} key={field} type="number" required />
-              );
-            }
-
-            // textarea for longer text
-            if (["activities", "requirements"].includes(field)) {
-              return (
-                <FormTextArea
-                  {...props}
-                  key={field}
-                  placeholder="Enter a value"
-                  required
-                />
-              );
-            }
-
-            // default input
-            return <FormInput {...props} key={field} type="text" required />;
-          })}
-        </>
-      )}
+      <TreeSelectOrgUnit form={form} />
 
       <FormUploadFile
         form={form}
         name="attachment"
         label="Attachment"
-        desc="Please upload the supporting documents for this project."
+        desc="Upload supporting documents (PDF, DOCX, ZIP)."
         accept=".pdf,.doc,.docx,.zip,.png,.jpg"
         maxSizeMB={5}
-        className="col-span-full"
       />
 
       <Button
         type="submit"
-        form="form-create-edit-request"
         disabled={isSubmitting}
         className="col-span-full w-full h-10"
       >
