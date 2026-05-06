@@ -17,9 +17,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { MAX_FILE_SIZE_MB } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Upload } from "lucide-react";
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
 import XIconButton from "./x-icon-button";
+import { UseQueryResult } from "@tanstack/react-query";
+import { QueryState } from "./query-state-ui";
+import { useDebounce } from "@/hooks/use-debounce";
 
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
@@ -133,19 +136,37 @@ export const FormTextArea = <T extends FieldValues>({
   />
 );
 
-type FormSelectProps<T extends FieldValues> = BaseFormProps<T> & {
+type FormSelectProps<T extends FieldValues, Q = unknown> = BaseFormProps<T> & {
   orientation?: "vertical" | "horizontal" | "responsive";
   position?: "item-aligned" | "popper";
-  options: { value: string | number; label: string }[];
+
+  // static
+  options?: { value: string | number; label: string }[];
+
+  // dynamic
+  query?: UseQueryResult<Q, Error>;
+  children?: (data: Q, search: string) => React.ReactNode;
+  checkEmpty?: (data: Q) => boolean;
+
+  // search
+  searchable?: boolean;
+  onSearch?: (value: string | number) => void; // for server-side
+  searchPlaceholder?: string;
+
   desc?: string;
   isNumber?: boolean;
 };
 
-export const FormSelect = <T extends FieldValues>({
+export const FormSelect = <T extends FieldValues, Q = unknown>({
   form,
   name,
   label,
   options,
+  query,
+  children,
+  checkEmpty,
+  onSearch,
+  searchPlaceholder,
   orientation,
   desc,
   placeholder,
@@ -153,53 +174,99 @@ export const FormSelect = <T extends FieldValues>({
   className,
   isNumber,
   required,
-}: FormSelectProps<T>) => (
-  <Controller
-    name={name}
-    control={form.control}
-    render={({ field, fieldState }) => (
-      <Field orientation={orientation} data-invalid={fieldState.invalid}>
-        <FieldContent className="flex-initial">
-          <FieldLabel htmlFor={field.name} className="capitalize">
-            {label}
-            {required && <Asterisk />}
-          </FieldLabel>
-          {desc && <FieldDescription>{desc}</FieldDescription>}
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </FieldContent>
-        <Select
-          name={field.name}
-          required={required}
-          value={
-            field.value !== undefined && field.value !== null
-              ? String(field.value)
-              : ""
-          }
-          onValueChange={(val) => {
-            // Cast back to number if requested
-            field.onChange(isNumber ? Number(val) : val);
-          }}
-        >
-          <SelectTrigger
-            id={field.name}
-            aria-invalid={fieldState.invalid}
-            className={cn("py-5 min-w-30", className)}
+  searchable,
+}: FormSelectProps<T, Q>) => {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+
+  useEffect(() => {
+    if (!query || !onSearch) return;
+    onSearch(debouncedSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  const filteredOptions = useMemo(() => {
+    if (!options) return [];
+
+    return options.filter((opt) =>
+      opt.label.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [options, search]);
+
+  return (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field, fieldState }) => (
+        <Field orientation={orientation} data-invalid={fieldState.invalid}>
+          <FieldContent className="flex-initial">
+            <FieldLabel htmlFor={field.name} className="capitalize">
+              {label}
+              {required && <Asterisk />}
+            </FieldLabel>
+            {desc && <FieldDescription>{desc}</FieldDescription>}
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </FieldContent>
+          <Select
+            name={field.name}
+            required={required}
+            value={
+              field.value !== undefined && field.value !== null
+                ? String(field.value)
+                : ""
+            }
+            onValueChange={(val) => {
+              // Cast back to number if requested
+              field.onChange(isNumber ? Number(val) : val);
+            }}
           >
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent position={position}>
-            {options.map(({ value, label }, idx) => (
-              // Ensure the Item value is always a string
-              <SelectItem key={`${value}—${idx}`} value={String(value)}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
-    )}
-  />
-);
+            <SelectTrigger
+              id={field.name}
+              aria-invalid={fieldState.invalid}
+              className={cn("py-5 min-w-30", className)}
+            >
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent position={position}>
+              {/* 🔍 Search input */}
+              {searchable && (
+                <div className="p-2">
+                  <Input
+                    placeholder={searchPlaceholder ?? "Search..."}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="h-8"
+                  />
+                </div>
+              )}
+
+              {/* -------- STATIC (client search always) -------- */}
+              {!query &&
+                (filteredOptions.length ? (
+                  filteredOptions.map(({ value, label }, idx) => (
+                    <SelectItem key={`${value}-${idx}`} value={String(value)}>
+                      {label}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-muted-foreground text-sm">
+                    No results found
+                  </div>
+                ))}
+
+              {/* -------- QUERY -------- */}
+              {query && children && checkEmpty && (
+                <QueryState query={query} checkEmpty={checkEmpty}>
+                  {(data) => children(data, search)}
+                </QueryState>
+              )}
+            </SelectContent>
+          </Select>
+        </Field>
+      )}
+    />
+  );
+};
 
 type FormUploadFileProps<T extends FieldValues> = BaseFormProps<T> & {
   desc?: string;
@@ -217,7 +284,7 @@ export const FormUploadFile = <T extends FieldValues>({
   maxSizeMB = MAX_FILE_SIZE_MB,
   required,
 }: FormUploadFileProps<T>) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Controller

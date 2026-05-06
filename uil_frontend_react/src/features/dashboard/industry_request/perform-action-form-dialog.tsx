@@ -4,6 +4,7 @@ import {
   FormTextArea,
   FormUploadFile,
 } from "@/components/reusable/form-components";
+import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SelectItem } from "@/components/ui/select";
+import {
+  defaultIndustryParams,
+  useGetIndustryList,
+} from "@/data/industry/industry-list-query";
 import { industryRequestKeys } from "@/data/industry_requests/industry/keys";
 import { industryRequestOfficeKeys } from "@/data/industry_requests/office/keys";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
@@ -23,6 +29,7 @@ import {
   ACTION_CONFIG,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
+import { useUrlParams } from "@/hooks/use-url-params";
 
 interface ActionDialogProps {
   requestId: number;
@@ -31,16 +38,19 @@ interface ActionDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function ActionDialog({
+const PerformActionFormDialog = ({
   requestId,
   actionType,
   open,
   onOpenChange,
-}: ActionDialogProps) {
+}: ActionDialogProps) => {
   const queryClient = useQueryClient();
-  const config = actionType ? ACTION_CONFIG[actionType] : null;
+  const { params, setParams } = useUrlParams(defaultIndustryParams);
 
+  const config = actionType ? ACTION_CONFIG[actionType] : null;
   const form = useDynamicForm(config?.formFields || []);
+
+  const industriesQuery = useGetIndustryList(params);
 
   useEffect(() => {
     if (!open) form.reset();
@@ -123,20 +133,52 @@ export function ActionDialog({
           />
         );
 
-      case "select":
-        return (
-          <FormSelect
-            key={field.name}
-            form={form}
-            name={field.name}
-            label={field.label}
-            placeholder={field.placeholder}
-            options={[
-              { value: 1, label: "Option 1" },
-              { value: 2, label: "Option 2" },
-            ]}
-          />
-        );
+      case "select": {
+        const checkFieldType = (label: string) =>
+          field.label.toLowerCase().includes(label);
+        const fieldTypes = {
+          user: checkFieldType("assign"),
+          unit: checkFieldType("unit"),
+          industry: checkFieldType("industry"),
+        } as const;
+
+        // Unit Select Form
+        if (fieldTypes.unit)
+          return (
+            <TreeSelectOrgUnit
+              variant="form"
+              form={form}
+              label={field.label}
+              name={field.name}
+            />
+          );
+
+        // Industry Select Form
+        if (fieldTypes.user || fieldTypes.industry)
+          return (
+            <FormSelect
+              form={form}
+              name={field.name}
+              label={field.label}
+              query={industriesQuery}
+              checkEmpty={(data) => data.results.length === 0}
+              searchable
+              onSearch={(search) => setParams({ search })}
+              searchPlaceholder="Search Industries..."
+              position="popper"
+            >
+              {(data) =>
+                data.results.map((item) => (
+                  <SelectItem key={item.id} value={String(item.id)}>
+                    {item.name}
+                  </SelectItem>
+                ))
+              }
+            </FormSelect>
+          );
+
+        return null;
+      }
 
       default:
         return null;
@@ -176,4 +218,6 @@ export function ActionDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default PerformActionFormDialog;

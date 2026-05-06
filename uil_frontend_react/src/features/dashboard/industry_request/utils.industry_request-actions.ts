@@ -71,7 +71,8 @@ const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
   },
   industry_mentor: {
     label: "Industry Mentor",
-    placeholder: "Search mentors...",
+    placeholder: "Enter Industry Mentor Full Name",
+    validation: (z) => z.string().optional(),
   },
   from_unit: { label: "From Unit", type: "select" },
   to_unit: { label: "To Unit", type: "select" },

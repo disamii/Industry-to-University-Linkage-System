@@ -5,47 +5,52 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useGetOrgUnitDirectChildrenList } from "@/data/org_unit/org_units-direct-children-list-query";
 import { useOrgUnitTree } from "@/data/org_unit/use-org-unit-tree";
 import { useUrlParams } from "@/hooks/use-url-params";
-import { OrgUnitResponse } from "@/types/interfaces.org_units";
-import {
-  IndustryRequestCreateInput,
-  IndustryRequestUpdateInput,
-} from "@/validation/validation.industry_requests";
-import { UseFormReturn } from "react-hook-form";
-import TreeItem from "./tree-item";
 import { cn } from "@/lib/utils";
+import { OrgUnitResponse } from "@/types/interfaces.org_units";
+import { FieldValues, get, Path, UseFormReturn } from "react-hook-form";
+import TreeItem from "./tree-item";
 
-type Props = {
-  form?: UseFormReturn<IndustryRequestCreateInput | IndustryRequestUpdateInput>;
+type Props<T extends FieldValues> = {
+  form?: UseFormReturn<T>;
   variant?: "form" | "filter";
+  label?: string;
+  name?: Path<T>; // Change from keyof T to Path<T>
 };
 
-const TreeSelectOrgUnit = ({ form, variant = "form" }: Props) => {
+const TreeSelectOrgUnit = <T extends FieldValues>({
+  form,
+  variant = "form",
+  label,
+  name = "academic_unit" as Path<T>,
+}: Props<T>) => {
   const isForm = form && variant === "form";
-  const { getParam, setParams, removeParams } = useUrlParams<{
-    academic_unit?: number;
-  }>({ academic_unit: undefined });
+  const { getParam, setParams, removeParams } = useUrlParams<
+    Record<string, number>
+  >({
+    [name as string]: undefined,
+  });
 
   const onSelect = (id: number) => {
     if (isForm) {
-      form?.setValue("academic_unit", id, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      form?.setValue(name, id as any, {
         shouldValidate: true,
         shouldDirty: true,
       });
-
       return;
     } else {
       if (id !== -1) {
-        setParams({ academic_unit: id });
+        setParams({ [name as string]: id });
         return;
       }
-
-      removeParams(["academic_unit"]);
+      removeParams([name as string]);
     }
   };
 
   const selectedAcademicUnit = isForm
-    ? form.watch("academic_unit")
-    : getParam("academic_unit");
+    ? form.watch(name)
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getParam(name as any);
 
   const {
     searchQuery,
@@ -74,12 +79,11 @@ const TreeSelectOrgUnit = ({ form, variant = "form" }: Props) => {
   return (
     <Field className={cn(!isForm && "max-w-40")}>
       {isForm && (
-        <FieldLabel htmlFor="academic_unit" className="capitalize">
-          Academic Unit
+        <FieldLabel htmlFor={name} className="capitalize">
+          {label || "Academic Unit"}
           <Asterisk />
         </FieldLabel>
       )}
-
       <TreeSelect
         selectedId={selectedAcademicUnit}
         searchQuery={searchQuery}
@@ -113,10 +117,15 @@ const TreeSelectOrgUnit = ({ form, variant = "form" }: Props) => {
         useChildren={useOrgUnitChildren}
         isForm={isForm}
       />
-
-      {form?.formState.errors.academic_unit && (
-        <FieldError errors={[form?.formState.errors.academic_unit]} />
-      )}
+      {get(form?.formState.errors, name) && (
+        <FieldError
+          errors={[
+            get(form?.formState.errors, name) as {
+              message?: string | undefined;
+            },
+          ]}
+        />
+      )}{" "}
     </Field>
   );
 };
