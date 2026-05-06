@@ -233,7 +233,7 @@ const SelectFilter = <T,>({
           ))}
 
         {query && checkEmpty && children && (
-          <QueryState query={query} checkEmpty={checkEmpty}>
+          <QueryState query={query} checkEmpty={checkEmpty} variant="small">
             {(data) => children({ data, registerLabels })}
           </QueryState>
         )}

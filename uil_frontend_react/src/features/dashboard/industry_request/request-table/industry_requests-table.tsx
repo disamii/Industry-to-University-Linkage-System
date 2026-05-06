@@ -9,6 +9,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE } from "@/lib/constants";
+import { UserRole } from "@/lib/enums";
 import {
   cn,
   formatDate,
@@ -22,14 +23,13 @@ import {
   IndustryRequestStats,
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
+import { useLocation } from "react-router-dom";
 import IndustryRequestActions from "../indutry_request-actions";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
 import {
   defaultIndustryRequestParams,
   IndustryRequestParams,
 } from "./use-industry_request-params";
-import { useLocation } from "react-router-dom";
-import { UserRole } from "@/lib/enums";
 
 type RowProps = {
   item: IndustryRequestMineResponse | IndustryRequestOfficeResponse;

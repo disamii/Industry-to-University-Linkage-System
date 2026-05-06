@@ -3,7 +3,6 @@ import { QueryState } from "@/components/reusable/query-state-ui";
 import TreeItem from "@/components/reusable/tree-item";
 import TreeView, { UseChildrenHook } from "@/components/reusable/tree-view";
 import { Card } from "@/components/ui/card";
-import { Command, CommandInput } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
 import { useGetOrgUnitDirectChildrenList } from "@/data/org_unit/org_units-direct-children-list-query";
@@ -32,7 +31,7 @@ const OrgUnitTab = () => {
         hasBackBtn={false}
       />
 
-      <QueryState query={query} checkEmpty={(data) => !data}>
+      <QueryState query={query} checkEmpty={(data) => !data} variant="section">
         {(data) => {
           return (
             <div className="space-y-6">

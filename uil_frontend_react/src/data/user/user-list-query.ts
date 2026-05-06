@@ -1,17 +1,20 @@
-import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { ApiPaginatedResponse } from "@/types/interfaces";
+import { UserParams, UserProfile } from "@/types/interfaces.user";
 import { useQuery } from "@tanstack/react-query";
 import { userKeys } from "./keys";
+
+import { createGetRequest } from "@/lib/axios.utils";
 import { userUrls } from "./urls";
-import { UserProfile } from "@/types/interfaces.user";
-import { ApiPaginatedResponse } from "@/types/interfaces";
 
-export const getUsers = () =>
-  safeApiRequest(api.get<ApiPaginatedResponse<UserProfile>>(userUrls.base()));
+export const defaultUserParams: UserParams = { search: "" };
 
-export const useGetUsers = () => {
+export const getUsers = createGetRequest<ApiPaginatedResponse<UserProfile>>(
+  userUrls.base(),
+);
+
+export const useGetUsers = (params?: UserParams) => {
   return useQuery({
-    queryKey: userKeys.all(),
-    queryFn: getUsers,
+    queryKey: userKeys.list(params),
+    queryFn: () => getUsers(params),
   });
 };

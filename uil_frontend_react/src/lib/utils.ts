@@ -153,9 +153,19 @@ export const getNameInitials = (name: string) =>
     .join("")
     .toUpperCase();
 
-export const getFullName = (
-  first_name?: string | null,
-  father_name?: string | null,
-  grand_father_name?: string | null,
-) =>
-  [first_name, father_name, grand_father_name].filter(Boolean).join(" ").trim();
+export const getFullName = (user: {
+  first_name?: string | null;
+  father_name?: string | null;
+  grand_father_name?: string | null;
+  email?: string;
+}) => {
+  const { first_name, father_name, grand_father_name, email } = user;
+
+  // Build the name string
+  const fullName = [first_name, father_name, grand_father_name]
+    .filter(Boolean)
+    .join(" ");
+
+  // Return name, or fallback to email, or fallback to default
+  return fullName.length > 0 ? fullName : (email ?? "Unknown");
+};

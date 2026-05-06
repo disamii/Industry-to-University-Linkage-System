@@ -22,7 +22,7 @@ export default function ProfileDropdown({ className }: ProfileDropdownProps) {
   const { user } = useAuthStore();
   const { pathname } = useLocation();
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
-  const userName = getFullName(user?.first_name, user?.father_name);
+  const userName = getFullName({ ...user });
 
   return (
     <DropdownMenu>

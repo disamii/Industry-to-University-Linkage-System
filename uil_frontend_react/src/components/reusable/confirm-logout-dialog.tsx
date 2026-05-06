@@ -39,6 +39,7 @@ const ConfirmLogoutDialog = ({ open, onOpenChange }: Props) => {
           </DialogClose>
 
           <Button
+            variant="destructive"
             onClick={() => {
               clearAuth();
               queryClient.clear();

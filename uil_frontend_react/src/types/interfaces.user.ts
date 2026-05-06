@@ -2,6 +2,10 @@ import { UserRole, UserStatus } from "@/lib/enums";
 import { Metadata } from "./interfaces";
 import { OrgUnitResponse } from "./interfaces.org_units";
 
+export type UserParams = {
+  search?: string;
+};
+
 export type UserProfile = Metadata & {
   id: number;
   username: string;

@@ -16,7 +16,7 @@ const IndustryRequestsPage = () => {
         hasBackBtn={false}
       />
 
-      <QueryState query={query} checkEmpty={(data) => !data}>
+      <QueryState query={query} checkEmpty={(data) => !data} variant="page">
         {(data) => {
           return (
             <div className="space-y-6">

@@ -1,11 +1,12 @@
 import {
+  FormCombobox,
   FormInput,
-  FormSelect,
   FormTextArea,
   FormUploadFile,
 } from "@/components/reusable/form-components";
 import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
 import { Button } from "@/components/ui/button";
+import { CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -13,15 +14,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SelectItem } from "@/components/ui/select";
 import {
   defaultIndustryParams,
   useGetIndustryList,
 } from "@/data/industry/industry-list-query";
 import { industryRequestKeys } from "@/data/industry_requests/industry/keys";
 import { industryRequestOfficeKeys } from "@/data/industry_requests/office/keys";
+import { defaultUserParams, useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
+import { useUrlParams } from "@/hooks/use-url-params";
 import { ActionType } from "@/lib/enums";
+import { getFullName } from "@/lib/utils";
+import { IndustryResponse } from "@/types/interfaces.industry";
+import { UserProfile } from "@/types/interfaces.user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
@@ -29,7 +34,6 @@ import {
   ACTION_CONFIG,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
-import { useUrlParams } from "@/hooks/use-url-params";
 
 interface ActionDialogProps {
   requestId: number;
@@ -45,12 +49,17 @@ const PerformActionFormDialog = ({
   onOpenChange,
 }: ActionDialogProps) => {
   const queryClient = useQueryClient();
-  const { params, setParams } = useUrlParams(defaultIndustryParams);
+  const { params: industryParams, setParams: setIndustryParams } = useUrlParams(
+    defaultIndustryParams,
+  );
+  const { params: userParams, setParams: setUserParams } =
+    useUrlParams(defaultUserParams);
 
   const config = actionType ? ACTION_CONFIG[actionType] : null;
   const form = useDynamicForm(config?.formFields || []);
 
-  const industriesQuery = useGetIndustryList(params);
+  const industriesQuery = useGetIndustryList(industryParams);
+  const usersQuery = useGetUsers(userParams);
 
   useEffect(() => {
     if (!open) form.reset();
@@ -86,98 +95,93 @@ const PerformActionFormDialog = ({
   if (!config) return null;
 
   const renderField = (field: FormFieldConfig) => {
+    const { name, label, placeholder, hidden, isOptional } = field;
+    const commonProps = {
+      form,
+      key: name,
+      name,
+      label,
+      placeholder,
+      hidden,
+      required: !isOptional,
+    };
+
+    const SELECT_CONFIGS = {
+      user: {
+        query: usersQuery,
+        searchPlaceholder: "User",
+        setParams: setUserParams,
+        getLabel: (item: UserProfile) => getFullName(item),
+        placeholder: "Select a user...",
+      },
+      industry: {
+        query: industriesQuery,
+        searchPlaceholder: "Industries",
+        setParams: setIndustryParams,
+        getLabel: (item: IndustryResponse) => item.name,
+        placeholder: "Select industry...",
+      },
+    };
+
     switch (field.type) {
       case "textarea":
-        return (
-          <FormTextArea
-            key={field.name}
-            form={form}
-            name={field.name}
-            label={field.label}
-            placeholder={field.placeholder}
-          />
-        );
+        return <FormTextArea {...commonProps} />;
 
       case "date":
       case "text":
       case "number":
-        return (
-          <FormInput
-            key={field.name}
-            form={form}
-            name={field.name}
-            label={field.label}
-            placeholder={field.placeholder}
-            type={field.type}
-          />
-        );
-
       case "checkbox":
-        return (
-          <FormInput
-            key={field.name}
-            form={form}
-            name={field.name}
-            label={field.label}
-            type="checkbox"
-          />
-        );
+        return <FormInput {...commonProps} type={field.type} />;
 
       case "file":
-        return (
-          <FormUploadFile
-            key={field.name}
-            form={form}
-            name={field.name}
-            label={field.label}
-          />
-        );
+        return <FormUploadFile {...commonProps} />;
 
       case "select": {
-        const checkFieldType = (label: string) =>
-          field.label.toLowerCase().includes(label);
-        const fieldTypes = {
-          user: checkFieldType("assign"),
-          unit: checkFieldType("unit"),
-          industry: checkFieldType("industry"),
-        } as const;
+        const labelLower = field.label.toLowerCase();
 
-        // Unit Select Form
-        if (fieldTypes.unit)
-          return (
-            <TreeSelectOrgUnit
-              variant="form"
-              form={form}
-              label={field.label}
-              name={field.name}
-            />
-          );
+        // 1. Handle TreeSelect (Units) separately as it's a different component
+        if (labelLower.includes("unit")) {
+          return <TreeSelectOrgUnit variant="form" {...commonProps} />;
+        }
 
-        // Industry Select Form
-        if (fieldTypes.user || fieldTypes.industry)
-          return (
-            <FormSelect
-              form={form}
-              name={field.name}
-              label={field.label}
-              query={industriesQuery}
-              checkEmpty={(data) => data.results.length === 0}
-              searchable
-              onSearch={(search) => setParams({ search })}
-              searchPlaceholder="Search Industries..."
-              position="popper"
-            >
-              {(data) =>
-                data.results.map((item) => (
-                  <SelectItem key={item.id} value={String(item.id)}>
-                    {item.name}
-                  </SelectItem>
-                ))
-              }
-            </FormSelect>
-          );
+        // 2. Determine if we are dealing with a User or Industry
+        const type = labelLower.includes("assign")
+          ? "user"
+          : labelLower.includes("industry")
+            ? "industry"
+            : null;
 
-        return null;
+        if (!type) return null;
+
+        const config = SELECT_CONFIGS[type];
+
+        return (
+          <FormCombobox
+            {...commonProps}
+            placeholder={config.placeholder}
+            query={config.query}
+            checkEmpty={(data) => data.results.length === 0}
+            onSearch={(search) => config.setParams({ search })}
+            searchPlaceholder={`Search ${config.searchPlaceholder}...`}
+            position="popper"
+          >
+            {(data, setOpen) => (
+              <CommandGroup>
+                {data.results.map((item) => (
+                  <CommandItem
+                    key={item.id}
+                    onSelect={() => {
+                      form.setValue(name, item.id);
+                      setOpen(false);
+                    }}
+                  >
+                    {config.getLabel(item as any)}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </FormCombobox>
+        );
       }
 
       default:

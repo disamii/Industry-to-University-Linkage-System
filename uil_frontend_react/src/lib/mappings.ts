@@ -1,8 +1,20 @@
-import { IndustryRequestType } from "./enums";
+/**
+ * Utility
+ */
+import { ComponentVariant } from "@/types/interfaces";
+
+export const variantContainers: Record<ComponentVariant, string> = {
+  small: "p-2 text-sm",
+  inline: "p-4 text-base",
+  section: "p-12 border rounded-xl my-4",
+  page: "min-h-[70vh] flex flex-col justify-center p-6",
+};
 
 /**
  * Industry Request
  */
+import { IndustryRequestType } from "./enums";
+
 export const INDUSTRY_REQUEST_FIELDS: Record<
   IndustryRequestType,
   readonly string[]

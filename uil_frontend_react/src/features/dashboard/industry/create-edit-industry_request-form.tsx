@@ -1,6 +1,6 @@
 import {
+  FormCombobox,
   FormInput,
-  FormSelect,
   FormTextArea,
   FormUploadFile,
 } from "@/components/reusable/form-components";
@@ -122,7 +122,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
 
       <TreeSelectOrgUnit form={form} />
 
-      <FormSelect
+      <FormCombobox
         form={form}
         name="type"
         label="Request Type"

@@ -47,7 +47,7 @@ export const useUrlParams = <T extends object>(defaults: Partial<T>) => {
       nextParams.set("page", "1");
     }
 
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, { replace: true });
   };
 
   /**
@@ -59,14 +59,14 @@ export const useUrlParams = <T extends object>(defaults: Partial<T>) => {
 
     if (nextParams.has("page")) nextParams.set("page", "1");
 
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, { replace: true });
   };
 
   /**
    * Clear all parameters entirely
    */
   const clearAllParams = () => {
-    setSearchParams({});
+    setSearchParams({}, { replace: true });
   };
 
   /**

@@ -16,6 +16,8 @@ import {
 import * as z from "zod";
 
 export type ActionFormFields =
+  | "id"
+  | "type"
   | "description"
   | "assigned_user"
   | "start_date"
@@ -44,9 +46,23 @@ export type FormFieldConfig = {
     | "checkbox"
     | "file";
   validation?: (z: typeof import("zod")) => z.ZodTypeAny;
+  hidden?: boolean;
+  isOptional?: boolean;
 };
 
 const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
+  id: {
+    validation: (z) => z.number(),
+    hidden: true,
+  },
+  type: {
+    validation: (z) =>
+      z.enum(
+        ActionType,
+        `Action should be one of ${Object.values(ActionType).join(",")}`,
+      ),
+    hidden: true,
+  },
   description: {
     label: "Description",
     type: "textarea",
@@ -56,7 +72,6 @@ const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
   assigned_user: {
     label: "Assign To",
     type: "select",
-    placeholder: "Select a user...",
     validation: (z) => z.string().min(1, "Please select a user"),
   },
   start_date: {
@@ -73,11 +88,18 @@ const fieldDefinitions: Record<ActionFormFields, Partial<FormFieldConfig>> = {
     label: "Industry Mentor",
     placeholder: "Enter Industry Mentor Full Name",
     validation: (z) => z.string().optional(),
+    isOptional: true,
   },
   from_unit: { label: "From Unit", type: "select" },
   to_unit: { label: "To Unit", type: "select" },
-  from_industry: { label: "From Industry", type: "select" },
-  to_industry: { label: "To Industry", type: "select" },
+  from_industry: {
+    label: "From Industry",
+    type: "select",
+  },
+  to_industry: {
+    label: "To Industry",
+    type: "select",
+  },
   title: {
     label: "Post Title",
     placeholder: "Enter a catchy title...",
@@ -116,7 +138,7 @@ const FIELDS = Object.entries(fieldDefinitions).reduce(
   {} as Record<ActionFormFields, FormFieldConfig>,
 );
 
-const BASE_FIELDS = [FIELDS.description];
+const BASE_FIELDS = [FIELDS.id, FIELDS.type, FIELDS.description];
 
 const ASSIGNMENT_FIELDS = [
   ...BASE_FIELDS,
@@ -134,8 +156,8 @@ type ActionConfig = {
 };
 
 export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
-  [ActionType.CREATED]: {
-    label: "Create Request",
+  [ActionType.INITIATED]: {
+    label: "Initiate Request",
     Icon: Plus,
     color: "bg-zinc-100 text-zinc-700",
     formFields: [...BASE_FIELDS],

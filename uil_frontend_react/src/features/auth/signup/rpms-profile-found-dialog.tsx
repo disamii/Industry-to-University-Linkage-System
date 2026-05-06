@@ -30,11 +30,7 @@ const RpmsProfileFoundDialog = ({
     resolver: zodResolver(signinSchema),
   });
 
-  const fullName = getFullName(
-    rpmsUserData?.first_name,
-    rpmsUserData?.father_name,
-    rpmsUserData?.grand_father_name,
-  );
+  const fullName = getFullName({ ...rpmsUserData });
 
   useEffect(() => {
     if (rpmsUserData?.email) {

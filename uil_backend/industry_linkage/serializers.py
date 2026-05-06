@@ -268,7 +268,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "description",
             "attachment",
             "created_at",
-            "supported_actions"
+            "supported_actions",
         ]
 
     def get_supported_actions(self, obj):

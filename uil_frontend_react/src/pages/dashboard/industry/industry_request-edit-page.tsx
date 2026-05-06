@@ -17,7 +17,7 @@ const IndustryRequestEditPage = () => {
           change."
       />
 
-      <QueryState query={query} checkEmpty={(data) => !data}>
+      <QueryState query={query} checkEmpty={(data) => !data} variant="page">
         {(data) => <CreateEditIndustryRequestsForm requestToEdit={data} />}
       </QueryState>
     </div>

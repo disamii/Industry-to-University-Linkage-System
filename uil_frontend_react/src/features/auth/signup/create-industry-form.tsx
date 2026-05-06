@@ -1,7 +1,7 @@
 import {
+  FormCombobox,
   FormInput,
   FormSection,
-  FormSelect,
   FormTextArea,
 } from "@/components/reusable/form-components";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ const CompanyDetailsForm = () => {
             required
           />
 
-          <FormSelect
+          <FormCombobox
             form={form}
             name="industry_type"
             label="Industry Type"

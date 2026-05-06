@@ -46,7 +46,7 @@ export enum RequestingEntity {
 }
 
 export enum ActionType {
-  CREATED = "created",
+  INITIATED = "initiated",
   ASSIGNED = "assigned",
   FORWARDED = "forwarded",
   ACCEPT_FORWARDED = "accept_forwarded",
