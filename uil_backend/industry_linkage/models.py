@@ -113,7 +113,7 @@ class RequestAction(AuditMixin,models.Model):
         CANCELLED="cancelled","Cancelled"
         ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
         REPLIED = "replied", "Replied"
-        Revert="revert","Revert"
+        REVERTED="reverted","Reverted"
     
     request = models.ForeignKey(
         "Request",
