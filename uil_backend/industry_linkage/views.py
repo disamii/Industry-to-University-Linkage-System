@@ -23,6 +23,7 @@ from .serializers import (
     AssignmentDetailSerializer,
     AssignmentListSerializer
 )
+from .utils import validate_action_or_raise, deactivate_previous_actions
 from .paginations import IndustryPagination, RequestPagination, RequestForIndustryPagination
 
 
@@ -191,7 +192,7 @@ class RequestManageViewSet(
 
         request_obj = self.get_object()
         action_type = request.data.get("type")
-
+        validate_action_or_raise(request_obj, action_type)
         serializer_class = ACTION_SERIALIZERS.get(action_type)
 
         if not serializer_class:
@@ -207,9 +208,8 @@ class RequestManageViewSet(
         serializer.is_valid(raise_exception=True)
 
         with transaction.atomic():
-            action = serializer.save(
-                request=request_obj,
-            )
+            deactivate_previous_actions(request_obj, action_type)
+            action = serializer.save(request=request_obj)
 
         return Response(
             {
@@ -246,6 +246,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status']
     ordering_fields = ['start_date', 'end_date']
     pagination_class = DefaultPagination
+
     # -----------------------------
     # SERIALIZER SWITCH
     # -----------------------------
