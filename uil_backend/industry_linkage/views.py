@@ -185,7 +185,7 @@ class RequestManageViewSet(
 
         request_obj = self.get_object()
         action_type = request.data.get("type")
-
+        validate_action_or_raise(request_obj, action_type)
         serializer_class = ACTION_SERIALIZERS.get(action_type)
 
         if not serializer_class:
@@ -204,6 +204,7 @@ class RequestManageViewSet(
             action = serializer.save(
                 request=request_obj,
             )
+            deactivate_previous_actions(request_obj, action_type)
 
         return Response(
             {
@@ -240,6 +241,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status']
     ordering_fields = ['start_date', 'end_date']
     pagination_class = DefaultPagination
+    
     # -----------------------------
     # SERIALIZER SWITCH
     # -----------------------------

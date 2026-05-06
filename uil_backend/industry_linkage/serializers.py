@@ -238,7 +238,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
             RequestAction.objects.create(
                     request=request,
-                    type="created",
+                    type=RequestAction.ACTION_TYPES.INITIATED,
                     description="Request created",
                     created_by_id=user.id,
                     updated_by_id=user.id,
@@ -271,7 +271,11 @@ class RequestDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_supported_actions(self, obj):
-        return [choice.value for choice in RequestAction.ACTION_TYPES]
+        return [
+            choice.value
+            for choice in RequestAction.ACTION_TYPES
+            if choice != RequestAction.ACTION_TYPES.INITIATED
+        ]
 
 
 class RequestSerializer(serializers.ModelSerializer):
@@ -322,29 +326,28 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
         action_type = attrs.get("type")
 
-        # apply uniqueness ONLY for "created"
-        if action_type == RequestAction.ACTION_TYPES.CREATED:
-            exists = RequestAction.objects.filter(
-                request=request_obj,
-                type=action_type
-            ).exists()
+        if action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
 
-            if exists:
-                raise serializers.ValidationError({
-                    "type": "This request is already created."
-                })
-
-        # check wether there is already forward request and accepting user is in that scope
-        elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
             forwarded_action = request_obj.actions.filter(
                 type=RequestAction.ACTION_TYPES.FORWARDED
             ).order_by("-created_at").first()
             if not forwarded_action:
-                raise serializers.ValidationError({
-                    "type": "No forwarded action found for this request."
-                })
+                raise serializers.ValidationError("No forwarded action found to accept.")
 
-            unit_id = forwarded_action.to_unit_id
+            # 2. Get the ID of the target entity (which we expect to be a Unit)
+            # We use to_object_id directly from the Generic Foreign Key fields
+            unit_id = forwarded_action.to_object_id
+
+            # Optional: Verify that the target was actually an Academic Unit 
+            # and not a User or Industry before checking scope
+            from django.contrib.contenttypes.models import ContentType
+            unit_ct = ContentType.objects.get(
+                app_label="organizational_structure", 
+                model="organizationalunit"
+            )
+            
+            if forwarded_action.to_content_type != unit_ct:
+                raise PermissionDenied("This forward was not directed to an academic unit.")
 
             allowed = is_unit_in_user_scope(
                 user=user,
@@ -353,8 +356,8 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             )
 
             if not allowed:
-                raise PermissionDenied(
-                    "You are not allowed to accept this forward.")
+                raise PermissionDenied("You are not allowed to accept this forward.")
+
             self._target_unit_id = unit_id
 
         elif action_type in [
@@ -404,8 +407,10 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                     self.assignment.save(update_fields=["status"])
 
             elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
+                
                 request_obj.academic_unit_id = self._target_unit_id
                 request_obj.save(update_fields=["academic_unit"])
+                
 
             return RequestAction.objects.create(
                 request=request_obj,
@@ -527,7 +532,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         with transaction.atomic():
 
             if action_type == RequestAction.ACTION_TYPES.ASSIGNED:
-                Assignment.objects.create(
+                assignment=Assignment.objects.create(
                     request=request_obj,
                     assigned_user=assigned_user,
                     start_date=start_date,
@@ -544,7 +549,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 self.assignment.save(update_fields=["status"])
 
                 # create new
-                Assignment.objects.create(
+                assignment=Assignment.objects.create(
                     request=request_obj,
                     assigned_user=assigned_user,
                     start_date=start_date,
@@ -559,58 +564,10 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 request=request_obj,
                 created_by=user,
                 updated_by=user,
+                assignment=assignment,
                 **validated_data
             )
 
-        return action
-
-
-class RequestActionForwardedSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-            'to_unit',
-        ]
-        read_only_fields = ["id"]
-
-    def validate(self, attrs):
-        request_obj = self.context.get("request_obj")
-        to_unit = attrs.get("to_unit")
-        request_obj = self.context.get("request_obj")
-
-        attrs["type"] = "forwarded"
-        exists = Assignment.objects.filter(
-            request=request_obj
-        ).exists()
-
-        if exists:
-            raise serializers.ValidationError({
-                "request": "This request is already assigned and cannot be forwarded"
-            })
-
-        if not to_unit:
-            raise serializers.ValidationError({
-                "to_unit": "This field is required."
-            })
-
-        if request_obj.academic_unit == to_unit:
-            raise serializers.ValidationError({
-                "to_unit": "Cannot forward to the same unit."
-            })
-
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        action = RequestAction.objects.create(
-            created_by_id=user.id,
-            updated_by_id=user.id,
-            **validated_data
-        )
         return action
 
 
@@ -688,84 +645,137 @@ class RequestActionPostedThematicSerializer(serializers.ModelSerializer):
 
         return action
 
+class EntityReceiverField(serializers.Field):
+
+    ENTITY_MAP = {
+        "STAFF": {"app": "auth", "model": "user"},
+        "STUDENT": {"app": "auth", "model": "user"},
+        "INDUSTRY": {"app": "industry_linkage", "model": "industry"},
+        "ACADEMIC_UNIT": {"app": "organizational_structure", "model": "organizationalunit"},
+    }
+
+    def to_internal_value(self, data):
+        if not isinstance(data, dict):
+            raise serializers.ValidationError("Data must be a dictionary containing 'id' and 'entity'.")
+        entity_constant = data.get("entity", "").upper()
+        object_id = data.get("id")
+
+        if entity_constant not in self.ENTITY_MAP:
+            raise serializers.ValidationError(f"Invalid entity. Choose from: {list(self.ENTITY_MAP.keys())}")
+        mapping = self.ENTITY_MAP[entity_constant]
+        
+        try:
+            content_type = ContentType.objects.get(app_label=mapping["app"], model=mapping["model"])
+            return {
+                "content_type": content_type,
+                "object_id": object_id
+            }
+        except ContentType.DoesNotExist:
+            raise serializers.ValidationError(f"Internal configuration error: {entity_constant} model not found.")
+
+class RequestActionForwardedSerializer(serializers.ModelSerializer):
+    to_data = EntityReceiverField(write_only=True)
+
+    class Meta:
+        model = RequestAction
+        fields = ["id", "type", "description", "to_data"]
+        read_only_fields = ["id"]
+        
+    def validate(self, attrs):
+        request_obj = self.context.get("request_obj")
+        to_info = attrs.get("to_data")
+
+        if not to_info:
+            raise serializers.ValidationError({"to_data": "This field is required."})
+
+        target_ct = to_info['content_type']
+        target_id = to_info['object_id']
+
+        unit_ct = ContentType.objects.get(
+            app_label="organizational_structure", 
+            model="organizationalunit"
+        )
+        is_org_unit = (
+                    target_ct.app_label == "organizational_structure" and 
+                    target_ct.model == "organizationalunit"
+                )
+        if not is_org_unit:
+            raise serializers.ValidationError({
+                "entity":"can only be academic unit"
+            })
+
+        if target_ct == unit_ct and str(target_id) == str(request_obj.academic_unit_id):
+            raise serializers.ValidationError({
+                "to_data": "Cannot forward to the same unit that owns the request."
+            })
+
+        return attrs
+
+    def create(self, validated_data):
+        to_info = validated_data.pop('to_data')
+        request_obj = self.context.get("request_obj")
+        user = self.context["request"].user
+
+        # Map generic fields
+        validated_data['to_content_type'] = to_info['content_type']
+        validated_data['to_object_id'] = to_info['object_id']
+        validated_data['request'] = request_obj
+
+        return RequestAction.objects.create(
+            created_by=user,
+            updated_by=user,
+            **validated_data
+        )
 
 class RequestActionRepliedSerializer(serializers.ModelSerializer):
-
+    from_data = EntityReceiverField(write_only=True)
+    to_data = EntityReceiverField(write_only=True)
     class Meta:
         model = RequestAction
         fields = [
             "id",
             "type",
             "description",
-            "from_unit",
-            "to_unit",
-            "from_industry",
-            "to_industry",
+            "from_data",
+            "to_data",
         ]
         read_only_fields = ["id"]
-
+        
     def validate(self, attrs):
+            from_info = attrs.get('from_data')
+            to_info = attrs.get('to_data')
 
-        from_unit = attrs.get("from_unit")
-        from_industry = attrs.get("from_industry")
-        to_unit = attrs.get("to_unit")
-        to_industry = attrs.get("to_industry")
+            if from_info and to_info:
+                is_same_type = from_info['content_type'] == to_info['content_type']
+                is_same_id = str(from_info['object_id']) == str(to_info['object_id'])
 
-        source_count = sum([
-            bool(from_unit),
-            bool(from_industry)
-        ])
+                if is_same_type and is_same_id:
+                    raise serializers.ValidationError({
+                        "to_data": "You cannot perform this action to yourself (source and destination are the same)."
+                    })
 
-        if source_count != 1:
-            raise serializers.ValidationError(
-                "Exactly one source is required (unit or industry)."
-            )
-
-        target_count = sum([
-            bool(to_unit),
-            bool(to_industry)
-        ])
-
-        if target_count != 1:
-            raise serializers.ValidationError(
-                "Exactly one target is required (unit or industry)."
-            )
-
-        source_type = "unit" if from_unit else "industry"
-        target_type = "unit" if to_unit else "industry"
-
-        if source_type == target_type:
-            raise serializers.ValidationError(
-                "unit → unit and industry → industry are not allowed"
-            )
-
-        return attrs
+            return attrs
 
     def create(self, validated_data):
-        user = self.context["request"].user
+            from_info = validated_data.pop('from_data', None)
+            to_info = validated_data.pop('to_data', None)
 
-        return RequestAction.objects.create(
-            created_by_id=user.id,
-            updated_by_id=user.id,
-            **validated_data
-        )
+            if from_info:
+                validated_data['from_content_type'] = from_info['content_type']
+                validated_data['from_object_id'] = from_info['object_id']
+            
+            if to_info:
+                validated_data['to_content_type'] = to_info['content_type']
+                validated_data['to_object_id'] = to_info['object_id']
+            
+            user = self.context["request"].user
+            return RequestAction.objects.create(
+                created_by_id=user.id,  
+                updated_by_id=user.id,
+                **validated_data
+            )
 
 
-ACTION_SERIALIZERS = {
-    "created": RequestActionGenericSerializer,
-    "accept_forwarded": RequestActionGenericSerializer,
-    "revoked": RequestActionGenericSerializer,
-    "cancelled": RequestActionGenericSerializer,
-    "rejected": RequestActionGenericSerializer,
-    "completed": RequestActionGenericSerializer,
-
-    "replied": RequestActionRepliedSerializer,
-    "assigned": RequestActionAssignedSerializer,
-    "reassigned": RequestActionAssignedSerializer,
-    "forwarded": RequestActionForwardedSerializer,
-    "posted_as_thematic": RequestActionPostedThematicSerializer,
-
-}
 
 
 class AssignmentListSerializer(serializers.ModelSerializer):
@@ -838,3 +848,20 @@ class AdminRequestListSerializer(serializers.ModelSerializer):
         if not action:
             return None
         return LatestActionSerializer(action).data
+
+
+ACTION_SERIALIZERS = {
+    "initiated": RequestActionGenericSerializer,
+    "accept_forwarded": RequestActionGenericSerializer,
+    "revoked": RequestActionGenericSerializer,
+    "cancelled": RequestActionGenericSerializer,
+    "rejected": RequestActionGenericSerializer,
+    "completed": RequestActionGenericSerializer,
+
+    "replied": RequestActionRepliedSerializer,
+    "assigned": RequestActionAssignedSerializer,
+    "reassigned": RequestActionAssignedSerializer,
+    "forwarded": RequestActionForwardedSerializer,
+    "posted_as_thematic": RequestActionPostedThematicSerializer,
+
+}

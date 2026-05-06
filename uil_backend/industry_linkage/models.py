@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
-
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from audit.models import AuditMixin
 User = settings.AUTH_USER_MODEL
@@ -52,6 +53,10 @@ class Request(AuditMixin,models.Model):
         ("guest_lecture", "Guest Lecturing"),
         ("lab_access", "Equipment / Lab Access"),
         ("tech_transfer", "IP / Technology Transfer"),
+        ("workshop_call","Workshop Call"),
+        ("conference _call","Conference  Call"),
+        ("exhibition_call","Exhibition Call"),
+        ("joint_ommunity_engagement","Joint Community engagement"),
         ("other", "Other"),
         # 
         
@@ -96,7 +101,7 @@ class Request(AuditMixin,models.Model):
 
 class RequestAction(AuditMixin,models.Model):
     class ACTION_TYPES(models.TextChoices):
-        CREATED = "created", "Created"
+        INITIATED = "initiated", "Initiated"
         ASSIGNED = "assigned", "Assigned"
         FORWARDED = "forwarded", "Forwarded"
         ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
@@ -107,7 +112,8 @@ class RequestAction(AuditMixin,models.Model):
         COMPLETED = "completed", "Completed"
         REVOKED = "revoked", "Revoked"
         CANCELLED="canceled","Cancelled"
-        
+        Revert="revert","Revert"
+    
     request = models.ForeignKey(
         "Request",
         on_delete=models.CASCADE,
@@ -117,45 +123,36 @@ class RequestAction(AuditMixin,models.Model):
     type = models.CharField(max_length=30, choices=ACTION_TYPES.choices)
     
     description = models.TextField()  
-    
-    assigned_user = models.ForeignKey(
-        User, 
+    is_active = models.BooleanField(default=True)
+    assignment = models.ForeignKey(
+        "Assignment", 
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="assignends"
     )
 
-    from_industry = models.ForeignKey(
-        Industry,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="sent_transfers"
+    from_content_type = models.ForeignKey(
+        ContentType, 
+        on_delete=models.CASCADE, 
+        related_name="actions_sent",
+        null=True, blank=True
     )
     
-    to_unit = models.ForeignKey(
-        "organizational_structure.OrganizationalUnit",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="received_unit_transfers"  
+    from_object_id = models.PositiveIntegerField(null=True, blank=True)
+    actor_from = GenericForeignKey('from_content_type', 'from_object_id')
+
+    to_content_type = models.ForeignKey(
+        ContentType, 
+        on_delete=models.CASCADE, 
+        related_name="actions_received",
+        null=True, blank=True
     )
-    
-    from_unit = models.ForeignKey(
-        "organizational_structure.OrganizationalUnit",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="sent_unit_transfers"   
-    )
-    to_industry = models.ForeignKey(
-        Industry,        
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="received_transfers_industry"  
-    )   
+    to_object_id = models.PositiveIntegerField(null=True, blank=True)
+    actor_to = GenericForeignKey('to_content_type', 'to_object_id')
+
+    class Meta:
+        verbose_name = "Request Action"
+        verbose_name_plural = "Request Actions"
 
 class Assignment(AuditMixin, models.Model):
     class AssignmentStatus(models.TextChoices):
