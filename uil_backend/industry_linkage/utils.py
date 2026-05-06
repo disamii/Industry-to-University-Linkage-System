@@ -1,6 +1,8 @@
 import re
 from rest_framework.exceptions import ValidationError
 from  .models import RequestAction
+from rest_framework import serializers
+from django.contrib.contenttypes.models import ContentType
 
 
 def clean_phone(value: str) -> str:
@@ -140,3 +142,69 @@ def deactivate_previous_actions(request_obj, action_type):
         ).update(is_active=False)
         
 
+class ForwardTarget(serializers.Field):
+
+    ENTITY_MAP = {
+        "STAFF": {"app": "auth", "model": "user"},
+        "STUDENT": {"app": "auth", "model": "user"},
+        "INDUSTRY": {"app": "industry_linkage", "model": "industry"},
+        "ACADEMIC_UNIT": {"app": "organizational_structure", "model": "organizationalunit"},
+    }
+    def to_internal_value(self, object_id):
+        if not object_id:
+            raise serializers.ValidationError(
+                {"id": "'id' is required and must be a valid identifier."}
+            )
+        mapping = self.ENTITY_MAP["ACADEMIC_UNIT"]
+        content_type = ContentType.objects.get(
+                app_label=mapping["app"],
+                model=mapping["model"]
+            )
+        model_class = content_type.model_class()
+        if not model_class.objects.filter(id=object_id).exists():
+            raise serializers.ValidationError(
+                {"id": f"ACADEMIC_UNIT with id={object_id} does not exist."}
+            )
+        return {
+            "entity":"ACADEMIC_UNIT",
+            "content_type": content_type,
+            "object_id": object_id
+        }
+
+
+class EntityReceiverField(serializers.Field):
+
+    ENTITY_MAP = {
+        "STAFF": {"app": "auth", "model": "user"},
+        "STUDENT": {"app": "auth", "model": "user"},
+        "INDUSTRY": {"app": "industry_linkage", "model": "industry"},
+        "ACADEMIC_UNIT": {"app": "organizational_structure", "model": "organizationalunit"},
+    }
+
+    def to_internal_value(self, entity_constant):
+
+        if entity_constant not in self.ENTITY_MAP:
+            raise serializers.ValidationError(
+                f"Invalid entity. Allowed values: {list(self.ENTITY_MAP.keys())}."
+            )
+
+        mapping = self.ENTITY_MAP[entity_constant]
+
+        try:
+            content_type = ContentType.objects.get(
+                app_label=mapping["app"],
+                model=mapping["model"]
+            )
+        except ContentType.DoesNotExist:
+            raise serializers.ValidationError(
+                f"Internal configuration error: {entity_constant} model not found."
+            )
+        model_class = content_type.model_class()
+        if not model_class:
+            raise serializers.ValidationError(
+                f"Internal configuration error: model class for {entity_constant} not found."
+            )
+        return {
+            "entity":entity_constant,
+            "content_type": content_type,
+        }

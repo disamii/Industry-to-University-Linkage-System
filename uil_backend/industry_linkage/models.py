@@ -60,7 +60,6 @@ class Request(AuditMixin,models.Model):
         ("exhibition_call","Exhibition Call"),
         ("joint_ommunity_engagement","Joint Community engagement"),
         ("other", "Other"),
-        # 
         
     ]
     REQUESTING_ENTITY_CHOICES = [
