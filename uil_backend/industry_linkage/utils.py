@@ -1,3 +1,4 @@
+from django.db import transaction
 import re
 from rest_framework.exceptions import ValidationError
 from  .models import RequestAction
@@ -15,25 +16,25 @@ def validate_action_or_raise(request, action_type):
     
     if action_type == RequestAction.ACTION_TYPES.INITIATED:
         if active_actions.filter(type=RequestAction.ACTION_TYPES.INITIATED).exists():
-            raise ValidationError({
-                "action": "Cannot initate. Request is already initiated."
-            })
+            raise ValidationError(
+             "Cannot initate. Request is already initiated."
+            )
 
         if active_actions.filter(type=RequestAction.ACTION_TYPES.FORWARDED).exists():
-            raise ValidationError({
-                "action": "Already forwarded. revert that first."
-            })
+            raise ValidationError(
+             "Already forwarded. revert that first."
+            )
 
     elif action_type == RequestAction.ACTION_TYPES.FORWARDED:
         if active_actions.filter(type=RequestAction.ACTION_TYPES.ASSIGNED).exists():
-            raise ValidationError({
-                "action": "Cannot forward. Request is currently assigned. Revoke first."
-            })
+            raise ValidationError(
+             "Cannot forward. Request is currently assigned. Revoke first."
+            )
 
         if active_actions.filter(type=RequestAction.ACTION_TYPES.FORWARDED).exists():
-            raise ValidationError({
-                "action": "Already forwarded. revert that first."
-            })
+            raise ValidationError(
+             "Already forwarded. revert that first."
+            )
 
     elif action_type == RequestAction.ACTION_TYPES.ASSIGNED:
         if active_actions.filter(
@@ -42,15 +43,15 @@ def validate_action_or_raise(request, action_type):
                 RequestAction.ACTION_TYPES.REASSIGNED
             ]
         ).exists():
-            raise ValidationError({
-                "action": "Already assigned. Revoke first."
-            })
+            raise ValidationError(
+                 "Already assigned. Revoke first."
+            )
     
     elif action_type == RequestAction.ACTION_TYPES.ACCEPT_FORWARDED:
             if not active_actions.filter(type=RequestAction.ACTION_TYPES.FORWARDED).exists():
-                raise ValidationError({
-                    "action": "Cannot accept. No active forwarded request."
-                })
+                raise ValidationError(
+                    "Cannot accept. No active forwarded request."
+                )
 
     elif action_type == RequestAction.ACTION_TYPES.REVOKED:
         
@@ -60,9 +61,9 @@ def validate_action_or_raise(request, action_type):
                 RequestAction.ACTION_TYPES.REASSIGNED,
             ]
         ).exists():
-            raise ValidationError({
-                "action": "Cannot revoke. No active assignment "
-            })
+            raise ValidationError(
+                "Cannot revoke. No active assignment "
+            )
             
     
     elif action_type==RequestAction.ACTION_TYPES.REASSIGNED:
@@ -72,36 +73,32 @@ def validate_action_or_raise(request, action_type):
                 RequestAction.ACTION_TYPES.REASSIGNED
             ]
         ).exists():
-            raise ValidationError({
-                "action": "Already assigned. Revoke first."
-            })
+            raise ValidationError(
+                 "Already assigned. Revoke first.")
     elif action_type==RequestAction.ACTION_TYPES.POSTED_AS_THEMATIC:
         if active_actions.filter(
             type__in=[
                 RequestAction.ACTION_TYPES.FORWARDED
             ]
         ).exists():
-            raise ValidationError({
-                "action": "Already forwarded. Revert that  first."
-            })
+            raise ValidationError(
+                 "Already forwarded. Revert that  first."
+            )
 
         if active_actions.filter(
             type__in=[
                 RequestAction.ACTION_TYPES.ASSIGNED,
             ]
         ).exists():
-            raise ValidationError({
-                "action": "Already assigned. Revoke first."
-            })
+            raise ValidationError(
+                "Already assigned. Revoke first.")
 
         if active_actions.filter(
             type__in=[
                 RequestAction.ACTION_TYPES.POSTED_AS_THEMATIC
             ]
         ).exists():
-            raise ValidationError({
-                "action": "Already posted. Revert that  first."
-            })
+            raise ValidationError("Already posted. Revert that  first.")
 
 
 def deactivate_previous_actions(request_obj, action_type):
@@ -187,9 +184,7 @@ class EntityReceiverField(serializers.Field):
             raise serializers.ValidationError(
                 f"Invalid entity. Allowed values: {list(self.ENTITY_MAP.keys())}."
             )
-
         mapping = self.ENTITY_MAP[entity_constant]
-
         try:
             content_type = ContentType.objects.get(
                 app_label=mapping["app"],
@@ -197,20 +192,18 @@ class EntityReceiverField(serializers.Field):
             )
         except ContentType.DoesNotExist:
             raise serializers.ValidationError(
-                f"Internal configuration error: {entity_constant} model not found."
+                f"{entity_constant} model not found."
             )
         model_class = content_type.model_class()
         if not model_class:
             raise serializers.ValidationError(
-                f"Internal configuration error: model class for {entity_constant} not found."
+                f"model class for {entity_constant} not found."
             )
         return {
             "entity":entity_constant,
             "content_type": content_type,
         }
-from django.db import transaction
 
-from django.db import transaction
 
 def revert_action_util(action, note=""):
     original_type = action.type

@@ -42,7 +42,7 @@ def read_users_from_excel(file_obj):
         required_columns = {'full name', 'email'}
         if not required_columns.issubset(df.columns):
             missing = ', '.join(required_columns - set(df.columns))
-            raise ValidationError({"excel": f"Missing required columns: {missing}"})
+            raise ValidationError( f"Missing required columns: {missing}")
         users = []
         for idx, row in df.iterrows():
             full_name = row.get('full name')

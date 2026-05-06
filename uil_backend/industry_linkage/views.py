@@ -192,7 +192,7 @@ class RequestManageViewSet(
         serializer_class = ACTION_SERIALIZERS.get(action_type)
 
         if not serializer_class:
-            raise ValidationError({"type": "Invalid action type"})
+            raise ValidationError("Invalid action type")
         serializer = serializer_class(
             data=request.data,
             context={

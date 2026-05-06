@@ -165,18 +165,6 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             }
         }
 
-    def _parse_extra_data(self):
-        extra_data = self.initial_data.get("extra_data", {})
-
-        if isinstance(extra_data, str):
-            try:
-                extra_data = json.loads(extra_data)
-            except json.JSONDecodeError:
-                raise serializers.ValidationError(
-                    {"extra_data": "Invalid JSON format"})
-
-        return extra_data
-
     def create(self, validated_data):
         user = self.context["request"].user
 
@@ -191,13 +179,12 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     industry = Industry.objects.filter(id=industry.id).first()
                     if not industry:
                         raise serializers.ValidationError(
-                            {"industry": "Invalid industry"})
+                            "Invalid industry")
                 else:
                     industry = getattr(user, "industry_profile", None)
                     if not industry:
                         raise serializers.ValidationError(
-                            {"industry": "Industry id required or user must have industry profile"}
-                        )
+                             "Industry id required or user must have industry profile")
 
                 if industry.contact_person != user:
                     raise serializers.ValidationError(
@@ -207,7 +194,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             elif requesting_entity == "academic_unit":
                 if not academic_unit_id:
                     raise serializers.ValidationError(
-                        {"academic_unit": "This field is required"})
+                        "academic_unit field is required")
 
                 allowed = is_unit_in_user_scope(
                     user=user,
@@ -441,9 +428,9 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
         # date validation
         if start_date and end_date and start_date > end_date:
-            raise serializers.ValidationError({
-                "end_date": "End date must be after start date"
-            })
+            raise serializers.ValidationError(
+"End date must be after start date"
+            )
 
         if action_type == "assigned":
             if not all([assigned_user, start_date, end_date]):
@@ -461,9 +448,9 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 ).first()
 
             if not assignment:
-                raise serializers.ValidationError({
-                    "request": "No active assignment to reassign"
-                })
+                raise serializers.ValidationError(
+                    "No active assignment to be reassigned"
+                )
 
             # fallback values
             attrs["assigned_user"] = assigned_user or assignment.assigned_user
@@ -622,7 +609,7 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         to_info = attrs.get("target_unit")
 
         if not to_info:
-            raise serializers.ValidationError({"target_unit": "This field is required."})
+            raise serializers.ValidationError( "This field is required.")
 
         target_ct = to_info['content_type']
         target_id = to_info['object_id']
@@ -633,9 +620,9 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         )
 
         if target_ct == unit_ct and str(target_id) == str(request_obj.academic_unit_id):
-            raise serializers.ValidationError({
-                "target_unit": "Cannot forward to the same unit that owns the request."
-            })
+            raise serializers.ValidationError(
+            "    Cannot forward to the same unit that owns the request."
+            )
 
         return attrs
 
@@ -678,16 +665,12 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
             if from_info and to_info:
                 is_same_type = from_info['content_type'] == to_info['content_type']
                 if is_same_type :
-                    raise serializers.ValidationError({
-                        "target_unit": "You cannot perform this action to yourself (source and destination are the same)."
-                    })
+                    raise serializers.ValidationError("You cannot perform this action to yourself (source and destination are the same).")
             
             if ( from_info.get("entity") in ["STAFF", "STUDENT"] or to_info.get("entity") in ["STAFF", "STUDENT"]):
                 
                 if request_obj.requested_by_id != user.id:
-                    raise serializers.ValidationError({
-                        "target or source error": "Only with or by  requester this action can performed."
-                    })
+                    raise serializers.ValidationError("Only with or by  requester this action can performed.")
                 
                 staff_student_entities = {"STAFF", "STUDENT"}
 
@@ -704,9 +687,8 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
                                 from_info["object_id"] = industry.id
                                 
                             except (Industry.DoesNotExist, AttributeError):
-                                raise serializers.ValidationError({
-                                "":""
-                                })
+                                raise serializers.ValidationError("there is no associated industry with this user "
+                                )
                 if to_info['entity']=="INDUSTRY":
                     to_info["object_id"] = request_obj.industry.id
                 

@@ -275,12 +275,11 @@ class CustomUserViewSet(UserViewSet):
         user_id = request.data.get("user_id")
         user_ids = request.data.get("user_ids")
         if not user_id and not user_ids:
-            raise ValidationError(
-                {"detail": "Provide 'user_id' or 'user_ids'."})
+            raise ValidationError( "Provide 'user_id' or 'user_ids'.")
         if user_id:
             user_ids = [user_id]
         elif not isinstance(user_ids, list):
-            raise ValidationError({"user_ids": "Must be a list of user IDs."})
+            raise ValidationError("Must be a list of user IDs.")
         result = {"sent": [], "skipped": {}, "not_found": []}
         for uid in user_ids:
             try:
@@ -305,7 +304,7 @@ class CustomUserViewSet(UserViewSet):
             user = self.get_object()
             new_status = request.data.get("status")
             if new_status not in ["APPROVED", "PENDING", "REJECTED"]:
-                raise ValidationError({"status": "Invalid status value."})
+                raise ValidationError("Invalid status value.")
 
             user.status = new_status
             user.save()
