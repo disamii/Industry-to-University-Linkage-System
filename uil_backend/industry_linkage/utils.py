@@ -208,3 +208,34 @@ class EntityReceiverField(serializers.Field):
             "entity":entity_constant,
             "content_type": content_type,
         }
+from django.db import transaction
+
+from django.db import transaction
+
+def revert_action_util(action, note=""):
+    original_type = action.type
+
+    with transaction.atomic():
+        obj = action.resulted_object
+        if obj:
+            obj.delete()
+        action.type = RequestAction.ACTION_TYPES.REVERTED
+        action.is_active = False
+        action.description = (
+            f"{action.description} | "
+            f"REVERTED FROM: {original_type} | "
+            f"NOTE: {note}"
+        )
+        action.resulted_object = None
+        action.resulted_content_type = None
+        action.resulted_object_id = None
+
+        action.save(update_fields=[
+            "type",
+            "is_active",
+            "description",
+            "resulted_content_type",
+            "resulted_object_id",
+        ])
+
+    return action

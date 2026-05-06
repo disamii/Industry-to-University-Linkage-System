@@ -1,4 +1,4 @@
-from rest_framework.parsers import FormParser, MultiPartParser,JSONParser
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import NotFound, ValidationError, NotAuthenticated
@@ -8,7 +8,7 @@ from rest_framework import viewsets, status, mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .models import Industry, Request, Assignment
+from .models import Industry, Request, Assignment, RequestAction
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from organizational_structure.models import OrganizationalUnit
@@ -23,7 +23,7 @@ from .serializers import (
     AssignmentDetailSerializer,
     AssignmentListSerializer
 )
-from .utils import validate_action_or_raise, deactivate_previous_actions
+from .utils import revert_action_util, validate_action_or_raise, deactivate_previous_actions
 from .paginations import IndustryPagination, RequestPagination, RequestForIndustryPagination
 
 
@@ -188,8 +188,8 @@ class RequestManageViewSet(
         return queryset
 
     @action(detail=True, methods=["post"], url_path="actions",
-                parser_classes=[JSONParser, MultiPartParser, FormParser]
-)
+            parser_classes=[JSONParser, MultiPartParser, FormParser]
+            )
     def create_action(self, request, pk=None):
 
         request_obj = self.get_object()
@@ -239,6 +239,47 @@ class RequestManageViewSet(
 
         serializer = RequestSerializer(qs, many=True)
         return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="actions/(?P<action_id>[^/.]+)/revert"
+    )
+    def revert_action(self, request, action_id=None):
+
+        try:
+            action = RequestAction.objects.get(id=action_id)
+        except RequestAction.DoesNotExist:
+            return Response(
+                {"detail": "Action not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if action.type == RequestAction.ACTION_TYPES.REVERTED:
+            return Response(
+                {"detail": "Action is already reverted"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        description = request.data.get("description", "").strip()
+
+        if not description:
+            return Response(
+                {"description": "This field is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        with transaction.atomic():
+            action = revert_action_util(action, note=description)
+
+        return Response(
+            {
+                "id": action.id,
+                "type": action.type,
+                "is_active": action.is_active,
+                "message": "Action reverted successfully"
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
