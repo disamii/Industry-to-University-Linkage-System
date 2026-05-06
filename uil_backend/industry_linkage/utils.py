@@ -175,8 +175,8 @@ class ForwardTarget(serializers.Field):
 class EntityReceiverField(serializers.Field):
 
     ENTITY_MAP = {
-        "STAFF": {"app": "auth", "model": "user"},
-        "STUDENT": {"app": "auth", "model": "user"},
+        "STAFF": {"app": "accounts", "model": "user"},
+        "STUDENT": {"app": "accounts", "model": "user"},
         "INDUSTRY": {"app": "industry_linkage", "model": "industry"},
         "ACADEMIC_UNIT": {"app": "organizational_structure", "model": "organizationalunit"},
     }
