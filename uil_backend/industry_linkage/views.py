@@ -1,4 +1,4 @@
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, MultiPartParser,JSONParser
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import  NotFound, ValidationError, NotAuthenticated
@@ -12,7 +12,7 @@ from .models import Industry, Request,Assignment
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
 from organizational_structure.models import OrganizationalUnit
-from authorization.utilis import get_scope, is_unit_in_user_scope
+from authorization.utilis import get_scope
 from .serializers import (
     IndustryCreateSerializer,
     ACTION_SERIALIZERS,
@@ -180,7 +180,9 @@ class RequestManageViewSet(
         ).order_by('-created_at')
         return queryset
 
-    @action(detail=True, methods=["post"], url_path="actions")
+    @action(detail=True, methods=["post"], url_path="actions",
+                parser_classes=[JSONParser, MultiPartParser, FormParser]
+)
     def create_action(self, request, pk=None):
 
         request_obj = self.get_object()
