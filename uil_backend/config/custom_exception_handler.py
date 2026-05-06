@@ -26,12 +26,23 @@ def custom_exception_handler(exc, context):
         status_code = response.status_code
 
         if isinstance(exc, ValidationError):
-            response.data = format_error(
-                "validation_error",
-                "Validation failed.",
-                details=response.data,
-                status_code=status_code
-            )
+                    error_details = []
+                    if isinstance(response.data, dict):
+                        for field, errors in response.data.items():
+                            if isinstance(errors, list):
+                                for error in errors:
+                                    error_details.append(f"{field}: {error}")
+                            else:
+                                error_details.append(f"{field}: {errors}")
+                    elif isinstance(response.data, list):
+                        error_details = response.data
+
+                    response.data = format_error(
+                        "validation_error",
+                        "Validation failed.",
+                        details=error_details, 
+                        status_code=status_code
+                    )
         elif isinstance(exc, InvalidToken):
             response.data = format_error(
                 "invalid_token",
