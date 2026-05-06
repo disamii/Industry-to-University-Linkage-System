@@ -129,7 +129,7 @@ function AdminSidebar() {
         className={`relative flex flex-col p-4 border-background border-r-2 py-6`}
       >
         {showSidebar ? (
-          <Logo hasLabel={true} className="pb-8" />
+          <Logo hasLabel className="pb-8" />
         ) : (
           <>
             <SidebarToggle />

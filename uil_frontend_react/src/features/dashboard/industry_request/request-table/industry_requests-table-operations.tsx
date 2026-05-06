@@ -14,7 +14,7 @@ import { getRoleByPath } from "@/lib/utils";
 const IndustryRequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
     useIndustryRequestParams();
-  const query = useGetIndustryList();
+  const industriesQuery = useGetIndustryList();
 
   const { pathname } = useLocation();
   const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
@@ -40,7 +40,7 @@ const IndustryRequestsTableOperations = () => {
             <TableFilters.Select
               paramKey="industry"
               placeholder="All Industries"
-              query={query}
+              query={industriesQuery}
               checkEmpty={(data) => data.results.length === 0}
               children={({ data, registerLabels }) => {
                 const map: Record<string, string> = {};

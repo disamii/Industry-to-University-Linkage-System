@@ -109,7 +109,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         label="Request Title"
         placeholder="Enter a descriptive title"
         type="text"
-        required={true}
+        required
       />
 
       <FormTextArea
@@ -117,7 +117,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         name="description"
         label="Description"
         placeholder="Provide more details about the request..."
-        required={true}
+        required
       />
 
       <TreeSelectOrgUnit form={form} />
@@ -128,7 +128,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         label="Request Type"
         options={formatSelectOptions(Object.values(IndustryRequestType))}
         placeholder="Select type"
-        required={true}
+        required
       />
 
       {selectedType && (
@@ -153,12 +153,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
               ].includes(field)
             ) {
               return (
-                <FormInput
-                  {...props}
-                  key={field}
-                  type="number"
-                  required={true}
-                />
+                <FormInput {...props} key={field} type="number" required />
               );
             }
 
@@ -169,15 +164,13 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
                   {...props}
                   key={field}
                   placeholder="Enter a value"
-                  required={true}
+                  required
                 />
               );
             }
 
             // default input
-            return (
-              <FormInput {...props} key={field} type="text" required={true} />
-            );
+            return <FormInput {...props} key={field} type="text" required />;
           })}
         </>
       )}

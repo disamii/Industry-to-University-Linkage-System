@@ -20,7 +20,7 @@ const AuthHeader = () => {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <Logo hasLabel={true} />
+      <Logo hasLabel />
       {title && (
         <h1 className="mt-4 font-bold text-3xl md:text-4xl tracking-tighter">
           {title}

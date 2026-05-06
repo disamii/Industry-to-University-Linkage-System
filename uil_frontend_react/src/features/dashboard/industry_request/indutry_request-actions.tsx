@@ -25,7 +25,7 @@ import {
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ACTION_CONFIG } from "./utils.industry_request-actions";
-import { ActionDialog } from "./perform-action-form-dialog";
+import PeformActionFormDialog from "./perform-action-form-dialog";
 
 type Props = {
   id: number;
@@ -139,7 +139,7 @@ const IndustryRequestActions = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ActionDialog
+      <PeformActionFormDialog
         requestId={id}
         actionType={selectedAction}
         open={actionDialogOpen}

@@ -36,7 +36,7 @@ const CompanyDetailsForm = () => {
             name="name"
             label="Company Name"
             placeholder="Enter company name"
-            required={true}
+            required
           />
 
           <FormSelect
@@ -45,7 +45,7 @@ const CompanyDetailsForm = () => {
             label="Industry Type"
             options={formatSelectOptions(Object.values(IndustryType))}
             placeholder="Select type"
-            required={true}
+            required
           />
         </div>
       </FormSection>
@@ -84,7 +84,7 @@ const CompanyDetailsForm = () => {
             name="location"
             label="Location (City)"
             placeholder="Enter your location (city)"
-            required={true}
+            required
           />
 
           <FormInput
@@ -92,7 +92,7 @@ const CompanyDetailsForm = () => {
             name="address"
             label="Physical Address"
             placeholder="Street, Building, Office No."
-            required={true}
+            required
           />
         </div>
       </FormSection>
@@ -143,7 +143,7 @@ const ContactDetailsForm = () => {
         name="contact_full_name"
         label="Full Name"
         placeholder="Enter contact person full name"
-        required={true}
+        required
       />
       <FormInput
         type="email"
@@ -151,7 +151,7 @@ const ContactDetailsForm = () => {
         name="contact_email"
         label="Email"
         placeholder="Enter contact person email"
-        required={true}
+        required
       />
       <FormInput
         form={form}
@@ -167,7 +167,7 @@ const ContactDetailsForm = () => {
           name="contact_password"
           label="Password"
           placeholder="Enter your password"
-          required={true}
+          required
         />
 
         <FormInput
@@ -176,7 +176,7 @@ const ContactDetailsForm = () => {
           name="confirm_password"
           label="Confirm Password"
           placeholder="Confirm your password"
-          required={true}
+          required
         />
       </div>
     </FieldGroup>

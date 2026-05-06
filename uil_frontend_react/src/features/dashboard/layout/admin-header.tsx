@@ -11,7 +11,7 @@ function AdminHeader() {
       <nav
         className={`${showSidebar ? "ml-72 pl-4 pr-12" : "ml-20 px-6"} flex items-center justify-between p-6 py-4`}
       >
-        {showSidebar ? <SidebarToggle /> : <Logo hasLabel={true} />}
+        {showSidebar ? <SidebarToggle /> : <Logo hasLabel />}
 
         <div className="flex items-center gap-2 px-6 shrink-0">
           <div className="mx-2 bg-border w-0.5 h-6" />
