@@ -99,58 +99,6 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
         return data
 
-
-class GenericActorField(serializers.Field):
-
-    def to_representation(self, obj):
-        if not obj:
-            return None
-
-        content_type = ContentType.objects.get_for_model(obj)
-
-        model_name = content_type.model  # e.g. "user", "industry"
-
-        serializer_class = CONTENT_TYPE_SERIALIZER_MAP.get(model_name)
-
-        if not serializer_class:
-            return {
-                "id": obj.id,
-                "type": model_name,
-                "repr": str(obj),
-            }
-
-        return serializer_class(obj, context=self.context).data
-class RequestActionSerializer(serializers.ModelSerializer):
-    possible_actions = serializers.SerializerMethodField()
-    actor_from = GenericActorField()
-    actor_to = GenericActorField()
-    resulted_object=GenericActorField()
-    class Meta:
-        model = RequestAction
-        fields = [
-            "id",
-            "type",
-            "description",
-            "actor_from",
-            "actor_to",
-            "resulted_object",
-            "awaiting_decision",
-            "possible_actions",
-            "created_at",
-        ]
-        
-        
-        
-    def get_possible_actions(self, obj):
-        from .enums import ACTION_TRANSITIONS
-        if not obj.awaiting_decision:
-            return [ActionTypes.REVERTED]
-        return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
-
-
-
-
-
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
@@ -179,6 +127,54 @@ class IndustrySerializer(serializers.ModelSerializer):
 
     def get_contact_email(self, obj):
         return obj.contact_person.email
+
+class GenericActorField(serializers.Field):
+
+    def to_representation(self, obj):
+        if not obj:
+            return None
+
+        content_type = ContentType.objects.get_for_model(obj)
+
+        model_name = content_type.model  # e.g. "user", "industry"
+
+        serializer_class = CONTENT_TYPE_SERIALIZER_MAP.get(model_name)
+
+        if not serializer_class:
+            return {
+                "id": obj.id,
+                "type": model_name,
+                "repr": str(obj),
+            }
+
+        return serializer_class(obj, context=self.context).data
+
+class RequestActionSerializer(serializers.ModelSerializer):
+    possible_actions = serializers.SerializerMethodField()
+    actor_from = GenericActorField()
+    actor_to = GenericActorField()
+    resulted_object=GenericActorField()
+    class Meta:
+        model = RequestAction
+        fields = [
+            "id",
+            "type",
+            "description",
+            "actor_from",
+            "actor_to",
+            "resulted_object",
+            "awaiting_decision",
+            "possible_actions",
+            "created_at",
+        ]
+        
+        
+        
+    def get_possible_actions(self, obj):
+        from .enums import ACTION_TRANSITIONS
+        if not obj.awaiting_decision:
+            return [ActionTypes.REVERTED]
+        return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):
@@ -332,6 +328,41 @@ class RequestSerializer(serializers.ModelSerializer):
         return action.type if action else None
 
 
+
+class IndustryDetailSerializer(serializers.ModelSerializer):
+    contact_full_name = serializers.SerializerMethodField()
+    contact_email = serializers.SerializerMethodField()
+
+    # 👇 nested requests
+    requests = RequestSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Industry
+        fields = [
+            "id",
+            "name",
+            "industry_type",
+            "industry_email",
+            "phone_number",
+            "location",
+            "address",
+            "description",
+            "number_of_employees",
+            "website",
+            "contact_person_phone_number",
+            "contact_full_name",
+            "contact_email",
+            "requests",   # 👈 important
+        ]
+
+    def get_contact_full_name(self, obj):
+        user = obj.contact_person
+        return f"{user.first_name} {user.father_name} {user.grand_father_name}".strip()
+
+    def get_contact_email(self, obj):
+        return obj.contact_person.email
+
+
 # action related serializer
 class RequestActionGenericSerializer(serializers.ModelSerializer):
 
@@ -436,14 +467,13 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 **validated_data
             )
 
-
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
-    assigned_user = serializers.PrimaryKeyRelatedField(
-        queryset=Assignment._meta.get_field("assigned_user")
-        .remote_field.model.objects.all(),
-        required=False,
-        allow_null=True
+    assigned_users = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        many=True,
+        required=False
     )
+
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
     industry_mentor = serializers.CharField(
@@ -455,7 +485,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             "id",
             "type",
             "description",
-            "assigned_user",
+            "assigned_users",
             "start_date",
             "end_date",
             "industry_mentor",
@@ -472,7 +502,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         if action_type not in ["assigned", "reassigned"]:
             return attrs
 
-        assigned_user = attrs.get("assigned_user")
+        assigned_users = attrs.get("assigned_users")
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
 
@@ -483,7 +513,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             )
 
         if action_type == "assigned":
-            if not all([assigned_user, start_date, end_date]):
+            if not all([assigned_users, start_date, end_date]):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
 
@@ -502,7 +532,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 )
 
             # fallback values
-            attrs["assigned_user"] = assigned_user or assignment.assigned_user
+            attrs["assigned_users"] = assigned_users or assignment.assigned_user
             attrs["start_date"] = start_date or assignment.start_date
             attrs["end_date"] = end_date or assignment.end_date
             attrs["industry_mentor"] = (
@@ -520,7 +550,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         action_type = validated_data.get("type")
 
-        assigned_user = validated_data.pop("assigned_user", None)
+        assigned_users = validated_data.pop("assigned_users", None)
         start_date = validated_data.pop("start_date", None)
         end_date = validated_data.pop("end_date", None)
         industry_mentor = validated_data.pop("industry_mentor", None)
@@ -529,14 +559,13 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
             assignment = Assignment.objects.filter(
                 request=request_obj,
-                assigned_user=assigned_user
-            ).first()
+                assigned_users__in=assigned_users
+                ).first()
 
             # -------------------------
             # UPDATE EXISTING ASSIGNMENT
             # -------------------------
             if assignment:
-                assignment.assigned_user = assigned_user
                 assignment.start_date = start_date
                 assignment.end_date = end_date
                 assignment.industry_mentor = industry_mentor
@@ -544,6 +573,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 assignment.updated_by_id = user.id
                 assignment.save()
 
+                if assigned_users is not None:
+                    assignment.assigned_users.set(assigned_users)
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     awaiting_decision=True,
@@ -566,7 +597,6 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             ]:
                 assignment = Assignment.objects.create(
                     request=request_obj,
-                    assigned_user=assigned_user,
                     start_date=start_date,
                     end_date=end_date,
                     industry_mentor=industry_mentor,
@@ -575,6 +605,9 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     updated_by_id=user.id,
                 )
 
+                # attach M2M AFTER creation
+                if assigned_users:
+                    assignment.assigned_users.set(assigned_users)
                 if action_type == ActionTypes.REASSIGNED:
                     # fix: you were using self.assignment (bug)
                     assignment.status = AssignmentStatus.CANCELLED
@@ -781,14 +814,13 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
 
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
-    assigned_user = UserSerializer()
-
+    assigned_users = UserSerializer(many=True, read_only=True)
     class Meta:
         model = Assignment
         fields = [
             "id",
             "request",
-            "assigned_user",
+            "assigned_users",
             "start_date",
             "industry_mentor",
             "end_date",
@@ -804,7 +836,7 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "request",
-            "assigned_user",
+            "assigned_users",
             "industry_mentor",
             "start_date",
             "end_date",
