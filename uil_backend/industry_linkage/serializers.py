@@ -334,12 +334,8 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             if not forwarded_action:
                 raise serializers.ValidationError("No forwarded action found to accept.")
 
-            # 2. Get the ID of the target entity (which we expect to be a Unit)
-            # We use to_object_id directly from the Generic Foreign Key fields
             unit_id = forwarded_action.to_object_id
 
-            # Optional: Verify that the target was actually an Academic Unit 
-            # and not a User or Industry before checking scope
             from django.contrib.contenttypes.models import ContentType
             unit_ct = ContentType.objects.get(
                 app_label="organizational_structure", 
@@ -368,25 +364,17 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             assignment = Assignment.objects.filter(
                 request=request_obj,
                 status__in=[
-                    Assignment.AssignmentStatus.ACCEPTED,
                     Assignment.AssignmentStatus.ACCEPTED
                 ]
             ).first()
             if assignment:
                 self.assignment = assignment
 
-            if action_type == RequestAction.ACTION_TYPES.REVOKED:
-
-                if not assignment:
-                    raise serializers.ValidationError(
-                        "No active assignment found to revoke."
-                    )
-
         return attrs
 
     def create(self, validated_data):
         request_obj = self.context.get("request_obj")
-        user = self.context["request"]
+        user = self.context["request"].user
 
         action_type = validated_data["type"]
 
@@ -413,7 +401,6 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 
 
             return RequestAction.objects.create(
-                request=request_obj,
                 created_by_id=user.id,
                 updated_by_id=user.id,
                 **validated_data
@@ -487,7 +474,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     Assignment.AssignmentStatus.ACCEPTED,
                     Assignment.AssignmentStatus.ACTIVE
                 ]
-            ).first()
+                ).first()
 
             if not assignment:
                 raise serializers.ValidationError({
@@ -539,8 +526,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     end_date=end_date,
                     industry_mentor=industry_mentor,
                     status=Assignment.AssignmentStatus.ACTIVE,
-                    created_by=user,
-                    updated_by=user,
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
                 )
 
             elif action_type == RequestAction.ACTION_TYPES.REASSIGNED:
@@ -556,14 +543,13 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     end_date=end_date,
                     industry_mentor=industry_mentor,
                     status="active",
-                    created_by=user,
-                    updated_by=user,
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
                 )
 
             action = RequestAction.objects.create(
-                request=request_obj,
-                created_by=user,
-                updated_by=user,
+                created_by_id=user.id,
+                updated_by_id=user.id,
                 assignment=assignment,
                 **validated_data
             )

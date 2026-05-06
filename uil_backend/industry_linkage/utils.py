@@ -10,10 +10,11 @@ def clean_phone(value: str) -> str:
 def validate_action_or_raise(request, action_type):
 
     active_actions = request.actions.filter(is_active=True)
+    
     if action_type == RequestAction.ACTION_TYPES.INITIATED:
         if active_actions.filter(type=RequestAction.ACTION_TYPES.INITIATED).exists():
             raise ValidationError({
-                "action": "Cannot initate. Request is initiated."
+                "action": "Cannot initate. Request is already initiated."
             })
 
         if active_actions.filter(type=RequestAction.ACTION_TYPES.FORWARDED).exists():
@@ -60,6 +61,8 @@ def validate_action_or_raise(request, action_type):
             raise ValidationError({
                 "action": "Cannot revoke. No active assignment "
             })
+            
+    
     elif action_type==RequestAction.ACTION_TYPES.REASSIGNED:
         if active_actions.filter(
             type__in=[

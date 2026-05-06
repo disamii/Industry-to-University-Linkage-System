@@ -23,6 +23,7 @@ from .serializers import (
     AssignmentDetailSerializer,
     AssignmentListSerializer
     )
+from .utils import validate_action_or_raise,deactivate_previous_actions
 from .paginations import IndustryPagination,RequestPagination,RequestForIndustryPagination
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -45,8 +46,7 @@ class IndustryViewSet(viewsets.ModelViewSet):
         if self.action in ("create"):
             permission_classes = [AllowAny]
         elif self.action in ("update", "partial_update", "destroy"):
-            permission_classes = [IsAuthenticated,
-                                  IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
@@ -201,10 +201,8 @@ class RequestManageViewSet(
         serializer.is_valid(raise_exception=True)
 
         with transaction.atomic():
-            action = serializer.save(
-                request=request_obj,
-            )
             deactivate_previous_actions(request_obj, action_type)
+            action = serializer.save(request=request_obj)
 
         return Response(
             {

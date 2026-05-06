@@ -104,14 +104,14 @@ class RequestAction(AuditMixin,models.Model):
         INITIATED = "initiated", "Initiated"
         ASSIGNED = "assigned", "Assigned"
         FORWARDED = "forwarded", "Forwarded"
-        ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
         POSTED_AS_THEMATIC = "posted_as_thematic", "Posted as Thematic Call"
-        REPLIED = "replied", "Replied"
         REJECTED = "rejected", "Rejected"
         REASSIGNED = "reassigned", "Reassigned"
         COMPLETED = "completed", "Completed"
         REVOKED = "revoked", "Revoked"
-        CANCELLED="canceled","Cancelled"
+        CANCELLED="cancelled","Cancelled"
+        ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
+        REPLIED = "replied", "Replied"
         Revert="revert","Revert"
     
     request = models.ForeignKey(
