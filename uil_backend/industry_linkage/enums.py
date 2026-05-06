@@ -74,3 +74,106 @@ ENTITY_MAP = {
         "model": "organizationalunit",
     },
 }
+
+
+ACTION_TRANSITIONS = {
+    ActionTypes.INITIATED: [],
+
+    ActionTypes.FORWARDED: [
+        ActionTypes.ACCEPT_FORWARDED,
+        ActionTypes.REJECTED,
+    ],
+
+    ActionTypes.ACCEPT_FORWARDED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.ASSIGNED: [
+        ActionTypes.REVOKED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REASSIGNED: [
+        ActionTypes.REVOKED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.POSTED_AS_THEMATIC: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REVOKED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REJECTED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.COMPLETED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.CANCELLED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REPLIED: [
+        ActionTypes.REPLIED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REVERTED: [],  
+}
+
+
+
+ACTION_TRANSITIONS = {
+    ActionTypes.INITIATED: [],
+
+    ActionTypes.FORWARDED: [
+        ActionTypes.ACCEPT_FORWARDED,
+        ActionTypes.REJECTED,
+    ],
+
+    ActionTypes.ACCEPT_FORWARDED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.ASSIGNED: [
+        ActionTypes.REVOKED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REASSIGNED: [
+        ActionTypes.REVOKED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.POSTED_AS_THEMATIC: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REVOKED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REJECTED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.COMPLETED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.CANCELLED: [
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REPLIED: [
+        ActionTypes.REPLIED,
+        ActionTypes.REVERTED,
+    ],
+
+    ActionTypes.REVERTED: [],  
+}

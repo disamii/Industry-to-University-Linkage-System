@@ -10,7 +10,7 @@ from rest_framework import serializers
 from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from .enums import ActionTypes, AssignmentStatus, RequestingEntity
 from .models import (
     Industry,
@@ -19,7 +19,7 @@ from .models import (
     Assignment
 )
 from bulletin.models import Post
-from .utils import ForwardTarget, EntityReceiverField
+from .utils import ForwardTarget, EntityReceiverField, validate_action_or_raise
 User = get_user_model()
 
 
@@ -100,6 +100,7 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
 
 class RequestActionSerializer(serializers.ModelSerializer):
+    possible_actions = serializers.SerializerMethodField()
 
     class Meta:
         model = RequestAction
@@ -108,9 +109,16 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "type",
             "description",
             "awaiting_decision",
+            "possible_actions",
             "created_at",
         ]
+    def get_possible_actions(self, obj):
+        from .enums import ACTION_TRANSITIONS
 
+        if not obj.awaiting_decision:
+            return [ActionTypes.REVERTED]
+
+        return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
 
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
@@ -251,14 +259,20 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "supported_actions",
         ]
-
     def get_supported_actions(self, obj):
-        return [
-            choice.value
-            for choice in ActionTypes
-            if choice != ActionTypes.INITIATED
-        ]
+        valid_actions = []
 
+        for action_type in ActionTypes:
+            if action_type == ActionTypes.INITIATED:
+                continue
+
+            try:
+                validate_action_or_raise(obj, action_type)
+                valid_actions.append(action_type.value)
+            except ValidationError:
+                continue
+
+        return valid_actions
 
 class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
