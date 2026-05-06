@@ -21,7 +21,7 @@ const SignupForm = ({ step, setStep }: Props) => {
         )}
 
         {step === 2 &&
-          (UserRole.STAFF ? (
+          (role === UserRole.STAFF ? (
             <CheckStaffEmailForm setStep={setStep} />
           ) : (
             <CreateIndustryForm setStep={setStep} />

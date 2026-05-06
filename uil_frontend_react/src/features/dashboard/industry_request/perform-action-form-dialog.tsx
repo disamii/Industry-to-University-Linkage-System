@@ -70,6 +70,10 @@ const FormField = <T extends FieldValues>({
       searchPlaceholder: "User",
       setParams: setUserParams,
       getLabel: (item: UserProfile) => getFullName(item),
+      getDisplayValue: (value: number, data?: any) =>
+        data?.results?.find((u: UserProfile) => u.id === value)
+          ? getFullName(data.results.find((u: UserProfile) => u.id === value))
+          : "Selected",
       placeholder: "Select a user...",
     },
     industry: {
@@ -77,6 +81,9 @@ const FormField = <T extends FieldValues>({
       searchPlaceholder: "Industries",
       setParams: setIndustryParams,
       getLabel: (item: IndustryResponse) => item.name,
+      getDisplayValue: (value: number, data?: any) =>
+        data?.results?.find((i: IndustryResponse) => i.id === value)?.name ??
+        "Selected",
       placeholder: "Select industry...",
     },
   };
@@ -130,6 +137,7 @@ const FormField = <T extends FieldValues>({
           checkEmpty={(data) => data.results.length === 0}
           onSearch={(search) => config.setParams({ search })}
           searchPlaceholder={`Search ${config.searchPlaceholder}...`}
+          getDisplayValue={config.getDisplayValue}
           position="popper"
         >
           {(data, setOpen) => (

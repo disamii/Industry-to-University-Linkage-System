@@ -19,7 +19,7 @@ const typeConfig = {
   upload: { color: "bg-orange-500", icon: Upload },
 };
 
-export function ActivityTimeline({ items }: { items: TimelineItem[] }) {
+const ActivityTimeline = ({ items }: { items: TimelineItem[] }) => {
   return (
     <div className="before:left-2 before:absolute relative before:inset-0 space-y-8 before:bg-border/50 before:w-0.5 before:h-full">
       {items.map((item) => {
@@ -63,4 +63,6 @@ export function ActivityTimeline({ items }: { items: TimelineItem[] }) {
       })}
     </div>
   );
-}
+};
+
+export default ActivityTimeline;
