@@ -270,6 +270,53 @@ const SearchInput = ({ placeholder = "Search..." }: SearchInputProps) => {
   );
 };
 
+type CheckboxFilterItem = {
+  paramKey: string;
+  label: string;
+};
+
+type CheckboxFilterProps = {
+  items: CheckboxFilterItem[];
+};
+
+const CheckboxFilter = ({ items }: CheckboxFilterProps) => {
+  const { params, setParams, removeParams } = useFilters();
+
+  const toggleCheckbox = (paramKey: string, checked: boolean) => {
+    if (!checked) {
+      removeParams([paramKey]);
+      return;
+    }
+
+    setParams({
+      [paramKey]: true,
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      {items.map((item) => {
+        const checked = Boolean(params[item.paramKey]);
+
+        return (
+          <label
+            key={item.paramKey}
+            className="flex items-center gap-2 text-sm whitespace-nowrap cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => toggleCheckbox(item.paramKey, e.target.checked)}
+            />
+
+            {item.label}
+          </label>
+        );
+      })}
+    </div>
+  );
+};
+
 type ActiveFiltersProps = {
   exclude?: string[];
   labels?: Record<string, string>;
@@ -338,5 +385,6 @@ export const TableFilters = {
   Sort,
   Select: SelectFilter,
   Search: SearchInput,
+  Checkbox: CheckboxFilter,
   ActiveFilters,
 };

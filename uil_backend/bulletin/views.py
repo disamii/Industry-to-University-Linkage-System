@@ -23,8 +23,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
     search_fields = [
         "title",
-        "description",
-        "content",
     ]
 
     ordering_fields = [

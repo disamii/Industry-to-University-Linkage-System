@@ -4,7 +4,7 @@ import { Filter } from "lucide-react";
 import {
   defaultAssignmentParams,
   useAssignmentParams,
-} from "./assignments-params";
+} from "./assignment-params";
 
 const AssignmentsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =

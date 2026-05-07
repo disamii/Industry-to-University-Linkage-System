@@ -14,7 +14,6 @@ import {
   CheckSquare,
   ClipboardList,
   ExternalLink,
-  FileBarChart,
   FileText,
   LayoutDashboard,
   Lightbulb,
@@ -57,12 +56,12 @@ const ROUTES: Record<
         label: "Post Management",
       },
       {
-        href: "/dashboard/office/staff",
+        href: "/dashboard/office/staffs",
         icon: Users,
         label: "Staff Management",
       },
       {
-        href: "/dashboard/office/partners",
+        href: "/dashboard/office/industries",
         icon: Building2,
         label: "Industry Management",
       },

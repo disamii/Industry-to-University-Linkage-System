@@ -1,7 +1,7 @@
-import { AssignmentParams } from "@/features/dashboard/office/assignments/assignments-params";
+import { AssignmentParams } from "@/features/dashboard/office/assignments/assignment-params";
 
-export const assignmentsKeys = {
+export const assignmentKeys = {
   all: () => ["assignments"] as const,
   list: (params?: AssignmentParams) =>
-    [...assignmentsKeys.all(), "list", params] as const,
+    [...assignmentKeys.all(), "list", params] as const,
 };

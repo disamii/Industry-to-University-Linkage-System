@@ -82,7 +82,7 @@ export enum OrgUnitType {
 }
 
 /**
- * Assignment Status
+ * Assignments
  */
 export enum AssignmentStatus {
   PENDING = "pending",
@@ -91,4 +91,22 @@ export enum AssignmentStatus {
   IN_PROGRESS = "in_progress",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
+}
+
+/**
+ * Posts
+ */
+export enum PostType {
+  SUCCESS_STORY = "success_story",
+  THEMATIC_AREA = "thematic_area",
+  OPEN_REQUEST = "open_request",
+  ANNOUNCEMENT = "announcement",
+  GUIDELINE = "guideline",
+}
+
+export enum PostContentType {
+  REQUEST = "request",
+  ASSIGNMENT = "assignment",
+  USER = "user",
+  INDUSTRY_PROFILE = "industryprofile",
 }
