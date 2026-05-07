@@ -7,8 +7,9 @@ from industry_linkage.models import Industry, Request, Assignment,RequestAction
 from bulletin.models import Post
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
-from django.conf import settings
-User = settings.AUTH_USER_MODEL
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def log(actor, action_type, instance, message, metadata=None):
     ActivityLog.objects.create(
