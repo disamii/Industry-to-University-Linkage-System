@@ -15,36 +15,52 @@ export const variantContainers: Record<ComponentVariant, string> = {
  */
 import { Entity, IndustryRequestType, UserRole } from "./enums";
 
-export const INDUSTRY_REQUEST_FIELDS: Record<
-  IndustryRequestType,
-  readonly string[]
-> = {
-  [IndustryRequestType.RND]: ["request", "problem_statement", "research_area"],
-  [IndustryRequestType.TECH_SUPPORT]: [
-    "technology_required",
-    "required_duration",
-  ],
-  [IndustryRequestType.CONSULTANCY]: ["consultancy_type"],
-  [IndustryRequestType.TESTING]: ["item_to_test", "test_type"],
-  [IndustryRequestType.TRAINING]: [
-    "training_type",
-    "number_of_trainees",
-    "trainee_level",
-  ],
-  [IndustryRequestType.INTERNSHIP]: [
-    "field_of_study",
-    "number_of_students",
-    "timeframe",
-    "activities",
-  ],
-  [IndustryRequestType.RECRUITMENT]: [
-    "field_of_study",
-    "graduate_year",
-    "requirements",
-    "number_to_recruit",
-  ],
-  [IndustryRequestType.OTHER]: [],
-};
+export interface RequestHint {
+  placeholder: string;
+  helpText: string;
+}
+
+export const INDUSTRY_REQUEST_HINTS: Record<IndustryRequestType, RequestHint> =
+  {
+    [IndustryRequestType.RND]: {
+      placeholder:
+        "Specify the research request, problem statement, and research area...",
+      helpText: "Include specific goals and expected outcomes.",
+    },
+    [IndustryRequestType.TECH_SUPPORT]: {
+      placeholder:
+        "Specify the technology required and the duration of support needed...",
+      helpText: "Detail the technical stack and project timeline.",
+    },
+    [IndustryRequestType.CONSULTANCY]: {
+      placeholder: "Describe the consultancy type and expertise required...",
+      helpText: "Specify the scope of the advisory services needed.",
+    },
+    [IndustryRequestType.TESTING]: {
+      placeholder:
+        "Detail the item to test and the specific test type required...",
+      helpText: "Include any compliance or safety standards if applicable.",
+    },
+    [IndustryRequestType.TRAINING]: {
+      placeholder:
+        "Specify training type, number of trainees, and their level...",
+      helpText: "Define the learning objectives and desired skills.",
+    },
+    [IndustryRequestType.INTERNSHIP]: {
+      placeholder:
+        "Detail the field of study, number of students, and planned activities...",
+      helpText: "Mention any specific skills or prerequisites.",
+    },
+    [IndustryRequestType.RECRUITMENT]: {
+      placeholder:
+        "Describe the requirements, graduate year, and number of recruits...",
+      helpText: "List essential qualifications and hiring timeline.",
+    },
+    [IndustryRequestType.OTHER]: {
+      placeholder: "Provide more details about the request...",
+      helpText: "Include any relevant information not covered elsewhere.",
+    },
+  };
 
 export const mapEntity: Partial<
   Record<UserRole, { from: Entity; to: Entity }>

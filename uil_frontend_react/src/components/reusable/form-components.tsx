@@ -121,6 +121,7 @@ export const FormInput = <T extends FieldValues>({
 
 type FormTextAreaProps<T extends FieldValues> = BaseFormProps<T> & {
   desc?: string;
+  disabled?: boolean;
 };
 
 export const FormTextArea = <T extends FieldValues>({
@@ -131,6 +132,7 @@ export const FormTextArea = <T extends FieldValues>({
   desc,
   required,
   className,
+  disabled,
 }: FormTextAreaProps<T>) => (
   <Controller
     name={name}
@@ -147,6 +149,7 @@ export const FormTextArea = <T extends FieldValues>({
           aria-invalid={fieldState.invalid}
           placeholder={placeholder}
           className={cn("min-h-30", className)}
+          disabled={disabled}
         />
         {desc && <FieldDescription>{desc}</FieldDescription>}
         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
