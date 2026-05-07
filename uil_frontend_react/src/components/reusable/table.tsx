@@ -18,6 +18,7 @@ import React, {
   useState,
 } from "react";
 import { Card, CardContent } from "../ui/card";
+import { cn } from "@/lib/utils";
 
 type TableContextType = {
   colCount: number;
@@ -63,7 +64,7 @@ function Header({ heads }: HeaderProps) {
     <TableHeader>
       <TableRow>
         {heads.map((header, inx) => (
-          <TableHead key={inx} className={header.className}>
+          <TableHead key={inx} className={cn("font-bold", header.className)}>
             {header.content}
           </TableHead>
         ))}

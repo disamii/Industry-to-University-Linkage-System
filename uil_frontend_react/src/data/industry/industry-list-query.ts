@@ -1,18 +1,34 @@
+import { useIndustryParams } from "@/data/industry/use-industry-params";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 import { IndustryResponse } from "@/types/interfaces.industry";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { industryKeys } from "./keys";
 import { industryUrls } from "./urls";
-import { IndustryParams } from "@/features/dashboard/office/industry-management/use-industry-params";
+import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 
 export const getIndustryList = createGetRequest<
   ApiPaginatedResponse<IndustryResponse>
 >(industryUrls.base());
 
-export const useGetIndustryList = (params?: IndustryParams) => {
-  return useQuery({
+export const useGetIndustryList = () => {
+  const queryClient = useQueryClient();
+  const { params } = useIndustryParams();
+
+  const query = useQuery({
     queryKey: industryKeys.list(params),
     queryFn: () => getIndustryList(params),
+    placeholderData: (prev) => prev,
   });
+
+  usePaginatedPrefetch({
+    queryClient,
+    baseKey: industryKeys.list().slice(0, -1),
+    queryFn: getIndustryList,
+    params,
+    links: query.data?.pagination.links,
+    isPlaceholderData: query.isPlaceholderData,
+  });
+
+  return query;
 };

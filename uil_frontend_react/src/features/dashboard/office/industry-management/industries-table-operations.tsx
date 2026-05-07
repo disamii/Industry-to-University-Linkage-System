@@ -1,14 +1,14 @@
 import { TableFilters } from "@/components/reusable/table-filters";
-import { AssignmentStatus } from "@/lib/enums";
 import { Filter } from "lucide-react";
 import {
-  defaultAssignmentParams,
-  useAssignmentParams,
-} from "../../../../data/assignments/use-assignment-params";
+  defaultIndustryParams,
+  useIndustryParams,
+} from "../../../../data/industry/use-industry-params";
+import { IndustryType } from "@/lib/enums";
 
-const AssignmentsTableOperations = () => {
+const IndustriesTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
-    useAssignmentParams();
+    useIndustryParams();
 
   return (
     <TableFilters.Root
@@ -19,33 +19,34 @@ const AssignmentsTableOperations = () => {
     >
       <TableFilters.Group>
         <TableFilters.Sort
-          defaultValue={defaultAssignmentParams.ordering}
+          defaultValue={defaultIndustryParams.ordering}
           options={[
-            { label: "Start Date", value: "start_date" },
-            { label: "End Date", value: "end_date" },
+            { label: "Name", value: "name" },
+            { label: "Start Date", value: "created_at" },
+            { label: "End Date", value: "updated_at" },
           ]}
         />
 
         <TableFilters.Box Icon={Filter} name="Filters">
           <TableFilters.Select
-            paramKey="status"
-            placeholder="All Status"
-            options={Object.values(AssignmentStatus)}
+            paramKey="industry_type"
+            placeholder="All Types"
+            options={Object.values(IndustryType)}
           />
         </TableFilters.Box>
       </TableFilters.Group>
 
-      <TableFilters.Search placeholder="Search by industry or request title…" />
+      <TableFilters.Search placeholder="Search by name…" />
 
       <TableFilters.ActiveFilters
         labels={{
           page_size: "Items Per Page",
-          status: "Status",
+          industry_type: "Indsutry Type",
         }}
-        defaults={defaultAssignmentParams}
+        defaults={defaultIndustryParams}
       />
     </TableFilters.Root>
   );
 };
 
-export default AssignmentsTableOperations;
+export default IndustriesTableOperations;

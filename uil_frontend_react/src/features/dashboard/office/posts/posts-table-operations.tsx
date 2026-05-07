@@ -1,6 +1,9 @@
 import { TableFilters } from "@/components/reusable/table-filters";
 import { Filter } from "lucide-react";
-import { defaultPostParams, usePostParams } from "./use-post-params";
+import {
+  defaultPostParams,
+  usePostParams,
+} from "../../../../data/posts/use-post-params";
 import { PostType } from "@/lib/enums";
 
 const PostsTableOperations = () => {

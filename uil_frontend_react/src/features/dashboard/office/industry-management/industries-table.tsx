@@ -8,64 +8,68 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
-import { colorVariants } from "@/lib/mappings";
-import { cn, formatDate } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
-import { PostResponse } from "@/types/interfaces.posts";
-import { MoreVertical } from "lucide-react";
+import { IndustryResponse } from "@/types/interfaces.industry";
+import { ExternalLink, MoreVertical } from "lucide-react";
 import { useRef } from "react";
-import { usePostParams } from "../../../../data/posts/use-post-params";
+import { useIndustryParams } from "../../../../data/industry/use-industry-params";
 
 type RowProps = {
-  item: PostResponse;
+  item: IndustryResponse;
   index: number;
 };
 
-const PostTableRow = ({ item, index }: RowProps) => {
-  const { params } = usePostParams();
+const IndustryTableRow = ({ item, index }: RowProps) => {
+  const { params } = useIndustryParams();
 
   const currentPage = params.page;
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
-
-  const yesNoColorVariant = (state: boolean) =>
-    state ? colorVariants.success : colorVariants.danger;
 
   return (
     <TableRow>
       <TableCell>{currentIndex + index + 1}</TableCell>
       <TableCell>
-        <h4 className="font-bold">{item.title}</h4>
+        <div>
+          <h4 className="font-bold">{item.name}</h4>
+          <p className="max-w-60 text-muted-foreground text-xs truncate">
+            {item.contact_email}
+          </p>
+        </div>
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className="capitalize">
-          {item.post_type.split("_").join(" ")}
+          {item.industry_type.split("_").join(" ")}
         </Badge>
       </TableCell>
       <TableCell>
-        <Badge
-          variant="secondary"
-          className={cn(yesNoColorVariant(item.is_published))}
-        >
-          {item.is_published ? "Yes" : "No"}
-        </Badge>
+        <p className="max-w-40 text-xs truncate">{item.description}</p>
       </TableCell>
       <TableCell>
-        <Badge
-          variant="secondary"
-          className={cn(yesNoColorVariant(item.is_internal_only))}
-        >
-          {item.is_internal_only ? "Yes" : "No"}
-        </Badge>
+        <p className="font-medium text-sm">{item.number_of_employees}</p>
       </TableCell>
       <TableCell>
-        <p className="text-muted-foreground text-xs">
-          {formatDate(item.published_at)}
-        </p>
+        {item.website ? (
+          <div className="flex items-center gap-1 text-primary">
+            <a
+              href={item.website}
+              target="_blank"
+              className="max-w-30 text-xs truncate"
+            >
+              {item.website}
+            </a>
+            <ExternalLink className="size-3" />
+          </div>
+        ) : (
+          <p className="text-destructive">N/A</p>
+        )}
       </TableCell>
       <TableCell>
-        <p className="text-muted-foreground text-xs">
-          {formatDate(item.expires_at)}
-        </p>
+        <div>
+          <h4 className="font-medium">{item.contact_full_name}</h4>
+          <p className="max-w-60 text-muted-foreground text-xs truncate">
+            {item.contact_email}
+          </p>
+        </div>
       </TableCell>
       <TableCell className="text-center">
         <DropdownMenu>
@@ -82,10 +86,10 @@ const PostTableRow = ({ item, index }: RowProps) => {
 };
 
 type TableProps = {
-  data: ApiPaginatedResponse<PostResponse>;
+  data: ApiPaginatedResponse<IndustryResponse>;
 };
 
-const PostsTable = ({ data }: TableProps) => {
+const IndustriesTable = ({ data }: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
 
@@ -100,12 +104,12 @@ const PostsTable = ({ data }: TableProps) => {
     //   ),
     // },
     { content: "#", className: "py-3" },
-    { content: "Title" },
-    { content: "Post Type" },
-    { content: "Is Published" },
-    { content: "Is Internal Only" },
-    { content: "Published At" },
-    { content: "Expires At" },
+    { content: "Industry" },
+    { content: "Industry Type" },
+    { content: "Description" },
+    { content: "# of Employees" },
+    { content: "Site" },
+    { content: "Contact Person" },
     { content: "Actions", className: "text-center" },
   ].filter(Boolean);
 
@@ -116,7 +120,7 @@ const PostsTable = ({ data }: TableProps) => {
       <Table.Body
         data={results}
         render={(item, idx) => (
-          <PostTableRow key={`${item.id}—${idx}`} item={item} index={idx} />
+          <IndustryTableRow key={`${item.id}—${idx}`} item={item} index={idx} />
         )}
       />
 
@@ -131,4 +135,4 @@ const PostsTable = ({ data }: TableProps) => {
   );
 };
 
-export default PostsTable;
+export default IndustriesTable;

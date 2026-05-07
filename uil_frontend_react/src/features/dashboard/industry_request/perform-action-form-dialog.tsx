@@ -34,7 +34,7 @@ import {
 } from "./utils.industry_request-actions";
 import { Spinner } from "@/components/ui/spinner";
 import { Check } from "lucide-react";
-import { useIndustryParams } from "../office/industry-management/use-industry-params";
+import { useIndustryParams } from "../../../data/industry/use-industry-params";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -45,12 +45,11 @@ const FormField = <T extends FieldValues>({
   field,
   form,
 }: FormFieldProps<T>) => {
-  const { params: industryParams, setParams: setIndustryParams } =
-    useIndustryParams();
+  const { setParams: setIndustryParams } = useIndustryParams();
   const { params: userParams, setParams: setUserParams } =
     useUrlParams(defaultUserParams);
 
-  const industriesQuery = useGetIndustryList(industryParams);
+  const industriesQuery = useGetIndustryList();
   const usersQuery = useGetUsers(userParams);
 
   const { name, label, placeholder, isOptional } = field;

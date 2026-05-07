@@ -7,7 +7,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { useUrlParams } from "@/hooks/use-url-params";
 import { PAGE_SIZE } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";
 import {
@@ -25,11 +24,8 @@ import {
 import { useRef } from "react";
 import { useLocation } from "react-router-dom";
 import IndustryRequestActions from "../industry_request-actions";
+import { useIndustryRequestParams } from "../../../../data/industry_requests/use-industry_request-params";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
-import {
-  defaultIndustryRequestParams,
-  IndustryRequestParams,
-} from "../use-industry_request-params";
 
 type RowProps = {
   item: IndustryRequestMineResponse | IndustryRequestOfficeResponse;
@@ -38,11 +34,9 @@ type RowProps = {
 };
 
 const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
-  const { getParam } = useUrlParams<IndustryRequestParams>(
-    defaultIndustryRequestParams,
-  );
+  const { params } = useIndustryRequestParams();
 
-  const currentPage = getParam("page");
+  const currentPage = params.page;
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
 
   const { Icon: ActionIcon, color } = ACTION_CONFIG[item.latest_action];
