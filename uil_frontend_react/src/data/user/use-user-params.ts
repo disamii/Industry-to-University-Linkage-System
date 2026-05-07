@@ -3,21 +3,21 @@ import { useUrlParams } from "@/hooks/use-url-params";
 import { PaginationParams, Sortable } from "@/types/interfaces";
 import { useMemo } from "react";
 
-export type IndustryParams = PaginationParams & {
-  industry_type?: IndustryType;
+export type UserParams = PaginationParams & {
+  academic_unit?: number;
   search?: string;
-  ordering: Sortable<"created_at" | "updated_at" | "name">;
+  ordering: Sortable<"created_at" | "updated_at" | "first_name">;
 };
 
-export const defaultIndustryParams: IndustryParams = {
+export const defaultUserParams: UserParams = {
   ...defaultPaginationParams,
   search: "",
-  ordering: "name",
+  ordering: "first_name",
 };
 
-const useIndustryParams = () => {
+const useUserParams = () => {
   const { getParam, setParams, removeParams, clearAllParams } =
-    useUrlParams<IndustryParams>(defaultIndustryParams);
+    useUrlParams<UserParams>(defaultUserParams);
 
   // Pagination
   const page = getParam("page");
@@ -27,21 +27,21 @@ const useIndustryParams = () => {
   const ordering = getParam("ordering");
 
   // Filtering
-  const industry_type = getParam("industry_type");
+  const academic_unit = getParam("academic_unit");
   const search = getParam("search");
 
-  const params: IndustryParams = useMemo(
+  const params: UserParams = useMemo(
     () => ({
       page,
       page_size,
       ordering,
-      industry_type,
+      academic_unit,
       search,
     }),
-    [page, page_size, search, industry_type, ordering],
+    [page, page_size, academic_unit, search, ordering],
   );
 
   return { params, setParams, removeParams, clearAllParams };
 };
 
-export { useIndustryParams };
+export { useUserParams };

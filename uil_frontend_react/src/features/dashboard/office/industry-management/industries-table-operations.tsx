@@ -22,8 +22,8 @@ const IndustriesTableOperations = () => {
           defaultValue={defaultIndustryParams.ordering}
           options={[
             { label: "Name", value: "name" },
-            { label: "Start Date", value: "created_at" },
-            { label: "End Date", value: "updated_at" },
+            { label: "Created Date", value: "created_at" },
+            { label: "Updated Date", value: "updated_at" },
           ]}
         />
 

@@ -16,25 +16,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { useGetIndustryList } from "@/data/industry/industry-list-query";
 import { usePerformActionMutation } from "@/data/industry_requests/industry_request-perform-action-mutation";
-import { defaultUserParams, useGetUsers } from "@/data/user/user-list-query";
+import { useUserParams } from "@/data/user/use-user-params";
+import { useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
-import { useUrlParams } from "@/hooks/use-url-params";
 import { ActionType, Entity } from "@/lib/enums";
 import { cn, getFullName } from "@/lib/utils";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import { UserProfile } from "@/types/interfaces.user";
+import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { FieldValues, UseFormReturn } from "react-hook-form";
+import { useIndustryParams } from "../../../data/industry/use-industry-params";
 import {
   ACTION_CONFIG,
   ActionFormFields,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
-import { Spinner } from "@/components/ui/spinner";
-import { Check } from "lucide-react";
-import { useIndustryParams } from "../../../data/industry/use-industry-params";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -46,11 +46,10 @@ const FormField = <T extends FieldValues>({
   form,
 }: FormFieldProps<T>) => {
   const { setParams: setIndustryParams } = useIndustryParams();
-  const { params: userParams, setParams: setUserParams } =
-    useUrlParams(defaultUserParams);
+  const { setParams: setUserParams } = useUserParams();
 
   const industriesQuery = useGetIndustryList();
-  const usersQuery = useGetUsers(userParams);
+  const usersQuery = useGetUsers();
 
   const { name, label, placeholder, isOptional } = field;
   const commonProps = {

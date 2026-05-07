@@ -1,4 +1,4 @@
-import { UserParams } from "@/types/interfaces.user";
+import { UserParams } from "./use-user-params";
 
 export const userKeys = {
   all: () => ["user"] as const,

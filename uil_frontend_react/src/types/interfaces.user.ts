@@ -2,10 +2,6 @@ import { UserRole, UserStatus } from "@/lib/enums";
 import { Metadata } from "./interfaces";
 import { OrgUnitResponse } from "./interfaces.org_units";
 
-export type UserParams = {
-  search?: string;
-};
-
 export type UserProfile = Metadata & {
   id: number;
   username: string;
@@ -13,7 +9,7 @@ export type UserProfile = Metadata & {
   father_name: string;
   grand_father_name: string;
   email: string;
-  academic_unit: OrgUnitResponse;
+  academic_unit: number;
   academic_unit_response: OrgUnitResponse;
   must_change_password: boolean;
   is_superuser: boolean;
