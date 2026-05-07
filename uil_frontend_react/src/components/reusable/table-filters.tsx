@@ -132,7 +132,7 @@ const Sort = <T extends string>({
           })
         }
       >
-        <SelectTrigger className="w-20 h-7">
+        <SelectTrigger className="max-w-40 h-7">
           <SelectValue />
         </SelectTrigger>
 

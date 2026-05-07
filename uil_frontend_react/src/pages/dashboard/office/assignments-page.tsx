@@ -1,5 +1,33 @@
+import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
+import { QueryState } from "@/components/reusable/query-state-ui";
+import { useAssignmentsList } from "@/data/assignments/assignments-list-query";
+import AssignmentsTable from "@/features/dashboard/office/assignments/assignments-table";
+import AssignmentsTableOperations from "@/features/dashboard/office/assignments/assignments-table-operations";
+
 const AssignmentsPage = () => {
-  return <div>Assignments</div>;
+  const query = useAssignmentsList();
+
+  return (
+    <div className="space-y-6">
+      <DashboardContentHeader
+        title="Assignments Management"
+        desc="Manage assignments"
+        hasBackBtn={false}
+        scope={query.data?.scope}
+      />
+
+      <QueryState query={query} checkEmpty={(data) => !data} variant="page">
+        {(data) => {
+          return (
+            <div className="space-y-6">
+              <AssignmentsTableOperations />
+              <AssignmentsTable data={data} />
+            </div>
+          );
+        }}
+      </QueryState>
+    </div>
+  );
 };
 
 export default AssignmentsPage;

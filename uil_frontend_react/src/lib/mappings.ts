@@ -1,13 +1,23 @@
 /**
  * Utility
  */
-import { ComponentVariant } from "@/types/interfaces";
+import { ComponentVariant, StatCardKeys } from "@/types/interfaces";
 
 export const variantContainers: Record<ComponentVariant, string> = {
   small: "p-2 text-sm",
   inline: "p-4 text-base",
   section: "p-12 border rounded-xl my-4",
   page: "min-h-[70vh] flex flex-col justify-center p-6",
+};
+
+export const colorVariants: Record<StatCardKeys, string> = {
+  success: "bg-emerald-100 text-emerald-700",
+  warning: "bg-amber-100 text-amber-700",
+  info: "bg-sky-100 text-sky-700",
+  danger: "bg-rose-100 text-rose-700",
+  primary: "bg-violet-100 text-violet-700",
+  secondary: "bg-slate-100 text-slate-700",
+  tertiary: "bg-yellow-100 text-yellow-700",
 };
 
 /**
@@ -68,4 +78,18 @@ export const mapEntity: Partial<
   [UserRole.INDUSTRY]: { from: Entity.INDUSTRY, to: Entity.ACADEMIC_UNIT },
   [UserRole.ADMIN]: { from: Entity.ACADEMIC_UNIT, to: Entity.INDUSTRY },
   [UserRole.STAFF]: { from: Entity.STAFF, to: Entity.INDUSTRY },
+};
+
+/**
+ * Assignments
+ */
+import { AssignmentStatus } from "./enums";
+
+export const assignmentStatusColorMap: Record<AssignmentStatus, string> = {
+  [AssignmentStatus.PENDING]: colorVariants.tertiary,
+  [AssignmentStatus.ASSIGNED]: colorVariants.info,
+  [AssignmentStatus.CANCELLED]: colorVariants.secondary,
+  [AssignmentStatus.IN_PROGRESS]: colorVariants.primary,
+  [AssignmentStatus.REJECTED]: colorVariants.danger,
+  [AssignmentStatus.COMPLETED]: colorVariants.success,
 };

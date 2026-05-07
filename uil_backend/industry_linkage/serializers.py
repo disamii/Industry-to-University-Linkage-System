@@ -172,7 +172,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
-    def get_possible_actions(self, obj):
+    def get_supported_actions(self, obj):
         from .enums import ACTION_TRANSITIONS
 
         user = self.context.get("user")

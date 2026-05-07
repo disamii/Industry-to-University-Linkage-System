@@ -28,7 +28,7 @@ const IndustryRequestsTableOperations = () => {
     >
       <TableFilters.Group>
         <TableFilters.Sort
-          defaultValue="created_at"
+          defaultValue={defaultIndustryRequestParams.ordering}
           options={[
             { label: "Date", value: "created_at" },
             { label: "Title", value: "title" },

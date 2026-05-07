@@ -1,7 +1,7 @@
-import { IndustryParams } from "@/types/interfaces.industry";
+import { AssignmentParams } from "@/features/dashboard/office/assignments/assignments-params";
 
-export const industryKeys = {
+export const assignmentsKeys = {
   all: () => ["assignments"] as const,
-  list: (params?: IndustryParams) =>
-    [...industryKeys.all(), "list", params] as const,
+  list: (params?: AssignmentParams) =>
+    [...assignmentsKeys.all(), "list", params] as const,
 };

@@ -138,7 +138,7 @@ class RequestManageViewSet(
         viewsets.GenericViewSet):
     filterset_fields = ['type', 'actions__type']
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
-    search_fields = ['industry__name']
+    search_fields = ['industry__name', 'title']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     queryset = Request.objects.all().order_by('created_at')
     pagination_class = RequestPagination
@@ -299,6 +299,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status']
     ordering_fields = ['start_date', 'end_date']
     pagination_class = DefaultPagination
+    search_fields = ['request__industry__name', 'request__title']
 
     def get_serializer_class(self):
         if self.action == "list":

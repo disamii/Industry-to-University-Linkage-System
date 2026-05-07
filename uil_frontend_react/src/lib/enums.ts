@@ -59,7 +59,7 @@ export enum ActionType {
   COMPLETED = "completed",
   REVOKED = "revoked",
   CANCELLED = "cancelled",
-  REVERTED="reverted"
+  REVERTED = "reverted",
 }
 
 /**
@@ -85,8 +85,10 @@ export enum OrgUnitType {
  * Assignment Status
  */
 export enum AssignmentStatus {
-  // PENDING = "PENDING",
-  // ASSIGNED = "ASSIGNED",
-  IN_PROGRESS = "IN_PROGRESS",
-  COMPLETED = "COMPLETED",
+  PENDING = "pending",
+  ASSIGNED = "accepted",
+  REJECTED = "rejected",
+  IN_PROGRESS = "in_progress",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
 }
