@@ -12,6 +12,7 @@ import {
   ShieldBan,
   UserCheck,
   XCircle,
+  RotateCcw,
 } from "lucide-react";
 import * as z from "zod";
 
@@ -191,12 +192,12 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     color: "bg-red-100 text-red-700", // Critical negative
     formFields: [...BASE_FIELDS],
   },
-    [ActionType.REVERTED]: {
-    label: "Reject",
-    Icon: XCircle,
-    color: "bg-red-100 text-red-700", // Critical negative
-    formFields: [...BASE_FIELDS],
-  },
+[ActionType.REVERTED]: {
+  label: "Revert",
+  Icon: RotateCcw, // better semantic icon
+  color: "bg-yellow-100 text-yellow-700", // warning / rollback
+  formFields: [...BASE_FIELDS],
+},
   [ActionType.COMPLETED]: {
     label: "Mark Complete",
     Icon: CheckSquare,

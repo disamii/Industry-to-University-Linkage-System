@@ -2,7 +2,6 @@ from django.db import transaction
 import re
 from rest_framework.exceptions import ValidationError
 
-from .models import RequestAction
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from .enums import ENTITY_MAP, RequestingEntity, ActionTypes
@@ -42,7 +41,6 @@ def validate_action_or_raise(request, action_type):
         if active_actions.filter(
             type__in=[
                 ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED
             ]
         ).exists():
             raise ValidationError(
@@ -55,27 +53,6 @@ def validate_action_or_raise(request, action_type):
                 "Cannot accept. No active forwarded request."
             )
 
-    elif action_type == ActionTypes.REVOKED:
-
-        if not active_actions.filter(
-            type__in=[
-                ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED,
-            ]
-        ).exists():
-            raise ValidationError(
-                "Cannot revoke. No active assignment "
-            )
-
-    elif action_type == ActionTypes.REASSIGNED:
-        if active_actions.filter(
-            type__in=[
-                ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED
-            ]
-        ).exists():
-            raise ValidationError(
-                "Already assigned. Revoke first.")
     elif action_type == ActionTypes.POSTED_AS_THEMATIC:
         if active_actions.filter(
             type__in=[
@@ -109,7 +86,6 @@ def deactivate_previous_actions(request_obj, action_type):
         qs.filter(
             type__in=[
                 ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED,
             ]
         ).update(awaiting_decision=False)
 
@@ -127,15 +103,6 @@ def deactivate_previous_actions(request_obj, action_type):
         qs.filter(
             type__in=[
                 ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED,
-            ]
-        ).update(awaiting_decision=False)
-
-    elif action_type == ActionTypes.REASSIGNED:
-        qs.filter(
-            type__in=[
-                ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED,
             ]
         ).update(awaiting_decision=False)
 

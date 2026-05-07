@@ -287,17 +287,42 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "supported_actions",
         ]
     def get_supported_actions(self, obj):
+        user = self.context.get("user")
+
+        is_industry_user = False
+
+        if obj.requesting_entity == RequestingEntity.INDUSTRY:
+            try:
+                user.industry_profile
+                is_industry_user = True
+            except (AttributeError, Industry.DoesNotExist):
+                is_industry_user = False
+
         valid_actions = []
 
         for action_type in ActionTypes:
-            if action_type == ActionTypes.INITIATED:
+            if action_type in (
+                ActionTypes.INITIATED,
+                ActionTypes.REVERTED,
+            ):
                 continue
 
             try:
                 validate_action_or_raise(obj, action_type)
-                valid_actions.append(action_type.value)
             except ValidationError:
                 continue
+
+            valid_actions.append(action_type.value)
+
+        if obj.requesting_entity == RequestingEntity.INDUSTRY:
+            if is_industry_user:
+                # requester (industry) can cancel → remove reject
+                if ActionTypes.REJECTED.value in valid_actions:
+                    valid_actions.remove(ActionTypes.REJECTED.value)
+            else:
+                # other side → can reject → remove cancel
+                if ActionTypes.CANCELLED.value in valid_actions:
+                    valid_actions.remove(ActionTypes.CANCELLED.value)
 
         return valid_actions
 
@@ -352,7 +377,7 @@ class IndustryDetailSerializer(serializers.ModelSerializer):
             "contact_person_phone_number",
             "contact_full_name",
             "contact_email",
-            "requests",   # 👈 important
+            "requests",   
         ]
 
     def get_contact_full_name(self, obj):
@@ -418,7 +443,6 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
             self._target_unit_id = unit_id
 
         elif action_type in [
-            ActionTypes.REVOKED,
             ActionTypes.CANCELLED,
             ActionTypes.COMPLETED
         ]:
@@ -441,7 +465,6 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             if action_type in [
-                ActionTypes.REVOKED,
                 ActionTypes.CANCELLED,
             ]:
                 if getattr(self, "assignment", None):
@@ -499,7 +522,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         if not request_obj:
             raise serializers.ValidationError("Missing request context")
 
-        if action_type not in ["assigned", "reassigned"]:
+        if action_type not in ["assigned"]:
             return attrs
 
         assigned_users = attrs.get("assigned_users")
@@ -512,38 +535,11 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 "End date must be after start date"
             )
 
-        if action_type == "assigned":
+        if action_type == ActionTypes.ASSIGNED:
             if not all([assigned_users, start_date, end_date]):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
 
-        elif action_type == "reassigned":
-            assignment = Assignment.objects.filter(
-                request=request_obj,
-                status__in=[
-                    AssignmentStatus.ACCEPTED,
-                    AssignmentStatus.PENDING
-                ]
-            ).first()
-
-            if not assignment:
-                raise serializers.ValidationError(
-                    "No active assignment to be reassigned"
-                )
-
-            # fallback values
-            attrs["assigned_users"] = assigned_users or assignment.assigned_user
-            attrs["start_date"] = start_date or assignment.start_date
-            attrs["end_date"] = end_date or assignment.end_date
-            attrs["industry_mentor"] = (
-                attrs.get("industry_mentor")
-                if attrs.get("industry_mentor") is not None
-                else assignment.industry_mentor
-            )
-
-            self.assignment = assignment
-
-        return attrs
 
     def create(self, validated_data):
         request_obj = self.context.get("request_obj")
@@ -579,7 +575,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     created_by_id=user.id,
                     awaiting_decision=True,
                     updated_by_id=user.id,
-                    type=ActionTypes.REASSIGNED,
+                    type=ActionTypes.ASSIGNED,
                     resulted_content_type=ContentType.objects.get_for_model(
                         Assignment),
                     resulted_object_id=assignment.id,
@@ -593,7 +589,6 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             # -------------------------
             elif action_type in [
                 ActionTypes.ASSIGNED,
-                ActionTypes.REASSIGNED,
             ]:
                 assignment = Assignment.objects.create(
                     request=request_obj,
@@ -608,11 +603,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 # attach M2M AFTER creation
                 if assigned_users:
                     assignment.assigned_users.set(assigned_users)
-                if action_type == ActionTypes.REASSIGNED:
-                    # fix: you were using self.assignment (bug)
-                    assignment.status = AssignmentStatus.CANCELLED
-                    assignment.save(update_fields=["status"])
-
+    
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
@@ -776,8 +767,7 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
                     industry = user.industry_profile
                     from_info["object_id"] = industry.id
                 except (Industry.DoesNotExist, AttributeError):
-                    raise serializers.ValidationError("there is no associated industry with this user "
-                                                      )
+                    raise serializers.ValidationError("there is no associated industry with this user")
             if to_info['entity'] == RequestingEntity.INDUSTRY:
                 to_info["object_id"] = request_obj.industry.id
         # academic unit
@@ -808,9 +798,6 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
 
             **validated_data
         )
-
-# Assignment Related related serializer
-
 
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
@@ -886,13 +873,11 @@ class AdminRequestListSerializer(serializers.ModelSerializer):
 ACTION_SERIALIZERS = {
     "initiated": RequestActionGenericSerializer,
     "accept_forwarded": RequestActionGenericSerializer,
-    "revoked": RequestActionGenericSerializer,
     "cancelled": RequestActionGenericSerializer,
     "rejected": RequestActionGenericSerializer,
     "completed": RequestActionGenericSerializer,
 
     "assigned": RequestActionAssignedSerializer,
-    "reassigned": RequestActionAssignedSerializer,
     "posted_as_thematic": RequestActionPostedThematicSerializer,
     "forwarded": RequestActionForwardedSerializer,
     "replied": RequestActionRepliedSerializer,

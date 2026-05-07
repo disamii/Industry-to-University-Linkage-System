@@ -74,24 +74,20 @@ class RequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    filterset_fields = ['type', 'actions__type',
-                        'requesting_entity', 'academic_unit', 'industry']
-    ordering_fields = ['created_at', 'updated_at',
-                       'title', 'industry__name', 'requesting_entity']
+    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
+    ordering_fields = ['created_at', 'updated_at','title', 'industry__name', 'requesting_entity']
     search_fields = ['industry__name']
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = RequestForIndustryPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    queryset = Request.objects.select_related(
-        "academic_unit").prefetch_related("actions")
+    queryset = Request.objects.select_related("academic_unit").prefetch_related("actions")
 
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("update", "partial_update", "destroy", "create", 'retrieve'):
-            permission_classes = [IsAuthenticated,
-                                  IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
@@ -102,7 +98,12 @@ class RequestViewSet(
         elif self.action == "retrieve":
             return RequestDetailSerializer
         return RequestSerializer
-
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["user"] = self.request.user
+        return context
+    
     def get_object(self):
         """it pass the scope of the target to the class and check object permission"""
         obj = super().get_object()
@@ -294,10 +295,6 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['start_date', 'end_date']
     pagination_class = DefaultPagination
 
-    # -----------------------------
-    # SERIALIZER SWITCH
-    # -----------------------------
-
     def get_serializer_class(self):
         if self.action == "list":
             return AssignmentListSerializer
@@ -321,3 +318,86 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         qs = self.queryset.filter(request__industry_id=industry_id)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=["patch"], url_path="remove-users")
+    def remove_users(self, request, pk=None):
+        assignment = self.get_object()
+
+        user_ids = request.data.get("user_ids", [])
+
+        if not isinstance(user_ids, list) or not user_ids:
+            raise ValidationError({
+                "user_ids": "Provide a non-empty list of user ids."
+            })
+
+        current_users_count = assignment.assigned_users.count()
+
+        users_to_remove_count = assignment.assigned_users.filter(
+            id__in=user_ids
+        ).count()
+
+        remaining_users = current_users_count - users_to_remove_count
+
+        if remaining_users < 1:
+            raise ValidationError({
+                "assigned_users": "Assignment must have at least one assigned user."
+            })
+
+        assignment.assigned_users.remove(*user_ids)
+
+        return Response({
+            "detail": "Users removed successfully."
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=["patch"], url_path="add-users")
+    def add_users(self, request, pk=None):
+        assignment = self.get_object()
+
+        user_ids = request.data.get("user_ids", [])
+
+        if not isinstance(user_ids, list) or not user_ids:
+            raise ValidationError({
+                "user_ids": "Provide a non-empty list of user ids."
+            })
+
+        users = User.objects.filter(id__in=user_ids)
+
+        if users.count() != len(user_ids):
+            raise ValidationError({
+                "user_ids": "One or more users do not exist."
+            })
+
+        assignment.assigned_users.add(*users)
+
+        return Response({
+            "detail": "Users added successfully."
+        }, status=status.HTTP_200_OK)
+        
+    @action(detail=True, methods=["patch"], url_path="change-status")
+    def change_status(self, request, pk=None):
+        assignment = self.get_object()
+
+        new_status = request.data.get("status")
+
+        valid_statuses = [
+            choice[0]
+            for choice in Assignment.AssignmentStatus.choices
+        ]
+
+        if not new_status:
+            raise ValidationError({
+                "status": "This field is required."
+            })
+
+        if new_status not in valid_statuses:
+            raise ValidationError({
+                "status": f"Invalid status. Allowed values: {valid_statuses}"
+            })
+
+        assignment.status = new_status
+        assignment.save(update_fields=["status"])
+
+        return Response({
+            "detail": "Assignment status updated successfully.",
+            "status": assignment.status
+        }, status=status.HTTP_200_OK)

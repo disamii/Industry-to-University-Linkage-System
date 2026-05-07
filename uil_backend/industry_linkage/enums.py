@@ -38,9 +38,7 @@ class ActionTypes(models.TextChoices):
     FORWARDED = "forwarded", "Forwarded"
     POSTED_AS_THEMATIC = "posted_as_thematic", "Posted as Thematic Call"
     REJECTED = "rejected", "Rejected"
-    REASSIGNED = "reassigned", "Reassigned"
     COMPLETED = "completed", "Completed"
-    REVOKED = "revoked", "Revoked"
     CANCELLED = "cancelled", "Cancelled"
     ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
     REPLIED = "replied", "Replied"
@@ -89,22 +87,14 @@ ACTION_TRANSITIONS = {
     ],
 
     ActionTypes.ASSIGNED: [
-        ActionTypes.REVOKED,
         ActionTypes.REVERTED,
     ],
 
-    ActionTypes.REASSIGNED: [
-        ActionTypes.REVOKED,
-        ActionTypes.REVERTED,
-    ],
 
     ActionTypes.POSTED_AS_THEMATIC: [
         ActionTypes.REVERTED,
     ],
 
-    ActionTypes.REVOKED: [
-        ActionTypes.REVERTED,
-    ],
 
     ActionTypes.REJECTED: [
         ActionTypes.REVERTED,
@@ -141,22 +131,15 @@ ACTION_TRANSITIONS = {
     ],
 
     ActionTypes.ASSIGNED: [
-        ActionTypes.REVOKED,
         ActionTypes.REVERTED,
     ],
 
-    ActionTypes.REASSIGNED: [
-        ActionTypes.REVOKED,
-        ActionTypes.REVERTED,
-    ],
+
 
     ActionTypes.POSTED_AS_THEMATIC: [
         ActionTypes.REVERTED,
     ],
 
-    ActionTypes.REVOKED: [
-        ActionTypes.REVERTED,
-    ],
 
     ActionTypes.REJECTED: [
         ActionTypes.REVERTED,
