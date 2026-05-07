@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from audit.models import AuditMixin
-from .enums import ActionTypes, AssignmentStatus, RequestType, RequestingEntity
+from .enums import ActionTypes, AssignmentStatus, IndustryType, RequestType, RequestingEntity
 User = settings.AUTH_USER_MODEL
 
 
@@ -16,16 +16,9 @@ phone_validator = RegexValidator(
     message="Invalid phone format"
 )
 class Industry(AuditMixin,models.Model):
-    INDUSTRY_TYPE_CHOICES = [
-        ("it", "IT"),
-        ("manufacturing", "Manufacturing"),
-        ("construction", "Construction"),
-        ("healthcare", "Healthcare"),
-        ("education", "Education"),
-        ("other", "Other"),
-    ]
+
     name = models.CharField(max_length=255,unique=True, null=False)
-    industry_type = models.CharField(max_length=50, choices=INDUSTRY_TYPE_CHOICES)
+    industry_type = models.CharField(max_length=50, choices=IndustryType.choices)
     contact_person = models.OneToOneField(User,on_delete=models.CASCADE,related_name="industry_profile")
     industry_email = models.EmailField(blank=True, null=True)
     phone_number = models.CharField(max_length=20,blank=True, null=True, validators=[phone_validator])

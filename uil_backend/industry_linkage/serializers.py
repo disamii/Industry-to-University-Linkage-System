@@ -11,7 +11,7 @@ from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from .enums import ActionTypes, AssignmentStatus, RequestingEntity
+from .enums import ActionTypes, AssignmentStatus, RequestingEntity, get_assignment_supported_actions
 from .models import (
     Industry,
     Request,
@@ -153,7 +153,7 @@ class GenericActorField(serializers.Field):
 
 
 class RequestActionSerializer(serializers.ModelSerializer):
-    possible_actions = serializers.SerializerMethodField()
+    supported_actions = serializers.SerializerMethodField()
     actor_from = GenericActorField()
     actor_to = GenericActorField()
     resulted_object = GenericActorField()
@@ -168,15 +168,47 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "actor_to",
             "resulted_object",
             "awaiting_decision",
-            "possible_actions",
+            "supported_actions",
             "created_at",
         ]
 
     def get_possible_actions(self, obj):
         from .enums import ACTION_TRANSITIONS
+
+        user = self.context.get("user")
+        request_obj = obj.request
+
+        is_industry_user = False
+
+        if request_obj.requesting_entity == RequestingEntity.INDUSTRY:
+            try:
+                user.industry_profile
+                is_industry_user = True
+            except (AttributeError, Industry.DoesNotExist):
+                is_industry_user = False
+
         if not obj.awaiting_decision:
-            return [ActionTypes.REVERTED]
-        return ACTION_TRANSITIONS.get(obj.type, [ActionTypes.REVERTED])
+            valid_actions = [ActionTypes.REVERTED.value]
+        else:
+            valid_actions = [
+                action.value
+                for action in ACTION_TRANSITIONS.get(obj.type, [])
+            ]
+
+        if request_obj.requesting_entity == RequestingEntity.INDUSTRY:
+            if is_industry_user:
+                if ActionTypes.REJECTED.value in valid_actions:
+                    valid_actions.remove(ActionTypes.REJECTED.value)
+                    if obj.type == ActionTypes.REJECTED:
+                        valid_actions.remove(ActionTypes.REVERTED)
+
+            else:
+                if ActionTypes.CANCELLED.value in valid_actions:
+                    valid_actions.remove(ActionTypes.CANCELLED.value)
+                    if obj.type == ActionTypes.CANCELLED:
+                        valid_actions.remove(ActionTypes.REVERTED)
+
+        return valid_actions
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):
@@ -290,6 +322,16 @@ class RequestDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_supported_actions(self, obj):
+
+        last_action = obj.actions.order_by("-created_at").first()
+
+        if last_action and last_action.type in [
+            ActionTypes.COMPLETED,
+            ActionTypes.CANCELLED,
+            ActionTypes.REJECTED,
+        ]:
+            return []
+
         user = self.context.get("user")
 
         is_industry_user = False
@@ -361,7 +403,6 @@ class IndustryDetailSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
 
-    # 👇 nested requests
     requests = RequestSerializer(many=True, read_only=True)
 
     class Meta:
@@ -543,6 +584,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             if not all([assigned_users, start_date, end_date]):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
+        return attrs
 
         return attrs
 
@@ -827,6 +869,7 @@ class AssignmentListSerializer(serializers.ModelSerializer):
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
     request = RequestDetailSerializer(read_only=True)
+    supported_actions = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -835,10 +878,14 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
             "request",
             "assigned_users",
             "industry_mentor",
+            "supported_actions",
             "start_date",
             "end_date",
             "status",
         ]
+
+    def get_supported_actions(self, obj):
+        return get_assignment_supported_actions(obj.status)
 
 
 class LatestActionSerializer(serializers.ModelSerializer):

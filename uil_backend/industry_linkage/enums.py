@@ -1,5 +1,11 @@
 from django.db import models
-
+class IndustryType(models.TextChoices):
+    IT = "it", "IT"
+    MANUFACTURING = "manufacturing", "Manufacturing"
+    CONSTRUCTION = "construction", "Construction"
+    HEALTHCARE = "healthcare", "Healthcare"
+    EDUCATION = "education", "Education"
+    OTHER = "other", "Other"
 
 class RequestingEntity(models.TextChoices):
     INDUSTRY = "industry", "Industry"
@@ -160,3 +166,28 @@ ACTION_TRANSITIONS = {
 
     ActionTypes.REVERTED: [],  
 }
+
+ASSIGNMENT_STATUS_TRANSITIONS = {
+    AssignmentStatus.PENDING: [
+        AssignmentStatus.ACCEPTED,
+        AssignmentStatus.REJECTED,
+    ],
+    AssignmentStatus.ACCEPTED: [
+        AssignmentStatus.IN_PROGRESS,
+        AssignmentStatus.CANCELLED,
+    ],
+    AssignmentStatus.IN_PROGRESS: [
+        AssignmentStatus.COMPLETED,
+        AssignmentStatus.CANCELLED,
+    ],
+    AssignmentStatus.REJECTED: [],
+    AssignmentStatus.COMPLETED: [],
+    AssignmentStatus.CANCELLED: [],
+}
+
+
+def get_assignment_supported_actions(status):
+    return [
+        action.value
+        for action in ASSIGNMENT_STATUS_TRANSITIONS.get(status, [])
+    ]
