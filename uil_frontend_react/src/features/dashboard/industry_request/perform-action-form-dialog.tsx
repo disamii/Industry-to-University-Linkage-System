@@ -36,6 +36,7 @@ import {
   FormFieldConfig,
 } from "./utils.industry_request-actions";
 import { Spinner } from "@/components/ui/spinner";
+import { Check } from "lucide-react";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -132,6 +133,7 @@ const FormField = <T extends FieldValues>({
         <FormCombobox
           {...commonProps}
           key={commonProps.name}
+          multiple
           placeholder={config.placeholder}
           query={config.query}
           checkEmpty={(data) => data.results.length === 0}
@@ -140,21 +142,43 @@ const FormField = <T extends FieldValues>({
           getDisplayValue={config.getDisplayValue}
           position="popper"
         >
-          {(data, setOpen) => (
-            <CommandGroup>
-              {data.results.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  onSelect={() => {
-                    form.setValue(commonProps.name, item.id as any);
-                    setOpen(false);
-                  }}
-                >
-                  {config.getLabel(item as any)}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
+          {(data) => {
+            const selectedValues = (
+              Array.isArray(form.watch(commonProps.name))
+                ? form.watch(commonProps.name)
+                : []
+            ) as (string | number)[];
+
+            return (
+              <CommandGroup>
+                {data.results.map((item: any) => {
+                  const selected = selectedValues.includes(item.id);
+
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      onSelect={() => {
+                        const updatedValues = selected
+                          ? selectedValues.filter((id) => id !== item.id)
+                          : [...selectedValues, item.id];
+
+                        form.setValue(commonProps.name, updatedValues as any);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 w-4 h-4",
+                          selected ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+
+                      {config.getLabel(item as any)}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            );
+          }}
         </FormCombobox>
       );
     }

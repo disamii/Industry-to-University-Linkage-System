@@ -99,13 +99,6 @@ def deactivate_previous_actions(request_obj, action_type):
             type=ActionTypes.FORWARDED
         ).update(awaiting_decision=False)
 
-    elif action_type == ActionTypes.REVOKED:
-        qs.filter(
-            type__in=[
-                ActionTypes.ASSIGNED,
-            ]
-        ).update(awaiting_decision=False)
-
 
 class ForwardTarget(serializers.Field):
 
@@ -187,6 +180,3 @@ def revert_action_util(action, note=""):
         ])
 
     return action
-
-
-

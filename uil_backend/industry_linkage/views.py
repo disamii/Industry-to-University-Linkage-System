@@ -74,20 +74,24 @@ class RequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
-    ordering_fields = ['created_at', 'updated_at','title', 'industry__name', 'requesting_entity']
+    filterset_fields = ['type', 'actions__type',
+                        'requesting_entity', 'academic_unit', 'industry']
+    ordering_fields = ['created_at', 'updated_at',
+                       'title', 'industry__name', 'requesting_entity']
     search_fields = ['industry__name']
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = RequestForIndustryPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    queryset = Request.objects.select_related("academic_unit").prefetch_related("actions")
+    queryset = Request.objects.select_related(
+        "academic_unit").prefetch_related("actions")
 
     def get_permissions(self):
         """setting permission according to the  action and also adding permission class depending on action"""
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("update", "partial_update", "destroy", "create", 'retrieve'):
-            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,
+                                  IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
@@ -98,12 +102,12 @@ class RequestViewSet(
         elif self.action == "retrieve":
             return RequestDetailSerializer
         return RequestSerializer
-    
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["user"] = self.request.user
         return context
-    
+
     def get_object(self):
         """it pass the scope of the target to the class and check object permission"""
         obj = super().get_object()
@@ -248,9 +252,9 @@ class RequestManageViewSet(
     @action(
         detail=False,
         methods=["post"],
-        url_path="actions/(?P<action_id>[^/.]+)/revert"
+        url_path="actions/(?P<action_id>[^/.]+)/alter_action"
     )
-    def revert_action(self, request, action_id=None):
+    def alter_action(self, request, action_id=None):
 
         try:
             action = RequestAction.objects.get(id=action_id)
@@ -288,7 +292,8 @@ class RequestManageViewSet(
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
-    queryset = Assignment.objects.select_related("request").prefetch_related("assigned_users")
+    queryset = Assignment.objects.select_related(
+        "request").prefetch_related("assigned_users")
     serializer_class = AssignmentDetailSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['status']
@@ -299,7 +304,6 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return AssignmentListSerializer
         return AssignmentDetailSerializer
-
 
     @action(detail=False, methods=["get"], url_path="by-user/(?P<user_id>[^/.]+)")
     def by_user(self, request, user_id=None):
@@ -318,7 +322,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         qs = self.queryset.filter(request__industry_id=industry_id)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=["patch"], url_path="remove-users")
     def remove_users(self, request, pk=None):
         assignment = self.get_object()
@@ -348,7 +352,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         return Response({
             "detail": "Users removed successfully."
         }, status=status.HTTP_200_OK)
-    
+
     @action(detail=True, methods=["patch"], url_path="add-users")
     def add_users(self, request, pk=None):
         assignment = self.get_object()
@@ -372,7 +376,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         return Response({
             "detail": "Users added successfully."
         }, status=status.HTTP_200_OK)
-        
+
     @action(detail=True, methods=["patch"], url_path="change-status")
     def change_status(self, request, pk=None):
         assignment = self.get_object()

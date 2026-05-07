@@ -30,6 +30,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { QueryState } from "./query-state-ui";
 import XIconButton from "./x-icon-button";
+import { Badge } from "../ui/badge";
 
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
@@ -168,6 +169,8 @@ type FormComboboxProps<
   // static
   options?: { value: string | number; label: string }[];
 
+  multiple?: boolean;
+
   // dynamic
   query?: UseQueryResult<Q, Error>;
   children?: (
@@ -205,6 +208,7 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
   required,
   searchable = true,
   getDisplayValue,
+  multiple = false,
 }: FormComboboxProps<T, Q>) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -219,92 +223,157 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
     <Controller
       name={name}
       control={form.control}
-      render={({ field, fieldState }) => (
-        <Field orientation={orientation} data-invalid={fieldState.invalid}>
-          <FieldContent className="flex-initial">
-            <FieldLabel className="capitalize">
-              {label}
-              {required && <Asterisk />}
-            </FieldLabel>
-            {desc && <FieldDescription>{desc}</FieldDescription>}
-            <FieldError errors={[fieldState.error]} />
-          </FieldContent>
+      render={({ field, fieldState }) => {
+        const selectedValues = multiple
+          ? Array.isArray(field.value)
+            ? field.value
+            : []
+          : [field.value];
 
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className={cn("justify-between py-5 min-w-30", className)}
-              >
-                {field.value
-                  ? (getDisplayValue?.(field.value, query?.data) ??
-                    options?.find(
-                      (opt) => String(opt.value) === String(field.value),
-                    )?.label ??
-                    "Selected")
-                  : (placeholder ?? "Select...")}
-                <ChevronsUpDown className="opacity-50 ml-2 w-4 h-4 shrink-0" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" align="start">
-              <Command shouldFilter={!query}>
-                {searchable && (
-                  <CommandInput
-                    placeholder={searchPlaceholder ?? "Search..."}
-                    value={searchValue}
-                    onValueChange={setSearchValue}
-                  />
-                )}
-                <CommandList>
-                  {/* --- Static Options --- */}
-                  {!query && (
-                    <>
-                      <CommandEmpty>No results found.</CommandEmpty>
-                      <CommandGroup>
-                        {options?.map((opt) => (
-                          <CommandItem
-                            key={opt.value}
-                            value={String(opt.label)} // Command filters by label
-                            onSelect={() => {
-                              field.onChange(
-                                isNumber ? Number(opt.value) : opt.value,
-                              );
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 w-4 h-4",
-                                field.value === opt.value
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                            {opt.label}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </>
+        const toggleValue = (value: string | number) => {
+          if (!multiple) {
+            field.onChange(isNumber ? Number(value) : value);
+            setOpen(false);
+            return;
+          }
+
+          const normalizedValue = isNumber ? Number(value) : value;
+
+          const exists = selectedValues.some(
+            (v) => String(v) === String(normalizedValue),
+          );
+
+          field.onChange(
+            exists
+              ? selectedValues.filter(
+                  (v) => String(v) !== String(normalizedValue),
+                )
+              : [...selectedValues, normalizedValue],
+          );
+        };
+
+        return (
+          <Field orientation={orientation} data-invalid={fieldState.invalid}>
+            <FieldContent className="flex-initial">
+              <FieldLabel className="capitalize">
+                {label}
+                {required && <Asterisk />}
+              </FieldLabel>
+              {desc && <FieldDescription>{desc}</FieldDescription>}
+              <FieldError errors={[fieldState.error]} />
+            </FieldContent>
+
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className={cn("justify-between py-5 min-w-30", className)}
+                >
+                  {multiple
+                    ? selectedValues.length > 0
+                      ? `${selectedValues.length} selected`
+                      : (placeholder ?? "Select...")
+                    : field.value
+                      ? (getDisplayValue?.(field.value, query?.data) ??
+                        options?.find(
+                          (opt) => String(opt.value) === String(field.value),
+                        )?.label ??
+                        "Selected")
+                      : (placeholder ?? "Select...")}
+                  <ChevronsUpDown className="opacity-50 ml-2 w-4 h-4 shrink-0" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0" align="start">
+                <Command shouldFilter={!query}>
+                  {searchable && (
+                    <CommandInput
+                      placeholder={searchPlaceholder ?? "Search..."}
+                      value={searchValue}
+                      onValueChange={setSearchValue}
+                    />
                   )}
+                  <CommandList>
+                    {/* --- Static Options --- */}
+                    {!query && (
+                      <>
+                        <CommandEmpty>No results found.</CommandEmpty>
+                        <CommandGroup>
+                          {options?.map((opt) => (
+                            <CommandItem
+                              key={opt.value}
+                              value={String(opt.label)}
+                              onSelect={() => toggleValue(opt.value)}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 w-4 h-4",
+                                  selectedValues.some(
+                                    (v) => String(v) === String(opt.value),
+                                  )
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              {opt.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </>
+                    )}
 
-                  {/* --- Dynamic Query --- */}
-                  {query && children && checkEmpty && (
-                    <QueryState
-                      query={query}
-                      checkEmpty={checkEmpty}
-                      variant="small"
+                    {/* --- Dynamic Query --- */}
+                    {query && children && checkEmpty && (
+                      <QueryState
+                        query={query}
+                        checkEmpty={checkEmpty}
+                        variant="small"
+                      >
+                        {(data) => children(data, setOpen)}
+                      </QueryState>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            {multiple && selectedValues.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedValues.map((value) => {
+                  // static options
+                  const staticOption = options?.find(
+                    (opt) => String(opt.value) === String(value),
+                  );
+
+                  // dynamic query results
+                  const dynamicOption = query?.data?.results?.find?.(
+                    (item: any) => String(item.id) === String(value),
+                  );
+
+                  const label =
+                    staticOption?.label ??
+                    (dynamicOption
+                      ? (getDisplayValue?.(dynamicOption.id, query?.data) ??
+                        dynamicOption.name ??
+                        dynamicOption.label)
+                      : value);
+
+                  return (
+                    <Badge
+                      key={String(value)}
+                      variant="secondary"
+                      className="capitalize"
                     >
-                      {(data) => children(data, setOpen)}
-                    </QueryState>
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </Field>
-      )}
+                      {label}
+                    </Badge>
+                  );
+                })}
+              </div>
+            )}
+          </Field>
+        );
+      }}
     />
   );
 };

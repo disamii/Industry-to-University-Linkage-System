@@ -99,6 +99,7 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
         return data
 
+
 class IndustrySerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
@@ -128,6 +129,7 @@ class IndustrySerializer(serializers.ModelSerializer):
     def get_contact_email(self, obj):
         return obj.contact_person.email
 
+
 class GenericActorField(serializers.Field):
 
     def to_representation(self, obj):
@@ -149,11 +151,13 @@ class GenericActorField(serializers.Field):
 
         return serializer_class(obj, context=self.context).data
 
+
 class RequestActionSerializer(serializers.ModelSerializer):
     possible_actions = serializers.SerializerMethodField()
     actor_from = GenericActorField()
     actor_to = GenericActorField()
-    resulted_object=GenericActorField()
+    resulted_object = GenericActorField()
+
     class Meta:
         model = RequestAction
         fields = [
@@ -167,9 +171,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "possible_actions",
             "created_at",
         ]
-        
-        
-        
+
     def get_possible_actions(self, obj):
         from .enums import ACTION_TRANSITIONS
         if not obj.awaiting_decision:
@@ -286,6 +288,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "supported_actions",
         ]
+
     def get_supported_actions(self, obj):
         user = self.context.get("user")
 
@@ -326,6 +329,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
 
         return valid_actions
 
+
 class RequestSerializer(serializers.ModelSerializer):
     academic_unit = OrganizationStructureListSerializer(read_only=True)
     latest_action = serializers.SerializerMethodField()
@@ -353,7 +357,6 @@ class RequestSerializer(serializers.ModelSerializer):
         return action.type if action else None
 
 
-
 class IndustryDetailSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
@@ -377,7 +380,7 @@ class IndustryDetailSerializer(serializers.ModelSerializer):
             "contact_person_phone_number",
             "contact_full_name",
             "contact_email",
-            "requests",   
+            "requests",
         ]
 
     def get_contact_full_name(self, obj):
@@ -490,6 +493,7 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 **validated_data
             )
 
+
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
     assigned_users = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
@@ -540,6 +544,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
 
+        return attrs
 
     def create(self, validated_data):
         request_obj = self.context.get("request_obj")
@@ -556,7 +561,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             assignment = Assignment.objects.filter(
                 request=request_obj,
                 assigned_users__in=assigned_users
-                ).first()
+            ).first()
 
             # -------------------------
             # UPDATE EXISTING ASSIGNMENT
@@ -603,12 +608,13 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 # attach M2M AFTER creation
                 if assigned_users:
                     assignment.assigned_users.set(assigned_users)
-    
+
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
                     awaiting_decision=True,
-                    resulted_content_type=ContentType.objects.get_for_model(Assignment),
+                    resulted_content_type=ContentType.objects.get_for_model(
+                        Assignment),
                     resulted_object_id=assignment.id,
                     **validated_data
                 )
@@ -768,7 +774,8 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
                     industry = user.industry_profile
                     from_info["object_id"] = industry.id
                 except (Industry.DoesNotExist, AttributeError):
-                    raise serializers.ValidationError("there is no associated industry with this user")
+                    raise serializers.ValidationError(
+                        "there is no associated industry with this user")
             if to_info['entity'] == RequestingEntity.INDUSTRY:
                 to_info["object_id"] = request_obj.industry.id
         # academic unit
@@ -800,9 +807,11 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
     assigned_users = UserSerializer(many=True, read_only=True)
+
     class Meta:
         model = Assignment
         fields = [
