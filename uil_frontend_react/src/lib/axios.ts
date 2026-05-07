@@ -1,5 +1,5 @@
 import env from "@/env";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/use-auth-store";
 import axios from "axios";
 
 const api = axios.create({

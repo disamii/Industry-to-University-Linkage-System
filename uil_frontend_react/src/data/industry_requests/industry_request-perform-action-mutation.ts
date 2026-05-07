@@ -1,8 +1,10 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { RequestResponse } from "@/types/interfaces.actions";
+import { ActionResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { assignmentKeys } from "../assignments/keys";
+import { postKeys } from "../posts/keys";
 import { industryRequestKeys } from "./industry/keys";
 import { industryRequestOfficeKeys } from "./office/keys";
 import { industryRequestOfficeUrls } from "./office/urls";
@@ -25,7 +27,7 @@ export const performAction = (data: Record<string, any>) => {
   if (!id) throw new Error("Please provide request id first");
 
   return safeApiRequest(
-    api.post<RequestResponse>(
+    api.post<ActionResponse>(
       industryRequestOfficeUrls.perform_action(Number(id)),
       formData,
       {
@@ -50,6 +52,12 @@ export const usePerformActionMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: industryRequestKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: assignmentKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: postKeys.all(),
       });
     },
     onError: (error: any) =>

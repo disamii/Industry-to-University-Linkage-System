@@ -1,5 +1,4 @@
-import { PostContentType, PostType } from "@/lib/enums";
-import { IndustryRequestDetailResponse } from "./interfaces.industry_requests";
+import { PostType } from "@/lib/enums";
 
 export type PostResponse = {
   id: number;
@@ -11,9 +10,9 @@ export type PostResponse = {
   expires_at?: string | null;
 };
 
-export type PostDetailResponse = PostResponse & {
-  content: string;
-  image?: string | null;
-  related_object: IndustryRequestDetailResponse;
-  content_type?: PostContentType | null;
-};
+// export type PostDetailResponse = PostResponse & {
+//   content: string;
+//   image?: string | null;
+//   related_object: IndustryRequestDetailResponse;
+//   content_type?: PostContentType | null;
+// };

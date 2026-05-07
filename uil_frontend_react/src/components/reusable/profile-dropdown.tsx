@@ -5,7 +5,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/use-auth-store";
 import { LogOut, Repeat, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ConfirmLogoutDialog from "./confirm-logout-dialog";
