@@ -29,7 +29,7 @@ import { ACTION_CONFIG } from "../utils.industry_request-actions";
 import {
   defaultIndustryRequestParams,
   IndustryRequestParams,
-} from "./use-industry_request-params";
+} from "../use-industry_request-params";
 
 type RowProps = {
   item: IndustryRequestMineResponse | IndustryRequestOfficeResponse;

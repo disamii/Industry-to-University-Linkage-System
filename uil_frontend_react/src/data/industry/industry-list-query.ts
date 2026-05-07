@@ -1,11 +1,10 @@
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
-import { IndustryParams, IndustryResponse } from "@/types/interfaces.industry";
+import { IndustryResponse } from "@/types/interfaces.industry";
 import { useQuery } from "@tanstack/react-query";
 import { industryKeys } from "./keys";
 import { industryUrls } from "./urls";
-
-export const defaultIndustryParams: IndustryParams = { search: "" };
+import { IndustryParams } from "@/features/dashboard/office/industry-management/use-industry-params";
 
 export const getIndustryList = createGetRequest<
   ApiPaginatedResponse<IndustryResponse>

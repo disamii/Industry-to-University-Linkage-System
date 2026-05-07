@@ -1,4 +1,4 @@
-import { IndustryParams } from "@/types/interfaces.industry";
+import { IndustryParams } from "@/features/dashboard/office/industry-management/use-industry-params";
 
 export const industryKeys = {
   all: () => ["industry"] as const,

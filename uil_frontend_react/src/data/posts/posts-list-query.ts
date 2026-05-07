@@ -4,7 +4,7 @@ import { ApiPaginatedResponse } from "@/types/interfaces";
 import { PostResponse } from "@/types/interfaces.posts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { postUrls } from "./urls";
-import { usePostParams } from "@/features/dashboard/office/posts/post-params";
+import { usePostParams } from "@/features/dashboard/office/posts/use-post-params";
 import { postKeys } from "./keys";
 
 export const getPostsList = createGetRequest<

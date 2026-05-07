@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { assignmentUrls } from "./urls";
 import { assignmentKeys } from "./keys";
 import { AssignmentResponse } from "@/types/interfaces.assignments";
-import { useAssignmentParams } from "@/features/dashboard/office/assignments/assignment-params";
+import { useAssignmentParams } from "@/features/dashboard/office/assignments/use-assignment-params";
 
 export const getAssignmentsList = createGetRequest<
   ApiPaginatedResponse<AssignmentResponse>

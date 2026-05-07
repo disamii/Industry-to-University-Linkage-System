@@ -16,10 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  defaultIndustryParams,
-  useGetIndustryList,
-} from "@/data/industry/industry-list-query";
+import { useGetIndustryList } from "@/data/industry/industry-list-query";
 import { usePerformActionMutation } from "@/data/industry_requests/industry_request-perform-action-mutation";
 import { defaultUserParams, useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
@@ -37,6 +34,7 @@ import {
 } from "./utils.industry_request-actions";
 import { Spinner } from "@/components/ui/spinner";
 import { Check } from "lucide-react";
+import { useIndustryParams } from "../office/industry-management/use-industry-params";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -47,9 +45,8 @@ const FormField = <T extends FieldValues>({
   field,
   form,
 }: FormFieldProps<T>) => {
-  const { params: industryParams, setParams: setIndustryParams } = useUrlParams(
-    defaultIndustryParams,
-  );
+  const { params: industryParams, setParams: setIndustryParams } =
+    useIndustryParams();
   const { params: userParams, setParams: setUserParams } =
     useUrlParams(defaultUserParams);
 

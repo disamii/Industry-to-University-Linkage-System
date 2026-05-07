@@ -14,7 +14,7 @@ import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { PostResponse } from "@/types/interfaces.posts";
 import { MoreVertical } from "lucide-react";
 import { useRef } from "react";
-import { usePostParams } from "./post-params";
+import { usePostParams } from "./use-post-params";
 
 type RowProps = {
   item: PostResponse;

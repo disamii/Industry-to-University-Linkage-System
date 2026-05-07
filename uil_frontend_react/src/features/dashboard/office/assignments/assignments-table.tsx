@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
 import { useRef } from "react";
-import { useAssignmentParams } from "./assignment-params";
+import { useAssignmentParams } from "./use-assignment-params";
 import { assignmentStatusColorMap } from "@/lib/mappings";
 
 type RowProps = {

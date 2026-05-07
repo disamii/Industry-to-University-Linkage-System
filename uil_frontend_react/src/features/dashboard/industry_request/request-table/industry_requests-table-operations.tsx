@@ -4,7 +4,7 @@ import { ActionType, IndustryRequestType, UserRole } from "@/lib/enums";
 import {
   defaultIndustryRequestParams,
   useIndustryRequestParams,
-} from "./use-industry_request-params";
+} from "../use-industry_request-params";
 import { Filter } from "lucide-react";
 import { SelectItem } from "@/components/ui/select";
 import { useGetIndustryList } from "@/data/industry/industry-list-query";
