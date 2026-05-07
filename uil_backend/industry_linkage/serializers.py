@@ -11,7 +11,7 @@ from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from .enums import ActionTypes, AssignmentStatus, RequestingEntity
+from .enums import ActionTypes, AssignmentStatus, RequestingEntity, get_assignment_supported_actions
 from .models import (
     Industry,
     Request,
@@ -150,7 +150,7 @@ class GenericActorField(serializers.Field):
         return serializer_class(obj, context=self.context).data
 
 class RequestActionSerializer(serializers.ModelSerializer):
-    possible_actions = serializers.SerializerMethodField()
+    supported_actions = serializers.SerializerMethodField()
     actor_from = GenericActorField()
     actor_to = GenericActorField()
     resulted_object = GenericActorField()
@@ -165,7 +165,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "actor_to",
             "resulted_object",
             "awaiting_decision",
-            "possible_actions",
+            "supported_actions",
             "created_at",
         ]
 
@@ -206,6 +206,7 @@ class RequestActionSerializer(serializers.ModelSerializer):
                         valid_actions.remove(ActionTypes.REVERTED)
 
         return valid_actions
+
 class RequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
@@ -290,7 +291,6 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
             )
         return request
-
 
 class RequestDetailSerializer(serializers.ModelSerializer):
     actions = RequestActionSerializer(many=True, read_only=True)
@@ -391,13 +391,10 @@ class RequestSerializer(serializers.ModelSerializer):
         action = obj.actions.order_by("-created_at").first()
         return action.type if action else None
 
-
-
 class IndustryDetailSerializer(serializers.ModelSerializer):
     contact_full_name = serializers.SerializerMethodField()
     contact_email = serializers.SerializerMethodField()
 
-    # 👇 nested requests
     requests = RequestSerializer(many=True, read_only=True)
 
     class Meta:
@@ -858,6 +855,7 @@ class AssignmentListSerializer(serializers.ModelSerializer):
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
     request = RequestDetailSerializer(read_only=True)
+    supported_actions = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -866,11 +864,14 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
             "request",
             "assigned_users",
             "industry_mentor",
+            "supported_actions",
             "start_date",
             "end_date",
             "status",
         ]
 
+    def get_supported_actions(self, obj):
+        return get_assignment_supported_actions(obj.status)
 
 class LatestActionSerializer(serializers.ModelSerializer):
     class Meta:
