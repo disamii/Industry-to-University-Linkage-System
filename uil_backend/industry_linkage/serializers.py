@@ -716,6 +716,7 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         validated_data['request'] = request_obj
 
         return RequestAction.objects.create(
+            awaiting_decision=True,
             created_by_id=user.id,
             updated_by_id=user.id,
             **validated_data
