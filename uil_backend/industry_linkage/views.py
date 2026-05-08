@@ -365,7 +365,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="by-user/(?P<user_id>[^/.]+)")
     def by_user(self, request, user_id=None):
         qs = self.queryset.filter(assigned_users__id=user_id).distinct()
-
+        qs = self.filter_queryset(qs)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -380,12 +380,25 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="by-request/(?P<request_id>[^/.]+)")
     def by_request(self, request, request_id=None):
         qs = self.queryset.filter(request_id=request_id)
+
+        qs = self.filter_queryset(qs)
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
+
 
     @action(detail=False, methods=["get"], url_path="by-industry/(?P<industry_id>[^/.]+)")
     def by_industry(self, request, industry_id=None):
         qs = self.queryset.filter(request__industry_id=industry_id)
+  
+        qs = self.filter_queryset(qs)
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
