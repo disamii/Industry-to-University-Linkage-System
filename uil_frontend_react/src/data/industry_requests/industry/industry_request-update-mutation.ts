@@ -1,10 +1,10 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { IndustryRequestResponse } from "@/types/interfaces.industry_requests";
+import { IndustryRequestResponse } from "@/types/interfaces.requests";
 import {
   IndustryRequestUpdateInput,
   industryRequestUpdateSchema,
-} from "@/validation/validation.industry_requests";
+} from "@/validation/validation.requests";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";

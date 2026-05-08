@@ -3,7 +3,7 @@ import { IndustryRequestType } from "@/lib/enums";
 import { z } from "zod";
 
 // --- Base Schema ---
-export const industryRequestBaseSchema = z.object({
+const RequestBaseSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
   academic_unit: z.number().int().positive("Invalid organizational unit ID"),
   description: z.string().min(1, "Description is required"),
@@ -19,10 +19,10 @@ export const industryRequestBaseSchema = z.object({
     .nullable(),
 });
 
-export type IndustryRequestBase = z.infer<typeof industryRequestBaseSchema>;
+export type RequestBase = z.infer<typeof RequestBaseSchema>;
 
 // --- Create Schema ---
-export const industryRequestCreateSchema = industryRequestBaseSchema.extend({});
+export const industryRequestCreateSchema = RequestBaseSchema.extend({});
 
 export type IndustryRequestCreateInput = z.infer<
   typeof industryRequestCreateSchema

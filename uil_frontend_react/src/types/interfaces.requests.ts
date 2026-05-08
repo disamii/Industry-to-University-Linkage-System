@@ -1,22 +1,22 @@
 import { ActionType, Entity } from "@/lib/enums";
-import { IndustryRequestBase } from "@/validation/validation.industry_requests";
+import { RequestBase } from "@/validation/validation.requests";
 import { Metadata } from "./interfaces";
 import { RequestAction } from "./interfaces.actions";
 import { IndustryResponse } from "./interfaces.industry";
 import { OrgUnitResponse } from "./interfaces.org_units";
 
-export type IndustryRequestStats = {
+export type RequestStats = {
   total_requests: number;
   initiated_requests: number;
   assigned_requests: number;
   completed_requests: number;
 };
 
-export type IndustryRequestResponse = Omit<IndustryRequestBase, "attachment"> &
+export type RequestResponse = Omit<RequestBase, "attachment"> &
   Metadata & { id: number; attachment: string | null };
 
-export type IndustryRequestMineResponse = Omit<
-  IndustryRequestResponse,
+export type MyRequestResponse = Omit<
+  RequestResponse,
   "academic_unit" | "extra_data"
 > & {
   industry: number;
@@ -24,15 +24,12 @@ export type IndustryRequestMineResponse = Omit<
   latest_action: ActionType;
 };
 
-export type IndustryRequestOfficeResponse = Omit<
-  IndustryRequestMineResponse,
-  "industry"
-> & {
+export type OfficeRequestResponse = Omit<MyRequestResponse, "industry"> & {
   industry: IndustryResponse;
 };
 
-export type IndustryRequestDetailResponse = Omit<
-  IndustryRequestResponse,
+export type RequestDetailResponse = Omit<
+  RequestResponse,
   "academic_unit" | "extra_data" | "industry"
 > & {
   industry: IndustryResponse;
@@ -42,6 +39,3 @@ export type IndustryRequestDetailResponse = Omit<
   academic_unit: OrgUnitResponse;
   supported_actions: ActionType[];
 };
-
-export type IndustryRequestDetailOfficeResponse =
-  IndustryRequestDetailResponse & {};

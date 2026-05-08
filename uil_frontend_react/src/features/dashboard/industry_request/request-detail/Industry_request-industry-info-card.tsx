@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
+import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { Building2 } from "lucide-react";
 
 type Props = {
-  industry: IndustryRequestDetailResponse["industry"];
+  industry: RequestDetailResponse["industry"];
 };
 
 const IndustryInfoCard = ({ industry }: Props) => {

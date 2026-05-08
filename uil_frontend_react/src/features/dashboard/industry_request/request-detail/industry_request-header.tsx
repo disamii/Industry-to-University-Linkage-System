@@ -4,10 +4,10 @@ import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.indus
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { UserRole } from "@/lib/enums";
 import { cn, formatDate, formatType } from "@/lib/utils";
-import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
+import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { Building2, Calendar } from "lucide-react";
 
-type Props = IndustryRequestDetailResponse & {};
+type Props = RequestDetailResponse & {};
 
 const IndustryRequestHeader = ({
   id,

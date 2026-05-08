@@ -16,7 +16,7 @@ const tabs = [
   },
 ];
 
-const RequestsOfficePage = () => {
+const OfficeRequestsPage = () => {
   return (
     <div className="space-y-6">
       <AdmninTabs defaultValue="incoming" tabs={tabs}>
@@ -27,4 +27,4 @@ const RequestsOfficePage = () => {
   );
 };
 
-export default RequestsOfficePage;
+export default OfficeRequestsPage;

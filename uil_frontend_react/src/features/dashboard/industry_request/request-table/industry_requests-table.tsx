@@ -13,23 +13,23 @@ import { UserRole } from "@/lib/enums";
 import { cn, formatDate, formatType, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import {
-  IndustryRequestMineResponse,
-  IndustryRequestOfficeResponse,
-  IndustryRequestStats,
-} from "@/types/interfaces.industry_requests";
+  MyRequestResponse,
+  OfficeRequestResponse,
+  RequestStats,
+} from "@/types/interfaces.requests";
 import { useRef } from "react";
-import { useIndustryRequestParams } from "../../../../data/industry_requests/use-industry_request-params";
+import { useRequestParams } from "../../../../data/industry_requests/use-request-params";
 import IndustryRequestActions from "../industry_request-actions";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
 
 type RowProps = {
-  item: IndustryRequestMineResponse | IndustryRequestOfficeResponse;
+  item: MyRequestResponse | OfficeRequestResponse;
   index: number;
   isOffice: boolean;
 };
 
 const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
-  const { params } = useIndustryRequestParams();
+  const { params } = useRequestParams();
 
   const currentPage = params.page;
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
@@ -42,7 +42,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
       {isOffice && (
         <TableCell>
           <h4 className="font-bold">
-            {(item as IndustryRequestOfficeResponse).industry.name}
+            {(item as OfficeRequestResponse).industry.name}
           </h4>
         </TableCell>
       )}
@@ -111,9 +111,9 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
 
 type TableProps = {
   data: ApiPaginatedResponse<
-    IndustryRequestMineResponse | IndustryRequestOfficeResponse,
+    MyRequestResponse | OfficeRequestResponse,
     undefined,
-    IndustryRequestStats
+    RequestStats
   >;
 };
 

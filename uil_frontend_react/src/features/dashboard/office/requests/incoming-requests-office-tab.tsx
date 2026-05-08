@@ -1,7 +1,7 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { TabsContent } from "@/components/ui/tabs";
-import { useGetIndustryRequestOfficeList } from "@/data/industry_requests/office/industry_requests-office-list-query";
+import { useGetIndustryRequestOfficeList } from "@/data/industry_requests/office/office_requests-list-query";
 import IndustryRequestsStat from "@/features/dashboard/industry_request/request-table/industry_requests-stat";
 import IndustryRequestsTable from "@/features/dashboard/industry_request/request-table/industry_requests-table";
 import IndustryRequestsTableOperations from "@/features/dashboard/industry_request/request-table/industry_requests-table-operations";

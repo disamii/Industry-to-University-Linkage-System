@@ -1,6 +1,6 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { formatType } from "@/lib/utils";
+import { formatType, toFormData } from "@/lib/utils";
 import { ActionResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -11,7 +11,7 @@ import { industryRequestOfficeKeys } from "./office/keys";
 import { industryRequestOfficeUrls } from "./office/urls";
 
 export const performAction = (data: Record<string, any>) => {
-  const formData = new FormData();
+  const formData = toFormData(data);
 
   Object.entries(data).forEach(([key, value]) => {
     if (key === "assigned_users" && Array.isArray(value)) {

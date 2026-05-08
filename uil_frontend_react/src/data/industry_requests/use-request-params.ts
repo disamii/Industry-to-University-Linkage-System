@@ -4,7 +4,7 @@ import { ActionType, IndustryRequestType } from "@/lib/enums";
 import { PaginationParams, Sortable } from "@/types/interfaces";
 import { useMemo } from "react";
 
-export type IndustryRequestParams = PaginationParams & {
+export type RequestParams = PaginationParams & {
   search: string;
   type?: IndustryRequestType;
   academic_unit?: number;
@@ -13,15 +13,15 @@ export type IndustryRequestParams = PaginationParams & {
   industry?: number;
 };
 
-export const defaultIndustryRequestParams: IndustryRequestParams = {
+export const defaultRequestParams: RequestParams = {
   ...defaultPaginationParams,
   search: "",
   ordering: "-created_at",
 };
 
-const useIndustryRequestParams = () => {
+const useRequestParams = () => {
   const { getParam, setParams, removeParams, clearAllParams } =
-    useUrlParams<IndustryRequestParams>(defaultIndustryRequestParams);
+    useUrlParams<RequestParams>(defaultRequestParams);
 
   // Pagination
   const page = getParam("page");
@@ -37,7 +37,7 @@ const useIndustryRequestParams = () => {
   const actions__type = getParam("actions__type");
   const industry = getParam("industry");
 
-  const params: IndustryRequestParams = useMemo(
+  const params: RequestParams = useMemo(
     () => ({
       page,
       page_size,
@@ -63,4 +63,4 @@ const useIndustryRequestParams = () => {
   return { params, setParams, removeParams, clearAllParams };
 };
 
-export { useIndustryRequestParams };
+export { useRequestParams };

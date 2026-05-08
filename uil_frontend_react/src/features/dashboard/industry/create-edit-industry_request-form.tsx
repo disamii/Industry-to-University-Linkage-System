@@ -12,21 +12,21 @@ import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/indus
 import { IndustryRequestType } from "@/lib/enums";
 import { INDUSTRY_REQUEST_HINTS, RequestHint } from "@/lib/mappings";
 import { formatSelectOptions } from "@/lib/utils";
-import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
+import { RequestDetailResponse } from "@/types/interfaces.requests";
 import {
   IndustryRequestCreateInput,
   industryRequestCreateSchema,
   industryRequestDefaultValues,
   IndustryRequestUpdateInput,
   industryRequestUpdateSchema,
-} from "@/validation/validation.industry_requests";
+} from "@/validation/validation.requests";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  requestToEdit?: IndustryRequestDetailResponse;
+  requestToEdit?: RequestDetailResponse;
 };
 
 const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {

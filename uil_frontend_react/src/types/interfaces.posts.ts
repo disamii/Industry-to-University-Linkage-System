@@ -13,6 +13,6 @@ export type PostResponse = {
 // export type PostDetailResponse = PostResponse & {
 //   content: string;
 //   image?: string | null;
-//   related_object: IndustryRequestDetailResponse;
+//   related_object: RequestDetailResponse;
 //   content_type?: PostContentType | null;
 // };

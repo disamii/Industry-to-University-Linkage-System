@@ -6,13 +6,13 @@ import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { ActionType, IndustryRequestType, UserRole } from "@/lib/enums";
 import { Filter } from "lucide-react";
 import {
-  defaultIndustryRequestParams,
-  useIndustryRequestParams,
-} from "../../../../data/industry_requests/use-industry_request-params";
+  defaultRequestParams,
+  useRequestParams,
+} from "../../../../data/industry_requests/use-request-params";
 
 const IndustryRequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
-    useIndustryRequestParams();
+    useRequestParams();
   const industriesQuery = useGetIndustryList();
 
   const currentRole = useGetRoleByPath();
@@ -27,7 +27,7 @@ const IndustryRequestsTableOperations = () => {
     >
       <TableFilters.Group>
         <TableFilters.Sort
-          defaultValue={defaultIndustryRequestParams.ordering}
+          defaultValue={defaultRequestParams.ordering}
           options={[
             { label: "Date", value: "created_at" },
             { label: "Title", value: "title" },
@@ -96,7 +96,7 @@ const IndustryRequestsTableOperations = () => {
           academic_unit: "Academic Unit",
           industry: "Industry",
         }}
-        defaults={defaultIndustryRequestParams}
+        defaults={defaultRequestParams}
       />
     </TableFilters.Root>
   );

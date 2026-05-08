@@ -1,6 +1,6 @@
 import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
-import { useGetIndustryRequestOfficeDetail } from "@/data/industry_requests/office/industry_request-detail-query";
+import { useGetOfficeRequestDetail } from "@/data/industry_requests/office/office_request-detail-query";
 import ActionTimeline from "@/features/dashboard/industry_request/request-detail/action-timeline";
 import IndustryRequestHeader from "@/features/dashboard/industry_request/request-detail/industry_request-header";
 import IndustryInfoCard from "@/features/dashboard/industry_request/request-detail/Industry_request-industry-info-card";
@@ -8,9 +8,9 @@ import RequestDetailCard from "@/features/dashboard/industry_request/request-det
 import OrgUnitCard from "@/features/dashboard/industry_request/request-detail/org_unit-card";
 import { useParams } from "react-router-dom";
 
-const IndustryRequestDetailOfficePage = () => {
+const OfficeRequestDetailPage = () => {
   const { id } = useParams();
-  const query = useGetIndustryRequestOfficeDetail(Number(id));
+  const query = useGetOfficeRequestDetail(Number(id));
 
   return (
     <QueryState query={query} checkEmpty={(data) => !data} variant="page">
@@ -37,4 +37,4 @@ const IndustryRequestDetailOfficePage = () => {
   );
 };
 
-export default IndustryRequestDetailOfficePage;
+export default OfficeRequestDetailPage;

@@ -2,10 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import AttachmentView from "@/features/dashboard/industry_request/request-detail/attachment-view";
 import { formatType } from "@/lib/utils";
-import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
+import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { Info } from "lucide-react";
 
-type Props = IndustryRequestDetailResponse & {};
+type Props = RequestDetailResponse & {};
 
 const RequestDetailCard = ({
   description,

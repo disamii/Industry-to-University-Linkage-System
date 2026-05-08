@@ -1,8 +1,8 @@
-import { IndustryRequestParams } from "@/data/industry_requests/use-industry_request-params";
+import { RequestParams } from "@/data/industry_requests/use-request-params";
 
 export const industryRequestOfficeKeys = {
   all: () => ["industry_request", "office"] as const,
-  list: (params?: IndustryRequestParams) =>
+  list: (params?: RequestParams) =>
     [...industryRequestOfficeKeys.all(), "list", params] as const,
   detail: (id: number) =>
     [...industryRequestOfficeKeys.all(), "detail", id] as const,
