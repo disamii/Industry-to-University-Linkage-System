@@ -1,13 +1,13 @@
-from .models import Request, RequestAction
 from django.db.models import OuterRef, Subquery, Count, Q
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from django.db.models import Count, Q
 from django.utils.timezone import now
 
-from authorization.utilis import get_parent_scope
-from organizational_structure.models import OrganizationalUnit
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
+from organizational_structure.models import OrganizationalUnit
+from .enums import AssignmentStatus
+from .models import Request, RequestAction
+from authorization.utilis import get_parent_scope
 
 class IndustryPagination(PageNumberPagination):
     page_size = 100
@@ -78,46 +78,32 @@ class RequestForIndustryPagination(PageNumberPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
         self.base_queryset = queryset
-
         latest_action = RequestAction.objects.filter(
             request=OuterRef("pk")
         ).order_by("-created_at")
-
         queryset = queryset.annotate(
             last_action=Subquery(latest_action.values("type")[:1])
         )
-
         return super().paginate_queryset(queryset, request, view)
 
     def get_paginated_response(self, data):
-        from django.db.models import OuterRef, Subquery, Count, Q
-        from django.utils.timezone import now
-
         qs = self.base_queryset
-        current_year = now().year
-
-        # 🔥 RE-ANNOTATE HERE (CRITICAL FIX)
         latest_action = RequestAction.objects.filter(
             request=OuterRef("pk")
         ).order_by("-created_at")
-
         qs = qs.annotate(
             last_action=Subquery(latest_action.values("type")[:1])
         )
-
         stats = qs.aggregate(
             total_requests=Count("id"),
-
             initiated_requests=Count(
                 "id",
                 filter=Q(last_action="initiated")
             ),
-
             assigned_requests=Count(
                 "id",
                 filter=Q(last_action="assigned")
             ),
-
             completed_requests=Count(
                 "id",
                 filter=Q(last_action="completed")
@@ -154,39 +140,29 @@ class RequestPagination(PageNumberPagination):
         return super().paginate_queryset(queryset, request, view)
 
     def get_paginated_response(self, data):
-        current_year = now().year
-
         qs = self.base_queryset
-
         latest_action = RequestAction.objects.filter(
             request=OuterRef("pk")
         ).order_by("-created_at")
-
         qs = qs.annotate(
             last_action=Subquery(latest_action.values("type")[:1])
         )
-
         stats = qs.aggregate(
             total_requests=Count("id"),
-
             initiated_requests=Count(
                 "id",
                 filter=Q(last_action="initiated")
             ),
-
             assigned_requests=Count(
                 "id",
                 filter=Q(last_action="assigned")
             ),
-
             completed_requests=Count(
                 "id",
                 filter=Q(last_action="completed")
             ),
         )
-
         response = {}
-
         if self.scope:
             response["scope"] = {
                 "academic_units": [
@@ -194,10 +170,8 @@ class RequestPagination(PageNumberPagination):
                     for u in self.scope
                 ]
             }
-
         response.update({
             "stats": stats,
-
             "pagination": {
                 "links": {
                     "next": self.get_next_link(),
@@ -211,5 +185,45 @@ class RequestPagination(PageNumberPagination):
 
             "results": data,
         })
+
+        return Response(response)
+
+
+
+class AssignmentPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+
+    def paginate_queryset(self, queryset, request, view=None):
+        self.base_queryset = queryset
+        return super().paginate_queryset(queryset, request, view)
+
+    def get_paginated_response(self, data):
+        qs = self.base_queryset
+
+        # Base stats
+        stats = {
+            "total_assignments": qs.count()
+        }
+
+        # Dynamic enum-based stats
+        for status_value, _label in AssignmentStatus.choices:
+            key = f"{status_value}"
+            stats[key] = qs.filter(status=status_value).count()
+
+        response = {
+            "stats": stats,
+            "pagination": {
+                "links": {
+                    "next": self.get_next_link(),
+                    "previous": self.get_previous_link(),
+                },
+                "total": self.page.paginator.count,
+                "page_size": self.get_page_size(self.request),
+                "current_page": self.page.number,
+                "total_pages": self.page.paginator.num_pages,
+            },
+            "results": data,
+        }
 
         return Response(response)

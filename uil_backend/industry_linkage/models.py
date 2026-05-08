@@ -149,3 +149,4 @@ class Assignment(AuditMixin, models.Model):
         choices=AssignmentStatus.choices,
         default=AssignmentStatus.PENDING,
     )
+

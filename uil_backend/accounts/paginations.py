@@ -1,13 +1,11 @@
 from urllib import response
 
-from rest_framework.pagination import PageNumberPagination
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Q
 # pagination.py
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
+
 
 from authorization.utilis import get_parent_scope
 from organizational_structure.models import OrganizationalUnit
@@ -29,9 +27,7 @@ class UserPagination(PageNumberPagination):
         if user and user.is_authenticated and not parent_scope:
             if user.is_superuser:
                 parent_scope = OrganizationalUnit.objects.filter(parent__isnull=True)
-            elif perms:# The `year` attribute in the code snippet is being used to filter the
-            # queryset based on the year component of the `created_at` field.
-            
+            elif perms:
                 parent_scope = get_parent_scope(user, perms)
         response = {}
         
