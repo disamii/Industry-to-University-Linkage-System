@@ -20,7 +20,8 @@ export type ImplicitActionFormFields =
   | "id"
   | "type"
   | "from_entity"
-  | "to_entity";
+  | "to_entity"
+  | "actionToPerform"; // to alter/create action
 
 export type ExplicitActionFormFields =
   | "description"

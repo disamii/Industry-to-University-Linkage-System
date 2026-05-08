@@ -2,7 +2,7 @@ import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetOfficeRequestDetail } from "@/data/industry_requests/office/office_request-detail-query";
 import ActionTimeline from "@/features/dashboard/industry_request/request-detail/action-timeline";
-import IndustryRequestHeader from "@/features/dashboard/industry_request/request-detail/industry_request-header";
+import RequestHeader from "@/features/dashboard/industry_request/request-detail/industry_request-header";
 import IndustryInfoCard from "@/features/dashboard/industry_request/request-detail/Industry_request-industry-info-card";
 import RequestDetailCard from "@/features/dashboard/industry_request/request-detail/Industry_request-request-detail-card";
 import OrgUnitCard from "@/features/dashboard/industry_request/request-detail/org_unit-card";
@@ -20,7 +20,7 @@ const OfficeRequestDetailPage = () => {
             <BackButton />
 
             <div className="items-start gap-6 grid grid-cols-[1fr_30rem]">
-              <IndustryRequestHeader {...data} />
+              <RequestHeader {...data} />
 
               <div className="space-y-6">
                 <RequestDetailCard {...data} />
@@ -28,7 +28,14 @@ const OfficeRequestDetailPage = () => {
                 <OrgUnitCard academic_unit={data.academic_unit} />
               </div>
 
-              <ActionTimeline actions={data.actions} />
+              <ActionTimeline
+                actions={data.actions}
+                request={{
+                  id: data.id,
+                  title: data.title,
+                  description: data.description,
+                }}
+              />
             </div>
           </div>
         );

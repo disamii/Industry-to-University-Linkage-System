@@ -190,6 +190,7 @@ type PerformActionDialogProps = {
   onOpenChange: (open: boolean) => void;
   from_entity?: Entity;
   to_entity?: Entity;
+  actionToPerform?: "alter" | "create";
 };
 
 const PerformActionFormDialog = ({
@@ -199,6 +200,7 @@ const PerformActionFormDialog = ({
   onOpenChange,
   from_entity,
   to_entity,
+  actionToPerform = "create",
 }: PerformActionDialogProps) => {
   const config = actionType ? ACTION_CONFIG[actionType] : null;
   const form = useDynamicForm(config?.formFields || []);
@@ -210,6 +212,7 @@ const PerformActionFormDialog = ({
       ...data,
       type: actionType,
       id: request.id,
+      actionToPerform,
     };
 
     if (actionType === ActionType.REPLIED && from_entity && to_entity)

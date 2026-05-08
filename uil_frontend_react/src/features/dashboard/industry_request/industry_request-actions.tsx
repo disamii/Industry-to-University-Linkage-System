@@ -35,6 +35,8 @@ type Props = {
   description: string;
   variant?: "table" | "detail";
   supported_actions?: ActionType[];
+  showViewDetails?: boolean;
+  actionToPerform?: "alter" | "create";
 };
 
 const IndustryRequestActions = ({
@@ -43,6 +45,8 @@ const IndustryRequestActions = ({
   description,
   variant = "table",
   supported_actions,
+  showViewDetails = true,
+  actionToPerform,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
     useIndustryRequestDeleteMutation();
@@ -87,8 +91,8 @@ const IndustryRequestActions = ({
           ) : null}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className={cn(isTable && "w-42")}>
-          {isTable && (
+        <DropdownMenuContent align="end" className={cn(isTable && "w-45")}>
+          {isTable && showViewDetails && (
             <DropdownMenuItem onClick={() => navigate(`${id}`)}>
               <Eye className="mr-2 w-4 h-4" />
               View Details
@@ -153,6 +157,7 @@ const IndustryRequestActions = ({
         onOpenChange={setActionDialogOpen}
         from_entity={currentEntity?.from}
         to_entity={currentEntity?.to}
+        actionToPerform={actionToPerform}
       />
 
       <ConfirmDelete

@@ -17,6 +17,7 @@ export type RequestAction = Metadata & {
   actor_to: ActionActor | null; // forwarded // replied
   resulted_object: ActionResultedObject | null; // post, assignment
   awaiting_decision: boolean;
+  supported_actions: ActionType[];
 };
 
 export type ActionResponse = {
