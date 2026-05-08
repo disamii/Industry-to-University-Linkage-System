@@ -9,6 +9,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
 
+import UsersAvatarPopover from "@/components/reusable/users-avatar-popver";
 import { cn, formatDate, formatType, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { AssignmentResponse } from "@/types/interfaces.assignments";
@@ -45,57 +46,7 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
         </Badge>
       </TableCell>
       <TableCell>
-        {item.assigned_users?.length ? (
-          <div className="flex items-center">
-            {item.assigned_users.slice(0, 2).map((user, index) => (
-              <div
-                key={user.id}
-                className={cn(
-                  "flex justify-center items-center bg-muted border rounded-full w-7 h-7 font-medium text-xs",
-                  index !== 0 && "-ml-2",
-                )}
-              >
-                {user.first_name[0]}
-                {user.father_name[0]}
-              </div>
-            ))}
-
-            {item.assigned_users.length > 2 && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="flex justify-center items-center bg-background hover:bg-muted -ml-2 border rounded-full w-7 h-7 font-medium text-xs">
-                    +{item.assigned_users.length - 2}
-                  </button>
-                </PopoverTrigger>
-
-                <PopoverContent className="w-64">
-                  <div className="flex flex-col gap-2">
-                    {item.assigned_users.map((user) => (
-                      <div key={user.id} className="flex items-center gap-2">
-                        <div className="flex justify-center items-center bg-muted rounded-full w-8 h-8 font-medium text-xs">
-                          {user.first_name[0]}
-                          {user.father_name[0]}
-                        </div>
-
-                        <div className="flex flex-col">
-                          <p className="font-medium text-sm">
-                            {user.first_name} {user.father_name}
-                          </p>
-
-                          <p className="text-muted-foreground text-xs">
-                            {user.email}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
-        ) : (
-          <span className="text-muted-foreground text-xs">No users</span>
-        )}
+        <UsersAvatarPopover users={item.assigned_users} />
       </TableCell>
       <TableCell>
         <div className="flex flex-col">
@@ -139,7 +90,7 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
         </Badge>
       </TableCell>
       <TableCell>
-        <p className="text-muted-foreground text-xs">
+        <p className="max-w-35 text-muted-foreground text-xs whitespace-normal">
           {`${formatDate(item.start_date)} - ${formatDate(item.end_date)}`}
         </p>
       </TableCell>

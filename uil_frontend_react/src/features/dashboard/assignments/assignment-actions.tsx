@@ -184,6 +184,11 @@ const AssignmentActions = ({
         }
         assignment_id={assignment_id}
         status={statusDialog.status}
+        request={{
+          title: request_title,
+          desc: request_description,
+          assigned_users,
+        }}
       />
     </>
   );

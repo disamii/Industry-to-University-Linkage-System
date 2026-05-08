@@ -1,3 +1,5 @@
+import UsersAvatarPopover from "@/components/reusable/users-avatar-popver";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,19 +8,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useManageAssignmentStatusMutation } from "@/data/assignments/manage-assignment-status-mutation";
 import { AssignmentStatus } from "@/lib/enums";
 import { cn } from "@/lib/utils";
+import { UserProfile } from "@/types/interfaces.user";
 import { Loader2 } from "lucide-react";
 import { getAssignmentStatusConfig } from "./utils.assignments";
-import { useManageAssignmentStatusMutation } from "@/data/assignments/manage-assignment-status-mutation";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   assignment_id: number;
   status: AssignmentStatus | null;
-  current_status?: AssignmentStatus;
+  request: { title: string; desc: string; assigned_users: UserProfile[] };
 };
 
 const ChangeAssignmentStatusDialog = ({
@@ -26,16 +29,13 @@ const ChangeAssignmentStatusDialog = ({
   onOpenChange,
   assignment_id,
   status,
-  current_status,
+  request,
 }: Props) => {
   const mutation = useManageAssignmentStatusMutation();
 
   if (!status) return null;
 
-  const next = getAssignmentStatusConfig(status);
-  const current = current_status
-    ? getAssignmentStatusConfig(current_status)
-    : null;
+  const { Icon, color, label } = getAssignmentStatusConfig(status);
 
   const handleConfirm = async () => {
     await mutation.mutateAsync({
@@ -50,36 +50,45 @@ const ChangeAssignmentStatusDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-semibold text-base">
-            <next.Icon className={cn("w-5 h-5", next.color)} />
+          <DialogTitle className="flex items-center gap-2 font-bold text-lg">
             Confirm Status Change
           </DialogTitle>
 
-          <DialogDescription className="space-y-2 pt-2">
-            <p>You are about to change the assignment status:</p>
+          <DialogDescription className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <p>You are about to change the assignment status for:</p>
 
-            <div className="flex items-center gap-2 text-sm">
-              {current && (
-                <span className={cn("font-medium", current.color)}>
-                  {current.label}
-                </span>
-              )}
+              {/* Request Context Box */}
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <h4 className="font-semibold text-foreground text-sm truncate">
+                  {request.title}
+                </h4>
+                <p className="mt-1 overflow-hidden text-muted-foreground text-xs">
+                  {request.desc}
+                </p>
 
-              <span className="text-muted-foreground">→</span>
+                <Separator className="my-2" />
 
-              <span className={cn("font-semibold", next.color)}>
-                {next.label}
-              </span>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs">Assigned Users:</p>
+
+                  {/* Assigned Users Avatars/List */}
+                  <UsersAvatarPopover
+                    users={request.assigned_users}
+                    maxVisible={4}
+                  />
+                </div>
+              </div>
             </div>
 
-            <p className="text-muted-foreground text-xs">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
               This action will update all related records and may affect
               visibility and workflow.
             </p>
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 pt-4">
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
@@ -91,17 +100,17 @@ const ChangeAssignmentStatusDialog = ({
           <Button
             onClick={handleConfirm}
             disabled={mutation.isPending}
-            className={cn(next.color, "hover:brightness-95 transition-all")}
+            className={cn(color, "hover:brightness-95 transition-all")}
           >
             {mutation.isPending ? (
               <>
-                <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Updating...
               </>
             ) : (
               <>
-                <next.Icon className="w-4 h-4" />
-                Confirm Change
+                <Icon className="w-4 h-4" />
+                {label}
               </>
             )}
           </Button>

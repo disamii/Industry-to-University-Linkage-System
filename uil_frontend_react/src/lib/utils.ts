@@ -136,20 +136,24 @@ export const getNameInitials = (name: string) =>
     .join("")
     .toUpperCase();
 
-export const getFullName = (user: {
-  first_name?: string | null;
-  father_name?: string | null;
-  grand_father_name?: string | null;
-  email?: string;
-}) => {
+export const getFullName = (
+  user: {
+    first_name?: string | null;
+    father_name?: string | null;
+    grand_father_name?: string | null;
+    email?: string;
+  },
+  level?: 1 | 2 | 3, // 3 = full, 2 = first+father, 1 = father+grand
+) => {
   const { first_name, father_name, grand_father_name, email } = user;
 
-  // Build the name string
-  const fullName = [first_name, father_name, grand_father_name]
-    .filter(Boolean)
-    .join(" ");
+  const parts = [first_name, father_name, grand_father_name];
 
-  // Return name, or fallback to email, or fallback to default
+  // Decide how many parts to include based on level
+  const slicedParts = level ? parts.slice(0, level) : parts;
+
+  const fullName = slicedParts.filter(Boolean).join(" ");
+
   return fullName.length > 0 ? fullName : (email ?? "Unknown");
 };
 
