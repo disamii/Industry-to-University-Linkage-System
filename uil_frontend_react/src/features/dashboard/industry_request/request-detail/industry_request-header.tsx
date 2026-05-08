@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import IndustryRequestActions from "@/features/dashboard/industry_request/industry_request-actions";
 import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.industry_request-actions";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { UserRole } from "@/lib/enums";
-import { cn, formatDate, getRoleByPath } from "@/lib/utils";
+import { cn, formatDate, formatType } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import { Building2, Calendar } from "lucide-react";
-import { useLocation } from "react-router-dom";
 
 type Props = IndustryRequestDetailResponse & {};
 
@@ -21,11 +21,12 @@ const IndustryRequestHeader = ({
   supported_actions,
 }: Props) => {
   const latestAction = actions[0];
-  const { pathname } = useLocation();
-  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
+
+  const currentRole = useGetRoleByPath();
+  const isOffice = currentRole === UserRole.ADMIN;
 
   return (
-    <div className="flex justify-between items-start col-span-full">
+    <header className="flex justify-between items-start col-span-full">
       <div className="flex-1 space-y-2">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
@@ -55,7 +56,7 @@ const IndustryRequestHeader = ({
           <Badge
             className={cn(ACTION_CONFIG[latestAction.type].color, "capitalize")}
           >
-            {latestAction.type}
+            {formatType(latestAction.type)}
           </Badge>
         </div>
       </div>
@@ -68,7 +69,7 @@ const IndustryRequestHeader = ({
         variant="detail"
         supported_actions={supported_actions}
       />
-    </div>
+    </header>
   );
 };
 

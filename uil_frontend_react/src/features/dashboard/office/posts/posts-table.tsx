@@ -9,7 +9,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
 import { colorVariants } from "@/lib/mappings";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, formatType } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { PostResponse } from "@/types/interfaces.posts";
 import { MoreVertical } from "lucide-react";
@@ -38,7 +38,7 @@ const PostTableRow = ({ item, index }: RowProps) => {
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className="capitalize">
-          {item.post_type.split("_").join(" ")}
+          {formatType(item.post_type)}
         </Badge>
       </TableCell>
       <TableCell>

@@ -6,9 +6,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSidebar } from "@/contexts/sidebar-context";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { LINKS } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";
-import { getRoleByPath } from "@/lib/utils";
 import {
   Building2,
   CheckSquare,
@@ -110,10 +110,10 @@ const isExternal = (link: string) => !link.startsWith("/dashboard");
 
 function AdminSidebar() {
   const { showSidebar } = useSidebar();
-  const { pathname } = useLocation();
-  const role = getRoleByPath(pathname);
 
-  const { links } = ROUTES[role as SupportedRole];
+  const currentRole = useGetRoleByPath();
+
+  const { links } = ROUTES[currentRole as SupportedRole];
 
   return (
     <div

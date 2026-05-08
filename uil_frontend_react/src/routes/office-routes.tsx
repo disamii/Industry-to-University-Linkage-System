@@ -7,6 +7,7 @@ import PostsPage from "@/pages/dashboard/office/posts-page";
 import SiteConfigPage from "@/pages/dashboard/office/site-config-page";
 import StaffManagementPage from "@/pages/dashboard/office/staff-management-page";
 import { RouteObject } from "react-router-dom";
+import AssignmentDetailPage from "@/pages/dashboard/office/assignment-detail-page";
 
 const base = "dashboard/office";
 
@@ -22,6 +23,10 @@ export const officeRoutes: RouteObject[] = [
   {
     path: withBase("assignments"),
     element: <AssignmentsPage />,
+  },
+  {
+    path: withBase("assignments/:id"),
+    element: <AssignmentDetailPage />,
   },
   {
     path: withBase("posts"),

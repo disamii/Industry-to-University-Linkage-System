@@ -1,23 +1,22 @@
 import { TableFilters } from "@/components/reusable/table-filters";
 import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
+import { SelectItem } from "@/components/ui/select";
+import { useGetIndustryList } from "@/data/industry/industry-list-query";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { ActionType, IndustryRequestType, UserRole } from "@/lib/enums";
+import { Filter } from "lucide-react";
 import {
   defaultIndustryRequestParams,
   useIndustryRequestParams,
 } from "../../../../data/industry_requests/use-industry_request-params";
-import { Filter } from "lucide-react";
-import { SelectItem } from "@/components/ui/select";
-import { useGetIndustryList } from "@/data/industry/industry-list-query";
-import { useLocation } from "react-router-dom";
-import { getRoleByPath } from "@/lib/utils";
 
 const IndustryRequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
     useIndustryRequestParams();
   const industriesQuery = useGetIndustryList();
 
-  const { pathname } = useLocation();
-  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
+  const currentRole = useGetRoleByPath();
+  const isOffice = currentRole === UserRole.ADMIN;
 
   return (
     <TableFilters.Root

@@ -4,4 +4,5 @@ export const assignmentKeys = {
   all: () => ["assignments"] as const,
   list: (params?: AssignmentParams) =>
     [...assignmentKeys.all(), "list", params] as const,
+  detail: (id: number) => [...assignmentKeys.all(), "detail", id] as const,
 };

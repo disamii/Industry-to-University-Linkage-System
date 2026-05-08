@@ -79,17 +79,3 @@ export const mapEntity: Partial<
   [UserRole.ADMIN]: { from: Entity.ACADEMIC_UNIT, to: Entity.INDUSTRY },
   [UserRole.STAFF]: { from: Entity.STAFF, to: Entity.INDUSTRY },
 };
-
-/**
- * Assignments
- */
-import { AssignmentStatus } from "./enums";
-
-export const assignmentStatusColorMap: Record<AssignmentStatus, string> = {
-  [AssignmentStatus.PENDING]: colorVariants.tertiary,
-  [AssignmentStatus.ASSIGNED]: colorVariants.info,
-  [AssignmentStatus.CANCELLED]: colorVariants.secondary,
-  [AssignmentStatus.IN_PROGRESS]: colorVariants.primary,
-  [AssignmentStatus.REJECTED]: colorVariants.danger,
-  [AssignmentStatus.COMPLETED]: colorVariants.success,
-};

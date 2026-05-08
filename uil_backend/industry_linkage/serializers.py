@@ -852,6 +852,7 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
 
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
+    supported_actions = serializers.SerializerMethodField()
     assigned_users = UserSerializer(many=True, read_only=True)
 
     class Meta:
@@ -864,12 +865,17 @@ class AssignmentListSerializer(serializers.ModelSerializer):
             "industry_mentor",
             "end_date",
             "status",
+            "supported_actions"
         ]
+
+    def get_supported_actions(self, obj):
+        return get_assignment_supported_actions(obj.status)
 
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
     request = RequestDetailSerializer(read_only=True)
     supported_actions = serializers.SerializerMethodField()
+    assigned_users = UserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Assignment

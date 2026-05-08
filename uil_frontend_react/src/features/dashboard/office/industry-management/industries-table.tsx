@@ -13,6 +13,7 @@ import { IndustryResponse } from "@/types/interfaces.industry";
 import { ExternalLink, MoreVertical } from "lucide-react";
 import { useRef } from "react";
 import { useIndustryParams } from "../../../../data/industry/use-industry-params";
+import { formatType } from "@/lib/utils";
 
 type RowProps = {
   item: IndustryResponse;
@@ -38,7 +39,7 @@ const IndustryTableRow = ({ item, index }: RowProps) => {
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className="capitalize">
-          {item.industry_type.split("_").join(" ")}
+          {formatType(item.industry_type)}
         </Badge>
       </TableCell>
       <TableCell>

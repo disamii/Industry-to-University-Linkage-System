@@ -23,7 +23,6 @@ const IndustriesTableOperations = () => {
           options={[
             { label: "Name", value: "name" },
             { label: "Created Date", value: "created_at" },
-            { label: "Updated Date", value: "updated_at" },
           ]}
         />
 

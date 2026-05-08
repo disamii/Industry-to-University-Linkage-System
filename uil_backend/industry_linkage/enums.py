@@ -1,4 +1,6 @@
 from django.db import models
+
+
 class IndustryType(models.TextChoices):
     IT = "it", "IT"
     MANUFACTURING = "manufacturing", "Manufacturing"
@@ -6,6 +8,7 @@ class IndustryType(models.TextChoices):
     HEALTHCARE = "healthcare", "Healthcare"
     EDUCATION = "education", "Education"
     OTHER = "other", "Other"
+
 
 class RequestingEntity(models.TextChoices):
     INDUSTRY = "industry", "Industry"
@@ -119,9 +122,8 @@ ACTION_TRANSITIONS = {
         ActionTypes.REVERTED,
     ],
 
-    ActionTypes.REVERTED: [],  
+    ActionTypes.REVERTED: [],
 }
-
 
 
 ACTION_TRANSITIONS = {
@@ -164,7 +166,7 @@ ACTION_TRANSITIONS = {
         ActionTypes.REVERTED,
     ],
 
-    ActionTypes.REVERTED: [],  
+    ActionTypes.REVERTED: [],
 }
 
 ASSIGNMENT_STATUS_TRANSITIONS = {

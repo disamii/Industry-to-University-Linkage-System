@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, formatType } from "@/lib/utils";
 import { RequestAction } from "@/types/interfaces.actions";
 import { Building2, Calendar, LucideIcon, MapPin, User } from "lucide-react";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
@@ -48,7 +48,7 @@ const ActionTimelineDetailDialog = ({ action }: Props) => {
             variant="secondary"
             className={`capitalize text-[10px] font-bold px-2 text-sm leading-none ${color} bg-transparent`}
           >
-            {action.type.replace(/_/g, " ")}
+            {formatType(action.type)}
           </Badge>
         </div>
         <DialogTitle className="font-bold text-2xl">

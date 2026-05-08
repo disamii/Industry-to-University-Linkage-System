@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import AttachmentView from "@/features/dashboard/industry_request/request-detail/attachment-view";
+import { formatType } from "@/lib/utils";
 import { IndustryRequestDetailResponse } from "@/types/interfaces.industry_requests";
 import { Info } from "lucide-react";
 
@@ -51,7 +52,7 @@ const RequestDetailCard = ({
                         className="flex justify-between items-center text-sm"
                       >
                         <span className="text-muted-foreground capitalize">
-                          {key.replace(/_/g, " ")}
+                          {formatType(key)}
                         </span>
                         <span>{value}</span>
                       </div>

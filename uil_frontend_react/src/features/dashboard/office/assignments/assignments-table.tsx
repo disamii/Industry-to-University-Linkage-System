@@ -8,19 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
-import { cn, formatDate, getAcademicUnitAbbr } from "@/lib/utils";
+
+import { cn, formatDate, formatType, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { AssignmentResponse } from "@/types/interfaces.assignments";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
 import { useRef } from "react";
 import { useAssignmentParams } from "../../../../data/assignments/use-assignment-params";
-import { assignmentStatusColorMap } from "@/lib/mappings";
+import AssignmentActions from "./assignment-actions";
+import { getAssignmentStatusConfig } from "./utils.assignments";
 
 type RowProps = {
   item: AssignmentResponse;
@@ -33,6 +28,8 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
   const currentPage = params.page;
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
 
+  const { Icon, color } = getAssignmentStatusConfig(item.status);
+
   return (
     <TableRow>
       <TableCell>{currentIndex + index + 1}</TableCell>
@@ -44,7 +41,7 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className="capitalize">
-          {item.request.type.split("_").join(" ")}
+          {formatType(item.request.type)}
         </Badge>
       </TableCell>
       <TableCell>
@@ -136,11 +133,9 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
         </div>
       </TableCell>
       <TableCell>
-        <Badge
-          variant="secondary"
-          className={cn("capitalize", assignmentStatusColorMap[item.status])}
-        >
-          {item.status.split("_").join(" ")}
+        <Badge variant="secondary" className={cn("capitalize", color)}>
+          <Icon className="size-3.5" />
+          {formatType(item.status)}
         </Badge>
       </TableCell>
       <TableCell>
@@ -148,15 +143,15 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
           {`${formatDate(item.start_date)} - ${formatDate(item.end_date)}`}
         </p>
       </TableCell>
+
       <TableCell className="text-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="hover:bg-muted p-2 rounded-md transition-colors">
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>CONTENT</DropdownMenuContent>
-        </DropdownMenu>
+        <AssignmentActions
+          assignment_id={item.id}
+          request_title={item.request.title}
+          request_description={item.request.description}
+          assigned_users={item.assigned_users}
+          supported_actions={item.supported_actions}
+        />
       </TableCell>
     </TableRow>
   );

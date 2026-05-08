@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatType } from "@/lib/utils";
 import { RequestAction } from "@/types/interfaces.actions";
 import { Calendar, Clock, Logs } from "lucide-react";
-import ActionTimelineDetailDialog from "./action-timeline-detail-dialog";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
+import ActionTimelineDetailDialog from "./action-timeline-detail-dialog";
 
 type Props = {
   actions: RequestAction[];
@@ -68,7 +68,7 @@ const ActionTimeline = ({ actions }: Props) => {
                                   variant="secondary"
                                   className={`capitalize text-[10px] font-bold px-2 py-0 h-5 leading-none ${color}`}
                                 >
-                                  {action.type.replace(/_/g, " ")}
+                                  {formatType(action.type)}
                                 </Badge>
 
                                 <time className="flex gap-1 tabular-nums text-muted-foreground text-xs item-center">

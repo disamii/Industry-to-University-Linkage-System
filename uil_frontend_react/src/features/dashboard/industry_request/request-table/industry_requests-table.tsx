@@ -7,14 +7,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { PAGE_SIZE } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";
-import {
-  cn,
-  formatDate,
-  getAcademicUnitAbbr,
-  getRoleByPath,
-} from "@/lib/utils";
+import { cn, formatDate, formatType, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import {
   IndustryRequestMineResponse,
@@ -22,9 +18,8 @@ import {
   IndustryRequestStats,
 } from "@/types/interfaces.industry_requests";
 import { useRef } from "react";
-import { useLocation } from "react-router-dom";
-import IndustryRequestActions from "../industry_request-actions";
 import { useIndustryRequestParams } from "../../../../data/industry_requests/use-industry_request-params";
+import IndustryRequestActions from "../industry_request-actions";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
 
 type RowProps = {
@@ -58,7 +53,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className="capitalize">
-          {item.type.split("_").join(" ")}
+          {formatType(item.type)}
         </Badge>
       </TableCell>
       <TableCell>
@@ -99,7 +94,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
       <TableCell>
         <Badge className={cn(color, "capitalize gap-1.5")}>
           <ActionIcon className="w-3 h-3" />
-          {item.latest_action.split("_").join(" ")}
+          {formatType(item.latest_action)}
         </Badge>
       </TableCell>
       <TableCell>
@@ -126,8 +121,8 @@ const IndustryRequestsTable = ({ data }: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
 
-  const { pathname } = useLocation();
-  const isOffice = getRoleByPath(pathname) === UserRole.ADMIN;
+  const currentRole = useGetRoleByPath();
+  const isOffice = currentRole === UserRole.ADMIN;
 
   const tableHeads: ITableHead[] = [
     // {

@@ -18,14 +18,6 @@ export function ScrollToTop() {
   return null;
 }
 
-export const getRoleByPath = (pathname: string) => {
-  if (pathname.startsWith("/dashboard/office")) return UserRole.ADMIN;
-  if (pathname.startsWith("/dashboard/industry")) return UserRole.INDUSTRY;
-  if (pathname.startsWith("/dashboard/staff")) return UserRole.STAFF;
-
-  return "";
-};
-
 export const getAdminHomepageLink = (roles: UserRole[]) => {
   let targetPath = "/dashboard";
 
@@ -160,3 +152,9 @@ export const getFullName = (user: {
   // Return name, or fallback to email, or fallback to default
   return fullName.length > 0 ? fullName : (email ?? "Unknown");
 };
+
+export const formatType = (type: string) =>
+  type
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");

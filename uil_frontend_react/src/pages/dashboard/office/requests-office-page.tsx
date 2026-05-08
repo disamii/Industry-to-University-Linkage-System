@@ -1,18 +1,18 @@
 import AdmninTabs from "@/features/dashboard/layout/admin-tabs";
 import IncomingRequestsOfficeTab from "@/features/dashboard/office/requests/incoming-requests-office-tab";
 import OutgoingRequestsOfficeTab from "@/features/dashboard/office/requests/outgoing-requests-office-tab";
-import { PhoneIncoming, PhoneOutgoing } from "lucide-react";
+import { MoveDownLeft, MoveUpRight } from "lucide-react";
 
 const tabs = [
   {
     value: "incoming",
     label: "Incoming",
-    Icon: PhoneIncoming,
+    Icon: MoveDownLeft,
   },
   {
     value: "outgoing",
     label: "Outgoing",
-    Icon: PhoneOutgoing,
+    Icon: MoveUpRight,
   },
 ];
 

@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
+import { formatType } from "@/lib/utils";
 import { ActionResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -45,7 +46,7 @@ export const usePerformActionMutation = () => {
   return useMutation({
     mutationFn: performAction,
     onSuccess: (data) => {
-      toast.success(`Request ${data.type.split("_").join(" ")} successfully`);
+      toast.success(`Request ${formatType(data.type)} successfully`);
 
       queryClient.invalidateQueries({
         queryKey: industryRequestOfficeKeys.all(),

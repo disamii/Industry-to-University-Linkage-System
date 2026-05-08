@@ -11,9 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry/industry_request-delete-mutation";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { ActionType, UserRole } from "@/lib/enums";
 import { mapEntity } from "@/lib/mappings";
-import { cn, getRoleByPath } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   ChevronDown,
   Eye,
@@ -24,7 +25,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PeformActionFormDialog from "./perform-action-form-dialog";
 import { ACTION_CONFIG } from "./utils.industry_request-actions";
 
@@ -49,16 +50,18 @@ const IndustryRequestActions = ({
   const navigate = useNavigate();
   const isTable = variant === "table";
 
-  const { pathname } = useLocation();
-  const currentRole = getRoleByPath(pathname);
+  const currentRole = useGetRoleByPath();
 
   const isOffice = currentRole === UserRole.ADMIN;
   const currentEntity = currentRole ? mapEntity[currentRole] : undefined;
 
   // Perform Actions
-  const actionsToPerform = Object.values(ActionType).filter((type) =>
-    supported_actions?.includes(type),
-  );
+  const actionsToPerform = Object.values(ActionType)
+    .filter((type) => supported_actions?.includes(type))
+    .filter(
+      (action) =>
+        action !== ActionType.REVOKED && action !== ActionType.ACCEPT_FORWARDED,
+    );
   const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
 
@@ -75,13 +78,13 @@ const IndustryRequestActions = ({
             <button className="hover:bg-muted p-2 rounded-md transition-colors">
               <MoreVertical className="w-4 h-4 text-muted-foreground" />
             </button>
-          ) : (
+          ) : (isOffice && actionsToPerform.length !== 0) || !isOffice ? (
             <Button variant="secondary">
               <Settings2 className="w-4 h-4" />
               <span>Manage Request</span>
               <ChevronDown className="opacity-50 w-4 h-4" />{" "}
             </Button>
-          )}
+          ) : null}
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className={cn(isTable && "w-42")}>
@@ -116,32 +119,26 @@ const IndustryRequestActions = ({
           {isOffice && actionsToPerform.length !== 0 && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="whitespace-nowrap">
-                <Wrench className="size-3.5" />
+                <Wrench className="mr-2 w-4 h-4" />
                 Perform Actions
               </DropdownMenuSubTrigger>
 
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  {actionsToPerform
-                    .filter(
-                      (action) =>
-                        action !== ActionType.REVOKED &&
-                        action !== ActionType.ACCEPT_FORWARDED,
-                    )
-                    .map((type, idx) => {
-                      const { Icon, color, label } = ACTION_CONFIG[type];
+                  {actionsToPerform.map((type, idx) => {
+                    const { Icon, color, label } = ACTION_CONFIG[type];
 
-                      return (
-                        <DropdownMenuItem
-                          key={`${type}-${idx}`}
-                          className={cn(color, "bg-transparent")}
-                          onClick={() => handleActionClick(type)}
-                        >
-                          <Icon className="size-3.5" />
-                          {label}
-                        </DropdownMenuItem>
-                      );
-                    })}
+                    return (
+                      <DropdownMenuItem
+                        key={`${type}-${idx}`}
+                        className={cn(color, "bg-transparent")}
+                        onClick={() => handleActionClick(type)}
+                      >
+                        <Icon className="mr-2 w-4 h-4" />
+                        {label}
+                      </DropdownMenuItem>
+                    );
+                  })}
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>

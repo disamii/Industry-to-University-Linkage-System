@@ -86,7 +86,7 @@ export enum OrgUnitType {
  */
 export enum AssignmentStatus {
   PENDING = "pending",
-  ASSIGNED = "accepted",
+  ACCEPTED = "accepted",
   REJECTED = "rejected",
   IN_PROGRESS = "in_progress",
   COMPLETED = "completed",

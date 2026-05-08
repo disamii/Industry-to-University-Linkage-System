@@ -22,7 +22,6 @@ const PostsTableOperations = () => {
           options={[
             { label: "Title", value: "title" },
             { label: "Created Date", value: "created_at" },
-            { label: "Updated Date", value: "updated_at" },
             { label: "Published Date", value: "published_at" },
           ]}
         />

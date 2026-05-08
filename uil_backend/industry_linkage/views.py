@@ -8,7 +8,7 @@ from rest_framework import viewsets, status, mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .enums import ActionTypes
+from .enums import ActionTypes, AssignmentStatus
 from .models import Industry, Request, Assignment, RequestAction
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
@@ -27,6 +27,7 @@ from .serializers import (
 )
 from .utils import revert_action_util, validate_action_or_raise, deactivate_previous_actions
 from .paginations import IndustryPagination, RequestPagination, RequestForIndustryPagination
+from django.contrib.auth import get_user_model
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -365,6 +366,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
                 "user_ids": "Provide a non-empty list of user ids."
             })
 
+        User = get_user_model()
         users = User.objects.filter(id__in=user_ids)
 
         if users.count() != len(user_ids):
@@ -386,7 +388,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
         valid_statuses = [
             choice[0]
-            for choice in Assignment.AssignmentStatus.choices
+            for choice in AssignmentStatus.choices
         ]
 
         if not new_status:
