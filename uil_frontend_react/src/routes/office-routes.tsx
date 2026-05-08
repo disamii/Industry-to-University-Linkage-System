@@ -1,6 +1,6 @@
 import AssignmentsPage from "@/pages/dashboard/office/assignments-page";
 import IndustryManagementPage from "@/pages/dashboard/office/industry-management-page";
-import IndustryRequestsOfficePage from "@/pages/dashboard/office/industry_requests-office-page";
+import RequestsOfficePage from "@/pages/dashboard/office/requests-office-page";
 import IndustryRequestDetailOfficePage from "@/pages/dashboard/office/industry_requset-detail-office-page";
 import OfficeDashboard from "@/pages/dashboard/office/office-dashboard";
 import PostsPage from "@/pages/dashboard/office/posts-page";
@@ -14,7 +14,7 @@ const withBase = (path: string) => `${base}/${path}`;
 
 export const officeRoutes: RouteObject[] = [
   { path: withBase(""), element: <OfficeDashboard /> },
-  { path: withBase("requests"), element: <IndustryRequestsOfficePage /> },
+  { path: withBase("requests"), element: <RequestsOfficePage /> },
   {
     path: withBase("requests/:id"),
     element: <IndustryRequestDetailOfficePage />,

@@ -1,24 +1,27 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdmninTabs from "@/features/dashboard/layout/admin-tabs";
 import OrganUnitTab from "@/features/dashboard/office/site-config/org-unit-tab";
-import { Network } from "lucide-react";
+import RoleManagementTab from "@/features/dashboard/office/site-config/role-management-tab";
+import { Network, Shield } from "lucide-react";
+
+const tabs = [
+  {
+    value: "role_management",
+    label: "Role Management",
+    Icon: Shield,
+  },
+  {
+    value: "org_unit",
+    label: "Organizational Strcuture",
+    Icon: Network,
+  },
+];
 
 const SiteConfigPage = () => {
   return (
-    <Tabs defaultValue="org_unit">
-      <TabsList className="w-full h-11!">
-        <TabsTrigger value="org_unit">
-          <Network />
-          Organizational Strcuture
-        </TabsTrigger>
-
-        <TabsTrigger value="this">
-          <Network />
-          Manage Industries
-        </TabsTrigger>
-      </TabsList>
-
+    <AdmninTabs defaultValue="role_management" tabs={tabs}>
       <OrganUnitTab />
-    </Tabs>
+      <RoleManagementTab />
+    </AdmninTabs>
   );
 };
 
