@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import IndustryRequestActions from "@/features/dashboard/industry_request/industry_request-actions";
 import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.industry_request-actions";
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
-import { UserRole } from "@/lib/enums";
+import { ActionType, UserRole } from "@/lib/enums";
 import { cn, formatDate, formatType } from "@/lib/utils";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { Building2, Calendar } from "lucide-react";
@@ -20,7 +20,7 @@ const IndustryRequestHeader = ({
   industry,
   supported_actions,
 }: Props) => {
-  const latestAction = actions[0];
+  const latestAction = actions.at(-1);
 
   const currentRole = useGetRoleByPath();
   const isOffice = currentRole === UserRole.ADMIN;
@@ -54,9 +54,12 @@ const IndustryRequestHeader = ({
             {academic_unit.name}
           </div>
           <Badge
-            className={cn(ACTION_CONFIG[latestAction.type].color, "capitalize")}
+            className={cn(
+              ACTION_CONFIG[latestAction?.type || ActionType.INITIATED].color,
+              "capitalize",
+            )}
           >
-            {formatType(latestAction.type)}
+            {formatType(latestAction?.type || "")}
           </Badge>
         </div>
       </div>

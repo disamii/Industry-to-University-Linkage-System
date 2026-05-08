@@ -1,11 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { ActionType } from "@/lib/enums";
 import { formatDate, formatType } from "@/lib/utils";
 import { RequestAction } from "@/types/interfaces.actions";
 import { Calendar, Clock, Logs } from "lucide-react";
 import { ACTION_CONFIG } from "../utils.industry_request-actions";
-import ActionTimelineDetailDialog from "./action-timeline-detail-dialog";
+import ActionActorToFromDisplay from "./action-actor-to-from-display";
+import ActionResultedObjectDisplay from "./action-resulted-object-display";
 
 type Props = {
   actions: RequestAction[];
@@ -34,17 +36,38 @@ const ActionTimeline = ({ actions }: Props) => {
               .reverse()
               .map((action, index) => {
                 const { Icon, color } = ACTION_CONFIG[action.type];
+                const detailConfig: Partial<
+                  Record<
+                    ActionType,
+                    {
+                      from?: RequestAction["actor_from"];
+                      to?: RequestAction["actor_to"];
+                      result?: RequestAction["resulted_object"];
+                    }
+                  >
+                > = {
+                  [ActionType.FORWARDED]: { to: action.actor_to },
+                  [ActionType.REPLIED]: {
+                    from: action.actor_from,
+                    to: action.actor_to,
+                  },
+                  [ActionType.POSTED_AS_THEMATIC]: {
+                    result: action.resulted_object,
+                  },
+                  [ActionType.ASSIGNED]: { result: action.resulted_object },
+                };
+                const currentDetailConfig = detailConfig[action.type];
 
                 return (
                   <Dialog key={action.id}>
                     <DialogTrigger asChild>
-                      <div className="group relative outline-none cursor-pointer">
+                      <div className="group relative">
                         {/* Timeline connector line */}
                         {index < actions.length - 1 && (
                           <div className="top-12 bottom-0 left-5 absolute bg-border/60 w-px" />
                         )}
 
-                        <div className="flex gap-6 pr-2 pb-8 transition-transform group-hover:translate-x-3 duration-300 ease-out">
+                        <div className="flex gap-6 pr-2 pb-8 transition-all">
                           {/* Timeline dot with icon */}
                           <div className="z-10 relative shrink-0">
                             <div
@@ -77,47 +100,35 @@ const ActionTimeline = ({ actions }: Props) => {
                                 </time>
                               </div>
 
-                              {/* Details Grid: Styled as a subtle "card" section */}
-                              <div className="gap-x-4 gap-y-1.5 grid grid-cols-1 sm:grid-cols-2 bg-muted/50 mt-2 p-3 rounded-lg text-xs">
-                                {action.performed_by && (
-                                  <DetailItem
-                                    label="By"
-                                    value={action.performed_by}
-                                  />
-                                )}
-                                {action.from_industry && (
-                                  <DetailItem
-                                    label="From"
-                                    value={action.from_industry}
-                                  />
-                                )}
-                                {action.to_industry && (
-                                  <DetailItem
-                                    label="To"
-                                    value={action.to_industry}
-                                  />
-                                )}
-                                {action.from_unit && (
-                                  <DetailItem
-                                    label="From Unit"
-                                    value={action.from_unit}
-                                  />
-                                )}
-                                {action.to_unit && (
-                                  <DetailItem
-                                    label="To Unit"
-                                    value={action.to_unit}
-                                  />
-                                )}
-                              </div>
+                              {/* Action Details */}
+                              {currentDetailConfig && (
+                                <div className="space-y-2 bg-muted/50 mt-2 p-3 rounded-lg">
+                                  {currentDetailConfig.from && (
+                                    <ActionActorToFromDisplay
+                                      actor={currentDetailConfig.from}
+                                      direction="received"
+                                    />
+                                  )}
+
+                                  {currentDetailConfig.to && (
+                                    <ActionActorToFromDisplay
+                                      actor={currentDetailConfig.to}
+                                      direction="sent"
+                                    />
+                                  )}
+
+                                  {currentDetailConfig.result && (
+                                    <ActionResultedObjectDisplay
+                                      result={currentDetailConfig.result}
+                                    />
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
                       </div>
                     </DialogTrigger>
-
-                    {/* The wider setup component */}
-                    <ActionTimelineDetailDialog action={action} />
                   </Dialog>
                 );
               })}
@@ -127,14 +138,5 @@ const ActionTimeline = ({ actions }: Props) => {
     </Card>
   );
 };
-
-function DetailItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-2 overflow-hidden">
-      <span className="shrink-0">{label}:</span>
-      <span className="text-muted-foreground truncate">{value}</span>
-    </div>
-  );
-}
 
 export default ActionTimeline;

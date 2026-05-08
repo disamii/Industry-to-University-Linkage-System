@@ -12,6 +12,7 @@ import { industryRequestOfficeUrls } from "./office/urls";
 
 export const performAction = (data: Record<string, any>) => {
   const formData = toFormData(data);
+  formData.delete("assigned_users");
 
   Object.entries(data).forEach(([key, value]) => {
     if (key === "assigned_users" && Array.isArray(value)) {

@@ -4,6 +4,7 @@ import { Metadata } from "./interfaces";
 import { RequestAction } from "./interfaces.actions";
 import { IndustryResponse } from "./interfaces.industry";
 import { OrgUnitResponse } from "./interfaces.org_units";
+import { UserProfile } from "./interfaces.user";
 
 export type RequestStats = {
   total_requests: number;
@@ -33,9 +34,10 @@ export type RequestDetailResponse = Omit<
   "academic_unit" | "extra_data" | "industry"
 > & {
   industry: IndustryResponse;
-  detail: Record<string, string> | null;
-  actions: RequestAction[];
+  // detail: Record<string, string> | null;
   requesting_entity: Entity;
+  actions: RequestAction[];
   academic_unit: OrgUnitResponse;
+  requested_by: UserProfile;
   supported_actions: ActionType[];
 };
