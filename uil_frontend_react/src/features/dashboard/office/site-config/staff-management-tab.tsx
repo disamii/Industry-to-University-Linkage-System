@@ -1,21 +1,21 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
+import { TabsContent } from "@/components/ui/tabs";
 import { useGetUsers } from "@/data/user/user-list-query";
 import StaffTable from "@/features/dashboard/office/staff-management/staff-table";
 import StaffTableOperations from "@/features/dashboard/office/staff-management/staff-table-operations";
 
-const IndustryManagementPage = () => {
+const StaffManagementTab = () => {
   const query = useGetUsers();
 
   return (
-    <div className="space-y-6">
+    <TabsContent value="staff_management" className="space-y-6 mt-4">
       <DashboardContentHeader
-        title="Staff Members Management"
+        title="Staff Management"
         desc="Manage staff members"
         hasBackBtn={false}
         scope={query.data?.scope}
       />
-
       <QueryState query={query} checkEmpty={(data) => !data} variant="page">
         {(data) => {
           return (
@@ -26,8 +26,8 @@ const IndustryManagementPage = () => {
           );
         }}
       </QueryState>
-    </div>
+    </TabsContent>
   );
 };
 
-export default IndustryManagementPage;
+export default StaffManagementTab;

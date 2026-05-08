@@ -22,7 +22,6 @@ import {
   Settings,
   SquarePen,
   UserCheck,
-  Users,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import SidebarToggle from "./admin-sidebar-toggle";
@@ -54,11 +53,6 @@ const ROUTES: Record<
         href: "/dashboard/office/posts",
         icon: SquarePen,
         label: "Post Management",
-      },
-      {
-        href: "/dashboard/office/staffs",
-        icon: Users,
-        label: "Staff Management",
       },
       {
         href: "/dashboard/office/industries",

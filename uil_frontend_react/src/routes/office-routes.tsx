@@ -1,13 +1,12 @@
-import AssignmentsPage from "@/pages/dashboard/office/office-assignments-page";
 import IndustryManagementPage from "@/pages/dashboard/office/industry-management-page";
-import RequestsOfficePage from "@/pages/dashboard/office/requests-office-page";
 import IndustryRequestDetailOfficePage from "@/pages/dashboard/office/industry_requset-detail-office-page";
+import AssignmentDetailPage from "@/pages/dashboard/office/office-assignment-detail-page";
+import AssignmentsPage from "@/pages/dashboard/office/office-assignments-page";
 import OfficeDashboard from "@/pages/dashboard/office/office-dashboard";
 import PostsPage from "@/pages/dashboard/office/posts-page";
+import RequestsOfficePage from "@/pages/dashboard/office/requests-office-page";
 import SiteConfigPage from "@/pages/dashboard/office/site-config-page";
-import StaffManagementPage from "@/pages/dashboard/office/staff-management-page";
 import { RouteObject } from "react-router-dom";
-import AssignmentDetailPage from "@/pages/dashboard/office/office-assignment-detail-page";
 
 const base = "dashboard/office";
 
@@ -31,10 +30,6 @@ export const officeRoutes: RouteObject[] = [
   {
     path: withBase("posts"),
     element: <PostsPage />,
-  },
-  {
-    path: withBase("staffs"),
-    element: <StaffManagementPage />,
   },
   {
     path: withBase("industries"),

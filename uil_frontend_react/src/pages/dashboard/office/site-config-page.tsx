@@ -1,9 +1,15 @@
 import AdmninTabs from "@/features/dashboard/layout/admin-tabs";
 import OrganUnitTab from "@/features/dashboard/office/site-config/org-unit-tab";
 import RoleManagementTab from "@/features/dashboard/office/site-config/role-management-tab";
-import { Network, Shield } from "lucide-react";
+import StaffManagementTab from "@/features/dashboard/office/site-config/staff-management-tab";
+import { Network, Shield, Users } from "lucide-react";
 
 const tabs = [
+  {
+    value: "staff_management",
+    label: "Staff Management",
+    Icon: Users,
+  },
   {
     value: "role_management",
     label: "Role Management",
@@ -18,9 +24,10 @@ const tabs = [
 
 const SiteConfigPage = () => {
   return (
-    <AdmninTabs defaultValue="role_management" tabs={tabs}>
+    <AdmninTabs defaultValue="staff_management" tabs={tabs}>
       <OrganUnitTab />
       <RoleManagementTab />
+      <StaffManagementTab />
     </AdmninTabs>
   );
 };
