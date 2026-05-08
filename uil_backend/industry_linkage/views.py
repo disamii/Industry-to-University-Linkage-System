@@ -8,7 +8,8 @@ from rest_framework import viewsets, status, mixins
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from config.paginations import DefaultPagination
-from .enums import ActionTypes
+from authorization.constants import CAN_READ_REQUEST_LIST
+from .enums import ActionTypes, RequestDirection, RequestingEntity
 from .models import Industry, Request, Assignment, RequestAction
 from .permissions import REQUEST_REQUIRED_PERMISSIONS, INDUSTRY_REQUIRED_PERMISSIONS
 from authorization.permissions import HasRequiredPermissions, IsOwnerOrHasRequiredPermissions
@@ -113,11 +114,58 @@ class RequestViewSet(
 
     @action(detail=False, methods=['get'], url_path='my-requests')
     def my_requests(self, request):
-        try:
-            industry = request.user.industry_profile
-        except (Industry.DoesNotExist, AttributeError):
-            raise NotFound("Industry profile not found")
-        qs = self.get_queryset().filter(industry=industry).select_related("industry")
+        """
+        Query Params:
+        - direction = incoming | outgoing
+        - entity = industry | university
+        """
+        direction = request.query_params.get("direction")
+        entity = request.query_params.get("entity")
+
+        valid_directions = RequestDirection.values
+        valid_entities = RequestingEntity.values
+
+        if direction not in valid_directions:
+            return Response(
+                {"detail": "direction must be incoming or outgoing"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if entity not in valid_entities:
+            return Response(
+                {"detail": "entity must be industry or university"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if entity == RequestingEntity.INDUSTRY:
+            try:
+                industry = request.user.industry_profile
+                if direction == RequestDirection.INCOMING:
+                    qs = (self.get_queryset().filter(industry=industry).exclude(requesting_entity=RequestingEntity.INDUSTRY).select_related("industry"))
+                elif direction == RequestDirection.OUTGOING:
+                    qs = (self.get_queryset().filter(industry=industry,requesting_entity=RequestingEntity.INDUSTRY).select_related("industry"))
+                else:
+                    qs = (self.get_queryset().filter(industry=industry).select_related("industry"))
+            except (Industry.DoesNotExist, AttributeError):
+                raise NotFound("Industry profile not found")
+        
+        elif entity == RequestingEntity.ACADEMIC_UNIT:
+            scope=get_scope(request.user,CAN_READ_REQUEST_LIST)
+            if direction == RequestDirection.INCOMING:
+                qs = (self.get_queryset().filter(academic_unit__in=scope).exclude(requesting_entity=RequestingEntity.ACADEMIC_UNIT).select_related("industry"))
+            elif direction == RequestDirection.OUTGOING:
+                qs = (self.get_queryset().filter(academic_unit__in=scope).exclude(requesting_entity=RequestingEntity.Industry).select_related("industry"))
+            else:
+                qs = (self.get_queryset().filter(academic_unit__in=scope).select_related("industry"))
+        elif entity == RequestingEntity.STAFF:
+                
+                qs = (self.get_queryset().filter(requested_by=request.user,requesting_entity=RequestingEntity.STAFF).select_related("industry"))
+        elif entity == RequestingEntity.STUDENT:
+            qs = qs.filter(
+                requested_by=request.user,
+                requesting_entity=RequestingEntity.STUDENT
+            )
+        
         qs = self.filter_queryset(qs)
         page = self.paginate_queryset(qs)
         if page is not None:

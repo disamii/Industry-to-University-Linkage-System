@@ -13,7 +13,9 @@ class RequestingEntity(models.TextChoices):
     STAFF = "staff", "Staff"
     STUDENT = "student", "Student"
 
-
+class RequestDirection(models.TextChoices):
+    INCOMING = "incoming", "Incoming"
+    OUTGOING = "outgoing", "Outgoing"
 class RequestType(models.TextChoices):
     # industry requests
     RND = "rnd", "Research & Development Services"
