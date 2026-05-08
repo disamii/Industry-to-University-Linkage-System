@@ -16,26 +16,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  defaultIndustryParams,
-  useGetIndustryList,
-} from "@/data/industry/industry-list-query";
+import { Spinner } from "@/components/ui/spinner";
+import { useGetIndustryList } from "@/data/industry/industry-list-query";
 import { usePerformActionMutation } from "@/data/industry_requests/industry_request-perform-action-mutation";
-import { defaultUserParams, useGetUsers } from "@/data/user/user-list-query";
+import { useUserParams } from "@/data/user/use-user-params";
+import { useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";
-import { useUrlParams } from "@/hooks/use-url-params";
 import { ActionType, Entity } from "@/lib/enums";
 import { cn, getFullName } from "@/lib/utils";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import { UserProfile } from "@/types/interfaces.user";
+import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { FieldValues, UseFormReturn } from "react-hook-form";
+import { useIndustryParams } from "../../../data/industry/use-industry-params";
 import {
   ACTION_CONFIG,
   ActionFormFields,
   FormFieldConfig,
 } from "./utils.industry_request-actions";
-import { Spinner } from "@/components/ui/spinner";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -46,14 +45,11 @@ const FormField = <T extends FieldValues>({
   field,
   form,
 }: FormFieldProps<T>) => {
-  const { params: industryParams, setParams: setIndustryParams } = useUrlParams(
-    defaultIndustryParams,
-  );
-  const { params: userParams, setParams: setUserParams } =
-    useUrlParams(defaultUserParams);
+  const { setParams: setIndustryParams } = useIndustryParams();
+  const { setParams: setUserParams } = useUserParams();
 
-  const industriesQuery = useGetIndustryList(industryParams);
-  const usersQuery = useGetUsers(userParams);
+  const industriesQuery = useGetIndustryList();
+  const usersQuery = useGetUsers();
 
   const { name, label, placeholder, isOptional } = field;
   const commonProps = {
@@ -132,6 +128,7 @@ const FormField = <T extends FieldValues>({
         <FormCombobox
           {...commonProps}
           key={commonProps.name}
+          multiple
           placeholder={config.placeholder}
           query={config.query}
           checkEmpty={(data) => data.results.length === 0}
@@ -140,21 +137,43 @@ const FormField = <T extends FieldValues>({
           getDisplayValue={config.getDisplayValue}
           position="popper"
         >
-          {(data, setOpen) => (
-            <CommandGroup>
-              {data.results.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  onSelect={() => {
-                    form.setValue(commonProps.name, item.id as any);
-                    setOpen(false);
-                  }}
-                >
-                  {config.getLabel(item as any)}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
+          {(data) => {
+            const selectedValues = (
+              Array.isArray(form.watch(commonProps.name))
+                ? form.watch(commonProps.name)
+                : []
+            ) as (string | number)[];
+
+            return (
+              <CommandGroup>
+                {data.results.map((item: any) => {
+                  const selected = selectedValues.includes(item.id);
+
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      onSelect={() => {
+                        const updatedValues = selected
+                          ? selectedValues.filter((id) => id !== item.id)
+                          : [...selectedValues, item.id];
+
+                        form.setValue(commonProps.name, updatedValues as any);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 w-4 h-4",
+                          selected ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+
+                      {config.getLabel(item as any)}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            );
+          }}
         </FormCombobox>
       );
     }

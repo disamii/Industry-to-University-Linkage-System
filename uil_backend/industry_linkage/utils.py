@@ -99,6 +99,7 @@ def deactivate_previous_actions(request_obj, action_type):
             type=ActionTypes.FORWARDED
         ).update(awaiting_decision=False)
 
+
 class ForwardTarget(serializers.Field):
 
     def to_internal_value(self, object_id):
@@ -179,6 +180,3 @@ def revert_action_util(action, note=""):
         ])
 
     return action
-
-
-

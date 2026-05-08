@@ -4,7 +4,7 @@ import { ActionType, IndustryRequestType, UserRole } from "@/lib/enums";
 import {
   defaultIndustryRequestParams,
   useIndustryRequestParams,
-} from "./use-industry_request-params";
+} from "../../../../data/industry_requests/use-industry_request-params";
 import { Filter } from "lucide-react";
 import { SelectItem } from "@/components/ui/select";
 import { useGetIndustryList } from "@/data/industry/industry-list-query";
@@ -28,7 +28,7 @@ const IndustryRequestsTableOperations = () => {
     >
       <TableFilters.Group>
         <TableFilters.Sort
-          defaultValue="created_at"
+          defaultValue={defaultIndustryRequestParams.ordering}
           options={[
             { label: "Date", value: "created_at" },
             { label: "Title", value: "title" },

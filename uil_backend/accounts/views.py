@@ -85,7 +85,7 @@ class PrivateUserRetrieveView(APIView):
 class CustomUserViewSet(UserViewSet):
     pagination_class = UserPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ['status', 'is_superuser']
+    filterset_fields = ['status', 'academic_unit', 'is_superuser']
     ordering_fields = ['created_at', 'updated_at', 'first_name']
     search_fields = ['username', 'first_name',
                      'father_name', 'grand_father_name', 'email']
@@ -99,7 +99,8 @@ class CustomUserViewSet(UserViewSet):
             permission_classes = [AllowAny]
 
         elif self.action in ("update", "partial_update", "destroy"):
-            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,
+                                  IsOwnerOrHasRequiredPermissions]
 
         elif self.action == "upload_users_excel":
             academic_unit_id = self.request.data.get("academic_unit")
@@ -275,7 +276,7 @@ class CustomUserViewSet(UserViewSet):
         user_id = request.data.get("user_id")
         user_ids = request.data.get("user_ids")
         if not user_id and not user_ids:
-            raise ValidationError( "Provide 'user_id' or 'user_ids'.")
+            raise ValidationError("Provide 'user_id' or 'user_ids'.")
         if user_id:
             user_ids = [user_id]
         elif not isinstance(user_ids, list):

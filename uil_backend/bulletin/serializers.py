@@ -19,12 +19,14 @@ class PostListSerializer(serializers.ModelSerializer):
             "is_internal_only",
             "published_at",
             "expires_at"
-            ]
+        ]
 
     def get_related_model(self, obj):
         if obj.related_object:
             return str(obj.related_object)
         return None
+
+
 class PostDetailSerializer(serializers.ModelSerializer):
     related_object = serializers.SerializerMethodField()
 
@@ -59,12 +61,14 @@ class PostListSerializer(serializers.ModelSerializer):
             "is_internal_only",
             "published_at",
             "expires_at"
-            ]
+        ]
 
     # def get_related_model(self, obj):
     #     if obj.related_object:
     #         return str(obj.related_object)
     #     return None
+
+
 class PostDetailSerializer(serializers.ModelSerializer):
     related_object = serializers.SerializerMethodField()
 
@@ -75,8 +79,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "title",
             "post_type",
             "content",
-            "is_internal_only",
             "is_published",
+            "is_internal_only",
             "published_at",
             "expires_at",
             "image",
@@ -84,6 +88,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
     def get_related_object(self, obj):
         from industry_linkage.serializers import RequestSerializer
 

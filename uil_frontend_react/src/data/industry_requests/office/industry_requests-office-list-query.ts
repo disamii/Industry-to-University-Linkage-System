@@ -1,4 +1,4 @@
-import { useIndustryRequestParams } from "@/features/dashboard/industry_request/request-table/use-industry_request-params";
+import { useIndustryRequestParams } from "@/data/industry_requests/use-industry_request-params";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";

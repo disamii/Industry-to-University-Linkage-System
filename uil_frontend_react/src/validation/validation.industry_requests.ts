@@ -52,5 +52,5 @@ export type IndustryRequestUpdateInput = z.infer<
 export const industryRequestDefaultValues = {
   title: "",
   description: "",
-  type: undefined, // Ensure type is undefined initially to trigger the disabled state
+  type: undefined,
 };

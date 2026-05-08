@@ -1,24 +1,33 @@
-import { ActionFormFields } from "@/features/dashboard/industry_request/utils.industry_request-actions";
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { toFormData } from "@/lib/utils";
-import { RequestResponse } from "@/types/interfaces.actions";
+import { ActionResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { assignmentKeys } from "../assignments/keys";
+import { postKeys } from "../posts/keys";
 import { industryRequestKeys } from "./industry/keys";
 import { industryRequestOfficeKeys } from "./office/keys";
 import { industryRequestOfficeUrls } from "./office/urls";
 
-export const performAction = (
-  data: Record<ActionFormFields, string | number>,
-) => {
-  const formData = toFormData(data);
+export const performAction = (data: Record<string, any>) => {
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === "assigned_users" && Array.isArray(value)) {
+      value.forEach((userId) => {
+        formData.append("assigned_users", String(userId));
+      });
+    } else if (value !== undefined && value !== null) {
+      formData.append(key, String(value));
+    }
+  });
+
   const id = formData.get("id");
 
   if (!id) throw new Error("Please provide request id first");
 
   return safeApiRequest(
-    api.post<RequestResponse>(
+    api.post<ActionResponse>(
       industryRequestOfficeUrls.perform_action(Number(id)),
       formData,
       {
@@ -43,6 +52,12 @@ export const usePerformActionMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: industryRequestKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: assignmentKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: postKeys.all(),
       });
     },
     onError: (error: any) =>

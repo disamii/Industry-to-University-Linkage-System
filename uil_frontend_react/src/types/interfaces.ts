@@ -54,3 +54,12 @@ export type PaginationParams = {
 export type Sortable<T extends string> = T | `-${T}`;
 
 export type ComponentVariant = "small" | "inline" | "section" | "page";
+
+export type StatCardKeys =
+  | "success"
+  | "warning"
+  | "info"
+  | "danger"
+  | "primary"
+  | "secondary"
+  | "tertiary";

@@ -2,7 +2,7 @@ import { SidebarProvider } from "@/contexts/sidebar-context";
 import AdminLayout from "@/layouts/admin-layout";
 import { LINKS } from "@/lib/constants";
 import { UserRole } from "@/lib/enums";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/use-auth-store";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const ProtectedRoute = () => {

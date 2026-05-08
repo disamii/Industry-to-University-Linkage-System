@@ -43,5 +43,5 @@ export const usePaginatedPrefetch = <TParams extends { page: number }>(
 
     if (hasNextPage) prefetch(params.page + 1);
     if (hasPrevPage) prefetch(params.page - 1);
-  }, [queryClient, baseKey, queryFn, params, links]);
+  }, [queryClient, baseKey, queryFn, params, links, isPlaceholderData]);
 };

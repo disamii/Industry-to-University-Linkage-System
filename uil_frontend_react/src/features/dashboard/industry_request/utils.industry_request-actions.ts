@@ -24,7 +24,7 @@ export type ImplicitActionFormFields =
 
 export type ExplicitActionFormFields =
   | "description"
-  | "assigned_user"
+  | "assigned_users"
   | "start_date"
   | "end_date"
   | "industry_mentor"
@@ -65,10 +65,11 @@ const fieldDefinitions: Record<
     placeholder: "Provide additional details...",
     validation: (z) => z.string().min(5, "Description is too short"),
   },
-  assigned_user: {
-    label: "Assign To",
+  assigned_users: {
+    label: "Assign Users",
     type: "select",
-    validation: (z) => z.coerce.number(),
+    validation: (z) =>
+      z.array(z.coerce.number()).min(1, "Please select at least one item"),
   },
   start_date: {
     label: "Start Date",
@@ -148,7 +149,7 @@ const BASE_FIELDS = [FIELDS.description];
 
 const ASSIGNMENT_FIELDS = [
   ...BASE_FIELDS,
-  FIELDS.assigned_user,
+  FIELDS.assigned_users,
   FIELDS.start_date,
   FIELDS.end_date,
   FIELDS.industry_mentor,
@@ -192,12 +193,12 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     color: "bg-red-100 text-red-700", // Critical negative
     formFields: [...BASE_FIELDS],
   },
-[ActionType.REVERTED]: {
-  label: "Revert",
-  Icon: RotateCcw, // better semantic icon
-  color: "bg-yellow-100 text-yellow-700", // warning / rollback
-  formFields: [...BASE_FIELDS],
-},
+  [ActionType.REVERTED]: {
+    label: "Revert",
+    Icon: RotateCcw, // better semantic icon
+    color: "bg-yellow-100 text-yellow-700", // warning / rollback
+    formFields: [...BASE_FIELDS],
+  },
   [ActionType.COMPLETED]: {
     label: "Mark Complete",
     Icon: CheckSquare,

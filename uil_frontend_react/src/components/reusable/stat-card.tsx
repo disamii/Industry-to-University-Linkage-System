@@ -1,4 +1,6 @@
-import { cn, statCardColors } from "@/lib/utils";
+import { colorVariants } from "@/lib/mappings";
+import { cn } from "@/lib/utils";
+import { StatCardKeys } from "@/types/interfaces";
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 
@@ -7,7 +9,7 @@ export type Stat = {
   value: string;
   desc?: string;
   Icon: LucideIcon;
-  colorVariant: keyof typeof statCardColors;
+  colorVariant: StatCardKeys;
 };
 
 type Props = {
@@ -25,7 +27,7 @@ const StatCard = ({ stats }: Props) => {
           <Card key={`${title}—${idx}`} className="shadow-none border-none">
             <CardContent className="flex items-center gap-3 p-4">
               <div
-                className={cn("p-3 rounded-full", statCardColors[colorVariant])}
+                className={cn("p-3 rounded-full", colorVariants[colorVariant])}
               >
                 <Icon className="w-4 h-4" />
               </div>

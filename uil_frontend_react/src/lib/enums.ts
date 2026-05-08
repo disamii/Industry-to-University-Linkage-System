@@ -59,7 +59,7 @@ export enum ActionType {
   COMPLETED = "completed",
   REVOKED = "revoked",
   CANCELLED = "cancelled",
-  REVERTED="reverted"
+  REVERTED = "reverted",
 }
 
 /**
@@ -82,11 +82,31 @@ export enum OrgUnitType {
 }
 
 /**
- * Assignment Status
+ * Assignments
  */
 export enum AssignmentStatus {
-  // PENDING = "PENDING",
-  // ASSIGNED = "ASSIGNED",
-  IN_PROGRESS = "IN_PROGRESS",
-  COMPLETED = "COMPLETED",
+  PENDING = "pending",
+  ASSIGNED = "accepted",
+  REJECTED = "rejected",
+  IN_PROGRESS = "in_progress",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
+}
+
+/**
+ * Posts
+ */
+export enum PostType {
+  SUCCESS_STORY = "success_story",
+  THEMATIC_AREA = "thematic_area",
+  OPEN_REQUEST = "open_request",
+  ANNOUNCEMENT = "announcement",
+  GUIDELINE = "guideline",
+}
+
+export enum PostContentType {
+  REQUEST = "request",
+  ASSIGNMENT = "assignment",
+  USER = "user",
+  INDUSTRY_PROFILE = "industryprofile",
 }

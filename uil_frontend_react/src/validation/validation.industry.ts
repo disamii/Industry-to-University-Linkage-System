@@ -42,11 +42,11 @@ export const industryCreateSchema = industryBaseSchema
 export type IndustryCreateInput = z.infer<typeof industryCreateSchema>;
 
 // --- Update Schema ---
-export const industryUpdateSchema = industryBaseSchema
-  .omit({ industry_email: true })
-  .partial();
+// export const industryUpdateSchema = industryBaseSchema
+//   .omit({ industry_email: true })
+//   .partial();
 
-export type IndustryUpdateInput = z.infer<typeof industryUpdateSchema>;
+// export type IndustryUpdateInput = z.infer<typeof industryUpdateSchema>;
 
 // --- Default Values ---
 export const industryDefaultValues: IndustryCreateInput = {

@@ -1,7 +1,7 @@
 import { useSignin } from "@/data/auth/signin-mutation";
 import { getMe } from "@/data/user/current_user-profile-query";
 import { cn, getAdminHomepageLink } from "@/lib/utils";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/use-auth-store";
 import { SigninInput } from "@/validation/validation.auth";
 import { ReactNode } from "react";
 import { UseFormReturn } from "react-hook-form";

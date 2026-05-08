@@ -1,7 +1,7 @@
 import { LINKS } from "@/lib/constants";
 import Home from "@/pages/public/home";
-import NotFoundPage from "@/pages/public/not-found";
-import UnauthorizedPage from "@/pages/public/unauthorized";
+import NotFoundPage from "@/pages/not-found";
+import UnauthorizedPage from "@/pages/unauthorized";
 import { RouteObject } from "react-router-dom";
 
 export const publicRoutes: RouteObject[] = [
