@@ -28,6 +28,7 @@ import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { useState } from "react";
 import ManageUserAssignmentFormDialog from "./manage-user-assignment-form-dialog";
 import { UserProfile } from "@/types/interfaces.user";
+import ChangeAssignmentStatusDialog from "./change-assignment-status-dialog";
 
 type Props = {
   assignment_id: number;
@@ -48,6 +49,7 @@ const AssignmentActions = ({
 }: Props) => {
   const navigate = useNavigate();
   const isTable = variant === "table";
+  const currentRole = useGetRoleByPath();
 
   // Manage user Assignment
   const [dialogConfig, setDialogConfig] = useState<{
@@ -60,10 +62,22 @@ const AssignmentActions = ({
   };
 
   // Perform Status Change
+  const [statusDialog, setStatusDialog] = useState<{
+    open: boolean;
+    status: AssignmentStatus | null;
+  }>({
+    open: false,
+    status: null,
+  });
   const actionsToPerform = Object.values(AssignmentStatus).filter((status) =>
     supported_actions?.includes(status),
   );
-  const currentRole = useGetRoleByPath();
+  const openStatusDialog = (status: AssignmentStatus) => {
+    setStatusDialog({
+      open: true,
+      status,
+    });
+  };
 
   return (
     <>
@@ -134,7 +148,7 @@ const AssignmentActions = ({
                       <DropdownMenuItem
                         key={`${stat}-${idx}`}
                         className={cn(color, "bg-transparent")}
-                        // onClick={() => handleActionClick(type)}
+                        onClick={() => openStatusDialog(stat)}
                       >
                         <Icon className="w-4 h-4" />
                         {label}
@@ -158,6 +172,18 @@ const AssignmentActions = ({
           title: request_title,
           description: request_description,
         }}
+      />
+
+      <ChangeAssignmentStatusDialog
+        open={statusDialog.open}
+        onOpenChange={(open) =>
+          setStatusDialog((prev) => ({
+            ...prev,
+            open,
+          }))
+        }
+        assignment_id={assignment_id}
+        status={statusDialog.status}
       />
     </>
   );

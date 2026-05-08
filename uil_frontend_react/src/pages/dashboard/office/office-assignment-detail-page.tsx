@@ -1,7 +1,7 @@
 import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetAssignmentDetail } from "@/data/assignments/assignment-detail-query";
-import AssignmentDetailHeader from "@/features/dashboard/office/assignments/assignment-detail-header";
+import AssignmentDetailHeader from "@/features/dashboard/assignments/assignment-detail-header";
 import { useParams } from "react-router-dom";
 
 const AssignmentDetailPage = () => {

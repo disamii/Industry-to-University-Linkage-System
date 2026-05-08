@@ -7,6 +7,7 @@ import { useMemo } from "react";
 export type AssignmentParams = PaginationParams & {
   status?: AssignmentStatus;
   search?: string;
+  // user_id?: number;
   ordering: Sortable<"start_date" | "end_date">;
 };
 
@@ -30,6 +31,7 @@ const useAssignmentParams = () => {
   // Filtering
   const search = getParam("search");
   const status = getParam("status");
+  // const user_id = getParam("user_id");
 
   const params: AssignmentParams = useMemo(
     () => ({
@@ -38,6 +40,7 @@ const useAssignmentParams = () => {
       search,
       status,
       ordering,
+      // user_id,
     }),
     [page, page_size, search, status, ordering],
   );

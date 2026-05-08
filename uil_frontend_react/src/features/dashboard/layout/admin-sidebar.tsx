@@ -101,7 +101,16 @@ const ROUTES: Record<
     label: "Staff Portal",
     links: [
       { href: "/dashboard/staff", icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/dashboard/staff/tasks", icon: CheckSquare, label: "My Tasks" },
+      {
+        href: "/dashboard/staff/assignments",
+        icon: CheckSquare,
+        label: "My Assignments",
+      },
+      {
+        href: "/dashboard/staff/requests/create",
+        icon: Send,
+        label: "Submit Request",
+      },
     ],
   },
 };

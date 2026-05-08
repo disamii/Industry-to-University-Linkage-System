@@ -1,4 +1,4 @@
-import AssignmentsPage from "@/pages/dashboard/office/assignments-page";
+import AssignmentsPage from "@/pages/dashboard/office/office-assignments-page";
 import IndustryManagementPage from "@/pages/dashboard/office/industry-management-page";
 import RequestsOfficePage from "@/pages/dashboard/office/requests-office-page";
 import IndustryRequestDetailOfficePage from "@/pages/dashboard/office/industry_requset-detail-office-page";
@@ -7,7 +7,7 @@ import PostsPage from "@/pages/dashboard/office/posts-page";
 import SiteConfigPage from "@/pages/dashboard/office/site-config-page";
 import StaffManagementPage from "@/pages/dashboard/office/staff-management-page";
 import { RouteObject } from "react-router-dom";
-import AssignmentDetailPage from "@/pages/dashboard/office/assignment-detail-page";
+import AssignmentDetailPage from "@/pages/dashboard/office/office-assignment-detail-page";
 
 const base = "dashboard/office";
 

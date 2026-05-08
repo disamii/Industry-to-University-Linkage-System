@@ -13,7 +13,7 @@ import { cn, formatDate, formatType, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { AssignmentResponse } from "@/types/interfaces.assignments";
 import { useRef } from "react";
-import { useAssignmentParams } from "../../../../data/assignments/use-assignment-params";
+import { useAssignmentParams } from "../../../data/assignments/use-assignment-params";
 import AssignmentActions from "./assignment-actions";
 import { getAssignmentStatusConfig } from "./utils.assignments";
 
