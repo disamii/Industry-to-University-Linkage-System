@@ -1,14 +1,14 @@
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
-import { PostResponse } from "@/types/interfaces.posts";
+import { PostResponse, PostStats } from "@/types/interfaces.posts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { postUrls } from "./urls";
 import { usePostParams } from "@/data/posts/use-post-params";
 import { postKeys } from "./keys";
 
 export const getPostsList = createGetRequest<
-  ApiPaginatedResponse<PostResponse>
+  ApiPaginatedResponse<PostResponse, undefined, PostStats>
 >(postUrls.base());
 
 export const useGetPostsList = () => {

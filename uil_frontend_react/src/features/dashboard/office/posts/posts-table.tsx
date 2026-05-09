@@ -11,7 +11,7 @@ import { PAGE_SIZE } from "@/lib/constants";
 import { colorVariants } from "@/lib/mappings";
 import { cn, formatDate, formatType } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
-import { PostResponse } from "@/types/interfaces.posts";
+import { PostResponse, PostStats } from "@/types/interfaces.posts";
 import { MoreVertical } from "lucide-react";
 import { useRef } from "react";
 import { usePostParams } from "../../../../data/posts/use-post-params";
@@ -82,7 +82,7 @@ const PostTableRow = ({ item, index }: RowProps) => {
 };
 
 type TableProps = {
-  data: ApiPaginatedResponse<PostResponse>;
+  data: ApiPaginatedResponse<PostResponse, undefined, PostStats>;
 };
 
 const PostsTable = ({ data }: TableProps) => {

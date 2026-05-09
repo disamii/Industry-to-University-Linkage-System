@@ -1,5 +1,14 @@
 import { PostType } from "@/lib/enums";
 
+export type PostStats = {
+  total_posts: number;
+  success_story: number;
+  thematic_area: number;
+  open_request: number;
+  announcement: number;
+  guideline: number;
+};
+
 export type PostResponse = {
   id: number;
   title: string;

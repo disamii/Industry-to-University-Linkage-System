@@ -1,6 +1,7 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetPostsList } from "@/data/posts/posts-list-query";
+import PostsStat from "@/features/dashboard/office/posts/posts-stat";
 import PostsTable from "@/features/dashboard/office/posts/posts-table";
 import PostsTableOperations from "@/features/dashboard/office/posts/posts-table-operations";
 
@@ -20,6 +21,7 @@ const PostsPage = () => {
         {(data) => {
           return (
             <div className="space-y-6">
+              <PostsStat stats={data.stats} />
               <PostsTableOperations />
               <PostsTable data={data} />
             </div>
