@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetIndustryList } from "@/data/industry/industry-list-query";
-import { usePerformActionMutation } from "@/data/industry_requests/request-perform-action-mutation";
+import { usePerformActionMutation } from "@/data/requests/request-perform-action-mutation";
 import { useUserParams } from "@/data/user/use-user-params";
 import { useGetUsers } from "@/data/user/user-list-query";
 import { useDynamicForm } from "@/hooks/use-dynamic-form";

@@ -6,59 +6,83 @@ import {
 } from "@/components/reusable/form-components";
 import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
 import { Button } from "@/components/ui/button";
+import { CommandGroup, CommandItem } from "@/components/ui/command";
 import { Spinner } from "@/components/ui/spinner";
-import { useIndustryRequestCreateMutation } from "@/data/industry_requests/industry/industry_request-create-mutation";
-import { useIndustryRequestUpdateMutation } from "@/data/industry_requests/industry/industry_request-update-mutation";
-import { IndustryRequestType } from "@/lib/enums";
-import { INDUSTRY_REQUEST_HINTS, RequestHint } from "@/lib/mappings";
+import { useGetIndustryList } from "@/data/industry/industry-list-query";
+import { useIndustryParams } from "@/data/industry/use-industry-params";
+import { useRequestCreateMutation } from "@/data/requests/request-create-mutation";
+import { useRequestUpdateMutation } from "@/data/requests/request-update-mutation";
+import { Entity } from "@/lib/enums";
 import { formatSelectOptions } from "@/lib/utils";
+import { IndustryResponse } from "@/types/interfaces.industry";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
-import {
-  IndustryRequestCreateInput,
-  industryRequestCreateSchema,
-  industryRequestDefaultValues,
-  IndustryRequestUpdateInput,
-  industryRequestUpdateSchema,
-} from "@/validation/validation.requests";
+import { requestDefaultValues } from "@/validation/validation.requests";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { getEntityFormConfig } from "../request/utils.request";
 
 type Props = {
   requestToEdit?: RequestDetailResponse;
+  requesting_entity: Entity;
 };
 
-const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
-  const navigate = useNavigate();
+const CreateEditRequestsForm = ({
+  requestToEdit,
+  requesting_entity,
+}: Props) => {
+  // const navigate = useNavigate();
   const isEditing = !!requestToEdit;
+
+  const formConfig = getEntityFormConfig(requesting_entity);
+
+  const { mutate: createMutation, isPending: isCreating } =
+    useRequestCreateMutation();
+  const { mutate: updateMutation, isPending: isUpdating } =
+    useRequestUpdateMutation(requestToEdit?.id);
+  const isSubmitting = isCreating || isUpdating;
+
+  const industriesQuery = useGetIndustryList(
+    requesting_entity === Entity.ACADEMIC_UNIT,
+  );
+  const { setParams: setIndustryParams } = useIndustryParams();
 
   const defaultValues = useMemo(() => {
     if (isEditing && requestToEdit) {
-      return {
-        ...requestToEdit,
-        academic_unit: requestToEdit.academic_unit.id,
-      };
-    }
-    return industryRequestDefaultValues;
-  }, [requestToEdit, isEditing]);
+      const entitySpecificFields = {
+        [Entity.ACADEMIC_UNIT]: requestToEdit.academic_unit
+          ? { academic_unit: requestToEdit.academic_unit.id }
+          : {},
 
-  const form = useForm<IndustryRequestCreateInput | IndustryRequestUpdateInput>(
-    {
-      resolver: zodResolver(
-        isEditing ? industryRequestUpdateSchema : industryRequestCreateSchema,
-      ),
-      defaultValues: defaultValues,
-    },
-  );
+        [Entity.INDUSTRY]: requestToEdit.industry
+          ? { industry: requestToEdit.industry.id }
+          : {},
+      };
+
+      const payload = {
+        ...requestToEdit,
+        ...entitySpecificFields[requesting_entity],
+      };
+
+      return payload;
+    }
+
+    return requestDefaultValues;
+  }, [requestToEdit, isEditing, requesting_entity]);
+
+  const form = useForm({
+    resolver: zodResolver(
+      isEditing ? formConfig.schema.update : formConfig.schema.create,
+    ),
+    defaultValues,
+  });
 
   const selectedType = useWatch({
     control: form.control,
     name: "type",
-  }) as IndustryRequestType;
+  });
 
-  // Helper to get dynamic description hints
-  const descriptionContent = useMemo((): RequestHint => {
+  const hintContent = useMemo(() => {
     if (!selectedType) {
       return {
         placeholder: "Please select a type first...",
@@ -66,26 +90,21 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
       };
     }
 
-    // Direct lookup from the mapping file
-    return INDUSTRY_REQUEST_HINTS[selectedType];
-  }, [selectedType]);
+    return formConfig.hints[selectedType];
+  }, [selectedType, formConfig.hints]);
 
-  const { mutate: createMutation, isPending: isCreating } =
-    useIndustryRequestCreateMutation();
-  const { mutate: updateMutation, isPending: isUpdating } =
-    useIndustryRequestUpdateMutation(requestToEdit?.id);
-  const isSubmitting = isCreating || isUpdating;
-
-  const onSubmit = async (
-    data: IndustryRequestCreateInput | IndustryRequestUpdateInput,
-  ) => {
+  const onSubmit = async (data: any) => {
     const mutation = isEditing ? updateMutation : createMutation;
-    mutation(data as any, {
-      onSuccess: () => {
-        if (!isEditing) form.reset();
-        navigate("/dashboard/industry/requests");
+
+    mutation(
+      { data, requesting_entity },
+      {
+        onSuccess: () => {
+          if (!isEditing) form.reset();
+          // navigate("/dashboard/industry/requests");
+        },
       },
-    });
+    );
   };
 
   return (
@@ -106,7 +125,7 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
         form={form}
         name="type"
         label="Request Type"
-        options={formatSelectOptions(Object.values(IndustryRequestType))}
+        options={formatSelectOptions(Object.values(formConfig.types))}
         placeholder="Select type"
         required
       />
@@ -116,15 +135,59 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
           form={form}
           name="description"
           label="Description"
-          placeholder={descriptionContent.placeholder}
-          desc={descriptionContent.helpText}
+          placeholder={hintContent.placeholder}
+          desc={hintContent.helpText}
           disabled={!selectedType}
           required
           className="min-h-30"
         />
       </div>
 
-      <TreeSelectOrgUnit form={form} />
+      <div className="space-y-8">
+        <TreeSelectOrgUnit form={form} />
+
+        {requesting_entity === Entity.ACADEMIC_UNIT && (
+          <FormCombobox
+            form={form}
+            name="industry"
+            label="Industry"
+            placeholder="Select industry..."
+            query={industriesQuery}
+            checkEmpty={(data) => data.results.length === 0}
+            onSearch={(search) => setIndustryParams({ search })}
+            searchPlaceholder="Search Industries"
+            getDisplayValue={(value: number, data?: any) =>
+              data?.results?.find((i: IndustryResponse) => i.id === value)
+                ?.name ?? "Selected"
+            }
+            position="popper"
+            required
+          >
+            {(data) => {
+              return (
+                <CommandGroup>
+                  {data.results.map((item: IndustryResponse) => {
+                    return (
+                      <CommandItem
+                        key={item.id}
+                        value={item.name}
+                        onSelect={() => {
+                          form.setValue("industry", item.id, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                      >
+                        {item.name}
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              );
+            }}
+          </FormCombobox>
+        )}
+      </div>
 
       <FormUploadFile
         form={form}
@@ -151,4 +214,4 @@ const CreateEditIndustryRequestsForm = ({ requestToEdit }: Props) => {
   );
 };
 
-export default CreateEditIndustryRequestsForm;
+export default CreateEditRequestsForm;

@@ -2,7 +2,7 @@ import DashboardContentHeader from "@/components/reusable/dashboard-content-head
 import { QueryState } from "@/components/reusable/query-state-ui";
 import SubmitNewRequestBtn from "@/components/reusable/submit-new-request-btn";
 import { TabsContent } from "@/components/ui/tabs";
-import { useGetMyRequestsList } from "@/data/industry_requests/industry/my-requests-list-query";
+import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
 import RequestsStat from "@/features/dashboard/request/request-table/requests-stat";
 import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";

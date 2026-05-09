@@ -5,7 +5,7 @@ import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-in
 import { Entity } from "@/lib/enums";
 import { useParams } from "react-router-dom";
 
-const IndustryRequestEditPage = () => {
+const OfficeRequestEditPage = () => {
   const { id } = useParams();
   const query = useGetIndustryRequestDetail(Number(id));
 
@@ -30,4 +30,4 @@ const IndustryRequestEditPage = () => {
   );
 };
 
-export default IndustryRequestEditPage;
+export default OfficeRequestEditPage;

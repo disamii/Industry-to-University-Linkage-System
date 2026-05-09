@@ -1,10 +1,12 @@
+import IndustryRequestEditPage from "@/pages/dashboard/industry/industry_request-edit-page";
 import IndustryManagementPage from "@/pages/dashboard/office/industry-management-page";
-import OfficeRequestDetailPage from "@/pages/dashboard/office/office_request-detail-page";
 import OfficeAssignmentDetailPage from "@/pages/dashboard/office/office-assignment-detail-page";
 import AssignmentsPage from "@/pages/dashboard/office/office-assignments-page";
 import OfficeDashboard from "@/pages/dashboard/office/office-dashboard";
-import PostsPage from "@/pages/dashboard/office/posts-page";
+import OfficeRequestDetailPage from "@/pages/dashboard/office/office_request-detail-page";
+import OfficeRequestSubmitPage from "@/pages/dashboard/office/office_request-submit-page";
 import OfficeRequestsPage from "@/pages/dashboard/office/office_requests-page";
+import PostsPage from "@/pages/dashboard/office/posts-page";
 import SiteConfigPage from "@/pages/dashboard/office/site-config-page";
 import { RouteObject } from "react-router-dom";
 
@@ -19,6 +21,8 @@ export const officeRoutes: RouteObject[] = [
     path: withBase("requests/:id"),
     element: <OfficeRequestDetailPage />,
   },
+  { path: withBase("requests/create"), element: <OfficeRequestSubmitPage /> },
+  { path: withBase("requests/:id/edit"), element: <IndustryRequestEditPage /> },
   {
     path: withBase("assignments"),
     element: <AssignmentsPage />,

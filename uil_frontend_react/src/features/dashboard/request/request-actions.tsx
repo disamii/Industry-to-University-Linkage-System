@@ -11,7 +11,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useIndustryRequestDeleteMutation } from "@/data/industry_requests/industry/industry_request-delete-mutation";
+import { useRequestDeleteMutation } from "@/data/requests/request-delete-mutation";
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { ActionType, UserRole } from "@/lib/enums";
 import { mapEntity } from "@/lib/mappings";
@@ -49,7 +49,7 @@ const IndustryRequestActions = ({
   actionToPerform,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
-    useIndustryRequestDeleteMutation();
+    useRequestDeleteMutation();
   const [DeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const isTable = variant === "table";

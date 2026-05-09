@@ -1,4 +1,4 @@
-import { useRequestParams } from "@/data/industry_requests/use-request-params";
+import { useRequestParams } from "@/data/requests/use-request-params";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";

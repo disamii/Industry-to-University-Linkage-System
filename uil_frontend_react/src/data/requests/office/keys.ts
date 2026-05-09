@@ -1,4 +1,4 @@
-import { RequestParams } from "@/data/industry_requests/use-request-params";
+import { RequestParams } from "@/data/requests/use-request-params";
 
 export const industryRequestOfficeKeys = {
   all: () => ["industry_request", "office"] as const,

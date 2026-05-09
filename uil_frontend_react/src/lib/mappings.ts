@@ -23,69 +23,149 @@ export const colorVariants: Record<StatCardKeys, string> = {
 /**
  * Industry Request
  */
-import { Entity, IndustryRequestType, UserRole } from "./enums";
+import {
+  Entity,
+  IndustryRequestType,
+  OfficeRequestType,
+  UserRole,
+} from "./enums";
 
 export interface RequestHint {
   placeholder: string;
   helpText: string;
 }
-export const INDUSTRY_REQUEST_HINTS: Record<
-  IndustryRequestType,
-  RequestHint
-> = {
-  [IndustryRequestType.RND]: {
+export const INDUSTRY_REQUEST_HINTS: Record<IndustryRequestType, RequestHint> =
+  {
+    [IndustryRequestType.RND]: {
+      placeholder: "Detail the problem statement and required research area...",
+      helpText:
+        "Specify the research objectives, expected outcomes, and collaboration scope.",
+    },
+
+    [IndustryRequestType.TECH_SUPPORT]: {
+      placeholder:
+        "Specify the type of technology required and the duration needed...",
+      helpText:
+        "Include technical requirements, expected usage period, and support expectations.",
+    },
+
+    [IndustryRequestType.CONSULTANCY]: {
+      placeholder:
+        "Describe the consultancy or technical advisory service required...",
+      helpText:
+        "Specify the expertise needed, scope of work, and expected deliverables.",
+    },
+
+    [IndustryRequestType.TESTING]: {
+      placeholder:
+        "Specify the item, product, or service to be tested and the required test type...",
+      helpText:
+        "Include testing standards, certification requirements, or quality expectations if applicable.",
+    },
+
+    [IndustryRequestType.TRAINING]: {
+      placeholder:
+        "Specify the training type, number of trainees, and trainee level...",
+      helpText:
+        "Define the training objectives, target participants, and expected skills development.",
+    },
+
+    [IndustryRequestType.INTERNSHIP]: {
+      placeholder:
+        "Specify the field of study, number of students, internship duration, and assigned activities...",
+      helpText:
+        "Include required student qualifications, internship timeframe, and department or section assignment.",
+    },
+
+    [IndustryRequestType.RECRUITMENT]: {
+      placeholder:
+        "Specify the field of study, graduate year, general requirements, and number of recruits...",
+      helpText:
+        "Include recruitment criteria, preferred qualifications, and expected hiring timeline.",
+    },
+
+    [IndustryRequestType.OTHER]: {
+      placeholder: "Provide detailed information about your request...",
+      helpText:
+        "Include any additional requirements or relevant information related to the request.",
+    },
+  };
+
+export const OFFICE_REQUEST_HINTS: Record<OfficeRequestType, RequestHint> = {
+  [OfficeRequestType.CURRICULUM_REVIEW]: {
     placeholder:
-      "Detail the problem statement and required research area...",
+      "Enter course name, current syllabus details, and required industry expertise...",
     helpText:
-      "Specify the research objectives, expected outcomes, and collaboration scope.",
+      "Provide the course title and specify the industry role or expertise needed to validate the curriculum.",
   },
 
-  [IndustryRequestType.TECH_SUPPORT]: {
+  [OfficeRequestType.INDUSTRIAL_VISIT]: {
     placeholder:
-      "Specify the type of technology required and the duration needed...",
+      "Specify number of visitors, preferred date/time, and target department...",
     helpText:
-      "Include technical requirements, expected usage period, and support expectations.",
+      "Include visitor count (students/staff), department of interest, and specific learning objectives for the visit.",
   },
 
-  [IndustryRequestType.CONSULTANCY]: {
+  [OfficeRequestType.JOINT_RESEARCH]: {
     placeholder:
-      "Describe the consultancy or technical advisory service required...",
+      "Describe the research topic, problem statement, and requested industry contribution...",
     helpText:
-      "Specify the expertise needed, scope of work, and expected deliverables.",
+      "Define the research scope and clarify if you need data access, equipment usage, or funding.",
   },
 
-  [IndustryRequestType.TESTING]: {
+  [OfficeRequestType.GUEST_LECTURE]: {
     placeholder:
-      "Specify the item, product, or service to be tested and the required test type...",
+      "Specify topic/module, student level, duration, and delivery mode...",
     helpText:
-      "Include testing standards, certification requirements, or quality expectations if applicable.",
+      "Detail the target audience (Undergrad/Postgrad), preferred date, and whether it is online or in-person.",
   },
 
-  [IndustryRequestType.TRAINING]: {
+  [OfficeRequestType.LAB_ACCESS]: {
     placeholder:
-      "Specify the training type, number of trainees, and trainee level...",
+      "Specify equipment needed, purpose of use, and duration of access...",
     helpText:
-      "Define the training objectives, target participants, and expected skills development.",
+      "State whether access is for research or teaching and if technical assistance is required.",
   },
 
-  [IndustryRequestType.INTERNSHIP]: {
+  [OfficeRequestType.TECH_TRANSFER]: {
     placeholder:
-      "Specify the field of study, number of students, internship duration, and assigned activities...",
+      "Describe the patent/innovation, its TRL level, and proposed licensing model...",
     helpText:
-      "Include required student qualifications, internship timeframe, and department or section assignment.",
+      "Include the Technology Readiness Level and the intended commercial or academic licensing approach.",
   },
 
-  [IndustryRequestType.RECRUITMENT]: {
+  [OfficeRequestType.WORKSHOP_CALL]: {
     placeholder:
-      "Specify the field of study, graduate year, general requirements, and number of recruits...",
+      "Specify workshop theme, timeframe, and expected number of participants...",
     helpText:
-      "Include recruitment criteria, preferred qualifications, and expected hiring timeline.",
+      "Detail the workshop objectives, participation type, and planned schedule.",
   },
 
-  [IndustryRequestType.OTHER]: {
-    placeholder: "Provide detailed information about your request...",
+  [OfficeRequestType.CONFERENCE_CALL]: {
+    placeholder:
+      "Specify conference theme, timeframe, and participation details...",
     helpText:
-      "Include any additional requirements or relevant information related to the request.",
+      "Include key topics, target participant count, and the nature of the engagement.",
+  },
+
+  [OfficeRequestType.EXHIBITION_CALL]: {
+    placeholder:
+      "Specify exhibition theme, timeframe, and participation requirements...",
+    helpText:
+      "Outline the exhibition scope, required space or facilities, and expected audience.",
+  },
+
+  [OfficeRequestType.JOINT_COMMUNITY_ENGAGEMENT]: {
+    placeholder:
+      "Describe the proposed area, engagement type, and timeframe...",
+    helpText:
+      "Specify the target community, expected social impact, and duration of the project.",
+  },
+
+  [OfficeRequestType.OTHER]: {
+    placeholder: "Provide detailed information about your office request...",
+    helpText:
+      "Include any specific requirements or context not covered by the standard categories.",
   },
 };
 

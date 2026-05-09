@@ -1,6 +1,6 @@
 import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
-import { useGetIndustryRequestDetail } from "@/data/industry_requests/industry/industry_request-detail-query";
+import { useGetIndustryRequestDetail } from "@/data/requests/industry/industry_request-detail-query";
 import ActionTimeline from "@/features/dashboard/request/request-detail/action-timeline";
 import RequestHeader from "@/features/dashboard/request/request-detail/request-header";
 import RequestDetailCard from "@/features/dashboard/request/request-detail/request-detail-card";

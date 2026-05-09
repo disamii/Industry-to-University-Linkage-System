@@ -1,14 +1,14 @@
 import {
   MyRequestParams,
   useRequestParams,
-} from "@/data/industry_requests/use-request-params";
+} from "@/data/requests/use-request-params";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 import { MyRequestResponse, RequestStats } from "@/types/interfaces.requests";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { industryRequestKeys } from "./keys";
-import { industryRequestUrls } from "./urls";
+import { industryRequestUrls } from "./industry/urls";
+import { industryRequestKeys } from "./industry/keys";
 
 export const getMyRequestsList = createGetRequest<
   ApiPaginatedResponse<MyRequestResponse, undefined, RequestStats>

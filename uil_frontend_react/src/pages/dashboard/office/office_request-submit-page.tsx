@@ -2,7 +2,7 @@ import DashboardContentHeader from "@/components/reusable/dashboard-content-head
 import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-industry_request-form";
 import { Entity } from "@/lib/enums";
 
-const IndustryRequestSubmitPage = () => {
+const OfficeRequestSubmitPage = () => {
   return (
     <div className="space-y-3">
       <DashboardContentHeader
@@ -10,9 +10,9 @@ const IndustryRequestSubmitPage = () => {
         desc="Complete the details below to initiate a new request"
       />
 
-      <CreateEditRequestsForm requesting_entity={Entity.INDUSTRY} />
+      <CreateEditRequestsForm requesting_entity={Entity.ACADEMIC_UNIT} />
     </div>
   );
 };
 
-export default IndustryRequestSubmitPage;
+export default OfficeRequestSubmitPage;

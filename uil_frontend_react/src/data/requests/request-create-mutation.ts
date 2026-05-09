@@ -3,22 +3,24 @@ import { safeApiRequest } from "@/lib/axios.utils";
 import { Entity } from "@/lib/enums";
 import { toFormData } from "@/lib/utils";
 import { RequestResponse } from "@/types/interfaces.requests";
-import {
-  IndustryRequestCreateInput,
-  industryRequestCreateSchema,
-} from "@/validation/validation.requests";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { industryRequestKeys } from "./keys";
-import { industryRequestUrls } from "./urls";
+import { industryRequestKeys } from "./industry/keys";
+import { industryRequestUrls } from "./industry/urls";
 
-export const industryRequestCreate = (data: IndustryRequestCreateInput) => {
-  const validated = industryRequestCreateSchema.parse(data);
+type CreateRequestMutationVariables = {
+  data: any;
+  requesting_entity: Entity;
+};
 
-  const formData = toFormData(validated);
-  formData.append("requesting_entity", Entity.INDUSTRY);
+export const requestCreate = ({
+  data,
+  requesting_entity,
+}: CreateRequestMutationVariables) => {
+  const formData = toFormData(data);
+  formData.append("requesting_entity", requesting_entity);
 
-  // console.log(Object.fromEntries(formData.entries()));
+  console.log(Object.fromEntries(formData.entries()));
 
   return safeApiRequest(
     api.post<RequestResponse>(industryRequestUrls.base(), formData, {
@@ -29,11 +31,12 @@ export const industryRequestCreate = (data: IndustryRequestCreateInput) => {
   );
 };
 
-export const useIndustryRequestCreateMutation = () => {
+export const useRequestCreateMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: industryRequestCreate,
+    mutationFn: ({ data, requesting_entity }: CreateRequestMutationVariables) =>
+      requestCreate({ data, requesting_entity }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
       toast.success("Request created successfully");

@@ -8,7 +8,7 @@ import { Filter } from "lucide-react";
 import {
   defaultRequestParams,
   useRequestParams,
-} from "@/data/industry_requests/use-request-params";
+} from "@/data/requests/use-request-params";
 
 const RequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =

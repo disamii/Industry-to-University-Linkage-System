@@ -1,32 +1,28 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { IndustryRequestResponse } from "@/types/interfaces.requests";
-import {
-  IndustryRequestUpdateInput,
-  industryRequestUpdateSchema,
-} from "@/validation/validation.requests";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { industryRequestKeys } from "./keys";
-import { industryRequestUrls } from "./urls";
 import { toFormData } from "@/lib/utils"; // Added this
+import { RequestResponse } from "@/types/interfaces.requests";
+import { IndustryRequestUpdateInput } from "@/validation/validation.requests";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { industryRequestKeys } from "./industry/keys";
+import { industryRequestUrls } from "./industry/urls";
 
-export const industryRequestUpdate = async ({
+export const requestUpdate = async ({
   id,
   data,
 }: {
   id?: number;
   data: IndustryRequestUpdateInput;
-}): Promise<IndustryRequestResponse> => {
+}): Promise<RequestResponse> => {
   if (!id) {
     throw new Error("ID is required for update");
   }
 
-  const validated = industryRequestUpdateSchema.parse(data);
-  const formData = toFormData(validated);
+  const formData = toFormData(data);
 
   return safeApiRequest(
-    api.patch<IndustryRequestResponse>(industryRequestUrls.byId(id), formData, {
+    api.patch<RequestResponse>(industryRequestUrls.byId(id), formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -34,12 +30,12 @@ export const industryRequestUpdate = async ({
   );
 };
 
-export const useIndustryRequestUpdateMutation = (id?: number) => {
+export const useRequestUpdateMutation = (id?: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: IndustryRequestUpdateInput) =>
-      industryRequestUpdate({ id, data }),
+      requestUpdate({ id, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
       toast.success("Request updated successfully");

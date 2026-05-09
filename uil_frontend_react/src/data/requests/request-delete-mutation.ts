@@ -2,10 +2,10 @@ import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { industryRequestKeys } from "./keys";
-import { industryRequestUrls } from "./urls";
+import { industryRequestKeys } from "./industry/keys";
+import { industryRequestUrls } from "./industry/urls";
 
-export const industryRequestDelete = async (ids: number[]) => {
+export const requestDelete = async (ids: number[]) => {
   const results: { id: number; success: boolean; error?: string }[] = [];
 
   for (const id of ids) {
@@ -24,11 +24,11 @@ export const industryRequestDelete = async (ids: number[]) => {
   return results;
 };
 
-export const useIndustryRequestDeleteMutation = () => {
+export const useRequestDeleteMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: industryRequestDelete,
+    mutationFn: requestDelete,
     onSuccess: (results) => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
 

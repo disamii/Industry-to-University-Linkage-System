@@ -1,4 +1,9 @@
-import { ActionType, Entity } from "@/lib/enums";
+import {
+  ActionType,
+  Entity,
+  IndustryRequestType,
+  OfficeRequestType,
+} from "@/lib/enums";
 import { RequestBase } from "@/validation/validation.requests";
 import { Metadata } from "./interfaces";
 import { RequestAction } from "./interfaces.actions";
@@ -14,7 +19,11 @@ export type RequestStats = {
 };
 
 export type RequestResponse = Omit<RequestBase, "attachment"> &
-  Metadata & { id: number; attachment: string | null };
+  Metadata & {
+    id: number;
+    attachment: string | null;
+    type: IndustryRequestType | OfficeRequestType;
+  };
 
 export type MyRequestResponse = Omit<
   RequestResponse,
@@ -34,7 +43,6 @@ export type RequestDetailResponse = Omit<
   "academic_unit" | "extra_data" | "industry"
 > & {
   industry: IndustryResponse;
-  // detail: Record<string, string> | null;
   requesting_entity: Entity;
   actions: RequestAction[];
   academic_unit: OrgUnitResponse;

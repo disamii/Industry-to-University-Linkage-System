@@ -19,7 +19,7 @@ import {
   RequestStats,
 } from "@/types/interfaces.requests";
 import { useRef } from "react";
-import { useRequestParams } from "../../../../data/industry_requests/use-request-params";
+import { useRequestParams } from "../../../../data/requests/use-request-params";
 import IndustryRequestActions from "../request-actions";
 
 type RowProps = {

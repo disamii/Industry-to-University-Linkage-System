@@ -27,7 +27,7 @@ export enum IndustryType {
 }
 
 /**
- * Industry Request
+ * Request
  */
 export enum IndustryRequestType {
   RND = "rnd",
@@ -37,6 +37,20 @@ export enum IndustryRequestType {
   TRAINING = "training",
   INTERNSHIP = "internship",
   RECRUITMENT = "recruitment",
+  OTHER = "other",
+}
+
+export enum OfficeRequestType {
+  CURRICULUM_REVIEW = "curriculum_review",
+  INDUSTRIAL_VISIT = "industrial_visit",
+  JOINT_RESEARCH = "joint_research",
+  GUEST_LECTURE = "guest_lecture",
+  LAB_ACCESS = "lab_access",
+  TECH_TRANSFER = "tech_transfer",
+  WORKSHOP_CALL = "workshop_call",
+  CONFERENCE_CALL = "conference_call",
+  EXHIBITION_CALL = "exhibition_call",
+  JOINT_COMMUNITY_ENGAGEMENT = "joint_community_engagement",
   OTHER = "other",
 }
 
