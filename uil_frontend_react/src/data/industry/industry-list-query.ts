@@ -1,14 +1,14 @@
 import { useIndustryParams } from "@/data/industry/use-industry-params";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
-import { IndustryResponse } from "@/types/interfaces.industry";
+import { IndustryResponse, IndustryStats } from "@/types/interfaces.industry";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { industryKeys } from "./keys";
 import { industryUrls } from "./urls";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 
 export const getIndustryList = createGetRequest<
-  ApiPaginatedResponse<IndustryResponse>
+  ApiPaginatedResponse<IndustryResponse, undefined, IndustryStats>
 >(industryUrls.base());
 
 export const useGetIndustryList = (enabled?: boolean) => {

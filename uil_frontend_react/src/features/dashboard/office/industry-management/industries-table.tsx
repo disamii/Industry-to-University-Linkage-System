@@ -9,7 +9,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
-import { IndustryResponse } from "@/types/interfaces.industry";
+import { IndustryResponse, IndustryStats } from "@/types/interfaces.industry";
 import { ExternalLink, MoreVertical } from "lucide-react";
 import { useRef } from "react";
 import { useIndustryParams } from "../../../../data/industry/use-industry-params";
@@ -87,7 +87,7 @@ const IndustryTableRow = ({ item, index }: RowProps) => {
 };
 
 type TableProps = {
-  data: ApiPaginatedResponse<IndustryResponse>;
+  data: ApiPaginatedResponse<IndustryResponse, undefined, IndustryStats>;
 };
 
 const IndustriesTable = ({ data }: TableProps) => {
