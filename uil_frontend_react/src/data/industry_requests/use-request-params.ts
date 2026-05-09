@@ -1,8 +1,13 @@
 import { defaultPaginationParams } from "@/components/reusable/pagination";
 import { useUrlParams } from "@/hooks/use-url-params";
-import { ActionType, IndustryRequestType } from "@/lib/enums";
+import { ActionType, Entity, IndustryRequestType } from "@/lib/enums";
 import { PaginationParams, Sortable } from "@/types/interfaces";
 import { useMemo } from "react";
+
+export type MyRequestParams = {
+  direction?: "incoming" | "outgoing";
+  entity?: Entity;
+};
 
 export type RequestParams = PaginationParams & {
   search: string;
@@ -19,7 +24,10 @@ export const defaultRequestParams: RequestParams = {
   ordering: "-created_at",
 };
 
-const useRequestParams = () => {
+const useRequestParams = (
+  entity?: Entity,
+  direction?: "incoming" | "outgoing",
+) => {
   const { getParam, setParams, removeParams, clearAllParams } =
     useUrlParams<RequestParams>(defaultRequestParams);
 
@@ -47,6 +55,8 @@ const useRequestParams = () => {
       academic_unit,
       actions__type,
       industry,
+      direction,
+      entity,
     }),
     [
       page,
@@ -57,6 +67,8 @@ const useRequestParams = () => {
       academic_unit,
       actions__type,
       industry,
+      direction,
+      entity,
     ],
   );
 

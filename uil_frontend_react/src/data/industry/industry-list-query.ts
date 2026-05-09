@@ -11,7 +11,7 @@ export const getIndustryList = createGetRequest<
   ApiPaginatedResponse<IndustryResponse>
 >(industryUrls.base());
 
-export const useGetIndustryList = () => {
+export const useGetIndustryList = (enabled?: boolean) => {
   const queryClient = useQueryClient();
   const { params } = useIndustryParams();
 
@@ -19,6 +19,7 @@ export const useGetIndustryList = () => {
     queryKey: industryKeys.list(params),
     queryFn: () => getIndustryList(params),
     placeholderData: (prev) => prev,
+    enabled,
   });
 
   usePaginatedPrefetch({

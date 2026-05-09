@@ -1,12 +1,16 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
-import { useGetIndustryRequestMineList } from "@/data/industry_requests/industry/industry_requests-mine-list-query";
+import { useGetMyRequestsList } from "@/data/industry_requests/industry/my-requests-list-query";
 import RequestsStat from "@/features/dashboard/request/request-table/requests-stat";
 import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
+import { Entity } from "@/lib/enums";
 
 const IndustryRequestsPage = () => {
-  const query = useGetIndustryRequestMineList();
+  const query = useGetMyRequestsList({
+    entity: Entity.INDUSTRY,
+    direction: "outgoing",
+  });
 
   return (
     <div className="space-y-6">

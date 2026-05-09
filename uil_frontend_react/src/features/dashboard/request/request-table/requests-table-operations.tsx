@@ -8,15 +8,16 @@ import { Filter } from "lucide-react";
 import {
   defaultRequestParams,
   useRequestParams,
-} from "../../../../data/industry_requests/use-request-params";
+} from "@/data/industry_requests/use-request-params";
 
 const RequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
     useRequestParams();
-  const industriesQuery = useGetIndustryList();
 
   const currentRole = useGetRoleByPath();
   const isOffice = currentRole === UserRole.ADMIN;
+
+  const industriesQuery = useGetIndustryList(isOffice);
 
   return (
     <TableFilters.Root
@@ -96,6 +97,7 @@ const RequestsTableOperations = () => {
           academic_unit: "Academic Unit",
           industry: "Industry",
         }}
+        exclude={["entity", "direction"]}
         defaults={defaultRequestParams}
       />
     </TableFilters.Root>

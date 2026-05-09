@@ -332,7 +332,10 @@ const ActiveFilters = ({
 
   const entries = Object.entries(params).filter(([key, value]) => {
     if (!value) return false;
-    if (exclude.includes(key)) return false;
+    if (exclude.includes(key)) {
+      console.log(key);
+      return false;
+    }
 
     // 👇 exclude default values
     if (key in defaults && defaults[key] === value) return false;

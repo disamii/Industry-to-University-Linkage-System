@@ -76,7 +76,8 @@ class RequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
+    filterset_fields = ['type', 'actions__type',
+                        'requesting_entity', 'academic_unit', 'industry']
     ordering_fields = ['created_at', 'updated_at',
                        'title', 'industry__name', 'requesting_entity']
     search_fields = ['industry__name']
@@ -121,7 +122,7 @@ class RequestViewSet(
         """
         Query Params:
         - direction = incoming | outgoing
-        - entity = industry | university
+        - entity = industry | academic_unit
         """
         direction = request.query_params.get("direction")
         entity = request.query_params.get("entity")
@@ -191,7 +192,8 @@ class RequestManageViewSet(
         mixins.RetrieveModelMixin,
         mixins.DestroyModelMixin,
         viewsets.GenericViewSet):
-    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
+    filterset_fields = ['type', 'actions__type',
+                        'requesting_entity', 'academic_unit', 'industry']
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
     search_fields = ['industry__name', 'title']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -347,7 +349,8 @@ class RequestManageViewSet(
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
-    queryset = Assignment.objects.select_related("request").prefetch_related("assigned_users")
+    queryset = Assignment.objects.select_related(
+        "request").prefetch_related("assigned_users")
     serializer_class = AssignmentDetailSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['status']
@@ -384,11 +387,10 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
-
     @action(detail=False, methods=["get"], url_path="by-industry/(?P<industry_id>[^/.]+)")
     def by_industry(self, request, industry_id=None):
         qs = self.queryset.filter(request__industry_id=industry_id)
-  
+
         qs = self.filter_queryset(qs)
         page = self.paginate_queryset(qs)
         if page is not None:

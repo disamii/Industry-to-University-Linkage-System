@@ -1,4 +1,7 @@
-import { useRequestParams } from "@/data/industry_requests/use-request-params";
+import {
+  MyRequestParams,
+  useRequestParams,
+} from "@/data/industry_requests/use-request-params";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
 import { createGetRequest } from "@/lib/axios.utils";
 import { ApiPaginatedResponse } from "@/types/interfaces";
@@ -7,24 +10,27 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
 
-export const getIndustryRequestMineList = createGetRequest<
+export const getMyRequestsList = createGetRequest<
   ApiPaginatedResponse<MyRequestResponse, undefined, RequestStats>
 >(industryRequestUrls.mine());
 
-export const useGetIndustryRequestMineList = () => {
+export const useGetMyRequestsList = ({
+  entity,
+  direction,
+}: MyRequestParams) => {
   const queryClient = useQueryClient();
-  const { params } = useRequestParams();
+  const { params } = useRequestParams(entity, direction);
 
   const query = useQuery({
     queryKey: industryRequestKeys.mine(params),
-    queryFn: () => getIndustryRequestMineList(params),
+    queryFn: () => getMyRequestsList(params),
     placeholderData: (prev) => prev,
   });
 
   usePaginatedPrefetch({
     queryClient,
     baseKey: industryRequestKeys.mine().slice(0, -1),
-    queryFn: getIndustryRequestMineList,
+    queryFn: getMyRequestsList,
     params,
     links: query.data?.pagination.links,
     isPlaceholderData: query.isPlaceholderData,
