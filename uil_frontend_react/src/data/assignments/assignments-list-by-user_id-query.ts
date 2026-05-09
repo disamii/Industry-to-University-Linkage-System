@@ -6,7 +6,10 @@ import {
   AssignmentParams,
   useAssignmentParams,
 } from "@/data/assignments/use-assignment-params";
-import { AssignmentResponse } from "@/types/interfaces.assignments";
+import {
+  AssignmentResponse,
+  AssignmentStats,
+} from "@/types/interfaces.assignments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { assignmentKeys } from "./keys";
 import { assignmentUrls } from "./urls";
@@ -17,9 +20,9 @@ export const getAssignmentsListByUserId = (
 ) => {
   if (!user_id) throw new Error("No User Id Found");
 
-  const getFn = createGetRequest<ApiPaginatedResponse<AssignmentResponse>>(
-    assignmentUrls.by_user_id(user_id),
-  );
+  const getFn = createGetRequest<
+    ApiPaginatedResponse<AssignmentResponse, undefined, AssignmentStats>
+  >(assignmentUrls.by_user_id(user_id));
 
   return getFn(params);
 };

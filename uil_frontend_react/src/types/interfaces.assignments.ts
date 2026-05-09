@@ -2,6 +2,16 @@ import { AssignmentStatus } from "@/lib/enums";
 import { RequestDetailResponse } from "./interfaces.requests";
 import { UserProfile } from "./interfaces.user";
 
+export type AssignmentStats = {
+  total_assignments: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
+  in_progress: number;
+  completed: number;
+  cancelled: number;
+};
+
 export type AssignmentResponse = {
   id: number;
   request: RequestDetailResponse;

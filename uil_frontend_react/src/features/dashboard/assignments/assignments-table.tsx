@@ -12,7 +12,10 @@ import { PAGE_SIZE } from "@/lib/constants";
 import UsersAvatarPopover from "@/components/reusable/users-avatar-popver";
 import { cn, formatDate, formatType, getAcademicUnitAbbr } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
-import { AssignmentResponse } from "@/types/interfaces.assignments";
+import {
+  AssignmentResponse,
+  AssignmentStats,
+} from "@/types/interfaces.assignments";
 import { useRef } from "react";
 import { useAssignmentParams } from "../../../data/assignments/use-assignment-params";
 import AssignmentActions from "./assignment-actions";
@@ -109,7 +112,7 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
 };
 
 type TableProps = {
-  data: ApiPaginatedResponse<AssignmentResponse>;
+  data: ApiPaginatedResponse<AssignmentResponse, undefined, AssignmentStats>;
 };
 
 const AssignmentsTable = ({ data }: TableProps) => {

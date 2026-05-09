@@ -9,8 +9,11 @@ import {
 } from "@/components/ui/card";
 import { LINKS } from "@/lib/constants";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "@/store/use-auth-store";
 
 export default function UnauthorizedPage() {
+  const { clearAuth } = useAuthStore();
+
   return (
     <div className="flex justify-center items-center bg-background w-full min-h-screen">
       <Card className="w-full max-w-md">
@@ -34,7 +37,9 @@ export default function UnauthorizedPage() {
             <Link to="/">Return to Hompage</Link>
           </Button>
           <Button variant="secondary" asChild className="h-10">
-            <Link to={LINKS.signin}>Login with a different account</Link>
+            <Link to={LINKS.signin} onClick={() => clearAuth()}>
+              Login with a different account
+            </Link>
           </Button>
         </CardFooter>
       </Card>

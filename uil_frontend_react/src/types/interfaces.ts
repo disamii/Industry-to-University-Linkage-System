@@ -57,4 +57,5 @@ export type StatCardKeys =
   | "danger"
   | "primary"
   | "secondary"
-  | "tertiary";
+  | "muted"
+  | "in_progress";

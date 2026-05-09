@@ -114,7 +114,7 @@ const AssignmentActions = ({
                 <DropdownMenuSubContent>
                   <DropdownMenuItem
                     onClick={() => openDialog("add")} // Trigger Add
-                    className={cn(colorVariants.success, "bg-transparent")}
+                    className={cn(colorVariants.info, "bg-transparent")}
                   >
                     <UserPlus className="mr-2 w-4 h-4" />
                     Add Users

@@ -5,11 +5,14 @@ import { ApiPaginatedResponse } from "@/types/interfaces";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { assignmentUrls } from "./urls";
 import { assignmentKeys } from "./keys";
-import { AssignmentResponse } from "@/types/interfaces.assignments";
+import {
+  AssignmentResponse,
+  AssignmentStats,
+} from "@/types/interfaces.assignments";
 import { useAssignmentParams } from "@/data/assignments/use-assignment-params";
 
 export const getAssignmentsList = createGetRequest<
-  ApiPaginatedResponse<AssignmentResponse>
+  ApiPaginatedResponse<AssignmentResponse, undefined, AssignmentStats>
 >(assignmentUrls.base());
 
 export const useGetAssignmentsList = () => {

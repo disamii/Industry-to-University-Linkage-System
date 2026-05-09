@@ -264,7 +264,7 @@ const ManageUserAssignmentFormDialog = ({
 
   const currentActionConfig = {
     remove: colorVariants.danger,
-    add: colorVariants.success,
+    add: colorVariants.info,
   };
   const disabled =
     isPending ||

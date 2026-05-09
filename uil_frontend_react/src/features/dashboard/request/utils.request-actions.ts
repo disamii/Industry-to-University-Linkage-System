@@ -9,8 +9,6 @@ import {
   LucideIcon,
   MessageSquare,
   Plus,
-  RefreshCw,
-  ShieldBan,
   UserCheck,
   XCircle,
 } from "lucide-react";
@@ -176,12 +174,12 @@ const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     color: "bg-teal-100 text-teal-700", // Distinct from green "Complete"
     formFields: [...BASE_FIELDS],
   },
-  [ActionType.REVOKED]: {
-    label: "Revoke Assignment",
-    Icon: ShieldBan,
-    color: "bg-orange-100 text-orange-700", // Warning but not a "failure"
-    formFields: [...BASE_FIELDS],
-  },
+  // [ActionType.REVOKED]: {
+  //   label: "Revoke Assignment",
+  //   Icon: ShieldBan,
+  //   color: "bg-orange-100 text-orange-700", // Warning but not a "failure"
+  //   formFields: [...BASE_FIELDS],
+  // },
   [ActionType.CANCELLED]: {
     label: "Cancel Request",
     Icon: XCircle,
@@ -212,12 +210,12 @@ const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     color: "bg-blue-100 text-blue-700", // Primary action
     formFields: [...ASSIGNMENT_FIELDS],
   },
-  [ActionType.REASSIGNED]: {
-    label: "Reassign",
-    Icon: RefreshCw,
-    color: "bg-amber-100 text-amber-800", // Change/Attention
-    formFields: [...ASSIGNMENT_FIELDS],
-  },
+  // [ActionType.REASSIGNED]: {
+  //   label: "Reassign",
+  //   Icon: RefreshCw,
+  //   color: "bg-amber-100 text-amber-800", // Change/Attention
+  //   formFields: [...ASSIGNMENT_FIELDS],
+  // },
   [ActionType.FORWARDED]: {
     label: "Forward",
     Icon: Forward,

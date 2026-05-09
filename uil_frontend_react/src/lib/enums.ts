@@ -36,7 +36,7 @@ export enum IndustryRequestType {
   TESTING = "testing",
   TRAINING = "training",
   INTERNSHIP = "internship",
-  EXTERNSHIP="externship",
+  EXTERNSHIP = "externship",
   RECRUITMENT = "recruitment",
   OTHER = "other",
 }
@@ -70,9 +70,9 @@ export enum ActionType {
   POSTED_AS_THEMATIC = "posted_as_thematic",
   REPLIED = "replied",
   REJECTED = "rejected",
-  REASSIGNED = "reassigned",
+  // REASSIGNED = "reassigned",
   COMPLETED = "completed",
-  REVOKED = "revoked",
+  // REVOKED = "revoked",
   CANCELLED = "cancelled",
   REVERTED = "reverted",
 }
