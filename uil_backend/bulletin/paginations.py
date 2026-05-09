@@ -21,7 +21,7 @@ class PostPagination(PageNumberPagination):
         # Dynamic enum-based stats
         for status_value, _label in PostType.choices:
             key = f"{status_value}"
-            stats[key] = qs.filter(status=status_value).count()
+            stats[key] = qs.filter(post_type=status_value).count()
 
         response = {
             "stats": stats,
