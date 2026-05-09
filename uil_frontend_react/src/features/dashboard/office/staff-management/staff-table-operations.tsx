@@ -31,7 +31,6 @@ const StaffTableOperations = () => {
 
       <TableFilters.ActiveFilters
         labels={{
-          page_size: "Items Per Page",
           industry_type: "Indsutry Type",
         }}
         defaults={defaultUserParams}

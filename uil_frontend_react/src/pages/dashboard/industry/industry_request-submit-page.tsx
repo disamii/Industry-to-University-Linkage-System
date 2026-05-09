@@ -1,5 +1,5 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
-import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-industry_request-form";
+import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-request-form";
 import { Entity } from "@/lib/enums";
 import { useNavigate } from "react-router-dom";
 

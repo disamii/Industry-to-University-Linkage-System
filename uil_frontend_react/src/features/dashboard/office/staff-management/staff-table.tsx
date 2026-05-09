@@ -138,6 +138,7 @@ const StaffTable = ({ data }: TableProps) => {
           variant="table"
           totalItems={pagination.total}
           scrollRef={topCardRef}
+          namespace="users"
         />
       </Table.Footer>
     </Table>

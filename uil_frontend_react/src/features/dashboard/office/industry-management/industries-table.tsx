@@ -130,6 +130,7 @@ const IndustriesTable = ({ data }: TableProps) => {
           variant="table"
           totalItems={pagination.total}
           scrollRef={topCardRef}
+          namespace="industries"
         />
       </Table.Footer>
     </Table>

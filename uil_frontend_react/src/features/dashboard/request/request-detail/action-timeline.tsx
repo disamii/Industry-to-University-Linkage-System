@@ -4,7 +4,7 @@ import { ActionType } from "@/lib/enums";
 import { formatDate } from "@/lib/utils";
 import { RequestAction } from "@/types/interfaces.actions";
 import { Calendar, Clock, Logs, StickyNote, Wrench } from "lucide-react";
-import IndustryRequestActions from "../request-actions";
+import RequestActions from "../request-actions";
 import {
   formatRevertDescription,
   getActionTypeConfig,
@@ -100,7 +100,7 @@ const ActionTimelineList = ({
       )}
 
       <div className="top-0 right-0 absolute">
-        <IndustryRequestActions
+        <RequestActions
           id={action.id}
           title={request.title}
           description={request.description}
@@ -127,10 +127,6 @@ const ActionTimelineList = ({
         {/* Content Container */}
         <div className="flex-1 pt-0.5 min-w-0">
           <div className="flex flex-col gap-2">
-            {/* Header: Action + Time */}
-            {/* <h3 className="font-semibold text-base leading-none">
-              {action.description}
-            </h3> */}
             <div className="flex-1">{renderDescription()}</div>
 
             {/* Action Badge */}
@@ -202,6 +198,7 @@ const ActionTimeline = ({ actions, request }: Props) => {
               .reverse()
               .map((action, index) => (
                 <ActionTimelineList
+                  key={`${action.id} — ${index}`}
                   action={action}
                   idx={index}
                   actionsCount={actions.length}

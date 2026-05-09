@@ -1,6 +1,6 @@
 import RequestActionBadge from "@/components/reusable/request-action-badge";
 import { Badge } from "@/components/ui/badge";
-import IndustryRequestActions from "@/features/dashboard/request/request-actions";
+import RequestActions from "@/features/dashboard/request/request-actions";
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { UserRole } from "@/lib/enums";
 import { formatDate } from "@/lib/utils";
@@ -59,7 +59,7 @@ const IndustryRequestHeader = ({
       </div>
 
       {/* Action Dropdown */}
-      <IndustryRequestActions
+      <RequestActions
         id={id}
         title={title}
         description={description}

@@ -8,6 +8,7 @@ import RequestsTable from "@/features/dashboard/request/request-table/requests-t
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
 import useTabParams from "@/hooks/use-tab-params";
 import { Entity } from "@/lib/enums";
+import { useNavigate } from "react-router-dom";
 
 const OutgoingIndustryRequestsTab = () => {
   const { params } = useTabParams();
@@ -16,6 +17,8 @@ const OutgoingIndustryRequestsTab = () => {
     direction: "outgoing",
     enabled: params.tab === "outgoing",
   });
+
+  const navigate = useNavigate();
 
   return (
     <TabsContent value="outgoing" className="space-y-6 mt-4">
@@ -35,7 +38,15 @@ const OutgoingIndustryRequestsTab = () => {
             <div className="space-y-6">
               <RequestsStat stats={data.stats} />
               <RequestsTableOperations />
-              <RequestsTable data={data} />
+              <RequestsTable
+                data={data}
+                onEdit={(id) =>
+                  navigate(`/dashboard/industry/requests/${id}/edit`)
+                }
+                onDelete={() =>
+                  navigate("/dashboard/industry/requests?tab=outgoing")
+                }
+              />
             </div>
           );
         }}

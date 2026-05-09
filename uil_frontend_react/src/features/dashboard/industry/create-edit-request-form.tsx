@@ -51,13 +51,15 @@ const CreateEditRequestsForm = ({
   const defaultValues = useMemo(() => {
     if (isEditing && requestToEdit) {
       const entitySpecificFields = {
-        [Entity.ACADEMIC_UNIT]: requestToEdit.academic_unit
-          ? { academic_unit: requestToEdit.academic_unit.id }
-          : {},
+        [Entity.ACADEMIC_UNIT]: {
+          academic_unit: requestToEdit.academic_unit.id,
+          industry: requestToEdit.industry.id,
+        },
 
-        [Entity.INDUSTRY]: requestToEdit.industry
-          ? { industry: requestToEdit.industry.id }
-          : {},
+        [Entity.INDUSTRY]: {
+          // industry: requestToEdit.industry.id,
+          academic_unit: requestToEdit.academic_unit.id,
+        },
       };
 
       const payload = {
@@ -140,8 +142,8 @@ const CreateEditRequestsForm = ({
           form={form}
           name="description"
           label="Description"
-          placeholder={hintContent.placeholder}
-          desc={hintContent.helpText}
+          placeholder={hintContent?.placeholder}
+          desc={hintContent?.helpText}
           disabled={!selectedType}
           required
           className="min-h-30"

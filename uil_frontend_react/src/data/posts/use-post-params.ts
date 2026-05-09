@@ -1,6 +1,9 @@
-import { defaultPaginationParams } from "@/components/reusable/pagination";
+import {
+  defaultPaginationParams,
+  PaginationParams,
+} from "@/hooks/use-pagination-params";
 import { useUrlParams } from "@/hooks/use-url-params";
-import { PaginationParams, Sortable } from "@/types/interfaces";
+import { Sortable } from "@/types/interfaces";
 import { useMemo } from "react";
 
 export type PostParams = PaginationParams & {
@@ -22,7 +25,7 @@ export const defaultPostParams: PostParams = {
 
 const usePostParams = () => {
   const { getParam, setParams, removeParams, clearAllParams } =
-    useUrlParams<PostParams>(defaultPostParams);
+    useUrlParams<PostParams>(defaultPostParams, "posts");
 
   // Pagination
   const page = getParam("page");

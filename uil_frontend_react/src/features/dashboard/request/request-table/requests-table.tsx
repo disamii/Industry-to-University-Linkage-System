@@ -20,15 +20,26 @@ import {
 } from "@/types/interfaces.requests";
 import { useRef } from "react";
 import { useRequestParams } from "../../../../data/requests/use-request-params";
-import IndustryRequestActions from "../request-actions";
+import RequestActions from "../request-actions";
 
-type RowProps = {
+type CommonProps = {
+  onDelete?: (id: number) => void;
+  onEdit?: (id: number) => void;
+};
+
+type RowProps = CommonProps & {
   item: MyRequestResponse | OfficeRequestResponse;
   index: number;
   isOffice: boolean;
 };
 
-const RequestTableRow = ({ item, index, isOffice }: RowProps) => {
+const RequestTableRow = ({
+  item,
+  index,
+  isOffice,
+  onEdit,
+  onDelete,
+}: RowProps) => {
   const { params } = useRequestParams();
 
   const currentPage = params.page;
@@ -98,13 +109,13 @@ const RequestTableRow = ({ item, index, isOffice }: RowProps) => {
         </p>
       </TableCell>
       <TableCell className="text-center">
-        <IndustryRequestActions {...item} />
+        <RequestActions {...item} onEdit={onEdit} onDelete={onDelete} />
       </TableCell>
     </TableRow>
   );
 };
 
-type TableProps = {
+type TableProps = CommonProps & {
   data: ApiPaginatedResponse<
     MyRequestResponse | OfficeRequestResponse,
     undefined,
@@ -112,7 +123,7 @@ type TableProps = {
   >;
 };
 
-const RequestsTable = ({ data }: TableProps) => {
+const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
 
@@ -152,6 +163,8 @@ const RequestsTable = ({ data }: TableProps) => {
             item={item}
             index={idx}
             isOffice={isOffice}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
         )}
       />
@@ -161,6 +174,7 @@ const RequestsTable = ({ data }: TableProps) => {
           variant="table"
           totalItems={pagination.total}
           scrollRef={topCardRef}
+          namespace="requests"
         />
       </Table.Footer>
     </Table>

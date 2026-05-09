@@ -1,9 +1,9 @@
-import IndustryRequestEditPage from "@/pages/dashboard/industry/industry_request-edit-page";
 import IndustryManagementPage from "@/pages/dashboard/office/industry-management-page";
 import OfficeAssignmentDetailPage from "@/pages/dashboard/office/office-assignment-detail-page";
 import AssignmentsPage from "@/pages/dashboard/office/office-assignments-page";
 import OfficeDashboard from "@/pages/dashboard/office/office-dashboard";
 import OfficeRequestDetailPage from "@/pages/dashboard/office/office_request-detail-page";
+import OfficeRequestEditPage from "@/pages/dashboard/office/office_request-edit-page";
 import OfficeRequestSubmitPage from "@/pages/dashboard/office/office_request-submit-page";
 import OfficeRequestsPage from "@/pages/dashboard/office/office_requests-page";
 import PostsPage from "@/pages/dashboard/office/posts-page";
@@ -22,7 +22,7 @@ export const officeRoutes: RouteObject[] = [
     element: <OfficeRequestDetailPage />,
   },
   { path: withBase("requests/create"), element: <OfficeRequestSubmitPage /> },
-  { path: withBase("requests/:id/edit"), element: <IndustryRequestEditPage /> },
+  { path: withBase("requests/:id/edit"), element: <OfficeRequestEditPage /> },
   {
     path: withBase("assignments"),
     element: <AssignmentsPage />,

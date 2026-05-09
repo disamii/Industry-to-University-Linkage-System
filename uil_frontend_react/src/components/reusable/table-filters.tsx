@@ -324,15 +324,25 @@ type ActiveFiltersProps = {
 };
 
 const ActiveFilters = ({
-  exclude = ["search", "ordering"],
+  exclude = [],
   labels = {},
   defaults = {},
 }: ActiveFiltersProps) => {
+  const defaultExclude = [
+    "search",
+    "ordering",
+    "direction",
+    "entity",
+    "page",
+    "page_size",
+  ];
+  const allExclude = [...new Set([...defaultExclude, ...exclude])];
+
   const { params, removeParams, clearAllParams, getLabel } = useFilters();
 
   const entries = Object.entries(params).filter(([key, value]) => {
     if (!value) return false;
-    if (exclude.includes(key)) {
+    if (allExclude.includes(key)) {
       return false;
     }
 

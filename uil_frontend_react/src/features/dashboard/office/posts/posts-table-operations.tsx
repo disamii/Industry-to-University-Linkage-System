@@ -52,7 +52,6 @@ const PostsTableOperations = () => {
 
       <TableFilters.ActiveFilters
         labels={{
-          page_size: "Items Per Page",
           post_type: "Post Type",
           is_published: "Show published posts only",
           is_internal_only: "Show internal posts only",

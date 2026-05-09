@@ -1,7 +1,10 @@
-import { defaultPaginationParams } from "@/components/reusable/pagination";
+import {
+  defaultPaginationParams,
+  PaginationParams,
+} from "@/hooks/use-pagination-params";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { ActionType, Entity, IndustryRequestType } from "@/lib/enums";
-import { PaginationParams, Sortable } from "@/types/interfaces";
+import { Sortable } from "@/types/interfaces";
 import { useMemo } from "react";
 
 export type MyRequestParams = {
@@ -30,7 +33,7 @@ const useRequestParams = (
   direction?: "incoming" | "outgoing",
 ) => {
   const { getParam, setParams, removeParams, clearAllParams } =
-    useUrlParams<RequestParams>(defaultRequestParams);
+    useUrlParams<RequestParams>(defaultRequestParams, "requests");
 
   // Pagination
   const page = getParam("page");

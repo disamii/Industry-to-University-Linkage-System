@@ -8,6 +8,7 @@ import RequestsTable from "../../request/request-table/requests-table";
 import SubmitNewRequestBtn from "@/components/reusable/submit-new-request-btn";
 import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
 import useTabParams from "@/hooks/use-tab-params";
+import { useNavigate } from "react-router-dom";
 
 const OutgoingOfficeRequestsTab = () => {
   const { params } = useTabParams();
@@ -16,6 +17,8 @@ const OutgoingOfficeRequestsTab = () => {
     direction: "outgoing",
     enabled: params.tab === "outgoing",
   });
+
+  const navigate = useNavigate();
 
   return (
     <TabsContent value="outgoing" className="space-y-6 mt-4">
@@ -36,7 +39,16 @@ const OutgoingOfficeRequestsTab = () => {
             <div className="space-y-6">
               <RequestsStat stats={data.stats} />
               <RequestsTableOperations />
-              <RequestsTable data={data} />
+              <RequestsTable
+                data={data}
+                onEdit={(id) => {
+                  console.log("ID", id);
+                  navigate(`/dashboard/office/requests/${id}/edit`);
+                }}
+                onDelete={() =>
+                  navigate("/dashboard/office/requests?tab=outgoing")
+                }
+              />
             </div>
           );
         }}

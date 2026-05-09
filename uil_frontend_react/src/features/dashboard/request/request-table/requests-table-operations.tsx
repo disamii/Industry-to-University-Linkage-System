@@ -91,13 +91,11 @@ const RequestsTableOperations = () => {
 
       <TableFilters.ActiveFilters
         labels={{
-          page_size: "Items Per Page",
           type: "Type",
           actions__type: "Action Type",
           academic_unit: "Academic Unit",
           industry: "Industry",
         }}
-        exclude={["entity", "direction"]}
         defaults={defaultRequestParams}
       />
     </TableFilters.Root>

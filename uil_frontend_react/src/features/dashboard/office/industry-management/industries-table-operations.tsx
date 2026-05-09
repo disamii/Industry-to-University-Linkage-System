@@ -39,7 +39,6 @@ const IndustriesTableOperations = () => {
 
       <TableFilters.ActiveFilters
         labels={{
-          page_size: "Items Per Page",
           industry_type: "Indsutry Type",
         }}
         defaults={defaultIndustryParams}

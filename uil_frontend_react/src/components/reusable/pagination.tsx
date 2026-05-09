@@ -7,9 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useUrlParams } from "@/hooks/use-url-params";
-import { PAGE_SIZE, SELECT_PAGE_SIZE_OPTIONS } from "@/lib/constants";
-import { PaginationParams } from "@/types/interfaces";
+import usePaginationParams from "@/hooks/use-pagination-params";
+import { SELECT_PAGE_SIZE_OPTIONS } from "@/lib/constants";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 
@@ -18,26 +17,21 @@ interface PaginationProps {
   variant?: "default" | "table";
   colCount?: number; // Used for table variant
   scrollRef?: React.RefObject<HTMLDivElement | null>;
+  namespace: string;
 }
-
-export const defaultPaginationParams: PaginationParams = {
-  page: 1,
-  page_size: PAGE_SIZE,
-};
 
 export const Pagination: React.FC<PaginationProps> = ({
   totalItems,
   variant = "default",
   colCount = 1,
   scrollRef,
+  namespace,
 }) => {
-  const { getParam, setParams } = useUrlParams<PaginationParams>(
-    defaultPaginationParams,
-  );
+  const { params, setParams } = usePaginationParams({ namespace });
 
   // Extract logic with defaults
-  const currentPage = getParam("page");
-  const itemsPerPage = getParam("page_size");
+  const currentPage = params.page;
+  const itemsPerPage = params.page_size;
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const totalPages = Math.ceil(totalItems / itemsPerPage);

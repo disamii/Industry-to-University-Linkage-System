@@ -39,7 +39,6 @@ const AssignmentsTableOperations = () => {
 
       <TableFilters.ActiveFilters
         labels={{
-          page_size: "Items Per Page",
           status: "Status",
         }}
         defaults={defaultAssignmentParams}

@@ -157,6 +157,7 @@ const AssignmentsTable = ({ data }: TableProps) => {
           variant="table"
           totalItems={pagination.total}
           scrollRef={topCardRef}
+          namespace="assignments"
         />
       </Table.Footer>
     </Table>

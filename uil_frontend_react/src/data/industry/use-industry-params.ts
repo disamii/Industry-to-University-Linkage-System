@@ -1,7 +1,10 @@
-import { defaultPaginationParams } from "@/components/reusable/pagination";
+import {
+  defaultPaginationParams,
+  PaginationParams,
+} from "@/hooks/use-pagination-params";
 import { useUrlParams } from "@/hooks/use-url-params";
 import { IndustryType } from "@/lib/enums";
-import { PaginationParams, Sortable } from "@/types/interfaces";
+import { Sortable } from "@/types/interfaces";
 import { useMemo } from "react";
 
 export type IndustryParams = PaginationParams & {
@@ -18,7 +21,7 @@ export const defaultIndustryParams: IndustryParams = {
 
 const useIndustryParams = () => {
   const { getParam, setParams, removeParams, clearAllParams } =
-    useUrlParams<IndustryParams>(defaultIndustryParams);
+    useUrlParams<IndustryParams>(defaultIndustryParams, "industries");
 
   // Pagination
   const page = getParam("page");

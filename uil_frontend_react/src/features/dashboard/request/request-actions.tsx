@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRequestDeleteMutation } from "@/data/requests/request-delete-mutation";
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
-import { ActionType, UserRole } from "@/lib/enums";
+import useTabParams from "@/hooks/use-tab-params";
+import { ActionType } from "@/lib/enums";
 import { mapEntity } from "@/lib/mappings";
 import { cn } from "@/lib/utils";
 import {
@@ -37,9 +38,11 @@ type Props = {
   supported_actions?: ActionType[];
   showViewDetails?: boolean;
   actionToPerform?: "alter" | "create";
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 };
 
-const IndustryRequestActions = ({
+const RequestActions = ({
   id,
   title,
   description,
@@ -47,6 +50,8 @@ const IndustryRequestActions = ({
   supported_actions,
   showViewDetails = true,
   actionToPerform,
+  onEdit,
+  onDelete,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
     useRequestDeleteMutation();
@@ -54,18 +59,21 @@ const IndustryRequestActions = ({
   const navigate = useNavigate();
   const isTable = variant === "table";
 
-  const currentRole = useGetRoleByPath();
+  const {
+    params: { tab: requestDirection },
+  } = useTabParams();
 
-  const isOffice = currentRole === UserRole.ADMIN;
+  const currentRole = useGetRoleByPath();
   const currentEntity = currentRole ? mapEntity[currentRole] : undefined;
 
   // Perform Actions
-  const actionsToPerform = Object.values(ActionType)
-    .filter((type) => supported_actions?.includes(type))
-    .filter(
-      (action) =>
-        action !== ActionType.REVOKED && action !== ActionType.ACCEPT_FORWARDED,
-    );
+  const actionsToPerform = Object.values(ActionType).filter((type) =>
+    supported_actions?.includes(type),
+  );
+  // .filter(
+  //   (action) =>
+  //     action !== ActionType.REVOKED && action !== ActionType.ACCEPT_FORWARDED,
+  // );
   const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
 
@@ -74,38 +82,47 @@ const IndustryRequestActions = ({
     setActionDialogOpen(true);
   };
 
+  const renderTrigger = () => {
+    if (
+      (isTable && actionToPerform !== "alter") ||
+      (isTable && actionToPerform === "alter" && actionsToPerform.length !== 0)
+    )
+      return (
+        <button className="hover:bg-muted p-2 rounded-md transition-colors">
+          <MoreVertical className="w-4 h-4 text-muted-foreground" />
+        </button>
+      );
+
+    if (!isTable && actionsToPerform.length !== 0)
+      return (
+        <Button variant="secondary">
+          <Settings2 className="w-4 h-4" />
+          <span>Manage Request</span>
+          <ChevronDown className="opacity-50 w-4 h-4" />{" "}
+        </Button>
+      );
+
+    return null;
+  };
+
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          {isTable ? (
-            <button className="hover:bg-muted p-2 rounded-md transition-colors">
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </button>
-          ) : (isOffice && actionsToPerform.length !== 0) || !isOffice ? (
-            <Button variant="secondary">
-              <Settings2 className="w-4 h-4" />
-              <span>Manage Request</span>
-              <ChevronDown className="opacity-50 w-4 h-4" />{" "}
-            </Button>
-          ) : null}
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>{renderTrigger()}</DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className={cn(isTable && "w-45")}>
           {isTable && showViewDetails && (
-            <DropdownMenuItem onClick={() => navigate(`${id}`)}>
+            <DropdownMenuItem
+              onClick={() => navigate(`${id}?tab=${requestDirection}`)}
+            >
               <Eye className="mr-2 w-4 h-4" />
               View Details
             </DropdownMenuItem>
           )}
 
-          {!isOffice && (
+          {requestDirection === "outgoing" && (
             <>
-              <DropdownMenuItem
-                onClick={() =>
-                  navigate(`/dashboard/industry/requests/${id}/edit`)
-                }
-              >
+              <DropdownMenuItem onClick={() => onEdit?.(id)}>
                 <Pencil className="mr-2 w-4 h-4" />
                 Edit Request
               </DropdownMenuItem>
@@ -120,7 +137,7 @@ const IndustryRequestActions = ({
             </>
           )}
 
-          {isOffice && actionsToPerform.length !== 0 && (
+          {actionsToPerform.length !== 0 && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="whitespace-nowrap">
                 <Wrench className="mr-2 w-4 h-4" />
@@ -165,7 +182,9 @@ const IndustryRequestActions = ({
         isDeleting={isDeleting}
         onDelete={(targets) =>
           deleteRequest(targets, {
-            onSuccess: () => navigate(`/dashboard/industry/requests/`),
+            onSuccess: () => {
+              onDelete?.(id);
+            },
           })
         }
         targets={id}
@@ -176,4 +195,4 @@ const IndustryRequestActions = ({
   );
 };
 
-export default IndustryRequestActions;
+export default RequestActions;

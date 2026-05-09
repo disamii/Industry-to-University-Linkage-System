@@ -46,11 +46,6 @@ export type ITableHead = {
   className?: string;
 };
 
-export type PaginationParams = {
-  page: number;
-  page_size: number;
-};
-
 export type Sortable<T extends string> = T | `-${T}`;
 
 export type ComponentVariant = "small" | "inline" | "section" | "page";

@@ -125,6 +125,7 @@ const PostsTable = ({ data }: TableProps) => {
           variant="table"
           totalItems={pagination.total}
           scrollRef={topCardRef}
+          namespace="posts"
         />
       </Table.Footer>
     </Table>

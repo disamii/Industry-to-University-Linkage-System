@@ -1,7 +1,7 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetIndustryRequestDetail } from "@/data/requests/industry/industry_request-detail-query";
-import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-industry_request-form";
+import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-request-form";
 import { Entity } from "@/lib/enums";
 import { useNavigate, useParams } from "react-router-dom";
 
