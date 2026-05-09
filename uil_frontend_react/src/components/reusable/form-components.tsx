@@ -165,17 +165,15 @@ type FormComboboxProps<
 > = BaseFormProps<T> & {
   orientation?: "vertical" | "horizontal" | "responsive";
   position?: "item-aligned" | "popper";
+  multiple?: boolean;
 
   // static
   options?: { value: string | number; label: string }[];
-
-  multiple?: boolean;
 
   // dynamic
   query?: UseQueryResult<Q, Error>;
   children?: (
     data: Q,
-    // search: string,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   ) => React.ReactNode;
   checkEmpty?: (data: Q) => boolean;
@@ -263,7 +261,7 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
               <FieldError errors={[fieldState.error]} />
             </FieldContent>
 
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover key={name} open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"

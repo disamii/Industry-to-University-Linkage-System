@@ -333,7 +333,6 @@ const ActiveFilters = ({
   const entries = Object.entries(params).filter(([key, value]) => {
     if (!value) return false;
     if (exclude.includes(key)) {
-      console.log(key);
       return false;
     }
 

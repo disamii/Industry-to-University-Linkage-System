@@ -3,11 +3,12 @@ import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetIndustryRequestDetail } from "@/data/requests/industry/industry_request-detail-query";
 import CreateEditRequestsForm from "@/features/dashboard/industry/create-edit-industry_request-form";
 import { Entity } from "@/lib/enums";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const OfficeRequestEditPage = () => {
   const { id } = useParams();
   const query = useGetIndustryRequestDetail(Number(id));
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-3">
@@ -22,7 +23,8 @@ const OfficeRequestEditPage = () => {
         {(data) => (
           <CreateEditRequestsForm
             requestToEdit={data}
-            requesting_entity={Entity.INDUSTRY}
+            requesting_entity={Entity.ACADEMIC_UNIT}
+            onSuccess={() => navigate("/dashboard/office/requests")}
           />
         )}
       </QueryState>

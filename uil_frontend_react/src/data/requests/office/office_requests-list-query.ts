@@ -14,7 +14,7 @@ export const getIndustryRequestOfficeList = createGetRequest<
   ApiPaginatedResponse<OfficeRequestResponse, undefined, RequestStats>
 >(industryRequestOfficeUrls.base());
 
-export const useGetIndustryRequestOfficeList = () => {
+export const useGetIndustryRequestOfficeList = (enabled: boolean) => {
   const queryClient = useQueryClient();
   const { params } = useRequestParams();
 
@@ -22,6 +22,7 @@ export const useGetIndustryRequestOfficeList = () => {
     queryKey: industryRequestOfficeKeys.list(params),
     queryFn: () => getIndustryRequestOfficeList(params),
     placeholderData: (prev) => prev,
+    enabled,
   });
 
   usePaginatedPrefetch({

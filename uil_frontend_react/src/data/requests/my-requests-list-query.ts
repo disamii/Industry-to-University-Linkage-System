@@ -17,6 +17,7 @@ export const getMyRequestsList = createGetRequest<
 export const useGetMyRequestsList = ({
   entity,
   direction,
+  enabled,
 }: MyRequestParams) => {
   const queryClient = useQueryClient();
   const { params } = useRequestParams(entity, direction);
@@ -25,6 +26,7 @@ export const useGetMyRequestsList = ({
     queryKey: industryRequestKeys.mine(params),
     queryFn: () => getMyRequestsList(params),
     placeholderData: (prev) => prev,
+    enabled,
   });
 
   usePaginatedPrefetch({

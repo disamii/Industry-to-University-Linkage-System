@@ -6,12 +6,15 @@ import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
 import RequestsStat from "@/features/dashboard/request/request-table/requests-stat";
 import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
+import useTabParams from "@/hooks/use-tab-params";
 import { Entity } from "@/lib/enums";
 
 const OutgoingIndustryRequestsTab = () => {
+  const { params } = useTabParams();
   const query = useGetMyRequestsList({
     entity: Entity.INDUSTRY,
     direction: "outgoing",
+    enabled: params.tab === "outgoing",
   });
 
   return (

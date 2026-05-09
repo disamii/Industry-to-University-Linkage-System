@@ -7,11 +7,14 @@ import RequestsTableOperations from "../../request/request-table/requests-table-
 import RequestsTable from "../../request/request-table/requests-table";
 import SubmitNewRequestBtn from "@/components/reusable/submit-new-request-btn";
 import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
+import useTabParams from "@/hooks/use-tab-params";
 
 const OutgoingOfficeRequestsTab = () => {
+  const { params } = useTabParams();
   const query = useGetMyRequestsList({
     entity: Entity.ACADEMIC_UNIT,
     direction: "outgoing",
+    enabled: params.tab === "outgoing",
   });
 
   return (

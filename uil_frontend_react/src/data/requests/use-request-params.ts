@@ -7,6 +7,7 @@ import { useMemo } from "react";
 export type MyRequestParams = {
   direction?: "incoming" | "outgoing";
   entity?: Entity;
+  enabled: boolean;
 };
 
 export type RequestParams = PaginationParams & {

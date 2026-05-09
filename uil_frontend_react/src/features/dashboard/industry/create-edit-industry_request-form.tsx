@@ -13,11 +13,11 @@ import { useIndustryParams } from "@/data/industry/use-industry-params";
 import { useRequestCreateMutation } from "@/data/requests/request-create-mutation";
 import { useRequestUpdateMutation } from "@/data/requests/request-update-mutation";
 import { Entity } from "@/lib/enums";
-import { formatSelectOptions } from "@/lib/utils";
-import { IndustryResponse } from "@/types/interfaces.industry";
+import { cn, formatSelectOptions } from "@/lib/utils";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { requestDefaultValues } from "@/validation/validation.requests";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Check } from "lucide-react";
 import { useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { getEntityFormConfig } from "../request/utils.request";
@@ -25,13 +25,14 @@ import { getEntityFormConfig } from "../request/utils.request";
 type Props = {
   requestToEdit?: RequestDetailResponse;
   requesting_entity: Entity;
+  onSuccess?: () => void;
 };
 
 const CreateEditRequestsForm = ({
   requestToEdit,
   requesting_entity,
+  onSuccess,
 }: Props) => {
-  // const navigate = useNavigate();
   const isEditing = !!requestToEdit;
 
   const formConfig = getEntityFormConfig(requesting_entity);
@@ -81,6 +82,10 @@ const CreateEditRequestsForm = ({
     control: form.control,
     name: "type",
   });
+  const selectedIndustry = useWatch({
+    control: form.control,
+    name: "industry",
+  });
 
   const hintContent = useMemo(() => {
     if (!selectedType) {
@@ -101,7 +106,7 @@ const CreateEditRequestsForm = ({
       {
         onSuccess: () => {
           if (!isEditing) form.reset();
-          // navigate("/dashboard/industry/requests");
+          onSuccess?.();
         },
       },
     );
@@ -143,51 +148,52 @@ const CreateEditRequestsForm = ({
         />
       </div>
 
-      <div className="space-y-8">
-        <TreeSelectOrgUnit form={form} />
+      <TreeSelectOrgUnit form={form} />
 
-        {requesting_entity === Entity.ACADEMIC_UNIT && (
-          <FormCombobox
-            form={form}
-            name="industry"
-            label="Industry"
-            placeholder="Select industry..."
-            query={industriesQuery}
-            checkEmpty={(data) => data.results.length === 0}
-            onSearch={(search) => setIndustryParams({ search })}
-            searchPlaceholder="Search Industries"
-            getDisplayValue={(value: number, data?: any) =>
-              data?.results?.find((i: IndustryResponse) => i.id === value)
-                ?.name ?? "Selected"
-            }
-            position="popper"
-            required
-          >
-            {(data) => {
-              return (
-                <CommandGroup>
-                  {data.results.map((item: IndustryResponse) => {
-                    return (
-                      <CommandItem
-                        key={item.id}
-                        value={item.name}
-                        onSelect={() => {
-                          form.setValue("industry", item.id, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        }}
-                      >
-                        {item.name}
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              );
-            }}
-          </FormCombobox>
-        )}
-      </div>
+      {requesting_entity === Entity.ACADEMIC_UNIT && (
+        <FormCombobox
+          form={form}
+          name="industry"
+          label="Industry"
+          placeholder="Select industry..."
+          query={industriesQuery}
+          checkEmpty={(data) => data.results.length === 0}
+          onSearch={(search) => setIndustryParams({ search })}
+          searchPlaceholder="Search Industries"
+          getDisplayValue={(value, data) =>
+            data?.results?.find((i) => i.id === value)?.name ?? "Selected"
+          }
+          position="popper"
+          required
+        >
+          {(data, setOpen) => {
+            return (
+              <CommandGroup>
+                {data.results.map((item) => {
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      value={item.name}
+                      onSelect={() => {
+                        form.setValue("industry", item.id, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                        setOpen(false);
+                      }}
+                    >
+                      {selectedIndustry === item.id && (
+                        <Check className="size-4" />
+                      )}
+                      {item.name}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            );
+          }}
+        </FormCombobox>
+      )}
 
       <FormUploadFile
         form={form}
@@ -196,6 +202,9 @@ const CreateEditRequestsForm = ({
         desc="Upload supporting documents (PDF, DOCX, ZIP)."
         accept=".pdf,.doc,.docx,.zip,.png,.jpg"
         maxSizeMB={5}
+        className={cn(
+          requesting_entity === Entity.ACADEMIC_UNIT && "col-span-full",
+        )}
       />
 
       <Button
