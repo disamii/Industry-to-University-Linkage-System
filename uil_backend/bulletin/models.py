@@ -2,18 +2,13 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from audit.models import AuditMixin
+from .enums import PostType
 
 class Post(AuditMixin, models.Model):
-    POST_TYPE_CHOICES = [
-        ("success_story", "Success Story"),
-        ("thematic_area", "Thematic Area"),
-        ("open_request", "Open Industry Request"),
-        ("announcement", "General Announcement"),
-        ("guideline", "UIL Guideline/Manual"),
-    ]
+  
 
     title = models.CharField(max_length=255)
-    post_type = models.CharField(max_length=30, choices=POST_TYPE_CHOICES)
+    post_type = models.CharField(max_length=30, choices=PostType.choices)
     content = models.TextField(help_text="The main body of the post")
     
     content_type = models.ForeignKey(

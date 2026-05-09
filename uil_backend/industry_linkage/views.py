@@ -27,7 +27,7 @@ from .serializers import (
     AssignmentListSerializer
 )
 from .utils import revert_action_util, validate_action_or_raise, deactivate_previous_actions
-from .paginations import IndustryPagination, RequestPagination, RequestForIndustryPagination
+from .paginations import AssignmentPagination, IndustryPagination, RequestPagination, RequestForIndustryPagination
 from django.contrib.auth import get_user_model
 
 
@@ -76,8 +76,7 @@ class RequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    filterset_fields = ['type', 'actions__type',
-                        'requesting_entity', 'academic_unit', 'industry']
+    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
     ordering_fields = ['created_at', 'updated_at',
                        'title', 'industry__name', 'requesting_entity']
     search_fields = ['industry__name']
@@ -192,7 +191,7 @@ class RequestManageViewSet(
         mixins.RetrieveModelMixin,
         mixins.DestroyModelMixin,
         viewsets.GenericViewSet):
-    filterset_fields = ['type', 'actions__type']
+    filterset_fields = ['type', 'actions__type','requesting_entity', 'academic_unit', 'industry']
     ordering_fields = ['created_at', 'updated_at', 'title', 'industry__name']
     search_fields = ['industry__name', 'title']
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -348,13 +347,12 @@ class RequestManageViewSet(
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
-    queryset = Assignment.objects.select_related(
-        "request").prefetch_related("assigned_users")
+    queryset = Assignment.objects.select_related("request").prefetch_related("assigned_users")
     serializer_class = AssignmentDetailSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['status']
     ordering_fields = ['start_date', 'end_date']
-    pagination_class = DefaultPagination
+    pagination_class = AssignmentPagination
     search_fields = ['request__industry__name', 'request__title']
 
     def get_serializer_class(self):
@@ -366,26 +364,36 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     def by_user(self, request, user_id=None):
         qs = self.queryset.filter(assigned_users__id=user_id).distinct()
 
+        qs = self.filter_queryset(qs)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            return self.paginator.get_paginated_response(
-                serializer.data,
-                model=Assignment
-            )
-
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["get"], url_path="by-request/(?P<request_id>[^/.]+)")
     def by_request(self, request, request_id=None):
         qs = self.queryset.filter(request_id=request_id)
+
+        qs = self.filter_queryset(qs)
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
+
 
     @action(detail=False, methods=["get"], url_path="by-industry/(?P<industry_id>[^/.]+)")
     def by_industry(self, request, industry_id=None):
         qs = self.queryset.filter(request__industry_id=industry_id)
+  
+        qs = self.filter_queryset(qs)
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
