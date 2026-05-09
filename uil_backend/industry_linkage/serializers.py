@@ -20,7 +20,7 @@ from .models import (
 )
 from bulletin.models import Post
 from bulletin.serializers import PostListSerializer
-from .utils import ForwardTarget, EntityReceiverField, validate_action_or_raise
+from .utils import ForwardTarget, EntityReceiverField, get_supported_actions_rule, validate_action_or_raise
 User = get_user_model()
 
 
@@ -138,7 +138,7 @@ class GenericActorField(serializers.Field):
 
         content_type = ContentType.objects.get_for_model(obj)
 
-        model_name = content_type.model  # e.g. "user", "industry"
+        model_name = content_type.model
 
         serializer_class = CONTENT_TYPE_SERIALIZER_MAP.get(model_name)
 
@@ -171,45 +171,9 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "supported_actions",
             "created_at",
         ]
-
     def get_supported_actions(self, obj):
-        from .enums import ACTION_TRANSITIONS
-
-        user = self.context.get("user")
-        request_obj = obj.request
-
-        is_industry_user = False
-
-        if request_obj.requesting_entity == RequestingEntity.INDUSTRY:
-            try:
-                user.industry_profile
-                is_industry_user = True
-            except (AttributeError, Industry.DoesNotExist):
-                is_industry_user = False
-
-        if not obj.awaiting_decision:
-            valid_actions = [ActionTypes.REVERTED.value]
-        else:
-            valid_actions = [
-                action.value
-                for action in ACTION_TRANSITIONS.get(obj.type, [])
-            ]
-
-        if request_obj.requesting_entity == RequestingEntity.INDUSTRY:
-            if is_industry_user:
-                if ActionTypes.REJECTED.value in valid_actions:
-                    valid_actions.remove(ActionTypes.REJECTED.value)
-                    if obj.type == ActionTypes.REJECTED:
-                        valid_actions.remove(ActionTypes.REVERTED)
-
-            else:
-                if ActionTypes.CANCELLED.value in valid_actions:
-                    valid_actions.remove(ActionTypes.CANCELLED.value)
-                    if obj.type == ActionTypes.CANCELLED:
-                        valid_actions.remove(ActionTypes.REVERTED)
-
-        return valid_actions
-
+        user = self.context.get("request").user
+        return get_supported_actions_rule(obj, user)
 
 class RequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -289,7 +253,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             RequestAction.objects.create(
                 request=request,
                 type=ActionTypes.INITIATED,
-                description="Request created",
+                description="Request Initiated",
                 created_by_id=user.id,
                 updated_by_id=user.id,
 

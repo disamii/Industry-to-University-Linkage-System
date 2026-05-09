@@ -4,6 +4,10 @@ from rest_framework.exceptions import ValidationError
 
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
+
+from authorization.constants import CAN_CREATE_REQUEST_ACTIONS
+from authorization.utilis import get_scope
+from organizational_structure.models import OrganizationalUnit
 from .enums import ENTITY_MAP, RequestingEntity, ActionTypes
 
 
@@ -45,6 +49,10 @@ def validate_action_or_raise(request, action_type):
         ).exists():
             raise ValidationError(
                 "Already assigned. Revoke first."
+            )
+        if active_actions.filter(type=ActionTypes.FORWARDED).exists():
+            raise ValidationError(
+                "Already forwarded. revert that first."
             )
 
     elif action_type == ActionTypes.ACCEPT_FORWARDED:
@@ -98,7 +106,111 @@ def deactivate_previous_actions(request_obj, action_type):
         qs.filter(
             type=ActionTypes.FORWARDED
         ).update(awaiting_decision=False)
+        
+# services/user_identity.py
 
+def is_industry_user(user, industry_id=None) -> bool:
+    """
+    Returns True if user has an industry profile.
+    If industry_id is provided, also validates it matches.
+    """
+    
+    profile = getattr(user, "industry_profile", None)
+
+    if not profile:
+        return False
+
+    if industry_id is not None:
+        return getattr(profile, "id", None) == industry_id
+
+    return True
+def get_forward_action_organizations(action_obj):
+    if action_obj.type != ActionTypes.FORWARDED:
+        return None
+    to_actor = action_obj.actor_to
+    to_org = to_actor if isinstance(to_actor, OrganizationalUnit) else None
+    return  to_org
+
+
+def get_supported_actions_rule(obj, user):
+    request_obj = obj.request
+    is_industry=is_industry_user(user,obj.request.industry.id)
+    scope=get_scope(user,CAN_CREATE_REQUEST_ACTIONS)
+
+    if obj.type==ActionTypes.INITIATED:
+        return []
+    elif obj.type==ActionTypes.FORWARDED:
+        
+        org = get_forward_action_organizations(obj)
+        if not org:
+            return []
+        
+        if request_obj.academic_unit in scope:
+            return  [ActionTypes.REVERTED.value]
+        elif org in scope:
+            return [
+                ActionTypes.ACCEPT_FORWARDED.value,
+                ActionTypes.REJECTED.value,
+                ]
+    elif obj.type in [
+        ActionTypes.CANCELLED.value,
+        ActionTypes.COMPLETED.value,
+        ActionTypes.REJECTED.value,
+    ]:
+        if  is_industry or request_obj.academic_unit in scope:
+            return [ActionTypes.REVERTED.value]
+    
+    elif obj.type in [
+        ActionTypes.POSTED_AS_THEMATIC.value,
+        ActionTypes.ACCEPT_FORWARDED.value,
+        ActionTypes.ASSIGNED.value
+    ]:
+        if not is_industry and request_obj.academic_unit in scope:
+            return [ActionTypes.REVERTED]
+    
+    return []
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # if request_obj.requesting_entity == RequestingEntity.INDUSTRY:
+    #     try:
+    #         user.industry_profile
+    #         is_industry_user = True
+    #     except Exception:
+    #         is_industry_user = False
+
+    # if not obj.awaiting_decision:
+    #     return [ActionTypes.REVERTED.value]
+
+    # valid_actions = [
+    #     action.value
+    #     for action in ACTION_TRANSITIONS.get(obj.type, [])
+    # ]
+
+    # if request_obj.requesting_entity == RequestingEntity.INDUSTRY:
+    #     if is_industry_user:
+    #         if ActionTypes.REJECTED.value in valid_actions:
+    #             valid_actions.remove(ActionTypes.REJECTED.value)
+    #         if obj.type == ActionTypes.REJECTED:
+    #             valid_actions = [a for a in valid_actions if a != ActionTypes.REVERTED]
+
+    #     else:
+    #         if ActionTypes.CANCELLED.value in valid_actions:
+    #             valid_actions.remove(ActionTypes.CANCELLED.value)
+    #         if obj.type == ActionTypes.CANCELLED:
+    #             valid_actions = [a for a in valid_actions if a != ActionTypes.REVERTED]
+
+    # return valid_actions
 
 class ForwardTarget(serializers.Field):
 
