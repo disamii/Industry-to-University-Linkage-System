@@ -30,6 +30,8 @@ class RequestType(models.TextChoices):
     TESTING = "testing", "Testing & QA"
     TRAINING = "training", "Training"
     INTERNSHIP = "internship", "Internship/Externship"
+    Externship = "externship", "Externship"
+
     RECRUITMENT = "recruitment", "Graduate Recruitment"
 
     # university requests

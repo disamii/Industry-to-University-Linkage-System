@@ -36,6 +36,7 @@ export enum IndustryRequestType {
   TESTING = "testing",
   TRAINING = "training",
   INTERNSHIP = "internship",
+  EXTERNSHIP="externship",
   RECRUITMENT = "recruitment",
   OTHER = "other",
 }

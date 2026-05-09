@@ -34,6 +34,7 @@ export interface RequestHint {
   placeholder: string;
   helpText: string;
 }
+
 export const INDUSTRY_REQUEST_HINTS: Record<IndustryRequestType, RequestHint> =
   {
     [IndustryRequestType.RND]: {
@@ -77,6 +78,12 @@ export const INDUSTRY_REQUEST_HINTS: Record<IndustryRequestType, RequestHint> =
         "Include required student qualifications, internship timeframe, and department or section assignment.",
     },
 
+    [IndustryRequestType.EXTERNSHIP]: {
+      placeholder:
+        "Specify the field of study, number of lecturer or researcher, externship duration, and assigned activities...",
+      helpText:
+        "Include required lecturer qualifications, internship timeframe, and department or section assignment.",
+    },
     [IndustryRequestType.RECRUITMENT]: {
       placeholder:
         "Specify the field of study, graduate year, general requirements, and number of recruits...",
