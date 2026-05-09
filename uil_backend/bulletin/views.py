@@ -2,16 +2,17 @@ from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
+from .paginations import PostPagination
+
 from .models import Post
 from .serializers import PostListSerializer, PostDetailSerializer
 from .filters import PostFilter
-from config.paginations import DefaultPagination
 
 
 class PostViewSet(viewsets.ModelViewSet):
 
     queryset = Post.objects.all()
-    pagination_class = DefaultPagination
+    pagination_class = PostPagination
 
     filter_backends = [
         DjangoFilterBackend,

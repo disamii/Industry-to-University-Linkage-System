@@ -2,7 +2,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from .enums import PostType
 
-class AssignmentPagination(PageNumberPagination):
+class PostPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
 
@@ -21,7 +21,7 @@ class AssignmentPagination(PageNumberPagination):
         # Dynamic enum-based stats
         for status_value, _label in PostType.choices:
             key = f"{status_value}"
-            stats[key] = qs.filter(status=status_value).count()
+            stats[key] = qs.filter(post_type=status_value).count()
 
         response = {
             "stats": stats,
