@@ -1,9 +1,9 @@
+import RequestActionBadge from "@/components/reusable/request-action-badge";
 import { Badge } from "@/components/ui/badge";
-import IndustryRequestActions from "@/features/dashboard/industry_request/industry_request-actions";
-import { ACTION_CONFIG } from "@/features/dashboard/industry_request/utils.industry_request-actions";
+import IndustryRequestActions from "@/features/dashboard/request/request-actions";
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
-import { ActionType, UserRole } from "@/lib/enums";
-import { cn, formatDate, formatType } from "@/lib/utils";
+import { UserRole } from "@/lib/enums";
+import { formatDate } from "@/lib/utils";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { Building2, Calendar } from "lucide-react";
 
@@ -53,14 +53,8 @@ const IndustryRequestHeader = ({
             <Building2 className="w-3.5 h-3.5" />
             {academic_unit.name}
           </div>
-          <Badge
-            className={cn(
-              ACTION_CONFIG[latestAction?.type || ActionType.INITIATED].color,
-              "capitalize",
-            )}
-          >
-            {formatType(latestAction?.type || "")}
-          </Badge>
+
+          <RequestActionBadge type={latestAction?.type} />
         </div>
       </div>
 

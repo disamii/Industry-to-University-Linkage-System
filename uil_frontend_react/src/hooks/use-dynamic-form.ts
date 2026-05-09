@@ -1,4 +1,4 @@
-import { FormFieldConfig } from "@/features/dashboard/industry_request/utils.industry_request-actions";
+import { FormFieldConfig } from "@/features/dashboard/request/utils.request-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";

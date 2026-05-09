@@ -6,7 +6,7 @@ type Props = {
   stats: RequestStats;
 };
 
-const IndustryRequestsStat = ({ stats }: Props) => {
+const RequestsStat = ({ stats }: Props) => {
   const {
     total_requests,
     initiated_requests,
@@ -44,4 +44,4 @@ const IndustryRequestsStat = ({ stats }: Props) => {
   return <StatCard stats={formattedStats} />;
 };
 
-export default IndustryRequestsStat;
+export default RequestsStat;

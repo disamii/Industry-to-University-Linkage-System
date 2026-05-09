@@ -1,6 +1,8 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { IndustryRequestResponse } from "@/types/interfaces.requests";
+import { Entity } from "@/lib/enums";
+import { toFormData } from "@/lib/utils";
+import { RequestResponse } from "@/types/interfaces.requests";
 import {
   IndustryRequestCreateInput,
   industryRequestCreateSchema,
@@ -9,8 +11,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { industryRequestKeys } from "./keys";
 import { industryRequestUrls } from "./urls";
-import { toFormData } from "@/lib/utils";
-import { Entity } from "@/lib/enums";
 
 export const industryRequestCreate = (data: IndustryRequestCreateInput) => {
   const validated = industryRequestCreateSchema.parse(data);
@@ -21,7 +21,7 @@ export const industryRequestCreate = (data: IndustryRequestCreateInput) => {
   // console.log(Object.fromEntries(formData.entries()));
 
   return safeApiRequest(
-    api.post<IndustryRequestResponse>(industryRequestUrls.base(), formData, {
+    api.post<RequestResponse>(industryRequestUrls.base(), formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

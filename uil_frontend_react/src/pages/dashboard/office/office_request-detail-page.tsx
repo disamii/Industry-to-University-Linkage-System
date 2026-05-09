@@ -1,11 +1,11 @@
 import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetOfficeRequestDetail } from "@/data/industry_requests/office/office_request-detail-query";
-import ActionTimeline from "@/features/dashboard/industry_request/request-detail/action-timeline";
-import RequestHeader from "@/features/dashboard/industry_request/request-detail/industry_request-header";
-import IndustryInfoCard from "@/features/dashboard/industry_request/request-detail/Industry_request-industry-info-card";
-import RequestDetailCard from "@/features/dashboard/industry_request/request-detail/Industry_request-request-detail-card";
-import OrgUnitCard from "@/features/dashboard/industry_request/request-detail/org_unit-card";
+import ActionTimeline from "@/features/dashboard/request/request-detail/action-timeline";
+import RequestHeader from "@/features/dashboard/request/request-detail/request-header";
+import RequestIndustryInfoCard from "@/features/dashboard/request/request-detail/request-industry-info-card";
+import RequestDetailCard from "@/features/dashboard/request/request-detail/request-detail-card";
+import OrgUnitCard from "@/features/dashboard/request/request-detail/org_unit-card";
 import { useParams } from "react-router-dom";
 
 const OfficeRequestDetailPage = () => {
@@ -24,7 +24,7 @@ const OfficeRequestDetailPage = () => {
 
               <div className="space-y-6">
                 <RequestDetailCard {...data} />
-                <IndustryInfoCard industry={data.industry} />
+                <RequestIndustryInfoCard industry={data.industry} />
                 <OrgUnitCard academic_unit={data.academic_unit} />
               </div>
 

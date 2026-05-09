@@ -35,8 +35,8 @@ const OrgUnitTab = () => {
         {(data) => {
           return (
             <div className="space-y-6">
-              {/* <IndustryRequestsStat stats={data.stats} /> */}
-              {/* <IndustryRequestsTableOperations /> */}
+              {/* <RequestsStat stats={data.stats} /> */}
+              {/* <RequestsTableOperations /> */}
             </div>
           );
         }}

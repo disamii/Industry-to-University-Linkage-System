@@ -1,4 +1,5 @@
 import { Pagination } from "@/components/reusable/pagination";
+import RequestActionBadge from "@/components/reusable/request-action-badge";
 import Table from "@/components/reusable/table";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,8 +20,7 @@ import {
 } from "@/types/interfaces.requests";
 import { useRef } from "react";
 import { useRequestParams } from "../../../../data/industry_requests/use-request-params";
-import IndustryRequestActions from "../industry_request-actions";
-import { ACTION_CONFIG } from "../utils.industry_request-actions";
+import IndustryRequestActions from "../request-actions";
 
 type RowProps = {
   item: MyRequestResponse | OfficeRequestResponse;
@@ -28,13 +28,11 @@ type RowProps = {
   isOffice: boolean;
 };
 
-const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
+const RequestTableRow = ({ item, index, isOffice }: RowProps) => {
   const { params } = useRequestParams();
 
   const currentPage = params.page;
   const currentIndex = (currentPage - 1) * PAGE_SIZE;
-
-  const { Icon: ActionIcon, color } = ACTION_CONFIG[item.latest_action];
 
   return (
     <TableRow>
@@ -92,10 +90,7 @@ const IndustryRequestTableRow = ({ item, index, isOffice }: RowProps) => {
         </div>
       </TableCell>
       <TableCell>
-        <Badge className={cn(color, "capitalize gap-1.5")}>
-          <ActionIcon className="w-3 h-3" />
-          {formatType(item.latest_action)}
-        </Badge>
+        <RequestActionBadge type={item.latest_action} />
       </TableCell>
       <TableCell>
         <p className="text-muted-foreground text-xs">
@@ -117,7 +112,7 @@ type TableProps = {
   >;
 };
 
-const IndustryRequestsTable = ({ data }: TableProps) => {
+const RequestsTable = ({ data }: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
 
@@ -152,7 +147,7 @@ const IndustryRequestsTable = ({ data }: TableProps) => {
       <Table.Body
         data={results}
         render={(item, idx) => (
-          <IndustryRequestTableRow
+          <RequestTableRow
             key={`${item.id}—${idx}`}
             item={item}
             index={idx}
@@ -172,4 +167,4 @@ const IndustryRequestsTable = ({ data }: TableProps) => {
   );
 };
 
-export default IndustryRequestsTable;
+export default RequestsTable;

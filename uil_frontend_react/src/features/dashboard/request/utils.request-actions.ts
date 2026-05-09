@@ -3,6 +3,7 @@ import { ActionType } from "@/lib/enums";
 import {
   CheckCircle2,
   CheckSquare,
+  CornerUpLeft,
   FileText,
   Forward,
   LucideIcon,
@@ -12,7 +13,6 @@ import {
   ShieldBan,
   UserCheck,
   XCircle,
-  RotateCcw,
 } from "lucide-react";
 import * as z from "zod";
 
@@ -163,7 +163,7 @@ type ActionConfig = {
   formFields: FormFieldConfig[];
 };
 
-export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
+const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
   [ActionType.INITIATED]: {
     label: "Initiate Request",
     Icon: Plus,
@@ -196,8 +196,8 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
   },
   [ActionType.REVERTED]: {
     label: "Revert",
-    Icon: RotateCcw, // better semantic icon
-    color: "bg-yellow-100 text-yellow-700", // warning / rollback
+    Icon: CornerUpLeft, // better semantic icon
+    color: "bg-orange-100 text-orange-700", // warning / rollback
     formFields: [...BASE_FIELDS],
   },
   [ActionType.COMPLETED]: {
@@ -243,4 +243,26 @@ export const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     color: "bg-sky-100 text-sky-700",
     formFields: [...BASE_FIELDS],
   },
+};
+
+export const getActionTypeConfig = (val?: ActionType | null) => {
+  if (!val || (val && !Object.values(ActionType).includes(val))) return null;
+
+  return ACTION_CONFIG[val as ActionType];
+};
+
+export const formatRevertDescription = (description: string) => {
+  const parts = description.split(" | ");
+
+  // Extract parts and remove the "KEY: " prefix
+  const actionName = parts[0] || "";
+  const revertedFrom = (parts[1]?.replace("REVERTED FROM: ", "") ||
+    "") as ActionType;
+  const note = parts[2]?.replace("NOTE: ", "") || "";
+
+  return {
+    actionName,
+    revertedFrom,
+    note,
+  };
 };

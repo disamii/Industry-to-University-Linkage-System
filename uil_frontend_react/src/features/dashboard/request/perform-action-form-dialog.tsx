@@ -31,10 +31,10 @@ import { useEffect } from "react";
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import { useIndustryParams } from "../../../data/industry/use-industry-params";
 import {
-  ACTION_CONFIG,
   ActionFormFields,
   FormFieldConfig,
-} from "./utils.industry_request-actions";
+  getActionTypeConfig,
+} from "./utils.request-actions";
 
 type FormFieldProps<T extends FieldValues> = {
   field: FormFieldConfig;
@@ -202,7 +202,7 @@ const PerformActionFormDialog = ({
   to_entity,
   actionToPerform = "create",
 }: PerformActionDialogProps) => {
-  const config = actionType ? ACTION_CONFIG[actionType] : null;
+  const config = getActionTypeConfig(actionType);
   const form = useDynamicForm(config?.formFields || []);
 
   const { mutate, isPending } = usePerformActionMutation();

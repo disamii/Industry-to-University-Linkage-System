@@ -15,9 +15,9 @@ const OutgoingRequestsOfficeTab = () => {
         {(data) => {
           return (
             <div className="space-y-6">
-              <IndustryRequestsStat stats={data.stats} />
-              <IndustryRequestsTableOperations />
-              <IndustryRequestsTable data={data} />
+              <RequestsStat stats={data.stats} />
+              <RequestsTableOperations />
+              <RequestsTable data={data} />
             </div>
           );
         }}

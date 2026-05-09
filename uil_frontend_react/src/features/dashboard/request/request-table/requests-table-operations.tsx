@@ -10,7 +10,7 @@ import {
   useRequestParams,
 } from "../../../../data/industry_requests/use-request-params";
 
-const IndustryRequestsTableOperations = () => {
+const RequestsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } =
     useRequestParams();
   const industriesQuery = useGetIndustryList();
@@ -102,4 +102,4 @@ const IndustryRequestsTableOperations = () => {
   );
 };
 
-export default IndustryRequestsTableOperations;
+export default RequestsTableOperations;

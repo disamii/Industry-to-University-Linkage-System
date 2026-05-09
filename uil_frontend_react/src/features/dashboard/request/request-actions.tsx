@@ -1,4 +1,5 @@
 import ConfirmDelete from "@/components/reusable/confirm-delete-dialog";
+import RequestActionBadge from "@/components/reusable/request-action-badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,7 +28,6 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PeformActionFormDialog from "./perform-action-form-dialog";
-import { ACTION_CONFIG } from "./utils.industry_request-actions";
 
 type Props = {
   id: number;
@@ -130,16 +130,15 @@ const IndustryRequestActions = ({
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   {actionsToPerform.map((type, idx) => {
-                    const { Icon, color, label } = ACTION_CONFIG[type];
-
                     return (
                       <DropdownMenuItem
                         key={`${type}-${idx}`}
-                        className={cn(color, "bg-transparent")}
                         onClick={() => handleActionClick(type)}
                       >
-                        <Icon className="mr-2 w-4 h-4" />
-                        {label}
+                        <RequestActionBadge
+                          type={type}
+                          className="bg-transparent p-0! text-sm"
+                        />
                       </DropdownMenuItem>
                     );
                   })}

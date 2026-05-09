@@ -8,7 +8,7 @@ type Props = {
   industry: RequestDetailResponse["industry"];
 };
 
-const IndustryInfoCard = ({ industry }: Props) => {
+const RequestIndustryInfoCard = ({ industry }: Props) => {
   if (!industry) return null;
 
   return (
@@ -101,4 +101,4 @@ const IndustryInfoCard = ({ industry }: Props) => {
   );
 };
 
-export default IndustryInfoCard;
+export default RequestIndustryInfoCard;

@@ -2,9 +2,9 @@ import DashboardContentHeader from "@/components/reusable/dashboard-content-head
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { TabsContent } from "@/components/ui/tabs";
 import { useGetIndustryRequestOfficeList } from "@/data/industry_requests/office/office_requests-list-query";
-import IndustryRequestsStat from "@/features/dashboard/industry_request/request-table/industry_requests-stat";
-import IndustryRequestsTable from "@/features/dashboard/industry_request/request-table/industry_requests-table";
-import IndustryRequestsTableOperations from "@/features/dashboard/industry_request/request-table/industry_requests-table-operations";
+import RequestsStat from "@/features/dashboard/request/request-table/requests-stat";
+import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
+import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
 
 const IncomingRequestsOfficeTab = () => {
   const query = useGetIndustryRequestOfficeList();
@@ -22,9 +22,9 @@ const IncomingRequestsOfficeTab = () => {
         {(data) => {
           return (
             <div className="space-y-6">
-              <IndustryRequestsStat stats={data.stats} />
-              <IndustryRequestsTableOperations />
-              <IndustryRequestsTable data={data} />
+              <RequestsStat stats={data.stats} />
+              <RequestsTableOperations />
+              <RequestsTable data={data} />
             </div>
           );
         }}

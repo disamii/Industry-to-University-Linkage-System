@@ -20,8 +20,9 @@ export type RequestAction = Metadata & {
   supported_actions: ActionType[];
 };
 
-export type ActionResponse = {
+export type PerformActionResponse = {
   id: number;
   type: ActionType;
+  awaiting_decision?: boolean; // for altering
   message: string;
 };

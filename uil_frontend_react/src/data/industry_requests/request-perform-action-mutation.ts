@@ -1,7 +1,7 @@
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
 import { formatType, toFormData } from "@/lib/utils";
-import { ActionResponse } from "@/types/interfaces.actions";
+import { PerformActionResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { assignmentKeys } from "../assignments/keys";
@@ -9,7 +9,7 @@ import { postKeys } from "../posts/keys";
 import { industryRequestKeys } from "./industry/keys";
 import { industryRequestOfficeKeys } from "./office/keys";
 import { industryRequestOfficeUrls } from "./office/urls";
-import { ActionFormFields } from "@/features/dashboard/industry_request/utils.industry_request-actions";
+import { ActionFormFields } from "@/features/dashboard/request/utils.request-actions";
 
 export const performAction = (
   data: Record<ActionFormFields, string | number>,
@@ -35,7 +35,7 @@ export const performAction = (
       : industryRequestOfficeUrls.alter_action(Number(id));
 
   return safeApiRequest(
-    api.post<ActionResponse>(url, formData, {
+    api.post<PerformActionResponse>(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -49,7 +49,7 @@ export const usePerformActionMutation = () => {
   return useMutation({
     mutationFn: performAction,
     onSuccess: (data) => {
-      toast.success(`Request ${formatType(data.type)} successfully`);
+      toast.success(data.message);
 
       queryClient.invalidateQueries({
         queryKey: industryRequestOfficeKeys.all(),
