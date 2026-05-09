@@ -6,7 +6,7 @@ import RequestsStat from "@/features/dashboard/request/request-table/requests-st
 import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
 
-const IncomingRequestsOfficeTab = () => {
+const IncomingOfficeRequestsTab = () => {
   const query = useGetIndustryRequestOfficeList();
 
   return (
@@ -33,4 +33,4 @@ const IncomingRequestsOfficeTab = () => {
   );
 };
 
-export default IncomingRequestsOfficeTab;
+export default IncomingOfficeRequestsTab;

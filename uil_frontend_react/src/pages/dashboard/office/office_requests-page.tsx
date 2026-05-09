@@ -1,6 +1,6 @@
 import AdmninTabs from "@/features/dashboard/layout/admin-tabs";
-import IncomingRequestsOfficeTab from "@/features/dashboard/office/requests/incoming-requests-office-tab";
-import OutgoingRequestsOfficeTab from "@/features/dashboard/office/requests/outgoing-requests-office-tab";
+import IncomingOfficeRequestsTab from "@/features/dashboard/office/office_requests/incoming-office_requests-tab";
+import OutgoingOfficeRequestsTab from "@/features/dashboard/office/office_requests/outgoing-office_requests-tab";
 import { MoveDownLeft, MoveUpRight } from "lucide-react";
 
 const tabs = [
@@ -20,8 +20,8 @@ const OfficeRequestsPage = () => {
   return (
     <div className="space-y-6">
       <AdmninTabs defaultValue="incoming" tabs={tabs}>
-        <IncomingRequestsOfficeTab />
-        <OutgoingRequestsOfficeTab />
+        <IncomingOfficeRequestsTab />
+        <OutgoingOfficeRequestsTab />
       </AdmninTabs>
     </div>
   );

@@ -1,7 +1,7 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { TabsContent } from "@/components/ui/tabs";
 
-const OutgoingRequestsOfficeTab = () => {
+const OutgoingOfficeRequestsTab = () => {
   return (
     <TabsContent value="outgoing" className="space-y-6 mt-4">
       <DashboardContentHeader
@@ -26,4 +26,4 @@ const OutgoingRequestsOfficeTab = () => {
   );
 };
 
-export default OutgoingRequestsOfficeTab;
+export default OutgoingOfficeRequestsTab;
