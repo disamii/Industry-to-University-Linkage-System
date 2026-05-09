@@ -246,7 +246,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                 created_by_id=user.id,
                 requested_by=user,
                 industry=industry,
-                requesting_entity="industry",
+                requesting_entity=requesting_entity,
                 **validated_data
             )
 

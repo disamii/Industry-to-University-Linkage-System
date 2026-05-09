@@ -80,13 +80,11 @@ def get_scope_with_parent(parent_unit_id: int):
 #     except ResearcherProfile.DoesNotExist:
 #         return None
     
-    
-def is_unit_in_user_scope(
-    user: User,
-    permission_codes: list[str],
-    academic_unit_id: int,
-) -> bool:
+def is_unit_in_user_scope(user, permission_codes: list[str], academic_unit_id) -> bool:
 
+    # normalize input
+    if isinstance(academic_unit_id, OrganizationalUnit):
+        academic_unit_id = academic_unit_id.id
 
     if user.is_superuser:
         return OrganizationalUnit.objects.filter(id=academic_unit_id).exists()
@@ -102,7 +100,6 @@ def is_unit_in_user_scope(
     if base_units.filter(id=academic_unit_id).exists():
         return True
 
-    # Descendant match
     for unit in base_units:
         if unit.get_all_descendants().filter(id=academic_unit_id).exists():
             return True
