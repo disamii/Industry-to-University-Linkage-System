@@ -80,7 +80,7 @@ class RequestViewSet(
                         'requesting_entity', 'academic_unit', 'industry']
     ordering_fields = ['created_at', 'updated_at',
                        'title', 'industry__name', 'requesting_entity']
-    search_fields = ['industry__name']
+    search_fields = ['industry__name', "title"]
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = RequestForIndustryPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -117,13 +117,9 @@ class RequestViewSet(
         self.check_object_permissions(self.request, obj)
         return obj
 
-    @action(detail=False, methods=['get'], url_path='my-requests')
+    @action(detail=False, methods=["get"], url_path="my-requests")
     def my_requests(self, request):
-        """
-        Query Params:
-        - direction = incoming | outgoing
-        - entity = industry | academic_unit
-        """
+
         direction = request.query_params.get("direction")
         entity = request.query_params.get("entity")
 
@@ -133,57 +129,79 @@ class RequestViewSet(
         if direction not in valid_directions:
             return Response(
                 {"detail": "direction must be incoming or outgoing"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         if entity not in valid_entities:
             return Response(
-                {"detail": "entity must be industry or university"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"detail": "invalid entity"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
+        qs = self.get_queryset()
+
         if entity == RequestingEntity.INDUSTRY:
+
             try:
                 industry = request.user.industry_profile
+
                 if direction == RequestDirection.INCOMING:
-                    qs = (self.get_queryset().filter(industry=industry).exclude(
-                        requesting_entity=RequestingEntity.INDUSTRY).select_related("industry"))
+                    qs = qs.filter(
+                        industry=industry
+                    ).exclude(
+                        requesting_entity=RequestingEntity.INDUSTRY
+                    )
+
                 elif direction == RequestDirection.OUTGOING:
-                    qs = (self.get_queryset().filter(
-                        industry=industry, requesting_entity=RequestingEntity.INDUSTRY).select_related("industry"))
-                else:
-                    qs = (self.get_queryset().filter(
-                        industry=industry).select_related("industry"))
+                    qs = qs.filter(
+                        industry=industry,
+                        requesting_entity=RequestingEntity.INDUSTRY,
+                    )
+
             except (Industry.DoesNotExist, AttributeError):
                 raise NotFound("Industry profile not found")
 
         elif entity == RequestingEntity.ACADEMIC_UNIT:
+
             scope = get_scope(request.user, CAN_READ_REQUEST_LIST)
+
             if direction == RequestDirection.INCOMING:
-                qs = (self.get_queryset().filter(academic_unit__in=scope).exclude(
-                    requesting_entity=RequestingEntity.ACADEMIC_UNIT).select_related("industry"))
+                qs = qs.filter(
+                    academic_unit__in=scope
+                ).exclude(
+                    requesting_entity=RequestingEntity.ACADEMIC_UNIT
+                )
+
             elif direction == RequestDirection.OUTGOING:
-                qs = (self.get_queryset().filter(academic_unit__in=scope).exclude(
-                    requesting_entity=RequestingEntity.Industry).select_related("industry"))
-            else:
-                qs = (self.get_queryset().filter(
-                    academic_unit__in=scope).select_related("industry"))
+                qs = qs.filter(
+                    academic_unit__in=scope,
+                    requesting_entity=RequestingEntity.ACADEMIC_UNIT,
+                )
+
         elif entity == RequestingEntity.STAFF:
 
-            qs = (self.get_queryset().filter(requested_by=request.user,
-                  requesting_entity=RequestingEntity.STAFF).select_related("industry"))
-        elif entity == RequestingEntity.STUDENT:
             qs = qs.filter(
                 requested_by=request.user,
-                requesting_entity=RequestingEntity.STUDENT
+                requesting_entity=RequestingEntity.STAFF,
+            )
+
+        elif entity == RequestingEntity.STUDENT:
+
+            qs = qs.filter(
+                requested_by=request.user,
+                requesting_entity=RequestingEntity.STUDENT,
             )
 
         qs = self.filter_queryset(qs)
+
         page = self.paginate_queryset(qs)
+
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(qs, many=True)
+
         return Response(serializer.data)
 
 

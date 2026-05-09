@@ -29,48 +29,65 @@ export interface RequestHint {
   placeholder: string;
   helpText: string;
 }
+export const INDUSTRY_REQUEST_HINTS: Record<
+  IndustryRequestType,
+  RequestHint
+> = {
+  [IndustryRequestType.RND]: {
+    placeholder:
+      "Detail the problem statement and required research area...",
+    helpText:
+      "Specify the research objectives, expected outcomes, and collaboration scope.",
+  },
 
-export const INDUSTRY_REQUEST_HINTS: Record<IndustryRequestType, RequestHint> =
-  {
-    [IndustryRequestType.RND]: {
-      placeholder:
-        "Specify the research request, problem statement, and research area...",
-      helpText: "Include specific goals and expected outcomes.",
-    },
-    [IndustryRequestType.TECH_SUPPORT]: {
-      placeholder:
-        "Specify the technology required and the duration of support needed...",
-      helpText: "Detail the technical stack and project timeline.",
-    },
-    [IndustryRequestType.CONSULTANCY]: {
-      placeholder: "Describe the consultancy type and expertise required...",
-      helpText: "Specify the scope of the advisory services needed.",
-    },
-    [IndustryRequestType.TESTING]: {
-      placeholder:
-        "Detail the item to test and the specific test type required...",
-      helpText: "Include any compliance or safety standards if applicable.",
-    },
-    [IndustryRequestType.TRAINING]: {
-      placeholder:
-        "Specify training type, number of trainees, and their level...",
-      helpText: "Define the learning objectives and desired skills.",
-    },
-    [IndustryRequestType.INTERNSHIP]: {
-      placeholder:
-        "Detail the field of study, number of students, and planned activities...",
-      helpText: "Mention any specific skills or prerequisites.",
-    },
-    [IndustryRequestType.RECRUITMENT]: {
-      placeholder:
-        "Describe the requirements, graduate year, and number of recruits...",
-      helpText: "List essential qualifications and hiring timeline.",
-    },
-    [IndustryRequestType.OTHER]: {
-      placeholder: "Provide more details about the request...",
-      helpText: "Include any relevant information not covered elsewhere.",
-    },
-  };
+  [IndustryRequestType.TECH_SUPPORT]: {
+    placeholder:
+      "Specify the type of technology required and the duration needed...",
+    helpText:
+      "Include technical requirements, expected usage period, and support expectations.",
+  },
+
+  [IndustryRequestType.CONSULTANCY]: {
+    placeholder:
+      "Describe the consultancy or technical advisory service required...",
+    helpText:
+      "Specify the expertise needed, scope of work, and expected deliverables.",
+  },
+
+  [IndustryRequestType.TESTING]: {
+    placeholder:
+      "Specify the item, product, or service to be tested and the required test type...",
+    helpText:
+      "Include testing standards, certification requirements, or quality expectations if applicable.",
+  },
+
+  [IndustryRequestType.TRAINING]: {
+    placeholder:
+      "Specify the training type, number of trainees, and trainee level...",
+    helpText:
+      "Define the training objectives, target participants, and expected skills development.",
+  },
+
+  [IndustryRequestType.INTERNSHIP]: {
+    placeholder:
+      "Specify the field of study, number of students, internship duration, and assigned activities...",
+    helpText:
+      "Include required student qualifications, internship timeframe, and department or section assignment.",
+  },
+
+  [IndustryRequestType.RECRUITMENT]: {
+    placeholder:
+      "Specify the field of study, graduate year, general requirements, and number of recruits...",
+    helpText:
+      "Include recruitment criteria, preferred qualifications, and expected hiring timeline.",
+  },
+
+  [IndustryRequestType.OTHER]: {
+    placeholder: "Provide detailed information about your request...",
+    helpText:
+      "Include any additional requirements or relevant information related to the request.",
+  },
+};
 
 export const mapEntity: Partial<
   Record<UserRole, { from: Entity; to: Entity }>
