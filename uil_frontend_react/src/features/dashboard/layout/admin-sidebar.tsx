@@ -45,6 +45,11 @@ const ROUTES: Record<
         label: "Request Management",
       },
       {
+        href: "/dashboard/office/requests/create",
+        icon: Send,
+        label: "Submit Request",
+      },
+      {
         href: "/dashboard/office/assignments",
         icon: UserCheck,
         label: "Assignment Management",

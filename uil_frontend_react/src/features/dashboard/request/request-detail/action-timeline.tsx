@@ -11,6 +11,7 @@ import {
 } from "../utils.request-actions";
 import ActionActorToFromDisplay from "./action-actor-to-from-display";
 import ActionResultedObjectDisplay from "./action-resulted-object-display";
+import ExpandableText from "@/components/reusable/expandable-text";
 
 const ActionTimelineList = ({
   action,
@@ -57,8 +58,8 @@ const ActionTimelineList = ({
       return (
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-base leading-none">
-              {actionName}
+            <h3 className="font-medium text-base">
+              <ExpandableText text={actionName} maxLength={70} />
             </h3>
           </div>
 
@@ -86,8 +87,8 @@ const ActionTimelineList = ({
 
     // Default view for normal actions
     return (
-      <h3 className="font-semibold text-base leading-none">
-        {action.description}
+      <h3 className="font-medium text-base">
+        <ExpandableText text={action.description} maxLength={70} />
       </h3>
     );
   };

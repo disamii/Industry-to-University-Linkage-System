@@ -1,6 +1,7 @@
+import { ActionFormFields } from "@/features/dashboard/request/utils.request-actions";
 import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
-import { formatType, toFormData } from "@/lib/utils";
+import { toFormData } from "@/lib/utils";
 import { PerformActionResponse } from "@/types/interfaces.actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -9,7 +10,6 @@ import { postKeys } from "../posts/keys";
 import { industryRequestKeys } from "./industry/keys";
 import { industryRequestOfficeKeys } from "./office/keys";
 import { industryRequestOfficeUrls } from "./office/urls";
-import { ActionFormFields } from "@/features/dashboard/request/utils.request-actions";
 
 export const performAction = (
   data: Record<ActionFormFields, string | number>,
