@@ -31,16 +31,14 @@ type CommonProps = {
 type RowProps = CommonProps & {
   item: MyRequestResponse | OfficeRequestResponse;
   index: number;
-  isOffice: boolean;
-  isIndustry: boolean;
+  currentRole: UserRole;
   currentTab: string;
 };
 
 const RequestTableRow = ({
   item,
   index,
-  isOffice,
-  isIndustry,
+  currentRole,
   currentTab,
   onEdit,
   onDelete,
@@ -53,7 +51,7 @@ const RequestTableRow = ({
   return (
     <TableRow>
       <TableCell>{currentIndex + index + 1}</TableCell>
-      {isOffice && (
+      {currentRole !== UserRole.INDUSTRY && (
         <TableCell>
           <h4 className="font-bold">
             {(item as OfficeRequestResponse).industry.name}
@@ -61,7 +59,11 @@ const RequestTableRow = ({
         </TableCell>
       )}
       <TableCell>
-        <h4 className={cn(isOffice ? "font-medium" : "font-semibold")}>
+        <h4
+          className={cn(
+            currentRole !== UserRole.INDUSTRY ? "font-medium" : "font-semibold",
+          )}
+        >
           {item.title}
         </h4>
       </TableCell>
@@ -70,7 +72,7 @@ const RequestTableRow = ({
           {formatType(item.type)}
         </Badge>
       </TableCell>
-      {isIndustry && currentTab === "incoming" && (
+      {currentRole === UserRole.INDUSTRY && currentTab === "incoming" && (
         <TableCell>
           <Badge variant="outline" className="capitalize">
             {formatType(item.requesting_entity)}
@@ -155,7 +157,9 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
     //   ),
     // },
     { content: "#", className: "py-3" },
-    ...(currentRole === UserRole.ADMIN ? [{ content: "Industry Name" }] : []),
+    ...(currentRole !== UserRole.INDUSTRY
+      ? [{ content: "Industry Name" }]
+      : []),
     { content: "Request Title" },
     { content: "Request Type" },
     ...(currentRole === UserRole.INDUSTRY && currentTab === "incoming"
@@ -179,8 +183,7 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
             key={`${item.id}—${idx}`}
             item={item}
             index={idx}
-            isOffice={currentRole === UserRole.ADMIN}
-            isIndustry={currentRole === UserRole.INDUSTRY}
+            currentRole={currentRole as UserRole}
             currentTab={currentTab}
             onEdit={onEdit}
             onDelete={onDelete}

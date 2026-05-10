@@ -36,6 +36,18 @@ export const officeRoutes: RouteObject[] = [
     element: <PostsPage />,
   },
   {
+    path: withBase("posts/:id"),
+    element: <PostsPage />, // REPLACE
+  },
+  {
+    path: withBase("posts/create"),
+    element: <PostsPage />, // REPLACE
+  },
+  {
+    path: withBase("posts/:id/edit"),
+    element: <PostsPage />, // REPLACE
+  },
+  {
     path: withBase("industries"),
     element: <IndustryManagementPage />,
   },

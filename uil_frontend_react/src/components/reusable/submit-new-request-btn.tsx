@@ -1,17 +1,23 @@
-import { Plus } from "lucide-react";
+import { LucideIcon, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 
 type Props = {
+  Icon?: LucideIcon;
   to: string;
+  label?: string;
 };
 
-const SubmitNewRequestBtn = ({ to }: Props) => {
+const SubmitNewRequestBtn = ({
+  Icon = Plus,
+  to,
+  label = "Submit New Request",
+}: Props) => {
   return (
     <Button asChild size="lg" className="gap-3 text-base">
       <Link to={to}>
-        <Plus className="size-4" />
-        Submit New Request
+        <Icon className="size-4" />
+        {label}
       </Link>
     </Button>
   );

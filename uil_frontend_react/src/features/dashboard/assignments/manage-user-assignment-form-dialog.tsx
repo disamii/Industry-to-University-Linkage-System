@@ -41,10 +41,10 @@ type Action = "add" | "remove";
 
 const actionMap = {
   add: {
-    title: "Assign Users to Request",
+    title: "Assign Experts to Request",
     description: "Select users to assign to this request",
     Icon: Plus,
-    label: "Assign Users",
+    label: "Assign Experts",
   },
   remove: {
     title: "Remove Assigned Users",

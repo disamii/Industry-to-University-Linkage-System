@@ -2,22 +2,26 @@ import { TableFilters } from "@/components/reusable/table-filters";
 import TreeSelectOrgUnit from "@/components/reusable/tree-select-org_unit";
 import { SelectItem } from "@/components/ui/select";
 import { useGetIndustryList } from "@/data/industry/industry-list-query";
-import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
-import { ActionType, IndustryRequestType, UserRole } from "@/lib/enums";
-import { Filter } from "lucide-react";
 import {
   defaultRequestParams,
   useRequestParams,
 } from "@/data/requests/use-request-params";
+import { ActionType, Entity } from "@/lib/enums";
+import { Filter } from "lucide-react";
+import { getEntityFormConfig } from "../utils.request";
 
-const RequestsTableOperations = () => {
+type Props = {
+  requesting_entity: Entity;
+};
+
+const RequestsTableOperations = ({ requesting_entity }: Props) => {
   const { params, setParams, removeParams, clearAllParams } =
     useRequestParams();
+  const entityConfig = getEntityFormConfig(requesting_entity);
 
-  const currentRole = useGetRoleByPath();
-  const isOffice = currentRole === UserRole.ADMIN;
-
-  const industriesQuery = useGetIndustryList(isOffice);
+  const industriesQuery = useGetIndustryList(
+    requesting_entity !== Entity.INDUSTRY,
+  );
 
   return (
     <TableFilters.Root
@@ -36,7 +40,7 @@ const RequestsTableOperations = () => {
         />
 
         <TableFilters.Box Icon={Filter} name="Filters">
-          {isOffice && (
+          {requesting_entity !== Entity.INDUSTRY && (
             <TableFilters.Select
               paramKey="industry"
               placeholder="All Industries"
@@ -68,10 +72,10 @@ const RequestsTableOperations = () => {
           <TableFilters.Select
             paramKey="type"
             placeholder="All Request Types"
-            options={Object.values(IndustryRequestType)}
+            options={Object.values(entityConfig.types)}
           />
 
-          <TreeSelectOrgUnit variant="filter" />
+          <TreeSelectOrgUnit variant="filter" namespace="requests" />
 
           <TableFilters.Select
             paramKey="actions__type"
@@ -83,7 +87,7 @@ const RequestsTableOperations = () => {
 
       <TableFilters.Search
         placeholder={
-          isOffice
+          requesting_entity !== Entity.INDUSTRY
             ? "Search by industry or request title…"
             : "Search by request title..."
         }

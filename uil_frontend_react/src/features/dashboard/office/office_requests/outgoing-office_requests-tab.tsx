@@ -12,8 +12,10 @@ import { useNavigate } from "react-router-dom";
 
 const OutgoingOfficeRequestsTab = () => {
   const { params } = useTabParams();
+  const entity = Entity.ACADEMIC_UNIT;
+
   const query = useGetMyRequestsList({
-    entity: Entity.ACADEMIC_UNIT,
+    entity,
     direction: "outgoing",
     enabled: params.tab === "outgoing",
   });
@@ -38,7 +40,7 @@ const OutgoingOfficeRequestsTab = () => {
           return (
             <div className="space-y-6">
               <RequestsStat stats={data.stats} />
-              <RequestsTableOperations />
+              <RequestsTableOperations requesting_entity={entity} />
               <RequestsTable
                 data={data}
                 onEdit={(id) => {

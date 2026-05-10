@@ -66,7 +66,7 @@ const fieldDefinitions: Record<
     validation: (z) => z.string().min(5, "Description is too short"),
   },
   assigned_users: {
-    label: "Assign Users",
+    label: "Assign Experts",
     type: "select",
     validation: (z) =>
       z.array(z.coerce.number()).min(1, "Please select at least one item"),
@@ -200,7 +200,7 @@ const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     formFields: [...BASE_FIELDS],
   },
   [ActionType.ASSIGNED]: {
-    label: "Assign User",
+    label: "Assign Expert",
     Icon: UserCheck,
     color: "bg-blue-100 text-blue-700",
     formFields: [...ASSIGNMENT_FIELDS],

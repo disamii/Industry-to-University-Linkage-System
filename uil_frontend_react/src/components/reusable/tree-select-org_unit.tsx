@@ -14,7 +14,8 @@ type Props<T extends FieldValues> = {
   form?: UseFormReturn<T>;
   variant?: "form" | "filter";
   label?: string;
-  name?: Path<T>; // Change from keyof T to Path<T>
+  name?: Path<T>;
+  namespace?: string;
 };
 
 const TreeSelectOrgUnit = <T extends FieldValues>({
@@ -22,17 +23,21 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
   variant = "form",
   label,
   name = "academic_unit" as Path<T>,
+  namespace,
 }: Props<T>) => {
   const isForm = form && variant === "form";
+  const finalKey = namespace
+    ? `${namespace}.${name as string}`
+    : (name as string);
+
   const { getParam, setParams, removeParams } = useUrlParams<
     Record<string, number>
   >({
-    [name as string]: undefined,
+    [finalKey]: undefined,
   });
 
   const onSelect = (id: number) => {
     if (isForm) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       form?.setValue(name, id as any, {
         shouldValidate: true,
         shouldDirty: true,
@@ -40,17 +45,17 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
       return;
     } else {
       if (id !== -1) {
-        setParams({ [name as string]: id });
+        setParams({ [finalKey]: id });
         return;
       }
-      removeParams([name as string]);
+
+      removeParams([finalKey]);
     }
   };
 
   const selectedAcademicUnit = isForm
     ? form.watch(name)
-    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      getParam(name as any);
+    : getParam(finalKey as any);
 
   const {
     searchQuery,

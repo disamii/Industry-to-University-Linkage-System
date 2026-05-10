@@ -6,9 +6,12 @@ import RequestsStat from "@/features/dashboard/request/request-table/requests-st
 import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
 import useTabParams from "@/hooks/use-tab-params";
+import { Entity } from "@/lib/enums";
 
 const IncomingOfficeRequestsTab = () => {
   const { params } = useTabParams();
+  const entity = Entity.ACADEMIC_UNIT;
+
   const query = useGetIndustryRequestOfficeList(params.tab === "incoming");
 
   return (
@@ -25,7 +28,7 @@ const IncomingOfficeRequestsTab = () => {
           return (
             <div className="space-y-6">
               <RequestsStat stats={data.stats} />
-              <RequestsTableOperations />
+              <RequestsTableOperations requesting_entity={entity} />
               <RequestsTable data={data} />
             </div>
           );
