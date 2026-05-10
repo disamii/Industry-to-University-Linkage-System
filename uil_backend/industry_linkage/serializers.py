@@ -21,7 +21,7 @@ from .models import (
 )
 from bulletin.models import Post
 from bulletin.serializers import PostListSerializer
-from .utils import ForwardTarget, EntityReceiverField, get_supported_actions_rule, validate_action_or_raise
+from .utils import ForwardTarget, EntityReceiverField, get_supported_actions_rule, validate_action_or_raise,is_industry_user
 User = get_user_model()
 
 
@@ -312,15 +312,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
 
         user = self.context.get("user")
 
-        is_industry_user = False
-
-        if obj.requesting_entity == RequestingEntity.INDUSTRY:
-            try:
-                user.industry_profile
-                is_industry_user = True
-            except (AttributeError, Industry.DoesNotExist):
-                is_industry_user = False
-
+        is_industry = is_industry_user(user,obj.industry.id)
         valid_actions = []
 
         for action_type in ActionTypes:
@@ -336,16 +328,36 @@ class RequestDetailSerializer(serializers.ModelSerializer):
                 continue
 
             valid_actions.append(action_type.value)
+        
+        if is_industry or obj.requesting_entity == RequestingEntity.STAFF:
+            remove_actions = {
+                        ActionTypes.FORWARDED.value,
+                        ActionTypes.ACCEPT_FORWARDED.value,
+                        ActionTypes.ASSIGNED.value,
+                        ActionTypes.POSTED_AS_THEMATIC.value,
+                    }
+            valid_actions[:] = [
+                        action for action in valid_actions if action not in remove_actions
+                    ]
 
         if obj.requesting_entity == RequestingEntity.INDUSTRY:
-            if is_industry_user:
-                # requester (industry) can cancel → remove reject
+            if is_industry:
                 if ActionTypes.REJECTED.value in valid_actions:
                     valid_actions.remove(ActionTypes.REJECTED.value)
             else:
-                # other side → can reject → remove cancel
                 if ActionTypes.CANCELLED.value in valid_actions:
                     valid_actions.remove(ActionTypes.CANCELLED.value)
+                    
+        
+        if obj.requesting_entity == RequestingEntity.STAFF or obj.requesting_entity == RequestingEntity.ACADEMIC_UNIT:
+            if  is_industry:
+                
+                if ActionTypes.CANCELLED.value in valid_actions:
+                    valid_actions.remove(ActionTypes.CANCELLED.value)
+            else:
+                if ActionTypes.REJECTED.value in valid_actions:
+                    valid_actions.remove(ActionTypes.REJECTED.value)
+        
 
         return valid_actions
 
