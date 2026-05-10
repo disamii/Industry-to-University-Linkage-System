@@ -12,23 +12,22 @@ from authorization.constants import (
 )
 
 
-
-INDUSTRY_REQUIRED_PERMISSIONS={
-    'list': [CAN_READ_INDUSTRY_LIST],
-    'retrieve': [CAN_READ_INDUSTRY_DETAIL],
+INDUSTRY_REQUIRED_PERMISSIONS = {
+    'list': [],
+    'retrieve': [],
     'destroy': [CAN_DELETE_INDUSTRY],
     'update': [CAN_UPDATE_INDUSTRY],
     'partial_update': [CAN_UPDATE_INDUSTRY],
     'create': [],
 }
 
-REQUEST_REQUIRED_PERMISSIONS={
+REQUEST_REQUIRED_PERMISSIONS = {
     'list': [CAN_READ_REQUEST_LIST],
     'retrieve': [CAN_READ_REQUEST_DETAIL],
     'destroy': [CAN_DELETE_REQUEST],
     'update': [CAN_UPDATE_REQUEST],
     'partial_update': [CAN_UPDATE_REQUEST],
     'create': [CAN_CREATE_REQUEST],
-    'by_industry':[CAN_READ_REQUEST_LIST],
-    'create_action':[CAN_CREATE_REQUEST_ACTIONS]
+    'by_industry': [CAN_READ_REQUEST_LIST],
+    'create_action': [CAN_CREATE_REQUEST_ACTIONS]
 }

@@ -55,6 +55,10 @@ export enum OfficeRequestType {
   OTHER = "other",
 }
 
+export enum StaffRequestType {
+  EXTERNSHIP = "externship",
+}
+
 export enum Entity {
   INDUSTRY = "industry",
   ACADEMIC_UNIT = "academic_unit",

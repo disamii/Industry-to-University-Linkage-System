@@ -30,6 +30,7 @@ import {
   Entity,
   IndustryRequestType,
   OfficeRequestType,
+  StaffRequestType,
   UserRole,
 } from "./enums";
 
@@ -176,6 +177,15 @@ export const OFFICE_REQUEST_HINTS: Record<OfficeRequestType, RequestHint> = {
     placeholder: "Provide detailed information about your office request...",
     helpText:
       "Include any specific requirements or context not covered by the standard categories.",
+  },
+};
+
+export const STAFF_REQUEST_HINTS: Record<StaffRequestType, RequestHint> = {
+  [StaffRequestType.EXTERNSHIP]: {
+    placeholder:
+      "Specify the field of study, number of lecturer or researcher, externship duration, and assigned activities...",
+    helpText:
+      "Include required lecturer qualifications, internship timeframe, and department or section assignment.",
   },
 };
 

@@ -8,7 +8,7 @@ import RequestDetailCard from "@/features/dashboard/request/request-detail/reque
 import RequestIndustryInfoCard from "@/features/dashboard/request/request-detail/request-industry-info-card";
 import { useParams } from "react-router-dom";
 
-const OfficeAssignmentDetailPage = () => {
+const StaffAssignmentDetail = () => {
   const { id } = useParams();
   const query = useGetAssignmentDetail(Number(id));
 
@@ -44,4 +44,4 @@ const OfficeAssignmentDetailPage = () => {
   );
 };
 
-export default OfficeAssignmentDetailPage;
+export default StaffAssignmentDetail;

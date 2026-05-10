@@ -77,7 +77,7 @@ const ROUTES: Record<
       {
         href: "/dashboard/industry/requests",
         icon: FileText,
-        label: "My Requests",
+        label: "Request Management",
       },
       {
         href: "/dashboard/industry/requests/create",
@@ -99,6 +99,11 @@ const ROUTES: Record<
         href: "/dashboard/staff/assignments",
         icon: CheckSquare,
         label: "My Assignments",
+      },
+      {
+        href: "/dashboard/staff/requests",
+        icon: FileText,
+        label: "My Requests",
       },
       {
         href: "/dashboard/staff/requests/create",

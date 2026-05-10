@@ -44,21 +44,32 @@ const CreateEditRequestsForm = ({
   const isSubmitting = isCreating || isUpdating;
 
   const industriesQuery = useGetIndustryList(
-    requesting_entity === Entity.ACADEMIC_UNIT,
+    requesting_entity !== Entity.ACADEMIC_UNIT,
   );
   const { setParams: setIndustryParams } = useIndustryParams();
 
   const defaultValues = useMemo(() => {
     if (isEditing && requestToEdit) {
-      const entitySpecificFields = {
+      const entitySpecificFields: Partial<
+        Record<Entity, { academic_unit?: number; industry?: number }>
+      > = {
+        [Entity.INDUSTRY]: {
+          academic_unit: requestToEdit.academic_unit.id,
+        },
+
         [Entity.ACADEMIC_UNIT]: {
           academic_unit: requestToEdit.academic_unit.id,
           industry: requestToEdit.industry.id,
         },
 
-        [Entity.INDUSTRY]: {
-          // industry: requestToEdit.industry.id,
+        [Entity.STAFF]: {
           academic_unit: requestToEdit.academic_unit.id,
+          industry: requestToEdit.industry.id,
+        },
+
+        [Entity.STUDENT]: {
+          // academic_unit: requestToEdit.academic_unit.id,
+          industry: requestToEdit.industry.id,
         },
       };
 
@@ -150,9 +161,9 @@ const CreateEditRequestsForm = ({
         />
       </div>
 
-      <TreeSelectOrgUnit form={form} />
+      {requesting_entity !== Entity.STAFF && <TreeSelectOrgUnit form={form} />}
 
-      {requesting_entity === Entity.ACADEMIC_UNIT && (
+      {requesting_entity !== Entity.INDUSTRY && (
         <FormCombobox
           form={form}
           name="industry"

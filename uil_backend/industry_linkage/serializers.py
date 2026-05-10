@@ -11,6 +11,7 @@ from authorization.utilis import is_unit_in_user_scope
 from accounts.serializers import ContactPersonCreateSerializer, UserSerializer
 from organizational_structure.serializers import OrganizationStructureListSerializer
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from organizational_structure.models import OrganizationalUnit
 from .enums import ActionTypes, AssignmentStatus, RequestingEntity, get_assignment_supported_actions
 from .models import (
     Industry,
@@ -171,9 +172,11 @@ class RequestActionSerializer(serializers.ModelSerializer):
             "supported_actions",
             "created_at",
         ]
+
     def get_supported_actions(self, obj):
         user = self.context.get("request").user
         return get_supported_actions_rule(obj, user)
+
 
 class RequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -195,6 +198,10 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             "industry": {
                 "required": False,
                 "allow_null": True
+            },
+            "academic_unit": {
+                "required": False,
+                "allow_null": True
             }
         }
 
@@ -207,7 +214,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         academic_unit_id = validated_data.get("academic_unit", None)
 
         with transaction.atomic():
-            if requesting_entity == "industry":
+            if requesting_entity == RequestingEntity.INDUSTRY:
                 if industry:
                     industry = Industry.objects.filter(id=industry.id).first()
                     if not industry:
@@ -224,7 +231,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                         "You are not allowed for this industry"
                     )
 
-            elif requesting_entity == "academic_unit":
+            elif requesting_entity == RequestingEntity.ACADEMIC_UNIT:
                 if not academic_unit_id:
                     raise serializers.ValidationError(
                         "academic_unit field is required")
@@ -239,8 +246,15 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         "Not allowed for this academic unit")
 
-            else:
-                raise serializers.ValidationError("Invalid requesting_entity")
+            elif requesting_entity == RequestingEntity.STAFF:
+                if not academic_unit_id:
+                    academic_unit = user.academic_unit
+
+                    if not academic_unit:
+                        raise serializers.ValidationError(
+                            "Staff user has no assigned academic unit.")
+
+                    validated_data["academic_unit"] = academic_unit
 
             request = Request.objects.create(
                 created_by_id=user.id,

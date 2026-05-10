@@ -3,6 +3,7 @@ import {
   Entity,
   IndustryRequestType,
   OfficeRequestType,
+  StaffRequestType,
 } from "@/lib/enums";
 import { RequestBase } from "@/validation/validation.requests";
 import { Metadata } from "./interfaces";
@@ -22,13 +23,11 @@ export type RequestResponse = Omit<RequestBase, "attachment"> &
   Metadata & {
     id: number;
     attachment: string | null;
-    type: IndustryRequestType | OfficeRequestType;
+    type: IndustryRequestType | OfficeRequestType | StaffRequestType;
+    academic_unit: number;
   };
 
-export type MyRequestResponse = Omit<
-  RequestResponse,
-  "academic_unit" | "extra_data"
-> & {
+export type MyRequestResponse = Omit<RequestResponse, "extra_data"> & {
   industry: number;
   academic_unit: OrgUnitResponse;
   latest_action: ActionType;

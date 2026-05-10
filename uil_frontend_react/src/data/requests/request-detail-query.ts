@@ -2,8 +2,8 @@ import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { useQuery } from "@tanstack/react-query";
-import { industryRequestKeys } from "./keys";
-import { industryRequestUrls } from "./urls";
+import { industryRequestKeys } from "./industry/keys";
+import { industryRequestUrls } from "./industry/urls";
 
 export const getIndustryRequestDetail = (id: number) => {
   return safeApiRequest(
@@ -11,7 +11,7 @@ export const getIndustryRequestDetail = (id: number) => {
   );
 };
 
-export const useGetIndustryRequestDetail = (id: number) => {
+export const useGetRequestDetail = (id: number) => {
   return useQuery({
     queryKey: industryRequestKeys.detail(id),
     queryFn: () => getIndustryRequestDetail(id),

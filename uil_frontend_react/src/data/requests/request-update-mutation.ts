@@ -2,7 +2,6 @@ import api from "@/lib/axios";
 import { safeApiRequest } from "@/lib/axios.utils";
 import { toFormData } from "@/lib/utils"; // Added this
 import { RequestResponse } from "@/types/interfaces.requests";
-import { IndustryRequestUpdateInput } from "@/validation/validation.requests";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { industryRequestKeys } from "./industry/keys";
@@ -13,7 +12,7 @@ export const requestUpdate = async ({
   data,
 }: {
   id?: number;
-  data: IndustryRequestUpdateInput;
+  data: any;
 }): Promise<RequestResponse> => {
   if (!id) {
     throw new Error("ID is required for update");
@@ -34,8 +33,7 @@ export const useRequestUpdateMutation = (id?: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: IndustryRequestUpdateInput) =>
-      requestUpdate({ id, data }),
+    mutationFn: (data: any) => requestUpdate({ id, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
       toast.success("Request updated successfully");

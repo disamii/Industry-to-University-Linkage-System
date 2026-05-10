@@ -1,15 +1,16 @@
 import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
-import { useGetRequestDetail } from "@/data/requests/request-detail-query";
+import { useGetOfficeRequestDetail } from "@/data/requests/office/office_request-detail-query";
 import ActionTimeline from "@/features/dashboard/request/request-detail/action-timeline";
 import RequestHeader from "@/features/dashboard/request/request-detail/request-header";
+import RequestIndustryInfoCard from "@/features/dashboard/request/request-detail/request-industry-info-card";
 import RequestDetailCard from "@/features/dashboard/request/request-detail/request-detail-card";
 import OrgUnitCard from "@/features/dashboard/request/request-detail/org_unit-card";
 import { useParams } from "react-router-dom";
 
-const IndustryRequestDetailPage = () => {
+const StaffRequestDetailPage = () => {
   const { id } = useParams();
-  const query = useGetRequestDetail(Number(id));
+  const query = useGetOfficeRequestDetail(Number(id));
 
   return (
     <QueryState query={query} checkEmpty={(data) => !data} variant="page">
@@ -23,6 +24,7 @@ const IndustryRequestDetailPage = () => {
 
               <div className="space-y-6">
                 <RequestDetailCard {...data} />
+                <RequestIndustryInfoCard industry={data.industry} />
                 <OrgUnitCard academic_unit={data.academic_unit} />
               </div>
 
@@ -42,4 +44,4 @@ const IndustryRequestDetailPage = () => {
   );
 };
 
-export default IndustryRequestDetailPage;
+export default StaffRequestDetailPage;
