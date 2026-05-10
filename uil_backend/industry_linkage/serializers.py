@@ -335,6 +335,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
                         ActionTypes.ACCEPT_FORWARDED.value,
                         ActionTypes.ASSIGNED.value,
                         ActionTypes.POSTED_AS_THEMATIC.value,
+                        ActionTypes.PROMOTED_TO_PROJECT.value
                     }
             valid_actions[:] = [
                         action for action in valid_actions if action not in remove_actions
