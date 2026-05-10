@@ -74,11 +74,10 @@ export enum ActionType {
   POSTED_AS_THEMATIC = "posted_as_thematic",
   REPLIED = "replied",
   REJECTED = "rejected",
-  // REASSIGNED = "reassigned",
   COMPLETED = "completed",
-  // REVOKED = "revoked",
   CANCELLED = "cancelled",
   REVERTED = "reverted",
+  PROMOTED_TO_PROJECT = "promoted_to_project",
 }
 
 /**

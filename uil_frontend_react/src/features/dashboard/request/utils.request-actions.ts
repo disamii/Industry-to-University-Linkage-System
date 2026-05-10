@@ -9,6 +9,7 @@ import {
   LucideIcon,
   MessageSquare,
   Plus,
+  Rocket,
   UserCheck,
   XCircle,
 } from "lucide-react";
@@ -165,67 +166,55 @@ const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
   [ActionType.INITIATED]: {
     label: "Initiate Request",
     Icon: Plus,
-    color: "bg-zinc-100 text-zinc-700", // Neutral starting point
+    color: "bg-zinc-100 text-zinc-700",
     formFields: [...BASE_FIELDS],
   },
   [ActionType.ACCEPT_FORWARDED]: {
     label: "Accept Forward",
     Icon: CheckCircle2,
-    color: "bg-teal-100 text-teal-700", // Distinct from green "Complete"
+    color: "bg-teal-100 text-teal-700",
     formFields: [...BASE_FIELDS],
   },
-  // [ActionType.REVOKED]: {
-  //   label: "Revoke Assignment",
-  //   Icon: ShieldBan,
-  //   color: "bg-orange-100 text-orange-700", // Warning but not a "failure"
-  //   formFields: [...BASE_FIELDS],
-  // },
   [ActionType.CANCELLED]: {
     label: "Cancel Request",
     Icon: XCircle,
-    color: "bg-slate-200 text-slate-600", // Muted/Disabled look
+    color: "bg-slate-200 text-slate-600",
     formFields: [...BASE_FIELDS],
   },
   [ActionType.REJECTED]: {
     label: "Reject",
     Icon: XCircle,
-    color: "bg-red-100 text-red-700", // Critical negative
+    color: "bg-red-100 text-red-700",
     formFields: [...BASE_FIELDS],
   },
   [ActionType.REVERTED]: {
     label: "Revert",
-    Icon: CornerUpLeft, // better semantic icon
-    color: "bg-orange-100 text-orange-700", // warning / rollback
+    Icon: CornerUpLeft,
+    color: "bg-orange-100 text-orange-700",
     formFields: [...BASE_FIELDS],
   },
   [ActionType.COMPLETED]: {
     label: "Mark Complete",
     Icon: CheckSquare,
-    color: "bg-emerald-100 text-emerald-700", // Success
+    color: "bg-emerald-100 text-emerald-700",
     formFields: [...BASE_FIELDS],
   },
   [ActionType.ASSIGNED]: {
     label: "Assign User",
     Icon: UserCheck,
-    color: "bg-blue-100 text-blue-700", // Primary action
+    color: "bg-blue-100 text-blue-700",
     formFields: [...ASSIGNMENT_FIELDS],
   },
-  // [ActionType.REASSIGNED]: {
-  //   label: "Reassign",
-  //   Icon: RefreshCw,
-  //   color: "bg-amber-100 text-amber-800", // Change/Attention
-  //   formFields: [...ASSIGNMENT_FIELDS],
-  // },
   [ActionType.FORWARDED]: {
     label: "Forward",
     Icon: Forward,
-    color: "bg-indigo-100 text-indigo-700", // Movement
+    color: "bg-indigo-100 text-indigo-700",
     formFields: [...BASE_FIELDS, FIELDS.target_unit],
   },
   [ActionType.POSTED_AS_THEMATIC]: {
     label: "Post as Thematic",
+    color: "bg-fuchsia-100 text-fuchsia-700",
     Icon: FileText,
-    color: "bg-fuchsia-100 text-fuchsia-700", // Special highlight
     formFields: [
       ...BASE_FIELDS,
       FIELDS.title,
@@ -239,6 +228,12 @@ const ACTION_CONFIG: Record<ActionType, ActionConfig> = {
     label: "Reply",
     Icon: MessageSquare,
     color: "bg-sky-100 text-sky-700",
+    formFields: [...BASE_FIELDS],
+  },
+  [ActionType.PROMOTED_TO_PROJECT]: {
+    label: "Promote to Project",
+    Icon: Rocket,
+    color: "bg-amber-100 text-amber-800",
     formFields: [...BASE_FIELDS],
   },
 };

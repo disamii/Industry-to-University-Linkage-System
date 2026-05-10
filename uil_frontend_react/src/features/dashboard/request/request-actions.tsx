@@ -70,10 +70,6 @@ const RequestActions = ({
   const actionsToPerform = Object.values(ActionType).filter((type) =>
     supported_actions?.includes(type),
   );
-  // .filter(
-  //   (action) =>
-  //     action !== ActionType.REVOKED && action !== ActionType.ACCEPT_FORWARDED,
-  // );
   const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
 
