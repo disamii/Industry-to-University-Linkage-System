@@ -1,9 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AttachmentView from "@/features/dashboard/request/request-detail/attachment-view";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
+import useTabParams from "@/hooks/use-tab-params";
+import { UserRole } from "@/lib/enums";
+import { formatDate, formatType, getFullName } from "@/lib/utils"; // Adjust import path
 import { AssignmentDetailResponse } from "@/types/interfaces.assignments";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
-import { Info, Users, Calendar, Briefcase, Activity } from "lucide-react";
-import { getFullName, formatDate, formatType } from "@/lib/utils"; // Adjust import path
+import {
+  Activity,
+  Briefcase,
+  Calendar,
+  Info,
+  MessageSquare,
+  Users,
+} from "lucide-react";
 
 type Props = RequestDetailResponse & {
   assignment?: AssignmentDetailResponse;
@@ -13,8 +23,14 @@ const RequestDetailCard = ({
   description,
   type,
   attachment,
+  requesting_entity,
   assignment,
 }: Props) => {
+  const currentRole = useGetRoleByPath();
+  const {
+    params: { tab: currentTab },
+  } = useTabParams();
+
   return (
     <Card>
       <CardHeader>
@@ -40,11 +56,23 @@ const RequestDetailCard = ({
               <div className="space-y-3 bg-muted/50 p-4 rounded-lg">
                 <div className="flex items-start gap-2">
                   <Activity className="mt-0.5 w-4 h-4 text-muted-foreground" />
-                  <p className="font-medium text-sm">
+                  <p className="font-medium text-muted-foreground text-sm">
                     Request Type:{" "}
-                    <span className="font-normal">{formatType(type)}</span>
+                    <span className="text-foreground">{formatType(type)}</span>
                   </p>
                 </div>
+                {currentRole === UserRole.INDUSTRY &&
+                  currentTab === "incoming" && (
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                      <p className="font-medium text-muted-foreground text-sm">
+                        Requested By:{" "}
+                        <span className="text-foreground">
+                          {formatType(requesting_entity)}
+                        </span>
+                      </p>
+                    </div>
+                  )}
               </div>
             </div>
 

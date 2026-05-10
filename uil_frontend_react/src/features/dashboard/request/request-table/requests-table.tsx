@@ -21,6 +21,7 @@ import {
 import { useRef } from "react";
 import { useRequestParams } from "../../../../data/requests/use-request-params";
 import RequestActions from "../request-actions";
+import useTabParams from "@/hooks/use-tab-params";
 
 type CommonProps = {
   onDelete?: (id: number) => void;
@@ -31,12 +32,16 @@ type RowProps = CommonProps & {
   item: MyRequestResponse | OfficeRequestResponse;
   index: number;
   isOffice: boolean;
+  isIndustry: boolean;
+  currentTab: string;
 };
 
 const RequestTableRow = ({
   item,
   index,
   isOffice,
+  isIndustry,
+  currentTab,
   onEdit,
   onDelete,
 }: RowProps) => {
@@ -65,6 +70,13 @@ const RequestTableRow = ({
           {formatType(item.type)}
         </Badge>
       </TableCell>
+      {isIndustry && currentTab === "incoming" && (
+        <TableCell>
+          <Badge variant="outline" className="capitalize">
+            {formatType(item.requesting_entity)}
+          </Badge>
+        </TableCell>
+      )}
       <TableCell>
         <p className="max-w-40 text-xs truncate">{item.description}</p>
       </TableCell>
@@ -128,7 +140,9 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
   const topCardRef = useRef<HTMLDivElement>(null);
 
   const currentRole = useGetRoleByPath();
-  const isOffice = currentRole === UserRole.ADMIN;
+  const {
+    params: { tab: currentTab },
+  } = useTabParams();
 
   const tableHeads: ITableHead[] = [
     // {
@@ -141,9 +155,12 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
     //   ),
     // },
     { content: "#", className: "py-3" },
-    ...(isOffice ? [{ content: "Industry Name" }] : []),
+    ...(currentRole === UserRole.ADMIN ? [{ content: "Industry Name" }] : []),
     { content: "Request Title" },
     { content: "Request Type" },
+    ...(currentRole === UserRole.INDUSTRY && currentTab === "incoming"
+      ? [{ content: "Requested by" }]
+      : []),
     { content: "Request Description" },
     { content: "To Unit" },
     { content: "Latest Activity" },
@@ -162,7 +179,9 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
             key={`${item.id}—${idx}`}
             item={item}
             index={idx}
-            isOffice={isOffice}
+            isOffice={currentRole === UserRole.ADMIN}
+            isIndustry={currentRole === UserRole.INDUSTRY}
+            currentTab={currentTab}
             onEdit={onEdit}
             onDelete={onDelete}
           />

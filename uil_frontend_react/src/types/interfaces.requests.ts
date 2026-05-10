@@ -25,6 +25,7 @@ export type RequestResponse = Omit<RequestBase, "attachment"> &
     attachment: string | null;
     type: IndustryRequestType | OfficeRequestType | StaffRequestType;
     academic_unit: number;
+    requesting_entity: Entity;
   };
 
 export type MyRequestResponse = Omit<RequestResponse, "extra_data"> & {
