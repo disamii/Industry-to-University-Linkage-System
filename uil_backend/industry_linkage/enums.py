@@ -59,6 +59,7 @@ class ActionTypes(models.TextChoices):
     ACCEPT_FORWARDED = "accept_forwarded", "Accept Forwarded"
     REPLIED = "replied", "Replied"
     REVERTED = "reverted", "Reverted"
+    PROMOTED_TO_PROJECT = "promoted_to_project", "Promoted to Project"
 
 
 class AssignmentStatus(models.TextChoices):
