@@ -378,6 +378,7 @@ class RequestSerializer(serializers.ModelSerializer):
             "industry",
             "academic_unit",
             "requested_by",
+            "requesting_entity",
             "latest_action",
             "description",
             "attachment",
