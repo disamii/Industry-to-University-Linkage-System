@@ -96,7 +96,7 @@ const RequestDetailCard = ({
                   <div className="flex items-start gap-2">
                     <Users className="mt-0.5 w-4 h-4 text-muted-foreground" />
                     <div className="font-medium text-sm">
-                      Assigned Users:
+                      Assigned Experts:
                       <div className="flex flex-wrap gap-1 mt-1">
                         {assignment.assigned_users.map((user) => (
                           <span

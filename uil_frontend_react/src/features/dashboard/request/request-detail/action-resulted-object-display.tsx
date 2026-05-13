@@ -67,7 +67,7 @@ const ActionResultedObjectDisplay: React.FC<ResultCardProps> = ({ result }) => {
         {/* Assignment Specific: Show user count if it exists */}
         {result && "assigned_users" in result && (
           <div className="flex items-center gap-2">
-            <p className="text-xs">Assigned Users:</p>
+            <p className="text-xs">Assigned Experts:</p>
 
             {/* Assigned Users Avatars/List */}
             <UsersAvatarPopover users={result.assigned_users} maxVisible={4} />

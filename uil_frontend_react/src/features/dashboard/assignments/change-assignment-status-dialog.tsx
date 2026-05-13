@@ -70,7 +70,7 @@ const ChangeAssignmentStatusDialog = ({
                 <Separator className="my-2" />
 
                 <div className="flex items-center gap-2">
-                  <p className="text-xs">Assigned Users:</p>
+                  <p className="text-xs">Assigned Experts:</p>
 
                   {/* Assigned Users Avatars/List */}
                   <UsersAvatarPopover

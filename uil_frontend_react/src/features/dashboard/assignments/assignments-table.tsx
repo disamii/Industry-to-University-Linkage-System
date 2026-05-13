@@ -133,7 +133,7 @@ const AssignmentsTable = ({ data }: TableProps) => {
     { content: "Industry" },
     { content: "Request title" },
     { content: "Request type" },
-    { content: "Assigned Users" },
+    { content: "Assigned Experts" },
     { content: "Academic Unit" },
     { content: "Assignment Status" },
     { content: "Date Range" },

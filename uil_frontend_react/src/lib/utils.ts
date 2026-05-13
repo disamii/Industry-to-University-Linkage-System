@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { UserRole } from "./enums";
+import { ACADEMIC_STOP_WORDS } from "./constants";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
@@ -109,9 +110,15 @@ export const toFormData = (
 export const getAcademicUnitAbbr = (name: string, abbr?: string | null) => {
   if (abbr) return abbr;
 
-  return name
-    .split(" ")
-    .filter(Boolean)
+  const parts = name.split(/[\s-]+/).filter(Boolean);
+
+  // Use stop words, but if the unit name is very short (e.g., "College of Law")
+  // and everything gets filtered out, fallback to the original list.
+  let filtered = parts.filter((w) => !ACADEMIC_STOP_WORDS.has(w.toLowerCase()));
+
+  if (filtered.length === 0) filtered = parts;
+
+  return filtered
     .map((w) => w[0])
     .join("")
     .toUpperCase();

@@ -1,18 +1,21 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
-import { QueryState } from "@/components/reusable/query-state-ui";
 import TreeItem from "@/components/reusable/tree-item";
 import TreeView, { UseChildrenHook } from "@/components/reusable/tree-view";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Command, CommandInput } from "@/components/ui/command";
 import { TabsContent } from "@/components/ui/tabs";
 import { useGetOrgUnitDirectChildrenList } from "@/data/org_unit/org_units-direct-children-list-query";
-import { useGetOrgUnitsList } from "@/data/org_unit/org_units-list-query";
 import { useOrgUnitTree } from "@/data/org_unit/use-org-unit-tree";
 import { OrgUnitResponse } from "@/types/interfaces.org_units";
+import { Network } from "lucide-react";
 
 const OrgUnitTab = () => {
-  const query = useGetOrgUnitsList();
-
   const { isSearching, isLoading, results, searchQuery, setSearchQuery } =
     useOrgUnitTree();
 
@@ -31,50 +34,50 @@ const OrgUnitTab = () => {
         hasBackBtn={false}
       />
 
-      <QueryState query={query} checkEmpty={(data) => !data} variant="section">
-        {(data) => {
-          return (
-            <div className="space-y-6">
-              {/* <RequestsStat stats={data.stats} /> */}
-              {/* <RequestsTableOperations /> */}
-            </div>
-          );
-        }}
-      </QueryState>
-
-      <div>
-        <Input
+      <Command shouldFilter={false} className="space-y-3">
+        <CommandInput
           placeholder="Search units..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="ml-auto border-primary w-full max-w-80"
+          onValueChange={setSearchQuery}
         />
 
-        <Card>
-          <TreeView
-            getHasChildren={(node) => node.total_subnodes > 0}
-            getKey={(node) => node.id}
-            isLoading={isLoading}
-            results={results || []}
-            isSearching={isSearching}
-            renderItem={(node) => (
-              <TreeItem node={node}>
-                {() => (
-                  <>
-                    <span className="font-medium text-sm truncate">
-                      {node.name}
-                    </span>
-                    <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-muted-foreground uppercase tracking-wider">
-                      {node.unit_type}
-                    </span>
-                  </>
-                )}
-              </TreeItem>
-            )}
-            useChildren={useOrgUnitChildren}
-          />
+        <Card className="gap-2 col-span-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-bold text-lg">
+              <Network className="w-4 h-4 text-primary" />
+              Unit Hierarchy
+            </CardTitle>
+            <CardDescription>
+              Browse and explore the nested relationship of academic units.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <TreeView
+              getHasChildren={(node) => node.total_subnodes > 0}
+              getKey={(node) => node.id}
+              isLoading={isLoading}
+              results={results || []}
+              isSearching={isSearching}
+              renderItem={(node) => (
+                <TreeItem node={node}>
+                  {() => (
+                    <>
+                      <span className="font-medium text-sm truncate">
+                        {node.name}
+                      </span>
+                      <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-muted-foreground uppercase tracking-wider">
+                        {node.unit_type}
+                      </span>
+                    </>
+                  )}
+                </TreeItem>
+              )}
+              useChildren={useOrgUnitChildren}
+            />
+          </CardContent>
         </Card>
-      </div>
+      </Command>
     </TabsContent>
   );
 };

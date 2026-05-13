@@ -42,15 +42,15 @@ type Action = "add" | "remove";
 const actionMap = {
   add: {
     title: "Assign Experts to Request",
-    description: "Select users to assign to this request",
+    description: "Select experts to assign to this request",
     Icon: Plus,
     label: "Assign Experts",
   },
   remove: {
-    title: "Remove Assigned Users",
-    description: "Select users to remove from this request",
+    title: "Remove Assigned Experts",
+    description: "Select experts to remove from this request",
     Icon: Minus,
-    label: "Remove Users",
+    label: "Remove Experts",
   },
 };
 
@@ -96,12 +96,12 @@ const FormField = ({
     return (
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <label className="font-medium text-sm">Users to Remove</label>
+          <label className="font-medium text-sm">Experts to Remove</label>
         </div>
 
         <div className="flex flex-wrap gap-2 bg-muted/20 p-3 border rounded-md min-h-25">
           {usersToRemove.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No assigned users.</p>
+            <p className="text-muted-foreground text-sm">No assigned expert.</p>
           ) : (
             usersToRemove.map((user) => (
               <Badge
@@ -147,7 +147,7 @@ const FormField = ({
 
   return (
     <div className="space-y-2">
-      <label className="font-medium text-sm">Assign New Users</label>
+      <label className="font-medium text-sm">Assign New Experts</label>
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -157,8 +157,8 @@ const FormField = ({
             className="justify-between mt-2 w-full font-normal"
           >
             {selectedIds.length > 0
-              ? `${selectedIds.length} users selected`
-              : "Select users to add..."}
+              ? `${selectedIds.length} experts selected`
+              : "Select experts to add..."}
 
             <ChevronsUpDown className="opacity-50 ml-2 w-4 h-4 shrink-0" />
           </Button>
@@ -170,7 +170,7 @@ const FormField = ({
         >
           <Command shouldFilter={false}>
             <CommandInput
-              placeholder="Search users..."
+              placeholder="Search experts..."
               value={searchValue}
               onValueChange={setSearchValue}
             />

@@ -10,7 +10,7 @@ export type PostParams = PaginationParams & {
   post_type?: string;
   is_published?: boolean;
   is_internal_only?: boolean;
-  // content_type?: string;
+  // content_type?: PostContentType;
   // published_at?: string; // gte/lte
   // expires_at?: string; // gte/lte
   search?: string;

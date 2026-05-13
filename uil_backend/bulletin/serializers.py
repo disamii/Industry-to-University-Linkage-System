@@ -60,7 +60,9 @@ class PostListSerializer(serializers.ModelSerializer):
             "is_published",
             "is_internal_only",
             "published_at",
-            "expires_at"
+            "expires_at",
+            "content",
+            "image"
         ]
 
     # def get_related_model(self, obj):

@@ -1,11 +1,6 @@
 import { Pagination } from "@/components/reusable/pagination";
 import Table from "@/components/reusable/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -16,7 +11,6 @@ import { PAGE_SIZE } from "@/lib/constants";
 import { formatDate, getAcademicUnitAbbr, getFullName } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { UserProfile } from "@/types/interfaces.user";
-import { MoreVertical } from "lucide-react";
 import { useRef } from "react";
 
 type RowProps = {
@@ -77,12 +71,14 @@ const StaffTableRow = ({ item, index }: RowProps) => {
         </div>
       </TableCell>
       <TableCell>
-        <p className="max-w-40 truncate">{item.roles.join(",") || "Staff"}</p>
+        <p className="max-w-40 truncate">{item.roles.join(",") || "User"}</p>
       </TableCell>
       <TableCell>
-        <p className="font-medium text-sm">{formatDate(item.created_at)}</p>
+        <p className="text-muted-foreground text-xs">
+          {formatDate(item.created_at)}
+        </p>
       </TableCell>
-      <TableCell className="text-center">
+      {/* <TableCell className="text-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="hover:bg-muted p-2 rounded-md transition-colors">
@@ -91,7 +87,7 @@ const StaffTableRow = ({ item, index }: RowProps) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>CONTENT</DropdownMenuContent>
         </DropdownMenu>
-      </TableCell>
+      </TableCell> */}
     </TableRow>
   );
 };
@@ -119,7 +115,7 @@ const StaffTable = ({ data }: TableProps) => {
     { content: "Academic Unit" },
     { content: "Roles" },
     { content: "Registered At" },
-    { content: "Actions", className: "text-center" },
+    // { content: "Actions", className: "text-center" },
   ].filter(Boolean);
 
   return (

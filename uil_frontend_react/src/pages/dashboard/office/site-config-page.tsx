@@ -25,9 +25,9 @@ const tabs = [
 const SiteConfigPage = () => {
   return (
     <AdmninTabs defaultValue="staff_management" tabs={tabs}>
-      <OrganUnitTab />
-      <RoleManagementTab />
       <StaffManagementTab />
+      <RoleManagementTab />
+      <OrganUnitTab />
     </AdmninTabs>
   );
 };

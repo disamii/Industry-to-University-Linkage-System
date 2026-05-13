@@ -1,10 +1,10 @@
 import { TableFilters } from "@/components/reusable/table-filters";
+import { PostType } from "@/lib/enums";
 import { Filter } from "lucide-react";
 import {
   defaultPostParams,
   usePostParams,
 } from "../../../../data/posts/use-post-params";
-import { PostType } from "@/lib/enums";
 
 const PostsTableOperations = () => {
   const { params, setParams, removeParams, clearAllParams } = usePostParams();
@@ -21,7 +21,7 @@ const PostsTableOperations = () => {
           defaultValue={defaultPostParams.ordering}
           options={[
             { label: "Title", value: "title" },
-            { label: "Created Date", value: "created_at" },
+            { label: "Registration Date", value: "created_at" },
             { label: "Published Date", value: "published_at" },
           ]}
         />
@@ -32,6 +32,12 @@ const PostsTableOperations = () => {
             placeholder="All Post Types"
             options={Object.values(PostType)}
           />
+
+          {/* <TableFilters.Select
+            paramKey="content_type"
+            placeholder="All Content Types"
+            options={Object.values(PostContentType)}
+          /> */}
 
           <TableFilters.Checkbox
             items={[

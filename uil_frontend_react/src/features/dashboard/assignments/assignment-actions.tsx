@@ -108,7 +108,7 @@ const AssignmentActions = ({
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <UserCog className="mr-2 w-4 h-4" />
-                Manage Users
+                Manage Experts
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
@@ -117,14 +117,14 @@ const AssignmentActions = ({
                     className={cn(colorVariants.info, "bg-transparent")}
                   >
                     <UserPlus className="mr-2 w-4 h-4" />
-                    Add Users
+                    Add Experts
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => openDialog("remove")} // Trigger Remove
                     className={cn(colorVariants.danger, "bg-transparent")}
                   >
                     <UserMinus className="mr-2 w-4 h-4" />
-                    Remove Users
+                    Remove Experts
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>

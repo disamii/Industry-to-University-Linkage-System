@@ -29,7 +29,7 @@ const SignupChooseRole = ({ role, setRole, setStep }: Props) => {
       <div className="space-y-1 text-center">
         <h2 className="font-bold text-xl tracking-tight">Choose your path</h2>
         <p className="font-medium text-muted-foreground text-xs tracking-wider">
-          Select your registration type
+          Select your Registration type
         </p>
       </div>
 

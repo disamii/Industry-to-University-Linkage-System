@@ -36,6 +36,6 @@ class PostViewSet(viewsets.ModelViewSet):
     ordering = ["-published_at"]
 
     def get_serializer_class(self):
-        if self.action == "list":
+        if self.action in ["list", "create"]:
             return PostListSerializer
         return PostDetailSerializer

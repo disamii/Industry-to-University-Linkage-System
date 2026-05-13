@@ -5,16 +5,22 @@ import { LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import { AlertCircle, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { useCheckStaffEmail } from "@/data/auth/check-staff-email-mutation";
 import RpmsProfileFoundDialog from "./rpms-profile-found-dialog";
 
 type Props = {
-  setStep: (step: number) => void;
+  setStep?: (step: number) => void;
+  isAdmin?: boolean;
+  setRegisterUserDialog?: Dispatch<SetStateAction<boolean>>;
 };
 
-const CheckStaffEmailForm = ({ setStep }: Props) => {
+const CheckStaffEmailForm = ({
+  setStep,
+  isAdmin,
+  setRegisterUserDialog,
+}: Props) => {
   const [email, setEmail] = useState("");
   const { mutate, isPending: isSubmitting } = useCheckStaffEmail();
 
@@ -56,7 +62,7 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
       <div className="space-y-6">
         <div className="space-y-1">
           <h2 className="font-bold text-xl tracking-tight">
-            Staff Verification
+            {isAdmin ? "Register staff member" : "Staff Verification"}
           </h2>
           <p className="font-medium text-muted-foreground text-xs">
             RPMS Lookup{" "}
@@ -72,7 +78,7 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
             <Input
               type="email"
               id="email"
-              placeholder="Enter your email"
+              placeholder={isAdmin ? "Enter staff email" : "Enter your email"}
               className={cn("py-5", notFoundInRpms && "border-destructive")}
               value={email}
               onChange={(e) => handleEmailChange(e.target.value)}
@@ -84,14 +90,16 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1 h-10"
-            onClick={() => setStep(1)}
-          >
-            Back
-          </Button>
+          {setStep && (
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 h-10"
+              onClick={() => setStep?.(1)}
+            >
+              Back
+            </Button>
+          )}
           <Button
             type="submit"
             form="form-check-staff-email"
@@ -108,6 +116,8 @@ const CheckStaffEmailForm = ({ setStep }: Props) => {
         rpmsUserData={rpmsUserData}
         showFoundDialog={showFoundDialog}
         setShowFoundDialog={setShowFoundDialog}
+        isAdmin={isAdmin}
+        setRegisterUserDialog={setRegisterUserDialog}
       />
     </form>
   );

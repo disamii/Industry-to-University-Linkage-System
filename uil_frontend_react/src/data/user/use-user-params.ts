@@ -15,7 +15,7 @@ export type UserParams = PaginationParams & {
 export const defaultUserParams: UserParams = {
   ...defaultPaginationParams,
   search: "",
-  ordering: "first_name",
+  ordering: "-created_at",
 };
 
 const useUserParams = () => {

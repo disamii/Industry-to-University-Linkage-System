@@ -18,7 +18,7 @@ const StaffTableOperations = () => {
           defaultValue={defaultUserParams.ordering}
           options={[
             { label: "Name", value: "first_name" },
-            { label: "Created Date", value: "created_at" },
+            { label: "Registration Date", value: "created_at" },
           ]}
         />
 
