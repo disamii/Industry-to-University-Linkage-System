@@ -116,7 +116,7 @@ export enum AssignmentStatus {
  */
 export enum PostType {
   SUCCESS_STORY = "success_story",
-  THEMATIC_AREA = "thematic_area",
+  THEMATIC_CALL = "thematic_call",
   OPEN_REQUEST = "open_request",
   ANNOUNCEMENT = "announcement",
   GUIDELINE = "guideline",
