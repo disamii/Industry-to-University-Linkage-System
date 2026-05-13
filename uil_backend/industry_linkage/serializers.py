@@ -543,8 +543,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         required=True
     )
-    start_date = serializers.DateField(required=False)
-    end_date = serializers.DateField(required=False)
+    start_date = serializers.DateField(required=True)
+    end_date = serializers.DateField(required=True)
     industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
@@ -588,9 +588,10 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
         if pi_user in assigned_users:
-            raise serializers.ValidationError( "")
+            raise serializers.ValidationError("user cant be both pi and memeber , already counted as member ")
 
         return attrs
+    
     def _set_assignment_members(
         self,
         assignment,
@@ -602,7 +603,6 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
 
         members = []
 
-        # normal assigned users
         for user in assigned_users:
             members.append(
                 AssignmentMember(
@@ -629,7 +629,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         action_type = validated_data.get("type")
 
         assigned_users = validated_data.pop("assigned_users", None)
-        pi_user=validated_data.pop("assigned_users",None)
+        pi_user=validated_data.pop("pi_user",None)
         start_date = validated_data.pop("start_date", None)
         end_date = validated_data.pop("end_date", None)
         industry_mentor = validated_data.pop("industry_mentor", None)
@@ -893,6 +893,9 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
 
 class AssignmentUserSerializer(UserSerializer):
     is_pi = serializers.BooleanField(read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ["is_pi"]
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
     supported_actions = serializers.SerializerMethodField()
