@@ -1,35 +1,35 @@
 import api from "@/lib/axios";
+import { bulkOperationHandler } from "@/lib/utils";
 import { safeApiRequest } from "@/lib/utils.axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { industryRequestKeys } from "./industry/keys";
-import { industryRequestUrls } from "./industry/urls";
-import { bulkOperationHandler } from "@/lib/utils";
+import { postKeys } from "./keys";
+import { postUrls } from "./urls";
 
-export const requestDelete = (ids: number[]) => {
+export const postDelete = (ids: number[]) => {
   return bulkOperationHandler(ids, (id) =>
-    safeApiRequest(api.delete(industryRequestUrls.byId(id))),
+    safeApiRequest(api.delete(postUrls.byId(id))),
   );
 };
 
-export const useRequestDeleteMutation = () => {
+export const usePostDeleteMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: requestDelete,
+    mutationFn: postDelete,
     onSuccess: (results) => {
-      queryClient.invalidateQueries({ queryKey: industryRequestKeys.all() });
+      queryClient.invalidateQueries({ queryKey: postKeys.all() });
 
       const successCount = results.filter((r) => r.success).length;
       const failCount = results.length - successCount;
 
       if (failCount === 0) {
-        toast.success(`${successCount} request(s) deleted successfully`);
+        toast.success(`${successCount} post(s) deleted successfully`);
       } else {
         toast.error(`${successCount} deleted, ${failCount} failed`);
       }
     },
     onError: (error: any) =>
-      toast.error(error.message || "Failed to delete requests"),
+      toast.error(error.message || "Failed to delete posts"),
   });
 };

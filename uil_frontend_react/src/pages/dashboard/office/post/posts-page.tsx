@@ -21,7 +21,7 @@ const PostsPage = () => {
 
         <SubmitNewRequestBtn
           to="/dashboard/office/posts/create"
-          label="Add New Post"
+          label="Create New Post"
         />
       </div>
 

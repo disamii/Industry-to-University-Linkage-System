@@ -107,13 +107,36 @@ export const toFormData = (
   return formData;
 };
 
+/**
+ * Generic utility to handle bulk operations with individual result tracking.
+ */
+export const bulkOperationHandler = async <T extends number | string>(
+  ids: T[],
+  operation: (id: T) => Promise<any>,
+) => {
+  const results: { id: T; success: boolean; error?: string }[] = [];
+
+  for (const id of ids) {
+    try {
+      await operation(id);
+      results.push({ id, success: true });
+    } catch (error: any) {
+      results.push({
+        id,
+        success: false,
+        error: error.message || "Operation failed",
+      });
+    }
+  }
+
+  return results;
+};
+
 export const getAcademicUnitAbbr = (name: string, abbr?: string | null) => {
   if (abbr) return abbr;
 
   const parts = name.split(/[\s-]+/).filter(Boolean);
 
-  // Use stop words, but if the unit name is very short (e.g., "College of Law")
-  // and everything gets filtered out, fallback to the original list.
   let filtered = parts.filter((w) => !ACADEMIC_STOP_WORDS.has(w.toLowerCase()));
 
   if (filtered.length === 0) filtered = parts;

@@ -1,20 +1,15 @@
 import { Pagination } from "@/components/reusable/pagination";
 import Table from "@/components/reusable/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
 import { colorVariants } from "@/lib/mappings";
 import { cn, formatDate, formatType } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { PostResponse, PostStats } from "@/types/interfaces.posts";
-import { MoreVertical } from "lucide-react";
 import { useRef } from "react";
 import { usePostParams } from "../../../../data/posts/use-post-params";
+import PostActions from "./post-actions";
 
 type RowProps = {
   item: PostResponse;
@@ -68,14 +63,7 @@ const PostTableRow = ({ item, index }: RowProps) => {
         </p>
       </TableCell>
       <TableCell className="text-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="hover:bg-muted p-2 rounded-md transition-colors">
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>CONTENT</DropdownMenuContent>
-        </DropdownMenu>
+        <PostActions id={item.id} title={item.title} />
       </TableCell>
     </TableRow>
   );

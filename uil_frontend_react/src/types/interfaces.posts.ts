@@ -1,4 +1,6 @@
-import { PostType } from "@/lib/enums";
+import { PostContentType, PostType } from "@/lib/enums";
+import { RequestDetailResponse } from "./interfaces.requests";
+import { Metadata } from "./interfaces";
 
 export type PostStats = {
   total_posts: number;
@@ -9,7 +11,7 @@ export type PostStats = {
   guideline: number;
 };
 
-export type PostResponse = {
+export type PostResponse = Metadata & {
   id: number;
   title: string;
   post_type: PostType;
@@ -17,11 +19,11 @@ export type PostResponse = {
   is_internal_only: boolean;
   published_at?: string | null;
   expires_at?: string | null;
+  content: string;
+  image?: string | null;
 };
 
-// export type PostDetailResponse = PostResponse & {
-//   content: string;
-//   image?: string | null;
-//   related_object: RequestDetailResponse;
-//   content_type?: PostContentType | null;
-// };
+export type PostDetailResponse = PostResponse & {
+  related_object: RequestDetailResponse;
+  content_type?: PostContentType | null;
+};
