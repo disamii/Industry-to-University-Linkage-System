@@ -3,10 +3,10 @@ import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetOfficeRequestDetail } from "@/data/requests/office/office_request-detail-query";
 import ActionTimeline from "@/features/dashboard/request/request-detail/action-timeline";
 import RequestHeader from "@/features/dashboard/request/request-detail/request-header";
-import RequestIndustryInfoCard from "@/features/dashboard/request/request-detail/request-industry-info-card";
 import RequestDetailCard from "@/features/dashboard/request/request-detail/request-detail-card";
 import OrgUnitCard from "@/features/dashboard/request/request-detail/org_unit-card";
 import { useParams } from "react-router-dom";
+import IndustryInfoCard from "@/features/dashboard/office/industry-management/industry-info-card";
 
 const StaffRequestDetailPage = () => {
   const { id } = useParams();
@@ -24,7 +24,7 @@ const StaffRequestDetailPage = () => {
 
               <div className="space-y-6">
                 <RequestDetailCard {...data} />
-                <RequestIndustryInfoCard industry={data.industry} />
+                <IndustryInfoCard industry={data.industry} />
                 <OrgUnitCard academic_unit={data.academic_unit} />
               </div>
 

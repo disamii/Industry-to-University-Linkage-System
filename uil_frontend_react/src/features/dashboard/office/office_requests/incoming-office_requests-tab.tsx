@@ -1,7 +1,7 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { TabsContent } from "@/components/ui/tabs";
-import { useGetIndustryRequestOfficeList } from "@/data/requests/office/office_requests-list-query";
+import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
 import RequestsStat from "@/features/dashboard/request/request-table/requests-stat";
 import RequestsTable from "@/features/dashboard/request/request-table/requests-table";
 import RequestsTableOperations from "@/features/dashboard/request/request-table/requests-table-operations";
@@ -12,7 +12,12 @@ const IncomingOfficeRequestsTab = () => {
   const { params } = useTabParams();
   const entity = Entity.ACADEMIC_UNIT;
 
-  const query = useGetIndustryRequestOfficeList(params.tab === "incoming");
+  // const query = useGetIndustryRequestOfficeList(params.tab === "incoming");
+  const query = useGetMyRequestsList({
+    entity,
+    direction: "incoming",
+    enabled: params.tab === "incoming",
+  });
 
   return (
     <TabsContent value="incoming" className="space-y-6 mt-4">

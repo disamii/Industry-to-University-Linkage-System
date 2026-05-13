@@ -1,19 +1,15 @@
 import { Pagination } from "@/components/reusable/pagination";
 import Table from "@/components/reusable/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE } from "@/lib/constants";
+import { formatType } from "@/lib/utils";
 import { ApiPaginatedResponse, ITableHead } from "@/types/interfaces";
 import { IndustryResponse, IndustryStats } from "@/types/interfaces.industry";
-import { ExternalLink, MoreVertical } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useRef } from "react";
 import { useIndustryParams } from "../../../../data/industry/use-industry-params";
-import { formatType } from "@/lib/utils";
+import IndustryActions from "./industry-actions";
 
 type RowProps = {
   item: IndustryResponse;
@@ -73,14 +69,7 @@ const IndustryTableRow = ({ item, index }: RowProps) => {
         </div>
       </TableCell>
       <TableCell className="text-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="hover:bg-muted p-2 rounded-md transition-colors">
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>CONTENT</DropdownMenuContent>
-        </DropdownMenu>
+        <IndustryActions id={item.id} />
       </TableCell>
     </TableRow>
   );

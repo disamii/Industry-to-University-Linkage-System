@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import { useQuery } from "@tanstack/react-query";
 import { orgUnitUrls } from "./urls";

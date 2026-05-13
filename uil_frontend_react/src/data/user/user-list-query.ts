@@ -3,7 +3,7 @@ import { UserProfile } from "@/types/interfaces.user";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { userKeys } from "./keys";
 
-import { createGetRequest } from "@/lib/axios.utils";
+import { createGetRequest } from "@/lib/utils.axios";
 import { userUrls } from "./urls";
 
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";

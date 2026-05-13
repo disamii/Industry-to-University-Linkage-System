@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { AssignmentDetailResponse } from "@/types/interfaces.assignments";
 import { useQuery } from "@tanstack/react-query";
 import { assignmentUrls } from "./urls";

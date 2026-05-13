@@ -21,7 +21,7 @@ from .models import (
 )
 from bulletin.models import Post
 from bulletin.serializers import PostListSerializer
-from .utils import ForwardTarget, EntityReceiverField, get_supported_actions_rule, validate_action_or_raise,is_industry_user
+from .utils import ForwardTarget, EntityReceiverField, get_supported_actions_rule, validate_action_or_raise, is_industry_user
 User = get_user_model()
 
 
@@ -312,7 +312,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
 
         user = self.context.get("user")
 
-        is_industry = is_industry_user(user,obj.industry.id)
+        is_industry = is_industry_user(user, obj.industry.id)
         valid_actions = []
 
         for action_type in ActionTypes:
@@ -328,18 +328,18 @@ class RequestDetailSerializer(serializers.ModelSerializer):
                 continue
 
             valid_actions.append(action_type.value)
-        
+
         if is_industry or obj.requesting_entity == RequestingEntity.STAFF:
             remove_actions = {
-                        ActionTypes.FORWARDED.value,
-                        ActionTypes.ACCEPT_FORWARDED.value,
-                        ActionTypes.ASSIGNED.value,
-                        ActionTypes.POSTED_AS_THEMATIC.value,
-                        ActionTypes.PROMOTED_TO_PROJECT.value
-                    }
+                ActionTypes.FORWARDED.value,
+                ActionTypes.ACCEPT_FORWARDED.value,
+                ActionTypes.ASSIGNED.value,
+                ActionTypes.POSTED_AS_THEMATIC.value,
+                ActionTypes.PROMOTED_TO_PROJECT.value
+            }
             valid_actions[:] = [
-                        action for action in valid_actions if action not in remove_actions
-                    ]
+                action for action in valid_actions if action not in remove_actions
+            ]
 
         if obj.requesting_entity == RequestingEntity.INDUSTRY:
             if is_industry:
@@ -348,17 +348,15 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             else:
                 if ActionTypes.CANCELLED.value in valid_actions:
                     valid_actions.remove(ActionTypes.CANCELLED.value)
-                    
-        
+
         if obj.requesting_entity == RequestingEntity.STAFF or obj.requesting_entity == RequestingEntity.ACADEMIC_UNIT:
-            if  is_industry:
-                
+            if is_industry:
+
                 if ActionTypes.CANCELLED.value in valid_actions:
                     valid_actions.remove(ActionTypes.CANCELLED.value)
             else:
                 if ActionTypes.REJECTED.value in valid_actions:
                     valid_actions.remove(ActionTypes.REJECTED.value)
-        
 
         return valid_actions
 
@@ -414,6 +412,7 @@ class IndustryDetailSerializer(serializers.ModelSerializer):
             "contact_full_name",
             "contact_email",
             "requests",
+            "created_at"
         ]
 
     def get_contact_full_name(self, obj):

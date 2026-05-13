@@ -1,3 +1,4 @@
+import IndustryDetailPage from "@/pages/dashboard/office/industry-detail-page";
 import IndustryManagementPage from "@/pages/dashboard/office/industry-management-page";
 import OfficeAssignmentDetailPage from "@/pages/dashboard/office/office-assignment-detail-page";
 import AssignmentsPage from "@/pages/dashboard/office/office-assignments-page";
@@ -45,11 +46,15 @@ export const officeRoutes: RouteObject[] = [
   },
   {
     path: withBase("posts/:id/edit"),
-    element: <PostsPage />, // REPLACE
+    element: <PostsPage />, // FIX:
   },
   {
     path: withBase("industries"),
     element: <IndustryManagementPage />,
+  },
+  {
+    path: withBase("industries/:id"),
+    element: <IndustryDetailPage />,
   },
   {
     path: withBase("site-config"),

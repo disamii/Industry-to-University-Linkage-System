@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { CheckStaffEmailResponse } from "@/types/interfaces.auth";
 import { authUrls } from "./urls";
 import {

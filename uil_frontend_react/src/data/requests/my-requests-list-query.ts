@@ -3,7 +3,7 @@ import {
   useRequestParams,
 } from "@/data/requests/use-request-params";
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
-import { createGetRequest } from "@/lib/axios.utils";
+import { createGetRequest } from "@/lib/utils.axios";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 import { MyRequestResponse, RequestStats } from "@/types/interfaces.requests";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +18,7 @@ export const useGetMyRequestsList = ({
   entity,
   direction,
   enabled,
+  disablePagination,
 }: MyRequestParams) => {
   const queryClient = useQueryClient();
   const { params } = useRequestParams(entity, direction);
@@ -36,6 +37,7 @@ export const useGetMyRequestsList = ({
     params,
     links: query.data?.pagination.links,
     isPlaceholderData: query.isPlaceholderData,
+    disablePagination,
   });
 
   return query;

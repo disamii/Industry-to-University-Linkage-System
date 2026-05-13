@@ -11,6 +11,7 @@ export type MyRequestParams = {
   direction?: "incoming" | "outgoing";
   entity?: Entity;
   enabled: boolean;
+  disablePagination?: boolean;
 };
 
 export type RequestParams = PaginationParams & {

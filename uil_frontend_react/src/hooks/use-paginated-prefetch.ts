@@ -8,16 +8,24 @@ type PrefetchConfig<TParams> = {
   params: TParams;
   links?: { next: string | null; previous: string | null };
   isPlaceholderData: boolean;
+  disablePagination?: boolean;
 };
 
 export const usePaginatedPrefetch = <TParams extends { page: number }>(
   config: PrefetchConfig<TParams>,
 ) => {
-  const { queryClient, baseKey, queryFn, params, links, isPlaceholderData } =
-    config;
+  const {
+    queryClient,
+    baseKey,
+    queryFn,
+    params,
+    links,
+    isPlaceholderData,
+    disablePagination,
+  } = config;
 
   useEffect(() => {
-    if (!links) return;
+    if (!links || disablePagination) return;
 
     // Skip if it's a placholder data
     if (isPlaceholderData) return;
@@ -43,5 +51,13 @@ export const usePaginatedPrefetch = <TParams extends { page: number }>(
 
     if (hasNextPage) prefetch(params.page + 1);
     if (hasPrevPage) prefetch(params.page - 1);
-  }, [queryClient, baseKey, queryFn, params, links, isPlaceholderData]);
+  }, [
+    queryClient,
+    baseKey,
+    queryFn,
+    params,
+    links,
+    isPlaceholderData,
+    disablePagination,
+  ]);
 };

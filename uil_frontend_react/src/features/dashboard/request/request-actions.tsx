@@ -40,6 +40,7 @@ type Props = {
   actionToPerform?: "alter" | "create";
   onEdit?: (id: number) => void;
   onDelete?: (id: number) => void;
+  onView?: (id: number) => void;
 };
 
 const RequestActions = ({
@@ -52,6 +53,7 @@ const RequestActions = ({
   actionToPerform,
   onEdit,
   onDelete,
+  onView,
 }: Props) => {
   const { mutate: deleteRequest, isPending: isDeleting } =
     useRequestDeleteMutation();
@@ -109,7 +111,9 @@ const RequestActions = ({
         <DropdownMenuContent align="end" className={cn(isTable && "w-45")}>
           {isTable && showViewDetails && (
             <DropdownMenuItem
-              onClick={() => navigate(`${id}?tab=${requestDirection}`)}
+              onClick={() =>
+                onView?.(id) || navigate(`${id}?tab=${requestDirection}`)
+              }
             >
               <Eye className="mr-2 w-4 h-4" />
               View Details

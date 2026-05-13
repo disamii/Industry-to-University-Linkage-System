@@ -1,5 +1,5 @@
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
-import { createGetRequest } from "@/lib/axios.utils";
+import { createGetRequest } from "@/lib/utils.axios";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 
 import {
@@ -34,6 +34,7 @@ export const useGetAssignmentsListByUserId = (user_id?: number) => {
     queryKey: assignmentKeys.list_by_user_id(user_id, params),
     queryFn: () => getAssignmentsListByUserId(user_id, params),
     placeholderData: (prev) => prev,
+    enabled: !!user_id,
   });
 
   usePaginatedPrefetch({

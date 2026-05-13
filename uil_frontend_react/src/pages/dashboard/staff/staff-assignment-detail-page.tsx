@@ -2,10 +2,10 @@ import BackButton from "@/components/reusable/back-button";
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetAssignmentDetail } from "@/data/assignments/assignment-detail-query";
 import AssignmentDetailHeader from "@/features/dashboard/assignments/assignment-detail-header";
+import IndustryInfoCard from "@/features/dashboard/office/industry-management/industry-info-card";
 import ActionTimeline from "@/features/dashboard/request/request-detail/action-timeline";
 import OrgUnitCard from "@/features/dashboard/request/request-detail/org_unit-card";
 import RequestDetailCard from "@/features/dashboard/request/request-detail/request-detail-card";
-import RequestIndustryInfoCard from "@/features/dashboard/request/request-detail/request-industry-info-card";
 import { useParams } from "react-router-dom";
 
 const StaffAssignmentDetail = () => {
@@ -24,7 +24,7 @@ const StaffAssignmentDetail = () => {
 
               <div className="space-y-6">
                 <RequestDetailCard {...data.request} assignment={data} />
-                <RequestIndustryInfoCard industry={data.request.industry} />
+                <IndustryInfoCard industry={data.request.industry} />
                 <OrgUnitCard academic_unit={data.request.academic_unit} />
               </div>
 

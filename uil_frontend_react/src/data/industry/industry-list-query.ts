@@ -1,5 +1,5 @@
 import { useIndustryParams } from "@/data/industry/use-industry-params";
-import { createGetRequest } from "@/lib/axios.utils";
+import { createGetRequest } from "@/lib/utils.axios";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 import { IndustryResponse, IndustryStats } from "@/types/interfaces.industry";
 import { useQuery, useQueryClient } from "@tanstack/react-query";

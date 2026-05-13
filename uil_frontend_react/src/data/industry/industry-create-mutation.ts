@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import {
   IndustryCreateInput,

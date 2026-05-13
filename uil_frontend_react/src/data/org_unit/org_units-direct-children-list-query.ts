@@ -1,4 +1,4 @@
-import { createGetRequest } from "@/lib/axios.utils";
+import { createGetRequest } from "@/lib/utils.axios";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 import {
   OrgUnitDirectChildrenListParams,

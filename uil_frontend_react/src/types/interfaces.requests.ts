@@ -38,14 +38,9 @@ export type OfficeRequestResponse = Omit<MyRequestResponse, "industry"> & {
   industry: IndustryResponse;
 };
 
-export type RequestDetailResponse = Omit<
-  RequestResponse,
-  "academic_unit" | "extra_data" | "industry"
-> & {
-  industry: IndustryResponse;
+export type RequestDetailResponse = OfficeRequestResponse & {
   requesting_entity: Entity;
   actions: RequestAction[];
-  academic_unit: OrgUnitResponse;
   requested_by: UserProfile;
   supported_actions: ActionType[];
 };

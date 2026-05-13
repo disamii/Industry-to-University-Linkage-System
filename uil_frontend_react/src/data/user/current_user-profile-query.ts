@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { UserProfile } from "@/types/interfaces.user";
 import { userUrls } from "./urls";
 

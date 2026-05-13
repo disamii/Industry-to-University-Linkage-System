@@ -24,8 +24,10 @@ import RequestActions from "../request-actions";
 import useTabParams from "@/hooks/use-tab-params";
 
 type CommonProps = {
-  onDelete?: (id: number) => void;
+  onView?: (id: number) => void;
   onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
+  excludedCols?: string[];
 };
 
 type RowProps = CommonProps & {
@@ -40,8 +42,10 @@ const RequestTableRow = ({
   index,
   currentRole,
   currentTab,
+  onView,
   onEdit,
   onDelete,
+  excludedCols,
 }: RowProps) => {
   const { params } = useRequestParams();
 
@@ -51,13 +55,14 @@ const RequestTableRow = ({
   return (
     <TableRow>
       <TableCell>{currentIndex + index + 1}</TableCell>
-      {currentRole !== UserRole.INDUSTRY && (
-        <TableCell>
-          <h4 className="font-bold">
-            {(item as OfficeRequestResponse).industry.name}
-          </h4>
-        </TableCell>
-      )}
+      {currentRole !== UserRole.INDUSTRY &&
+        !excludedCols?.includes("Industry Name") && (
+          <TableCell>
+            <h4 className="font-bold">
+              {(item as OfficeRequestResponse).industry.name}
+            </h4>
+          </TableCell>
+        )}
       <TableCell>
         <h4
           className={cn(
@@ -123,7 +128,12 @@ const RequestTableRow = ({
         </p>
       </TableCell>
       <TableCell className="text-center">
-        <RequestActions {...item} onEdit={onEdit} onDelete={onDelete} />
+        <RequestActions
+          {...item}
+          onView={onView}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       </TableCell>
     </TableRow>
   );
@@ -137,7 +147,13 @@ type TableProps = CommonProps & {
   >;
 };
 
-const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
+const RequestsTable = ({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  excludedCols,
+}: TableProps) => {
   const { pagination, results } = data;
   const topCardRef = useRef<HTMLDivElement>(null);
 
@@ -170,7 +186,9 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
     { content: "Latest Activity" },
     { content: "Submitted At" },
     { content: "Actions", className: "text-center" },
-  ].filter(Boolean);
+  ]
+    .filter(({ content }) => !excludedCols?.includes(content))
+    .filter(Boolean);
 
   return (
     <Table topCardRef={topCardRef}>
@@ -185,8 +203,10 @@ const RequestsTable = ({ data, onEdit, onDelete }: TableProps) => {
             index={idx}
             currentRole={currentRole as UserRole}
             currentTab={currentTab}
+            onView={onView}
             onEdit={onEdit}
             onDelete={onDelete}
+            excludedCols={excludedCols}
           />
         )}
       />

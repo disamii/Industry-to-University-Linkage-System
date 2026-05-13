@@ -52,7 +52,7 @@ class IndustryViewSet(viewsets.ModelViewSet):
             self.action, [])
         if self.action in ["create"]:
             permission_classes = [AllowAny]
-        elif self.action in ["update", "partial_update", "destroy"]:
+        elif self.action in ["update", "partial_update", "retrieve", "destroy"]:
             permission_classes = [IsAuthenticated,
                                   IsOwnerOrHasRequiredPermissions]
         else:
@@ -222,7 +222,8 @@ class RequestManageViewSet(
         self.required_permissions = REQUEST_REQUIRED_PERMISSIONS.get(
             self.action, [])
         if self.action in ("destroy",  'retrieve'):
-            permission_classes = [IsAuthenticated,IsOwnerOrHasRequiredPermissions]
+            permission_classes = [IsAuthenticated,
+                                  IsOwnerOrHasRequiredPermissions]
         else:
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]

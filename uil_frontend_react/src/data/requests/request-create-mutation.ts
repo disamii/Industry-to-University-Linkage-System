@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { Entity } from "@/lib/enums";
 import { toFormData } from "@/lib/utils";
 import { RequestResponse } from "@/types/interfaces.requests";

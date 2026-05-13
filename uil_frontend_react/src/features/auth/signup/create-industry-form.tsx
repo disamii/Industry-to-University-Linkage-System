@@ -82,8 +82,8 @@ const CompanyDetailsForm = () => {
           <FormInput
             form={form}
             name="location"
-            label="Location (City)"
-            placeholder="Enter your location (city)"
+            label="City/Woreda"
+            placeholder="Enter your city/woreda"
             required
           />
 

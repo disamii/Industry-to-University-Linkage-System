@@ -1,5 +1,5 @@
 import { usePaginatedPrefetch } from "@/hooks/use-paginated-prefetch";
-import { createGetRequest } from "@/lib/axios.utils";
+import { createGetRequest } from "@/lib/utils.axios";
 import { ApiPaginatedResponse } from "@/types/interfaces";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";

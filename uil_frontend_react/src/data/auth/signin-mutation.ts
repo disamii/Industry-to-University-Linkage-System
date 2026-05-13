@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { safeApiRequest } from "@/lib/axios.utils";
+import { safeApiRequest } from "@/lib/utils.axios";
 import { SigninResponse } from "@/types/interfaces.auth";
 import { SigninInput, signinSchema } from "@/validation/validation.auth";
 import { useMutation } from "@tanstack/react-query";

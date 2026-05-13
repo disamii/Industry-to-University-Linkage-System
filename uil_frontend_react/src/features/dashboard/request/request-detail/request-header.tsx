@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import RequestActions from "@/features/dashboard/request/request-actions";
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import { UserRole } from "@/lib/enums";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatType } from "@/lib/utils";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
 import { Building2, Calendar } from "lucide-react";
 
@@ -32,7 +32,7 @@ const IndustryRequestHeader = ({
           <div className="flex items-center gap-3">
             <h1 className="font-bold text-primary text-3xl">{title}</h1>
             <Badge className="capitalize" variant="secondary">
-              {type}
+              {formatType(type)}
             </Badge>
           </div>
 
