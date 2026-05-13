@@ -24,8 +24,8 @@ class Industry(AuditMixin,models.Model):
     industry_email = models.EmailField(blank=True, null=True)
     phone_number = models.CharField(max_length=20,blank=True, null=True, validators=[phone_validator])
     contact_person_phone_number = models.CharField(max_length=20,blank=True, null=True,validators=[phone_validator])
-    location = models.CharField(max_length=255)
-    address = models.TextField()
+    location = models.CharField(max_length=255,blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     number_of_employees = models.PositiveIntegerField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
@@ -53,7 +53,12 @@ class Request(AuditMixin,models.Model):
             on_delete=models.CASCADE,
             related_name="requested"
         )
-    
+    academic_unit_name = models.CharField(
+    max_length=255,
+    null=True,
+    blank=True,
+    help_text="Used when the exact academic unit is unknown"
+)
     requested_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -135,6 +140,7 @@ class Assignment(AuditMixin, models.Model):
 
     start_date = models.DateField(help_text="When the work begins")
     end_date = models.DateField(help_text="When the work must be completed")
+    visbil_to_industry = models.BooleanField(default=False)
 
     industry_mentor = models.CharField(
         max_length=255,

@@ -180,6 +180,11 @@ class RequestActionSerializer(serializers.ModelSerializer):
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):
+    industry = serializers.PrimaryKeyRelatedField(
+    queryset=Industry.objects.all(),
+    many=True,
+    required=False
+)
     class Meta:
         model = Request
         fields = [
@@ -189,17 +194,14 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             "academic_unit",
             "industry",
             "description",
+            "academic_unit_name"
             "requesting_entity",
             "attachment",
             "created_at",
         ]
         read_only_fields = ["id", "created_at",]
-
         extra_kwargs = {
-            "industry": {
-                "required": False,
-                "allow_null": True
-            },
+
             "academic_unit": {
                 "required": False,
                 "allow_null": True
@@ -208,14 +210,20 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context["request"].user
-
         requesting_entity = validated_data.pop("requesting_entity")
-
-        industry = validated_data.pop("industry", None)
+        industries = validated_data.pop("industry", [])
         academic_unit_id = validated_data.get("academic_unit", None)
+        created_requests = []
 
         with transaction.atomic():
             if requesting_entity == RequestingEntity.INDUSTRY:
+                if len(industries) >1:
+                    raise serializers.ValidationError(
+                        "Industry request requires exactly one industry."
+                    )
+
+                industry = industries[0]
+
                 if industry:
                     industry = Industry.objects.filter(id=industry.id).first()
                     if not industry:
@@ -226,16 +234,34 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     if not industry:
                         raise serializers.ValidationError(
                             "Industry id required or user must have industry profile")
-
                 if industry.contact_person != user:
                     raise serializers.ValidationError(
                         "You are not allowed for this industry"
                     )
+                request = Request.objects.create(
+                    created_by_id=user.id,
+                    requested_by=user,
+                    industry=industry,
+                    requesting_entity=requesting_entity,
+                    **validated_data
+                )
 
+                RequestAction.objects.create(
+                    request=request,
+                    type=ActionTypes.INITIATED,
+                    description="Request Initiated",
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
+                )
+                
+                return request
+            
             elif requesting_entity == RequestingEntity.ACADEMIC_UNIT:
                 if not academic_unit_id:
                     raise serializers.ValidationError(
                         "academic_unit field is required")
+                if not industries:
+                        raise serializers.ValidationError("select industry first please.")
 
                 allowed = is_unit_in_user_scope(
                     user=user,
@@ -254,27 +280,32 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     if not academic_unit:
                         raise serializers.ValidationError(
                             "Staff user has no assigned academic unit.")
-
                     validated_data["academic_unit"] = academic_unit
+                
+                if not industries:
+                        raise serializers.ValidationError("select industry first please.")
 
-            request = Request.objects.create(
-                created_by_id=user.id,
-                requested_by=user,
-                industry=industry,
-                requesting_entity=requesting_entity,
-                **validated_data
-            )
+            for industry in industries:
 
-            RequestAction.objects.create(
-                request=request,
-                type=ActionTypes.INITIATED,
-                description="Request Initiated",
-                created_by_id=user.id,
-                updated_by_id=user.id,
+                request = Request.objects.create(
+                    created_by_id=user.id,
+                    requested_by=user,
+                    industry=industry,
+                    requesting_entity=requesting_entity,
+                    **validated_data
+                )
 
-            )
-        return request
+                RequestAction.objects.create(
+                    request=request,
+                    type=ActionTypes.INITIATED,
+                    description="Request Initiated",
+                    created_by_id=user.id,
+                    updated_by_id=user.id,
+                )
 
+                created_requests.append(request)
+
+        return created_requests
 
 class RequestDetailSerializer(serializers.ModelSerializer):
     actions = RequestActionSerializer(many=True, read_only=True)
@@ -291,6 +322,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "title",
             "industry",
             "requesting_entity",
+            'academic_unit_name'
             'actions',
             'academic_unit',
             'requested_by',
@@ -448,7 +480,8 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
         if action_type == ActionTypes.ACCEPT_FORWARDED:
 
             forwarded_action = request_obj.actions.filter(
-                type=ActionTypes.FORWARDED
+                type=ActionTypes.FORWARDED,
+                awaiting_decision=True
             ).order_by("-created_at").first()
             if not forwarded_action:
                 raise serializers.ValidationError(
@@ -456,7 +489,6 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
 
             unit_id = forwarded_action.to_object_id
 
-            from django.contrib.contenttypes.models import ContentType
             unit_ct = ContentType.objects.get(
                 app_label="organizational_structure",
                 model="organizationalunit"
@@ -554,6 +586,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             "type",
             "description",
             "assigned_users",
+            "visbil_to_industry",
             "pi_user",
             "start_date",
             "end_date",
@@ -786,11 +819,15 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         unit_ct = ContentType.objects.get(
             app_label="organizational_structure",
             model="organizationalunit"
-        )
+                )
 
-        if target_ct == unit_ct and str(target_id) == str(request_obj.academic_unit_id):
+        if (
+            request_obj.academic_unit_id is not None
+            and target_ct == unit_ct
+            and target_id == request_obj.academic_unit_id
+        ):
             raise serializers.ValidationError(
-                "    Cannot forward to the same unit that owns the request."
+                "Cannot forward to the same unit that owns the request."
             )
 
         return attrs
@@ -907,6 +944,7 @@ class AssignmentListSerializer(serializers.ModelSerializer):
             "id",
             "request",
             "assigned_users",
+            "visbil_to_industry",
             "start_date",
             "industry_mentor",
             "end_date",
@@ -942,6 +980,7 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
             "request",
             "assigned_users",
             "industry_mentor",
+            "visbil_to_industry",
             "supported_actions",
             "start_date",
             "end_date",
