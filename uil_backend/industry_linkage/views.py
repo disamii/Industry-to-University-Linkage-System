@@ -418,6 +418,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["patch"], url_path="remove-users")
     def remove_users(self, request, pk=None):
+
         assignment = self.get_object()
 
         user_ids = request.data.get("user_ids", [])
@@ -427,20 +428,37 @@ class AssignmentViewSet(viewsets.ModelViewSet):
                 "user_ids": "Provide a non-empty list of user ids."
             })
 
-        current_users_count = assignment.assigned_users.count()
+        pi_member = assignment.members.filter(
+            is_pi=True
+        ).first()
 
-        users_to_remove_count = assignment.assigned_users.filter(
-            id__in=user_ids
+        if pi_member and pi_member.user_id in user_ids:
+            raise ValidationError({
+                "user_ids": (
+                    "PI cannot be removed from assignment."
+                )
+            })
+
+        current_users_count = assignment.members.count()
+
+        users_to_remove_count = assignment.members.filter(
+            user_id__in=user_ids,
+            is_pi=False
         ).count()
 
         remaining_users = current_users_count - users_to_remove_count
 
         if remaining_users < 1:
             raise ValidationError({
-                "assigned_users": "Assignment must have at least one assigned user."
+                "assigned_users": (
+                    "Assignment must have at least one member."
+                )
             })
 
-        assignment.assigned_users.remove(*user_ids)
+        assignment.members.filter(
+            user_id__in=user_ids,
+            is_pi=False
+        ).delete()
 
         return Response({
             "detail": "Users removed successfully."
@@ -474,6 +492,15 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["patch"], url_path="change-status")
     def change_status(self, request, pk=None):
         assignment = self.get_object()
+        is_pi = assignment.members.filter(
+            user=request.user,
+            is_pi=True
+        ).exists()
+
+        if not is_pi:
+            raise PermissionDenied(
+                "Only the PI can change the assignment status."
+            )
 
         new_status = request.data.get("status")
 

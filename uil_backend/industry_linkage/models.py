@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from audit.models import AuditMixin
 from .enums import ActionTypes, AssignmentStatus, IndustryType, RequestType, RequestingEntity
+from rest_framework.exceptions import ValidationError
 User = settings.AUTH_USER_MODEL
 
 
@@ -120,26 +121,24 @@ class RequestAction(AuditMixin,models.Model):
 
 class Assignment(AuditMixin, models.Model):
 
-    
     request = models.ForeignKey(
-        "Request", 
-        on_delete=models.CASCADE, 
+        "Request",
+        on_delete=models.CASCADE,
         related_name="assignments"
     )
-    
 
     assigned_users = models.ManyToManyField(
         User,
+        through="AssignmentMember",
         related_name="assignments"
     )
-    
+
     start_date = models.DateField(help_text="When the work begins")
     end_date = models.DateField(help_text="When the work must be completed")
 
-    
     industry_mentor = models.CharField(
-        max_length=255, 
-        blank=True, 
+        max_length=255,
+        blank=True,
         null=True,
         help_text="The industry person supervising the task"
     )
@@ -150,3 +149,51 @@ class Assignment(AuditMixin, models.Model):
         default=AssignmentStatus.PENDING,
     )
 
+    def change_status(self, user, new_status):
+        """
+        Only PI can change assignment status.
+        """
+
+        if not self.members.filter(user=user, is_pi=True).exists():
+            raise ValidationError("Only the Principal Investigator can change status.")
+
+        self.status = new_status
+        self.save(update_fields=["status"])
+
+
+class AssignmentMember(models.Model):
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="members"
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    is_pi = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("assignment", "user")
+
+    def clean(self):
+        """
+        Ensure only one PI per assignment.
+        """
+
+        if self.is_pi:
+            existing_pi = AssignmentMember.objects.filter(
+                assignment=self.assignment,
+                is_pi=True
+            ).exclude(pk=self.pk)
+
+            if existing_pi.exists():
+                raise ValidationError(
+                    "An assignment can only have one Principal Investigator."
+                )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)

@@ -14,6 +14,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from organizational_structure.models import OrganizationalUnit
 from .enums import ActionTypes, AssignmentStatus, RequestingEntity, get_assignment_supported_actions
 from .models import (
+    AssignmentMember,
     Industry,
     Request,
     RequestAction,
@@ -524,7 +525,12 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 awaiting_decision=False,
                 **validated_data
             )
-
+class AssignmentMemberInputSerializer(serializers.Serializer):
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="user"
+    )
+    is_pi = serializers.BooleanField(default=False)
 
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
     assigned_users = serializers.PrimaryKeyRelatedField(
@@ -533,10 +539,13 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         required=False
     )
 
+    pi_user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=True
+    )
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
-    industry_mentor = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True)
+    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = RequestAction
@@ -545,6 +554,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             "type",
             "description",
             "assigned_users",
+            "pi_user",
             "start_date",
             "end_date",
             "industry_mentor",
@@ -562,6 +572,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             return attrs
 
         assigned_users = attrs.get("assigned_users")
+        pi_user = attrs.get("pi_user")
+
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
 
@@ -572,12 +584,44 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             )
 
         if action_type == ActionTypes.ASSIGNED:
-            if not all([assigned_users, start_date, end_date]):
+            if not all([pi_user, start_date, end_date]):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
-        return attrs
+        if pi_user in assigned_users:
+            raise serializers.ValidationError( "")
 
         return attrs
+    def _set_assignment_members(
+        self,
+        assignment,
+        assigned_users,
+        pi_user
+    ):
+
+        assignment.members.all().delete()
+
+        members = []
+
+        # normal assigned users
+        for user in assigned_users:
+            members.append(
+                AssignmentMember(
+                    assignment=assignment,
+                    user=user,
+                    is_pi=False
+                )
+            )
+
+        # add PI separately
+        members.append(
+            AssignmentMember(
+                assignment=assignment,
+                user=pi_user,
+                is_pi=True
+            )
+        )
+
+        AssignmentMember.objects.bulk_create(members)
 
     def create(self, validated_data):
         request_obj = self.context.get("request_obj")
@@ -585,6 +629,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         action_type = validated_data.get("type")
 
         assigned_users = validated_data.pop("assigned_users", None)
+        pi_user=validated_data.pop("assigned_users",None)
         start_date = validated_data.pop("start_date", None)
         end_date = validated_data.pop("end_date", None)
         industry_mentor = validated_data.pop("industry_mentor", None)
@@ -607,8 +652,12 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 assignment.updated_by_id = user.id
                 assignment.save()
 
-                if assigned_users is not None:
-                    assignment.assigned_users.set(assigned_users)
+                self._set_assignment_members(
+                            assignment=assignment,
+                            assigned_users=assigned_users,
+                            pi_user=pi_user
+                        )
+                
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     awaiting_decision=True,
@@ -639,9 +688,11 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 )
 
                 # attach M2M AFTER creation
-                if assigned_users:
-                    assignment.assigned_users.set(assigned_users)
-
+                self._set_assignment_members(
+                    assignment=assignment,
+                    assigned_users=assigned_users,
+                    pi_user=pi_user
+                )
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     updated_by_id=user.id,
@@ -840,11 +891,12 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
-
+class AssignmentUserSerializer(UserSerializer):
+    is_pi = serializers.BooleanField(read_only=True)
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
     supported_actions = serializers.SerializerMethodField()
-    assigned_users = UserSerializer(many=True, read_only=True)
+    assigned_users = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -862,11 +914,23 @@ class AssignmentListSerializer(serializers.ModelSerializer):
     def get_supported_actions(self, obj):
         return get_assignment_supported_actions(obj.status)
 
+    def get_assigned_users(self, obj):
+        members = obj.members.select_related("user")
+
+        return [
+            AssignmentUserSerializer(
+                member.user,
+                context=self.context
+            ).data | {"is_pi": member.is_pi}
+            for member in members
+        ]
+
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
     request = RequestDetailSerializer(read_only=True)
     supported_actions = serializers.SerializerMethodField()
-    assigned_users = UserSerializer(many=True, read_only=True)
+    assigned_users = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Assignment
@@ -883,6 +947,18 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
 
     def get_supported_actions(self, obj):
         return get_assignment_supported_actions(obj.status)
+    
+    def get_assigned_users(self, obj):
+        members = obj.members.select_related("user")
+
+        return [
+            AssignmentUserSerializer(
+                member.user,
+                context=self.context
+            ).data | {"is_pi": member.is_pi}
+            for member in members
+        ]
+
 
 
 class LatestActionSerializer(serializers.ModelSerializer):
