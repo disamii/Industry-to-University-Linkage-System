@@ -182,8 +182,8 @@ class RequestActionSerializer(serializers.ModelSerializer):
 class RequestCreateSerializer(serializers.ModelSerializer):
     industry = serializers.PrimaryKeyRelatedField(
         queryset=Industry.objects.all(),
-        many=True,
-        required=False
+        write_only=True,
+        many=True  # <--- Add this
     )
 
     class Meta:
@@ -212,6 +212,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         requesting_entity = validated_data.pop("requesting_entity")
         industries = validated_data.pop("industry", [])
+        print("prinitng industries", industries)
         academic_unit_id = validated_data.get("academic_unit", None)
         created_requests = []
 
@@ -307,7 +308,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
                 created_requests.append(request)
 
-        return created_requests
+        return created_requests[0]
 
 
 class RequestDetailSerializer(serializers.ModelSerializer):
