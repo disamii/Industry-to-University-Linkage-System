@@ -24,7 +24,9 @@ const OfficeRequestEditPage = () => {
           <CreateEditRequestsForm
             requestToEdit={data}
             requesting_entity={Entity.ACADEMIC_UNIT}
-            onSuccess={() => navigate("/dashboard/office/requests")}
+            onSuccess={() =>
+              navigate("/dashboard/office/requests?tab=outgoing")
+            }
           />
         )}
       </QueryState>

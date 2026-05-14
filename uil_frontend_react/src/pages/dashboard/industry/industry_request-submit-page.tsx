@@ -15,7 +15,7 @@ const IndustryRequestSubmitPage = () => {
 
       <CreateEditRequestsForm
         requesting_entity={Entity.INDUSTRY}
-        onSuccess={() => navigate("/dashboard/industry/requests")}
+        onSuccess={() => navigate("/dashboard/industry/requests?tab=outgoing")}
       />
     </div>
   );

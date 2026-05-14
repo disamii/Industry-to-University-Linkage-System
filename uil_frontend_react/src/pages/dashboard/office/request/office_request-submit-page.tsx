@@ -15,7 +15,7 @@ const OfficeRequestSubmitPage = () => {
 
       <CreateEditRequestsForm
         requesting_entity={Entity.ACADEMIC_UNIT}
-        onSuccess={() => navigate("/dashboard/office/requests")}
+        onSuccess={() => navigate("/dashboard/office/requests?tab=outgoing")}
       />
     </div>
   );

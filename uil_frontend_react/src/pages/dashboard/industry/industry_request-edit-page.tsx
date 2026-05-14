@@ -24,7 +24,9 @@ const IndustryRequestEditPage = () => {
           <CreateEditRequestsForm
             requestToEdit={data}
             requesting_entity={Entity.INDUSTRY}
-            onSuccess={() => navigate("/dashboard/industry/requests")}
+            onSuccess={() =>
+              navigate("/dashboard/industry/requests?tab=outgoing")
+            }
           />
         )}
       </QueryState>

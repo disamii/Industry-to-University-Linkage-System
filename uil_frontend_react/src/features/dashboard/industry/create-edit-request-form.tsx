@@ -57,7 +57,7 @@ const CreateEditRequestsForm = ({
   const defaultValues: FormValues = useMemo(() => {
     if (isEditing && requestToEdit) {
       const entitySpecificFields: Partial<
-        Record<Entity, { academic_unit?: number; industry?: number }>
+        Record<Entity, { academic_unit?: number; industry?: [number] }>
       > = {
         [Entity.INDUSTRY]: {
           academic_unit: requestToEdit.academic_unit.id,
@@ -65,17 +65,17 @@ const CreateEditRequestsForm = ({
 
         [Entity.ACADEMIC_UNIT]: {
           academic_unit: requestToEdit.academic_unit.id,
-          industry: requestToEdit.industry.id,
+          industry: [requestToEdit.industry.id],
         },
 
         [Entity.STAFF]: {
           academic_unit: requestToEdit.academic_unit.id,
-          industry: requestToEdit.industry.id,
+          industry: [requestToEdit.industry.id],
         },
 
         [Entity.STUDENT]: {
           // academic_unit: requestToEdit.academic_unit.id,
-          industry: requestToEdit.industry.id,
+          industry: [requestToEdit.industry.id],
         },
       };
 
@@ -181,18 +181,23 @@ const CreateEditRequestsForm = ({
       </div>
 
       {requesting_entity !== Entity.STAFF && (
-        <TreeSelectOrgUnit form={form} other_option_id={OTHER_OPTION_ID} />
-      )}
-
-      {selectedUnit === OTHER_OPTION_ID && (
-        <FormInput
+        <TreeSelectOrgUnit
           form={form}
-          name="academic_unit_name"
-          label="Academic unit Name"
-          placeholder="Specify the department, faculty, or school"
-          required
+          other_option_id={OTHER_OPTION_ID}
+          requesting_entity={requesting_entity}
         />
       )}
+
+      {selectedUnit === OTHER_OPTION_ID &&
+        requesting_entity !== Entity.INDUSTRY && (
+          <FormInput
+            form={form}
+            name="academic_unit_name"
+            label="Academic unit Name"
+            placeholder="Specify the department, faculty, or school"
+            required
+          />
+        )}
 
       {requesting_entity !== Entity.INDUSTRY && (
         <FormCombobox

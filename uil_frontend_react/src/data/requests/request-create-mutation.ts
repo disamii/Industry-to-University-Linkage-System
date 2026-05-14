@@ -17,8 +17,16 @@ export const requestCreate = ({
   data,
   requesting_entity,
 }: CreateRequestMutationVariables) => {
-  const formData = toFormData(data);
+  const formData = toFormData(data, ["industry"]);
   formData.append("requesting_entity", requesting_entity);
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === "industry" && Array.isArray(value)) {
+      value.forEach((id) => {
+        formData.append("industry", String(id));
+      });
+    }
+  });
 
   // console.log(Object.fromEntries(formData.entries()));
 

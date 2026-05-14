@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import { FieldValues, get, Path, UseFormReturn } from "react-hook-form";
 import TreeItem from "./tree-item";
+import { Entity } from "@/lib/enums";
 
 type Props<T extends FieldValues> = {
   form?: UseFormReturn<T>;
@@ -17,6 +18,7 @@ type Props<T extends FieldValues> = {
   name?: Path<T>;
   namespace?: string;
   other_option_id?: number;
+  requesting_entity?: Entity;
 };
 
 const TreeSelectOrgUnit = <T extends FieldValues>({
@@ -26,6 +28,7 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
   name = "academic_unit" as Path<T>,
   namespace,
   other_option_id,
+  requesting_entity,
 }: Props<T>) => {
   const isForm = form && variant === "form";
   const finalKey = namespace
@@ -77,15 +80,16 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
     if (!isForm) {
       return [{ name: "All Units", id: -1 } as OrgUnitResponse, ...results];
     } else {
-      if (!other_option_id) return results;
+      if (other_option_id && requesting_entity === Entity.INDUSTRY)
+        return [
+          ...results,
+          {
+            name: "Other/Not listed here",
+            id: other_option_id,
+          } as OrgUnitResponse,
+        ];
 
-      return [
-        ...results,
-        {
-          name: "Other/Not listed here",
-          id: other_option_id,
-        } as OrgUnitResponse,
-      ];
+      return results;
     }
   };
 

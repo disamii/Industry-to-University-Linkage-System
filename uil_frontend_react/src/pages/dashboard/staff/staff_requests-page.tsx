@@ -11,7 +11,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const StaffRequestsPage = () => {
-  const { setParams } = useTabParams();
+  const {
+    params: { tab },
+    setParams,
+  } = useTabParams();
   const entity = Entity.STAFF;
 
   const query = useGetMyRequestsList({
@@ -22,8 +25,10 @@ const StaffRequestsPage = () => {
 
   const navigate = useNavigate();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setParams({ tab: "outgoing" }), []);
+  useEffect(() => {
+    if (!tab) setParams({ tab: "outgoing" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
 
   return (
     <div className="space-y-6">
