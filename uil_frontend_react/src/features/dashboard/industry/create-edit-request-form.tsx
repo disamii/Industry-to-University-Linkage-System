@@ -19,12 +19,15 @@ import { requestDefaultValues } from "@/validation/validation.requests";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check } from "lucide-react";
 import { useMemo } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { getEntityFormConfig } from "../request/utils.request";
+import { Resolver, useForm, useWatch } from "react-hook-form";
+import { getEntityFormConfig, SupportedEntity } from "../request/utils.request";
+import z from "zod";
+import { RequestHint } from "@/lib/mappings";
+import { OTHER_OPTION_ID } from "@/lib/constants";
 
 type Props = {
   requestToEdit?: RequestDetailResponse;
-  requesting_entity: Entity;
+  requesting_entity: SupportedEntity;
   onSuccess?: () => void;
 };
 
@@ -36,6 +39,9 @@ const CreateEditRequestsForm = ({
   const isEditing = !!requestToEdit;
 
   const formConfig = getEntityFormConfig(requesting_entity);
+  type CreateSchema = z.infer<typeof formConfig.schema.create>;
+  type UpdateSchema = z.infer<typeof formConfig.schema.update>;
+  type FormValues = CreateSchema | UpdateSchema;
 
   const { mutate: createMutation, isPending: isCreating } =
     useRequestCreateMutation();
@@ -44,11 +50,11 @@ const CreateEditRequestsForm = ({
   const isSubmitting = isCreating || isUpdating;
 
   const industriesQuery = useGetIndustryList(
-    requesting_entity !== Entity.ACADEMIC_UNIT,
+    requesting_entity !== Entity.INDUSTRY,
   );
   const { setParams: setIndustryParams } = useIndustryParams();
 
-  const defaultValues = useMemo(() => {
+  const defaultValues: FormValues = useMemo(() => {
     if (isEditing && requestToEdit) {
       const entitySpecificFields: Partial<
         Record<Entity, { academic_unit?: number; industry?: number }>
@@ -78,16 +84,16 @@ const CreateEditRequestsForm = ({
         ...entitySpecificFields[requesting_entity],
       };
 
-      return payload;
+      return payload as FormValues;
     }
 
-    return requestDefaultValues;
+    return requestDefaultValues as unknown as FormValues;
   }, [requestToEdit, isEditing, requesting_entity]);
 
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(
       isEditing ? formConfig.schema.update : formConfig.schema.create,
-    ),
+    ) as Resolver<FormValues>,
     defaultValues,
   });
 
@@ -99,6 +105,10 @@ const CreateEditRequestsForm = ({
     control: form.control,
     name: "industry",
   });
+  const selectedUnit = useWatch({
+    control: form.control,
+    name: "academic_unit",
+  });
 
   const hintContent = useMemo(() => {
     if (!selectedType) {
@@ -108,14 +118,23 @@ const CreateEditRequestsForm = ({
       };
     }
 
-    return formConfig.hints[selectedType];
+    return (formConfig.hints as Record<string, RequestHint>)[selectedType];
   }, [selectedType, formConfig.hints]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = (data: FormValues) => {
     const mutation = isEditing ? updateMutation : createMutation;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const academic_unit = (data as any).academic_unit;
 
     mutation(
-      { data, requesting_entity },
+      {
+        data: {
+          ...data,
+          academic_unit:
+            academic_unit !== OTHER_OPTION_ID ? academic_unit : null,
+        },
+        requesting_entity,
+      },
       {
         onSuccess: () => {
           if (!isEditing) form.reset();
@@ -129,7 +148,7 @@ const CreateEditRequestsForm = ({
     <form
       id="form-create-edit-request"
       onSubmit={form.handleSubmit(onSubmit)}
-      className="gap-6 space-y-8 grid grid-cols-2"
+      className="gap-x-6 gap-y-8 grid grid-cols-2 pt-2"
     >
       <FormInput
         form={form}
@@ -161,43 +180,66 @@ const CreateEditRequestsForm = ({
         />
       </div>
 
-      {requesting_entity !== Entity.STAFF && <TreeSelectOrgUnit form={form} />}
+      {requesting_entity !== Entity.STAFF && (
+        <TreeSelectOrgUnit form={form} other_option_id={OTHER_OPTION_ID} />
+      )}
+
+      {selectedUnit === OTHER_OPTION_ID && (
+        <FormInput
+          form={form}
+          name="academic_unit_name"
+          label="Academic unit Name"
+          placeholder="Specify the department, faculty, or school"
+          required
+        />
+      )}
 
       {requesting_entity !== Entity.INDUSTRY && (
         <FormCombobox
           form={form}
           name="industry"
           label="Industry"
-          placeholder="Select industry..."
+          placeholder="Select industries..."
           query={industriesQuery}
-          checkEmpty={(data) => data.results.length === 0}
+          checkEmpty={(data) => !data || data.results.length === 0}
           onSearch={(search) => setIndustryParams({ search })}
           searchPlaceholder="Search Industries"
           getDisplayValue={(value, data) =>
             data?.results?.find((i) => i.id === value)?.name ?? "Selected"
           }
+          key="industry"
           position="popper"
+          multiple
           required
         >
           {(data, setOpen) => {
+            const selectedValues = (
+              Array.isArray(selectedIndustry) ? selectedIndustry : []
+            ) as number[];
+
             return (
               <CommandGroup>
                 {data.results.map((item) => {
+                  const selected = selectedValues.includes(item.id);
+
                   return (
                     <CommandItem
                       key={item.id}
-                      value={item.name}
                       onSelect={() => {
-                        form.setValue("industry", item.id, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        });
+                        const updatedValues = selected
+                          ? selectedValues.filter((id) => id !== item.id)
+                          : [...selectedValues, item.id];
+
+                        form.setValue("industry", updatedValues);
                         setOpen(false);
                       }}
                     >
-                      {selectedIndustry === item.id && (
-                        <Check className="size-4" />
-                      )}
+                      <Check
+                        className={cn(
+                          "mr-2 w-4 h-4",
+                          selected ? "opacity-100" : "opacity-0",
+                        )}
+                      />
                       {item.name}
                     </CommandItem>
                   );

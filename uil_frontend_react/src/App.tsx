@@ -2,7 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
-import CustomToaster from "./components/reusable/custom-toaster";
+import ReactHotToaster from "./components/reusable/custom-toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { getQueryClient } from "./data/query-client";
 import { useErrorToast } from "./hooks/use-error-toast";
@@ -22,7 +22,7 @@ function App() {
       <TooltipProvider>
         <RouterProvider router={router} />
 
-        <CustomToaster />
+        <ReactHotToaster />
         <ReactQueryDevtools initialIsOpen={false} />
       </TooltipProvider>
     </QueryClientProvider>

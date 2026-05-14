@@ -181,10 +181,11 @@ class RequestActionSerializer(serializers.ModelSerializer):
 
 class RequestCreateSerializer(serializers.ModelSerializer):
     industry = serializers.PrimaryKeyRelatedField(
-    queryset=Industry.objects.all(),
-    many=True,
-    required=False
-)
+        queryset=Industry.objects.all(),
+        many=True,
+        required=False
+    )
+
     class Meta:
         model = Request
         fields = [
@@ -194,14 +195,13 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             "academic_unit",
             "industry",
             "description",
-            "academic_unit_name"
+            "academic_unit_name",
             "requesting_entity",
             "attachment",
             "created_at",
         ]
         read_only_fields = ["id", "created_at",]
         extra_kwargs = {
-
             "academic_unit": {
                 "required": False,
                 "allow_null": True
@@ -217,7 +217,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             if requesting_entity == RequestingEntity.INDUSTRY:
-                if len(industries) >1:
+                if len(industries) > 1:
                     raise serializers.ValidationError(
                         "Industry request requires exactly one industry."
                     )
@@ -253,15 +253,16 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                     created_by_id=user.id,
                     updated_by_id=user.id,
                 )
-                
+
                 return request
-            
+
             elif requesting_entity == RequestingEntity.ACADEMIC_UNIT:
                 if not academic_unit_id:
                     raise serializers.ValidationError(
                         "academic_unit field is required")
                 if not industries:
-                        raise serializers.ValidationError("select industry first please.")
+                    raise serializers.ValidationError(
+                        "select industry first please.")
 
                 allowed = is_unit_in_user_scope(
                     user=user,
@@ -281,9 +282,10 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                         raise serializers.ValidationError(
                             "Staff user has no assigned academic unit.")
                     validated_data["academic_unit"] = academic_unit
-                
+
                 if not industries:
-                        raise serializers.ValidationError("select industry first please.")
+                    raise serializers.ValidationError(
+                        "select industry first please.")
 
             for industry in industries:
 
@@ -307,6 +309,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 
         return created_requests
 
+
 class RequestDetailSerializer(serializers.ModelSerializer):
     actions = RequestActionSerializer(many=True, read_only=True)
     academic_unit = OrganizationStructureListSerializer(read_only=True)
@@ -322,7 +325,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             "title",
             "industry",
             "requesting_entity",
-            'academic_unit_name'
+            'academic_unit_name',
             'actions',
             'academic_unit',
             'requested_by',
@@ -557,12 +560,15 @@ class RequestActionGenericSerializer(serializers.ModelSerializer):
                 awaiting_decision=False,
                 **validated_data
             )
+
+
 class AssignmentMemberInputSerializer(serializers.Serializer):
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="user"
     )
     is_pi = serializers.BooleanField(default=False)
+
 
 class RequestActionAssignedSerializer(serializers.ModelSerializer):
     assigned_users = serializers.PrimaryKeyRelatedField(
@@ -577,7 +583,8 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
     )
     start_date = serializers.DateField(required=True)
     end_date = serializers.DateField(required=True)
-    industry_mentor = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    industry_mentor = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = RequestAction
@@ -586,7 +593,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
             "type",
             "description",
             "assigned_users",
-            "visbil_to_industry",
+            "visible_to_industry",
             "pi_user",
             "start_date",
             "end_date",
@@ -621,10 +628,11 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Missing required assignment fields")
         if pi_user in assigned_users:
-            raise serializers.ValidationError("user cant be both pi and memeber , already counted as member ")
+            raise serializers.ValidationError(
+                "user cant be both pi and memeber , already counted as member ")
 
         return attrs
-    
+
     def _set_assignment_members(
         self,
         assignment,
@@ -662,7 +670,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         action_type = validated_data.get("type")
 
         assigned_users = validated_data.pop("assigned_users", None)
-        pi_user=validated_data.pop("pi_user",None)
+        pi_user = validated_data.pop("pi_user", None)
         start_date = validated_data.pop("start_date", None)
         end_date = validated_data.pop("end_date", None)
         industry_mentor = validated_data.pop("industry_mentor", None)
@@ -686,11 +694,11 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 assignment.save()
 
                 self._set_assignment_members(
-                            assignment=assignment,
-                            assigned_users=assigned_users,
-                            pi_user=pi_user
-                        )
-                
+                    assignment=assignment,
+                    assigned_users=assigned_users,
+                    pi_user=pi_user
+                )
+
                 action = RequestAction.objects.create(
                     created_by_id=user.id,
                     awaiting_decision=True,
@@ -819,7 +827,7 @@ class RequestActionForwardedSerializer(serializers.ModelSerializer):
         unit_ct = ContentType.objects.get(
             app_label="organizational_structure",
             model="organizationalunit"
-                )
+        )
 
         if (
             request_obj.academic_unit_id is not None
@@ -928,11 +936,14 @@ class RequestActionRepliedSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+
 class AssignmentUserSerializer(UserSerializer):
     is_pi = serializers.BooleanField(read_only=True)
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ["is_pi"]
+
+
 class AssignmentListSerializer(serializers.ModelSerializer):
     request = RequestSerializer(read_only=TRUE)
     supported_actions = serializers.SerializerMethodField()
@@ -944,7 +955,7 @@ class AssignmentListSerializer(serializers.ModelSerializer):
             "id",
             "request",
             "assigned_users",
-            "visbil_to_industry",
+            "visible_to_industry",
             "start_date",
             "industry_mentor",
             "end_date",
@@ -972,7 +983,6 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
     supported_actions = serializers.SerializerMethodField()
     assigned_users = serializers.SerializerMethodField()
 
-
     class Meta:
         model = Assignment
         fields = [
@@ -980,7 +990,7 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
             "request",
             "assigned_users",
             "industry_mentor",
-            "visbil_to_industry",
+            "visible_to_industry",
             "supported_actions",
             "start_date",
             "end_date",
@@ -989,7 +999,7 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
 
     def get_supported_actions(self, obj):
         return get_assignment_supported_actions(obj.status)
-    
+
     def get_assigned_users(self, obj):
         members = obj.members.select_related("user")
 
@@ -1000,7 +1010,6 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
             ).data | {"is_pi": member.is_pi}
             for member in members
         ]
-
 
 
 class LatestActionSerializer(serializers.ModelSerializer):

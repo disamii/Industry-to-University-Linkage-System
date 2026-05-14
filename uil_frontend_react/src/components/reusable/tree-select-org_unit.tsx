@@ -16,6 +16,7 @@ type Props<T extends FieldValues> = {
   label?: string;
   name?: Path<T>;
   namespace?: string;
+  other_option_id?: number;
 };
 
 const TreeSelectOrgUnit = <T extends FieldValues>({
@@ -24,6 +25,7 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
   label,
   name = "academic_unit" as Path<T>,
   namespace,
+  other_option_id,
 }: Props<T>) => {
   const isForm = form && variant === "form";
   const finalKey = namespace
@@ -68,11 +70,24 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
     selectedNode,
     handleSelect,
   } = useOrgUnitTree(onSelect, selectedAcademicUnit);
-  const formattedResults = results
-    ? !isForm
-      ? [{ name: "All Units", id: -1 } as OrgUnitResponse, ...results]
-      : results
-    : [];
+
+  const getFormattedResults = () => {
+    if (!results) return [];
+
+    if (!isForm) {
+      return [{ name: "All Units", id: -1 } as OrgUnitResponse, ...results];
+    } else {
+      if (!other_option_id) return results;
+
+      return [
+        ...results,
+        {
+          name: "Other/Not listed here",
+          id: other_option_id,
+        } as OrgUnitResponse,
+      ];
+    }
+  };
 
   const useOrgUnitChildren: UseChildrenHook<OrgUnitResponse> = (
     node,
@@ -101,18 +116,26 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
         getHasChildren={(node) => node.total_subnodes > 0}
         getKey={(node) => node.id}
         isLoading={isLoading}
-        results={formattedResults}
+        results={getFormattedResults()}
         isSearching={isSearching}
         renderItem={(node) => (
           <TreeItem onSelect={handleSelect} node={node}>
             {() => (
               <>
-                <span className="font-medium text-sm truncate">
+                <span
+                  className={cn(
+                    "font-medium text-sm truncate",
+                    node.id === other_option_id &&
+                      "text-muted-foreground font-normal italic",
+                  )}
+                >
                   {node.name}
                 </span>
-                <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-muted-foreground uppercase tracking-wider">
-                  {node.unit_type}
-                </span>
+                {node.unit_type && (
+                  <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-muted-foreground uppercase tracking-wider">
+                    {node.unit_type}
+                  </span>
+                )}
               </>
             )}
           </TreeItem>

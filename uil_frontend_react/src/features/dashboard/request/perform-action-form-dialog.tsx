@@ -131,7 +131,7 @@ const FormField = <T extends FieldValues>({
           multiple
           placeholder={config.placeholder}
           query={config.query}
-          checkEmpty={(data) => data.results.length === 0}
+          checkEmpty={(data) => !data || data.results.length === 0}
           onSearch={(search) => config.setParams({ search })}
           searchPlaceholder={`Search ${config.searchPlaceholder}...`}
           getDisplayValue={config.getDisplayValue}

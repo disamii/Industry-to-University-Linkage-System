@@ -92,7 +92,6 @@ const CompanyDetailsForm = () => {
             name="address"
             label="Physical Address"
             placeholder="Street, Building, Office No."
-            required
           />
         </div>
       </FormSection>

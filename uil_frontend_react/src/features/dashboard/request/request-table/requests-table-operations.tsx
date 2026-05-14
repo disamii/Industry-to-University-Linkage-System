@@ -8,7 +8,7 @@ import {
 } from "@/data/requests/use-request-params";
 import { ActionType, Entity } from "@/lib/enums";
 import { Filter } from "lucide-react";
-import { getEntityFormConfig } from "../utils.request";
+import { getEntityFormConfig, SupportedEntity } from "../utils.request";
 
 type Props = {
   requesting_entity: Entity;
@@ -17,7 +17,9 @@ type Props = {
 const RequestsTableOperations = ({ requesting_entity }: Props) => {
   const { params, setParams, removeParams, clearAllParams } =
     useRequestParams();
-  const entityConfig = getEntityFormConfig(requesting_entity);
+  const entityConfig = getEntityFormConfig(
+    requesting_entity as SupportedEntity,
+  );
 
   const industriesQuery = useGetIndustryList(
     requesting_entity !== Entity.INDUSTRY,
@@ -45,7 +47,7 @@ const RequestsTableOperations = ({ requesting_entity }: Props) => {
               paramKey="industry"
               placeholder="All Industries"
               query={industriesQuery}
-              checkEmpty={(data) => data.results.length === 0}
+              checkEmpty={(data) => !data || data.results.length === 0}
               children={({ data, registerLabels }) => {
                 const map: Record<string, string> = {};
 

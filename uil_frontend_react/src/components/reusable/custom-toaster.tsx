@@ -1,7 +1,8 @@
 import { Transition } from "@headlessui/react";
-import { resolveValue, Toaster, ToastIcon } from "react-hot-toast";
+import { XIcon } from "lucide-react";
+import { resolveValue, Toaster, ToastIcon, toast } from "react-hot-toast";
 
-export default function CustomToaster() {
+const ReactHotToaster = () => {
   return (
     <Toaster
       position="top-center"
@@ -11,7 +12,7 @@ export default function CustomToaster() {
         success: {
           duration: 3000,
         },
-        error: { duration: 5000 },
+        error: { duration: 4000 },
       }}
     >
       {(t) => (
@@ -19,7 +20,7 @@ export default function CustomToaster() {
           appear
           show={t.visible}
           as="div"
-          className="z-50 flex items-center gap-4 bg-gray-100 dark:bg-gray-800 px-6 py-4 border border-gray-200 dark:border-gray-700 rounded-md max-w-125 text-gray-800 dark:text-gray-100"
+          className="z-50 flex items-center gap-4 bg-background shadow-lg px-6 py-4 border rounded-md max-w-125 text-foreground"
           enter="transition-all duration-150"
           enterFrom="opacity-0 scale-50"
           enterTo="opacity-100 scale-100"
@@ -28,9 +29,22 @@ export default function CustomToaster() {
           leaveTo="opacity-0 scale-75"
         >
           <ToastIcon toast={t} />
-          <p className="px-2">{resolveValue(t.message, t)}</p>
+          <p className="flex-1 px-2 font-medium text-sm">
+            {resolveValue(t.message, t)}
+          </p>
+
+          {/* Close Button */}
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="hover:bg-muted/50 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-muted transition-colors"
+            aria-label="Close"
+          >
+            <XIcon className="opacity-60 hover:opacity-100 w-5 h-5" />
+          </button>
         </Transition>
       )}
     </Toaster>
   );
-}
+};
+
+export default ReactHotToaster;

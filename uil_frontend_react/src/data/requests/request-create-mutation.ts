@@ -20,7 +20,7 @@ export const requestCreate = ({
   const formData = toFormData(data);
   formData.append("requesting_entity", requesting_entity);
 
-  console.log(Object.fromEntries(formData.entries()));
+  // console.log(Object.fromEntries(formData.entries()));
 
   return safeApiRequest(
     api.post<RequestResponse>(industryRequestUrls.base(), formData, {

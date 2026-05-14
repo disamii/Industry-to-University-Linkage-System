@@ -28,22 +28,37 @@ export type RequestBase = z.infer<typeof RequestBaseSchema>;
 
 // --- Create Schema ---
 export const industryRequestCreateSchema = RequestBaseSchema.extend({
-  academic_unit: z.coerce.number().int().positive("Invalid academic unit ID"),
+  academic_unit: z.coerce
+    .number()
+    .int()
+    // .positive("Invalid academic unit ID")
+    .nullish(),
+  academic_unit_name: z.string().nullish(),
   type: z.enum(IndustryRequestType, {
     message: "Please select a request type",
   }),
 });
 
 export const officeRequestCreateSchema = RequestBaseSchema.extend({
-  academic_unit: z.coerce.number().int().positive("Invalid academic unit ID"),
-  industry: z.coerce.number().int().positive("Invalid industry Id"),
+  academic_unit: z.coerce
+    .number()
+    .int()
+    // .positive("Invalid academic unit ID")
+    .nullish(),
+  academic_unit_name: z.string().nullish(),
+  // industry: z.coerce.number().int().positive("Invalid industry Id"),
+  industry: z
+    .array(z.coerce.number())
+    .min(1, "Please select at least one industry"),
   type: z.enum(OfficeRequestType, {
     message: "Please select a request type",
   }),
 });
 
 export const staffRequestCreateSchema = RequestBaseSchema.extend({
-  industry: z.coerce.number().int().positive("Invalid industry Id"),
+  industry: z
+    .array(z.coerce.number())
+    .min(1, "Please select at least one industry"),
   type: z.enum(StaffRequestType, {
     message: "Please select a request type",
   }),

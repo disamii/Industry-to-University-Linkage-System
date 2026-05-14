@@ -23,7 +23,7 @@ const StaffTableOperations = () => {
         />
 
         <TableFilters.Box Icon={Filter} name="Filters">
-          <TreeSelectOrgUnit variant="filter" />
+          <TreeSelectOrgUnit variant="filter" namespace="users" />
         </TableFilters.Box>
       </TableFilters.Group>
 

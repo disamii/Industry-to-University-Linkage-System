@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PeformActionFormDialog from "./perform-action-form-dialog";
+import PerformActionFormDialog from "./perform-action-form-dialog";
 
 type Props = {
   id: number;
@@ -166,7 +166,7 @@ const RequestActions = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <PeformActionFormDialog
+      <PerformActionFormDialog
         request={{ id, title }}
         actionType={selectedAction}
         open={actionDialogOpen}

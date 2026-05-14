@@ -73,7 +73,7 @@ const IndustryDetailPage = () => {
               <CardContent>
                 <QueryState
                   query={outgoingQuery}
-                  checkEmpty={(data) => data.results.length === 0}
+                  checkEmpty={(data) => !data || data.results.length === 0}
                   variant="section"
                 >
                   {(data) => (

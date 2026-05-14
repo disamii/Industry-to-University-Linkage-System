@@ -42,3 +42,4 @@ export const ACADEMIC_STOP_WORDS = new Set([
   "dar",
   "&",
 ]);
+export const OTHER_OPTION_ID = -999;

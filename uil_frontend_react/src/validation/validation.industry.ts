@@ -11,7 +11,7 @@ const industryBaseSchema = z.object({
     .nullish(),
   industry_type: z.nativeEnum(IndustryType),
   location: z.string().min(1, "Location is required"),
-  address: z.string().min(1, "Address is required"),
+  address: z.string().nullish(),
   phone_number: z.string().nullish(),
   contact_person_phone_number: z.string().nullish(),
   contact_full_name: z.string().min(1, "Contact person name is required"),

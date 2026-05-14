@@ -17,6 +17,18 @@ import {
   staffRequestCreateSchema,
   staffRequestUpdateSchema,
 } from "@/validation/validation.requests";
+import type { ZodSchema } from "zod";
+
+type SchemaConfig = {
+  create: ZodSchema;
+  update: ZodSchema;
+};
+
+type EntityFormConfig = {
+  schema: SchemaConfig;
+  hints: Record<string, unknown>;
+  types: Record<string, string>;
+};
 
 const ENTITY_FORM_CONFIG = {
   [Entity.INDUSTRY]: {
@@ -43,8 +55,12 @@ const ENTITY_FORM_CONFIG = {
     hints: STAFF_REQUEST_HINTS,
     types: StaffRequestType,
   },
-} as const;
+} satisfies Record<Exclude<Entity, Entity.STUDENT>, EntityFormConfig>;
 
-export const getEntityFormConfig = (val: Entity) => {
+export type SupportedEntity = keyof typeof ENTITY_FORM_CONFIG;
+
+export const getEntityFormConfig = <T extends SupportedEntity>(
+  val: T,
+): (typeof ENTITY_FORM_CONFIG)[T] => {
   return ENTITY_FORM_CONFIG[val];
 };

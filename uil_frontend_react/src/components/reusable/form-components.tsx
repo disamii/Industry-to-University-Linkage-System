@@ -185,6 +185,7 @@ type FormComboboxProps<
 
   desc?: string;
   isNumber?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getDisplayValue?: (value: any, data?: Q) => string;
 };
 
@@ -345,7 +346,9 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
                   );
 
                   // dynamic query results
-                  const dynamicOption = query?.data?.results?.find?.(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const dynamicOption = (query?.data as any)?.results?.find?.(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (item: any) => String(item.id) === String(value),
                   );
 
