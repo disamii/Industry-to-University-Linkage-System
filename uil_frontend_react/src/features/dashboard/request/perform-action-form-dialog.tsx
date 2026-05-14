@@ -60,26 +60,51 @@ const FormField = <T extends FieldValues>({
     required: !isOptional,
   };
 
+  // --- 1. CONDITIONAL VISIBILITY LOGIC ---
+  // Watch the value of 'pi_user' from the form state
+  const piUserValue = form.watch("pi_user" as any);
+
+  // If this specific field instance is 'assigned_users' and 'pi_user' is empty, don't render it
+  if (name === "assigned_users" && !piUserValue) {
+    return null;
+  }
+  // ----------------------------------------
+
+  // Update config detection for 'pi_user' as well
+  const isUserField =
+    label.toLowerCase().includes("assign") || name === "pi_user";
+
   const SELECT_CONFIGS = {
     user: {
       query: usersQuery,
       searchPlaceholder: "User",
       setParams: setUserParams,
       getLabel: (item: UserProfile) => getFullName(item),
-      getDisplayValue: (value: number, data?: any) =>
-        data?.results?.find((u: UserProfile) => u.id === value)
-          ? getFullName(data.results.find((u: UserProfile) => u.id === value))
-          : "Selected",
-      placeholder: "Select a user...",
+      getDisplayValue: (value: any, data?: any) => {
+        // Handle both single value and array display lookup
+        const lookupId = Array.isArray(value) ? value[0] : value;
+        const found = data?.results?.find(
+          (u: UserProfile) => u.id === lookupId,
+        );
+        return found ? getFullName(found) : "Selected";
+      },
+      placeholder:
+        name === "pi_user"
+          ? "Select a team leader..."
+          : "Select other experts...",
     },
     industry: {
       query: industriesQuery,
       searchPlaceholder: "Industries",
       setParams: setIndustryParams,
       getLabel: (item: IndustryResponse) => item.name,
-      getDisplayValue: (value: number, data?: any) =>
-        data?.results?.find((i: IndustryResponse) => i.id === value)?.name ??
-        "Selected",
+      getDisplayValue: (value: any, data?: any) => {
+        const lookupId = Array.isArray(value) ? value[0] : value;
+        return (
+          data?.results?.find((i: IndustryResponse) => i.id === lookupId)
+            ?.name ?? "Selected"
+        );
+      },
       placeholder: "Select industry...",
     },
   };
@@ -91,9 +116,19 @@ const FormField = <T extends FieldValues>({
     case "date":
     case "text":
     case "number":
-    case "checkbox":
       return (
         <FormInput {...commonProps} key={commonProps.name} type={field.type} />
+      );
+
+    case "checkbox":
+      return (
+        <div className="bg-muted/50 p-3 rounded-lg">
+          <FormInput
+            {...commonProps}
+            key={commonProps.name}
+            type={field.type}
+          />
+        </div>
       );
 
     case "file":
@@ -102,7 +137,6 @@ const FormField = <T extends FieldValues>({
     case "select": {
       const labelLower = field.label.toLowerCase();
 
-      // 1. Handle TreeSelect (Units) separately as it's a different component
       if (labelLower.includes("unit")) {
         return (
           <TreeSelectOrgUnit
@@ -113,22 +147,21 @@ const FormField = <T extends FieldValues>({
         );
       }
 
-      // 2. Determine if we are dealing with a User or Industry
-      const type = labelLower.includes("assign")
+      const type = isUserField
         ? "user"
         : labelLower.includes("industry")
           ? "industry"
           : null;
-
       if (!type) return null;
 
       const config = SELECT_CONFIGS[type];
+      const isMultiple = commonProps.name !== "pi_user";
 
       return (
         <FormCombobox
           {...commonProps}
           key={commonProps.name}
-          multiple
+          multiple={isMultiple}
           placeholder={config.placeholder}
           query={config.query}
           checkEmpty={(data) => !data || data.results.length === 0}
@@ -137,40 +170,73 @@ const FormField = <T extends FieldValues>({
           getDisplayValue={config.getDisplayValue}
           position="popper"
         >
-          {(data) => {
-            const selectedValues = (
-              Array.isArray(form.watch(commonProps.name))
-                ? form.watch(commonProps.name)
-                : []
-            ) as (string | number)[];
+          {(data, setOpen) => {
+            // --- 2. MIXED SINGLE/MULTIPLE VALUE LOGIC ---
+            const formValue = form.watch(commonProps.name);
+
+            // Normalize selected state check depending on mode
+            const isSelected = (id: string | number) => {
+              if (isMultiple) {
+                return Array.isArray(formValue)
+                  ? formValue.includes(id)
+                  : false;
+              }
+              return formValue === id;
+            };
 
             return (
               <CommandGroup>
-                {data.results.map((item: any) => {
-                  const selected = selectedValues.includes(item.id);
+                {data.results
+                  .filter((item: any) => {
+                    // Remove selected PI from assigned users options
+                    if (commonProps.name === "assigned_users") {
+                      return item.id !== piUserValue;
+                    }
 
-                  return (
-                    <CommandItem
-                      key={item.id}
-                      onSelect={() => {
-                        const updatedValues = selected
-                          ? selectedValues.filter((id) => id !== item.id)
-                          : [...selectedValues, item.id];
+                    return true;
+                  })
+                  .map((item: any) => {
+                    const selected = isSelected(item.id);
 
-                        form.setValue(commonProps.name, updatedValues as any);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 w-4 h-4",
-                          selected ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-
-                      {config.getLabel(item as any)}
-                    </CommandItem>
-                  );
-                })}
+                    return (
+                      <CommandItem
+                        key={item.id}
+                        onSelect={() => {
+                          if (isMultiple) {
+                            // Multiple Selection (Array management)
+                            const currentValues = Array.isArray(formValue)
+                              ? formValue
+                              : [];
+                            const updatedValues = selected
+                              ? ((currentValues as any) || []).filter(
+                                  (id: number) => id !== item.id,
+                                )
+                              : [...currentValues, item.id];
+                            form.setValue(
+                              commonProps.name,
+                              updatedValues as any,
+                            );
+                          } else {
+                            // Single Selection (Direct value assignment)
+                            // If it's already selected, clear it (or keep it if required)
+                            setOpen(false);
+                            form.setValue(
+                              commonProps.name,
+                              (selected ? undefined : item.id) as any,
+                            );
+                          }
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 w-4 h-4",
+                            selected ? "opacity-100" : "opacity-0",
+                          )}
+                        />
+                        {config.getLabel(item as any)}
+                      </CommandItem>
+                    );
+                  })}
               </CommandGroup>
             );
           }}

@@ -34,7 +34,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { colorVariants } from "@/lib/mappings";
 import { cn, getFullName } from "@/lib/utils";
 import { UserProfile } from "@/types/interfaces.user";
-import { Check, ChevronsUpDown, Minus, Plus, X } from "lucide-react";
+import { Check, ChevronsUpDown, Crown, Minus, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type Action = "add" | "remove";
@@ -103,42 +103,66 @@ const FormField = ({
           {usersToRemove.length === 0 ? (
             <p className="text-muted-foreground text-sm">No assigned expert.</p>
           ) : (
-            usersToRemove.map((user) => (
-              <Badge
-                key={user.id}
-                variant="secondary"
-                className="gap-1 py-1 pr-1 pl-2"
-              >
-                {getFullName(user)}
+            usersToRemove.map((user) => {
+              const isPI = user.is_pi;
+              const disabledRemove = isPI || isLastUser;
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isLastUser) return;
-                        toggleUser(user.id);
-                      }}
-                      disabled={isLastUser}
-                      className={cn(
-                        "p-0.5 rounded-full",
-                        isLastUser
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-muted",
-                      )}
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </TooltipTrigger>
-
-                  {isLastUser && (
-                    <TooltipContent className="bg-destructive">
-                      <p>You can't remove the last assigned user.</p>
-                    </TooltipContent>
+              return (
+                <Badge
+                  key={user.id}
+                  variant="secondary"
+                  className={cn(
+                    "gap-1 py-1 pr-1 pl-2",
+                    isPI &&
+                      "bg-amber-50 text-amber-700 border border-amber-200",
                   )}
-                </Tooltip>
-              </Badge>
-            ))
+                >
+                  <span className="flex items-center gap-1">
+                    {getFullName(user)}
+
+                    {isPI && (
+                      <span className="flex items-center gap-0.5 font-medium text-[10px]">
+                        <Crown className="size-3" />
+                        PI
+                      </span>
+                    )}
+                  </span>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (disabledRemove) return;
+                          toggleUser(user.id);
+                        }}
+                        disabled={disabledRemove}
+                        className={cn(
+                          "p-0.5 rounded-full",
+                          disabledRemove
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-muted",
+                        )}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </TooltipTrigger>
+
+                    {isPI ? (
+                      <TooltipContent className="bg-amber-500 text-white">
+                        <p>PI user cannot be removed.</p>
+                      </TooltipContent>
+                    ) : (
+                      isLastUser && (
+                        <TooltipContent className="bg-destructive">
+                          <p>You can't remove the last assigned user.</p>
+                        </TooltipContent>
+                      )
+                    )}
+                  </Tooltip>
+                </Badge>
+              );
+            })
           )}
         </div>
       </div>
@@ -165,7 +189,7 @@ const FormField = ({
         </PopoverTrigger>
 
         <PopoverContent
-          className="p-0 w-(--radix-popover-trigger-width)"
+          className="p-0 w-(--radix-popover-trigger-width) max-h-[85dvh] overflow-y-auto"
           align="start"
         >
           <Command shouldFilter={false}>

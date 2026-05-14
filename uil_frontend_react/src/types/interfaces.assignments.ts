@@ -21,6 +21,7 @@ export type AssignmentResponse = {
   end_date: string;
   status: AssignmentStatus;
   supported_actions: AssignmentStatus[];
+  visible_to_industry: boolean;
 };
 
 export type AssignmentDetailResponse = AssignmentResponse & {};

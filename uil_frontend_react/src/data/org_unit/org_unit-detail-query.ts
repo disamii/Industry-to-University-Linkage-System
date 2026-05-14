@@ -12,10 +12,10 @@ export const getOrgUnitDetail = (id?: number) => {
 
   return safeApiRequest(api.get<OrgUnitResponse>(orgUnitUrls.byId(id)));
 };
-export const useGetOrgUnitDetail = (id?: number) => {
+export const useGetOrgUnitDetail = (id?: number, enabled?: boolean) => {
   return useQuery({
     queryKey: orgUnitKeys.detail(id),
     queryFn: () => getOrgUnitDetail(id),
-    enabled: !!id,
+    enabled: !!id && enabled,
   });
 };

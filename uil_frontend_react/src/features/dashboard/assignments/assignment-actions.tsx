@@ -96,7 +96,7 @@ const AssignmentActions = ({
           )}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className={cn(isTable && "w-45")}>
+        <DropdownMenuContent align="end" className={cn(isTable && "w-48")}>
           {isTable && (
             <DropdownMenuItem onClick={() => navigate(`${assignment_id}`)}>
               <Eye className="mr-2 w-4 h-4" />

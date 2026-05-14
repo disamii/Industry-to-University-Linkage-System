@@ -232,6 +232,7 @@ export const FormCombobox = <T extends FieldValues, Q = unknown>({
         const toggleValue = (value: string | number) => {
           if (!multiple) {
             field.onChange(isNumber ? Number(value) : value);
+            console.log("SETTED");
             setOpen(false);
             return;
           }

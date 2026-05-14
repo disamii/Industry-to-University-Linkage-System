@@ -24,6 +24,8 @@ export type ImplicitActionFormFields =
 
 export type ExplicitActionFormFields =
   | "description"
+  | "pi_user"
+  | "visible_to_industry"
   | "assigned_users"
   | "start_date"
   | "end_date"
@@ -65,11 +67,21 @@ const fieldDefinitions: Record<
     placeholder: "Provide additional details...",
     validation: (z) => z.string().min(5, "Description is too short"),
   },
-  assigned_users: {
-    label: "Assign Experts",
+  pi_user: {
+    label: "Assign PI/Team leader",
     type: "select",
-    validation: (z) =>
-      z.array(z.coerce.number()).min(1, "Please select at least one item"),
+    validation: (z) => z.coerce.number().int().positive("Invalid PI ID"),
+  },
+  assigned_users: {
+    label: "Assign Other experts",
+    type: "select",
+    validation: (z) => z.array(z.coerce.number()).nullish(),
+    isOptional: true,
+  },
+  visible_to_industry: {
+    label: "Show assigned experts to industries",
+    type: "checkbox",
+    validation: (z) => z.coerce.boolean().default(false),
   },
   start_date: {
     label: "Start Date",
@@ -149,7 +161,9 @@ const BASE_FIELDS = [FIELDS.description];
 
 const ASSIGNMENT_FIELDS = [
   ...BASE_FIELDS,
+  FIELDS.pi_user,
   FIELDS.assigned_users,
+  FIELDS.visible_to_industry,
   FIELDS.start_date,
   FIELDS.end_date,
   FIELDS.industry_mentor,

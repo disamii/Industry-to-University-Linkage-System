@@ -55,7 +55,8 @@ const AssignmentTableRow = ({ item, index }: RowProps) => {
         <div className="flex flex-col">
           {/* Primary */}
           <p className="max-w-50 font-medium text-xs truncate">
-            {item.request.academic_unit.name}
+            {item.request.academic_unit?.name ||
+              item.request.academic_unit_name}
           </p>
 
           <Popover>

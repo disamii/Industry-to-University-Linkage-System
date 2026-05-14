@@ -18,4 +18,5 @@ export type UserProfile = Metadata & {
   profile_picture: string | null;
   roles: UserRole[];
   permissions: string[];
+  is_pi?: boolean; // for assigned user
 };

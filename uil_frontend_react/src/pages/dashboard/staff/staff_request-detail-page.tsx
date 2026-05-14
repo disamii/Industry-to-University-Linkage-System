@@ -25,7 +25,9 @@ const StaffRequestDetailPage = () => {
               <div className="space-y-6">
                 <RequestDetailCard {...data} />
                 <IndustryInfoCard industry={data.industry} />
-                <OrgUnitCard academic_unit={data.academic_unit} />
+                <OrgUnitCard
+                  academic_unit={data.academic_unit || data.academic_unit_name}
+                />
               </div>
 
               <ActionTimeline

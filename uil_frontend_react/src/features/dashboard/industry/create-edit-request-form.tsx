@@ -56,20 +56,33 @@ const CreateEditRequestsForm = ({
 
   const defaultValues: FormValues = useMemo(() => {
     if (isEditing && requestToEdit) {
+      const academic_unit = requestToEdit.academic_unit?.id || null;
+      const academic_unit_name = requestToEdit.academic_unit_name || null;
+
       const entitySpecificFields: Partial<
-        Record<Entity, { academic_unit?: number; industry?: [number] }>
+        Record<
+          Entity,
+          {
+            academic_unit?: number | null;
+            academic_unit_name?: string | null;
+            industry?: [number];
+          }
+        >
       > = {
         [Entity.INDUSTRY]: {
-          academic_unit: requestToEdit.academic_unit.id,
+          academic_unit,
+          academic_unit_name,
         },
 
         [Entity.ACADEMIC_UNIT]: {
-          academic_unit: requestToEdit.academic_unit.id,
+          academic_unit,
+          academic_unit_name,
           industry: [requestToEdit.industry.id],
         },
 
         [Entity.STAFF]: {
-          academic_unit: requestToEdit.academic_unit.id,
+          academic_unit,
+          academic_unit_name,
           industry: [requestToEdit.industry.id],
         },
 
@@ -188,8 +201,8 @@ const CreateEditRequestsForm = ({
         />
       )}
 
-      {selectedUnit === OTHER_OPTION_ID &&
-        requesting_entity !== Entity.INDUSTRY && (
+      {(selectedUnit === OTHER_OPTION_ID || selectedUnit === null) &&
+        requesting_entity === Entity.INDUSTRY && (
           <FormInput
             form={form}
             name="academic_unit_name"

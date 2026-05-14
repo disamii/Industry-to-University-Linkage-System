@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { POST_TYPE_CONFIG } from "../../office/posts/utils.posts";
 import { Calendar } from "lucide-react";
 import UsersAvatarPopover from "@/components/reusable/users-avatar-popver";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
+import { UserRole } from "@/lib/enums";
 
 interface ResultDisplayData {
   title: string;
@@ -51,6 +53,9 @@ interface ResultCardProps {
 
 const ActionResultedObjectDisplay: React.FC<ResultCardProps> = ({ result }) => {
   const data = getResultDisplayData(result);
+  const currentRole = useGetRoleByPath();
+
+  const isIndustry = currentRole === UserRole.INDUSTRY;
 
   if (!data) return null;
 
@@ -65,13 +70,19 @@ const ActionResultedObjectDisplay: React.FC<ResultCardProps> = ({ result }) => {
         </div>
 
         {/* Assignment Specific: Show user count if it exists */}
-        {result && "assigned_users" in result && (
+        {result &&
+        "assigned_users" in result &&
+        (!isIndustry || result.visible_to_industry) ? (
           <div className="flex items-center gap-2">
             <p className="text-xs">Assigned Experts:</p>
 
             {/* Assigned Users Avatars/List */}
             <UsersAvatarPopover users={result.assigned_users} maxVisible={4} />
           </div>
+        ) : (
+          <p className="text-destructive/80 text-xs">
+            Assigned experts can't be displayed.
+          </p>
         )}
       </div>
 

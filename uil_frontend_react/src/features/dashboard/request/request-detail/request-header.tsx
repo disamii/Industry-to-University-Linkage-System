@@ -16,6 +16,7 @@ const IndustryRequestHeader = ({
   type,
   created_at,
   academic_unit,
+  academic_unit_name,
   actions,
   industry,
   supported_actions,
@@ -51,7 +52,7 @@ const IndustryRequestHeader = ({
           </div>
           <div className="flex items-center gap-2">
             <Building2 className="w-3.5 h-3.5" />
-            {academic_unit.name}
+            {academic_unit?.name || academic_unit_name}
           </div>
 
           <RequestActionBadge type={latestAction?.type} />

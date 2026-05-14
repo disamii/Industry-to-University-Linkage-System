@@ -13,18 +13,20 @@ import ActionActorToFromDisplay from "./action-actor-to-from-display";
 import ActionResultedObjectDisplay from "./action-resulted-object-display";
 import ExpandableText from "@/components/reusable/expandable-text";
 
-const ActionTimelineList = ({
-  action,
-  idx,
-  actionsCount,
-  request,
-}: {
+type ListProps = {
   action: RequestAction;
   idx: number;
   actionsCount: number;
 
   request: { id: number; title: string; description: string };
-}) => {
+};
+
+const ActionTimelineList = ({
+  action,
+  idx,
+  actionsCount,
+  request,
+}: ListProps) => {
   const config = getActionTypeConfig(action.type);
 
   const detailConfig: Partial<

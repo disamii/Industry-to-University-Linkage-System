@@ -223,9 +223,8 @@ class RequestCreateSerializer(serializers.ModelSerializer):
                         "Industry request requires exactly one industry."
                     )
 
-                industry = industries[0]
-
-                if industry:
+                if industries:
+                    industry = industries[0]
                     industry = Industry.objects.filter(id=industry.id).first()
                     if not industry:
                         raise serializers.ValidationError(
@@ -412,6 +411,7 @@ class RequestSerializer(serializers.ModelSerializer):
             "title",
             "industry",
             "academic_unit",
+            "academic_unit_name",
             "requested_by",
             "requesting_entity",
             "latest_action",
@@ -584,6 +584,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
     )
     start_date = serializers.DateField(required=True)
     end_date = serializers.DateField(required=True)
+    visible_to_industry = serializers.BooleanField()
     industry_mentor = serializers.CharField(
         required=False, allow_null=True, allow_blank=True)
 
@@ -675,6 +676,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
         start_date = validated_data.pop("start_date", None)
         end_date = validated_data.pop("end_date", None)
         industry_mentor = validated_data.pop("industry_mentor", None)
+        visible_to_industry = validated_data.pop("visible_to_industry", None)
 
         with transaction.atomic():
 
@@ -691,6 +693,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                 assignment.end_date = end_date
                 assignment.industry_mentor = industry_mentor
                 assignment.status = AssignmentStatus.PENDING
+                assignment.visible_to_industry = visible_to_industry
                 assignment.updated_by_id = user.id
                 assignment.save()
 
@@ -724,6 +727,7 @@ class RequestActionAssignedSerializer(serializers.ModelSerializer):
                     start_date=start_date,
                     end_date=end_date,
                     industry_mentor=industry_mentor,
+                    visible_to_industry=visible_to_industry,
                     status=AssignmentStatus.PENDING,
                     created_by_id=user.id,
                     updated_by_id=user.id,
@@ -1040,7 +1044,7 @@ class AdminRequestListSerializer(serializers.ModelSerializer):
             "type",
             "requesting_entity",
             "industry",
-            "academic_unit",
+            "academic_unit",            "academic_unit_name",
             "created_at",
             "latest_action",
         ]

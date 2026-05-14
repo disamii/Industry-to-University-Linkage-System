@@ -3,13 +3,14 @@ import AttachmentView from "@/features/dashboard/request/request-detail/attachme
 import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
 import useTabParams from "@/hooks/use-tab-params";
 import { UserRole } from "@/lib/enums";
-import { formatDate, formatType, getFullName } from "@/lib/utils";
+import { cn, formatDate, formatType, getFullName } from "@/lib/utils";
 import { AssignmentDetailResponse } from "@/types/interfaces.assignments";
 import { RequestDetailResponse } from "@/types/interfaces.requests";
 import {
   Activity,
   Briefcase,
   Calendar,
+  Crown,
   Info,
   MessageSquare,
   Users,
@@ -55,7 +56,7 @@ const RequestDetailCard = ({
               <p className="font-semibold text-base">Information</p>
               <div className="space-y-3 bg-muted/50 p-4 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <Activity className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                  <Activity className="mt-0.5 w-4 min-w-4 max-w-4 h-4 min-h-4 max-h-4 text-muted-foreground" />
                   <p className="font-medium text-muted-foreground text-sm">
                     Request Type:{" "}
                     <span className="text-foreground">{formatType(type)}</span>
@@ -64,7 +65,7 @@ const RequestDetailCard = ({
                 {currentRole === UserRole.INDUSTRY &&
                   currentTab === "incoming" && (
                     <div className="flex items-start gap-2">
-                      <MessageSquare className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                      <MessageSquare className="mt-0.5 w-4 min-w-4 max-w-4 h-4 min-h-4 max-h-4 text-muted-foreground" />
                       <p className="font-medium text-muted-foreground text-sm">
                         Requested By:{" "}
                         <span className="text-foreground">
@@ -83,7 +84,7 @@ const RequestDetailCard = ({
                 <div className="space-y-3 bg-muted/50 p-4 rounded-lg">
                   {/* Status */}
                   <div className="flex items-start gap-2">
-                    <Activity className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                    <Activity className="mt-0.5 w-4 min-w-4 max-w-4 h-4 min-h-4 max-h-4 text-muted-foreground" />
                     <p className="font-medium text-sm">
                       Status:{" "}
                       <span className="bg-primary/10 px-2 py-0.5 rounded-full font-normal text-primary text-xs capitalize">
@@ -94,18 +95,37 @@ const RequestDetailCard = ({
 
                   {/* Assigned Users */}
                   <div className="flex items-start gap-2">
-                    <Users className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                    <Users className="mt-0.5 w-4 min-w-4 max-w-4 h-4 min-h-4 max-h-4 text-muted-foreground" />
+
                     <div className="font-medium text-sm">
                       Assigned Experts:
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {assignment.assigned_users.map((user) => (
-                          <span
-                            key={user.id}
-                            className="bg-background px-2 py-1 border rounded-full font-normal text-xs"
-                          >
-                            {getFullName(user, 2)}
-                          </span>
-                        ))}
+                        {assignment.assigned_users.map((user) => {
+                          const isPI = user.is_pi;
+
+                          return (
+                            <span
+                              key={user.id}
+                              className={cn(
+                                "inline-flex items-center gap-1 px-2 py-1 border rounded-full font-normal text-xs",
+                                isPI
+                                  ? "bg-amber-50 border-amber-200 text-amber-700"
+                                  : "bg-background",
+                              )}
+                            >
+                              {getFullName(user, 2)}
+
+                              {isPI && (
+                                <>
+                                  <Crown className="w-3 h-3" />
+                                  <span className="font-medium text-[10px]">
+                                    PI
+                                  </span>
+                                </>
+                              )}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -113,7 +133,7 @@ const RequestDetailCard = ({
                   {/* Mentor */}
                   {assignment.industry_mentor && (
                     <div className="flex items-start gap-2">
-                      <Briefcase className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                      <Briefcase className="mt-0.5 w-4 min-w-4 max-w-4 h-4 min-h-4 max-h-4 text-muted-foreground" />
                       <p className="font-medium text-sm">
                         Mentor:{" "}
                         <span className="font-normal">
@@ -125,7 +145,7 @@ const RequestDetailCard = ({
 
                   {/* Duration */}
                   <div className="flex items-start gap-2">
-                    <Calendar className="mt-0.5 w-4 h-4 text-muted-foreground" />
+                    <Calendar className="mt-0.5 w-4 min-w-4 max-w-4 h-4 min-h-4 max-h-4 text-muted-foreground" />
                     <p className="font-medium text-sm">
                       Duration:{" "}
                       <span className="font-normal text-xs">

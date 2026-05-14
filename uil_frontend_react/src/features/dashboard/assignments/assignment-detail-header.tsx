@@ -46,7 +46,7 @@ const AssignmentDetailHeader = ({
           </div>
           <div className="flex items-center gap-2">
             <Building2 className="w-3.5 h-3.5" />
-            {request.academic_unit.name}
+            {request.academic_unit?.name || request.academic_unit_name}
           </div>
           <Badge variant="secondary" className={cn("capitalize", color)}>
             <Icon className="size-3.5" />

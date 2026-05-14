@@ -30,7 +30,8 @@ export type RequestResponse = Omit<RequestBase, "attachment"> &
 
 export type MyRequestResponse = Omit<RequestResponse, "extra_data"> & {
   industry: number;
-  academic_unit: OrgUnitResponse;
+  academic_unit: OrgUnitResponse | null;
+  academic_unit_name: string | null;
   latest_action: ActionType;
 };
 

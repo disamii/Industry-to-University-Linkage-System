@@ -10,6 +10,7 @@ import { OrgUnitResponse } from "@/types/interfaces.org_units";
 import { FieldValues, get, Path, UseFormReturn } from "react-hook-form";
 import TreeItem from "./tree-item";
 import { Entity } from "@/lib/enums";
+import { useMemo } from "react";
 
 type Props<T extends FieldValues> = {
   form?: UseFormReturn<T>;
@@ -62,6 +63,15 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
     ? form.watch(name)
     : getParam(finalKey as any);
 
+  const otherOption = useMemo(
+    () =>
+      ({
+        name: "Other/Not listed here",
+        id: other_option_id,
+      }) as OrgUnitResponse,
+    [other_option_id],
+  );
+
   const {
     searchQuery,
     setSearchQuery,
@@ -72,7 +82,7 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
     results,
     selectedNode,
     handleSelect,
-  } = useOrgUnitTree(onSelect, selectedAcademicUnit);
+  } = useOrgUnitTree(onSelect, selectedAcademicUnit, otherOption);
 
   const getFormattedResults = () => {
     if (!results) return [];
@@ -81,13 +91,7 @@ const TreeSelectOrgUnit = <T extends FieldValues>({
       return [{ name: "All Units", id: -1 } as OrgUnitResponse, ...results];
     } else {
       if (other_option_id && requesting_entity === Entity.INDUSTRY)
-        return [
-          ...results,
-          {
-            name: "Other/Not listed here",
-            id: other_option_id,
-          } as OrgUnitResponse,
-        ];
+        return [...results, otherOption];
 
       return results;
     }

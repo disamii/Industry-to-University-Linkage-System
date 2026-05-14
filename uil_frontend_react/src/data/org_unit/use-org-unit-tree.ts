@@ -9,6 +9,7 @@ import { useGetOrgUnitsList } from "./org_units-list-query";
 export const useOrgUnitTree = (
   onSelectAction?: (id: number) => void,
   selectedId?: number,
+  otherOption?: OrgUnitResponse,
 ) => {
   const [selectedNode, setSelectedNode] = useState<OrgUnitResponse | null>(
     null,
@@ -28,7 +29,10 @@ export const useOrgUnitTree = (
     useGetOrgUnitsList({ search: debouncedSearch as string }, isSearching);
 
   // When Editing
-  const { data: selectedNodeData } = useGetOrgUnitDetail(selectedId);
+  const { data: selectedNodeData } = useGetOrgUnitDetail(
+    selectedId,
+    selectedId !== otherOption?.id,
+  );
 
   const handleSelect = (node: OrgUnitResponse) => {
     setSelectedNode(node);
@@ -38,6 +42,11 @@ export const useOrgUnitTree = (
   };
 
   useEffect(() => {
+    if (selectedId === null && otherOption) {
+      setSelectedNode(otherOption!);
+      return;
+    }
+
     if (!selectedId) {
       setSelectedNode(null);
       return;
@@ -46,7 +55,7 @@ export const useOrgUnitTree = (
     if (selectedNodeData) {
       setSelectedNode(selectedNodeData);
     }
-  }, [selectedId, selectedNodeData]);
+  }, [selectedId, selectedNodeData, otherOption]);
 
   return {
     searchQuery,

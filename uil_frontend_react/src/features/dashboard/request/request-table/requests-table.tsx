@@ -88,36 +88,42 @@ const RequestTableRow = ({
         <p className="max-w-40 text-xs truncate">{item.description}</p>
       </TableCell>
       <TableCell>
-        <div className="flex flex-col">
-          {/* Primary */}
+        {/* Primary */}
+        {item.academic_unit ? (
+          <div className="flex flex-col">
+            <p className="max-w-50 font-medium text-xs truncate">
+              {item.academic_unit.name}
+            </p>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <p className="w-fit text-muted-foreground text-xs hover:underline cursor-pointer">
+                  {[...(item.academic_unit.ancestors ?? []), item.academic_unit]
+                    .map((u) => getAcademicUnitAbbr(u.name))
+                    .join(" > ")}
+                </p>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-64 text-sm">
+                <div className="flex flex-col gap-2">
+                  {[
+                    ...(item.academic_unit.ancestors ?? []),
+                    item.academic_unit,
+                  ].map((u, i) => (
+                    <div key={u.id} className="flex gap-1">
+                      <span className="mt-0.5 text-xs">{i + 1}.</span>
+                      <span>{u.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        ) : (
           <p className="max-w-50 font-medium text-xs truncate">
-            {item.academic_unit.name}
+            {item.academic_unit_name}
           </p>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <p className="w-fit text-muted-foreground text-xs hover:underline cursor-pointer">
-                {[...(item.academic_unit.ancestors ?? []), item.academic_unit]
-                  .map((u) => getAcademicUnitAbbr(u.name))
-                  .join(" > ")}
-              </p>
-            </PopoverTrigger>
-
-            <PopoverContent className="w-64 text-sm">
-              <div className="flex flex-col gap-2">
-                {[
-                  ...(item.academic_unit.ancestors ?? []),
-                  item.academic_unit,
-                ].map((u, i) => (
-                  <div key={u.id} className="flex gap-1">
-                    <span className="mt-0.5 text-xs">{i + 1}.</span>
-                    <span>{u.name}</span>
-                  </div>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+        )}
       </TableCell>
       <TableCell>
         <RequestActionBadge type={item.latest_action} />
