@@ -25,7 +25,7 @@ const RequestsStat = ({ stats }: Props) => {
       title: "Initiated Requests",
       value: initiated_requests?.toString(),
       Icon: PlusCircle,
-      colorVariant: "secondary",
+      colorVariant: "muted",
     },
     {
       title: "Assigned Requests",

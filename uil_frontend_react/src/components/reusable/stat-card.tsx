@@ -7,13 +7,13 @@ import { Card, CardContent } from "../ui/card";
 
 type SubStat = {
   label: string;
-  value: string;
+  value?: string;
   colorVariant: StatCardKeys;
 };
 
 export type Stat = {
   title: string;
-  value: string;
+  value?: string;
   desc?: string;
   Icon: LucideIcon;
   colorVariant: StatCardKeys;

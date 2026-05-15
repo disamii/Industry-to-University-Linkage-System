@@ -1,5 +1,5 @@
-import IncomingIndustryRequestsTab from "@/features/dashboard/industry/industry_requests.tsx/incoming-industry_requests-tab";
-import OutgoingIndustryRequestsTab from "@/features/dashboard/industry/industry_requests.tsx/outgoing-industry_requests-tab";
+import IncomingIndustryRequestsTab from "@/features/dashboard/industry/industry_requests/incoming-industry_requests-tab";
+import OutgoingIndustryRequestsTab from "@/features/dashboard/industry/industry_requests/outgoing-industry_requests-tab";
 import AdmninTabs from "@/features/dashboard/layout/admin-tabs";
 import { MoveDownLeft, MoveUpRight } from "lucide-react";
 

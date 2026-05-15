@@ -13,7 +13,7 @@ import {
   MyRequestResponse,
   RequestDetailResponse,
 } from "@/types/interfaces.requests";
-import { Calendar, Logs, MoveUpRight } from "lucide-react";
+import { Calendar, Logs, LucideIcon, MoveUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type Props = {
@@ -22,6 +22,8 @@ type Props = {
   max_requests?: number;
   requests: RequestDetailResponse[] | MyRequestResponse[];
   renderDesc: (max_requests: number) => string;
+  title?: string;
+  Icon?: LucideIcon;
 };
 
 const RecentRequestsCard = ({
@@ -30,14 +32,16 @@ const RecentRequestsCard = ({
   max_requests = 5,
   requests,
   renderDesc,
+  title = "Recent Requests",
+  Icon = Logs,
 }: Props) => {
   return (
     <Card>
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle className="flex items-center gap-2 font-bold text-lg">
-            <Logs className="w-5 h-5 text-primary" />
-            Recent Requests
+            {<Icon className="w-5 h-5 text-primary" />}
+            {title}
           </CardTitle>
           <CardDescription className="font-normal text-muted-foreground text-xs">
             {renderDesc(max_requests)}

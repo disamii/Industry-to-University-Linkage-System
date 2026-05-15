@@ -3,13 +3,13 @@ import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetAssignmentsListByUserId } from "@/data/assignments/assignments-list-by-user_id-query";
 import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
 import RecentAssignmentsCard from "@/features/dashboard/assignments/recent-assignments-card";
-import DashboardStat from "@/features/dashboard/staff/staff_dashboard-stats";
+import StaffDashboardStats from "@/features/dashboard/staff/staff_dashboard-stat";
 import RecentRequestsCard from "@/features/dashboard/request/recent-requests-card";
 import { Entity } from "@/lib/enums";
 import { getFullName } from "@/lib/utils";
 import { useAuthStore } from "@/store/use-auth-store";
 import { RequestTypePieChart } from "@/features/dashboard/staff/request-type-pie-chart";
-import { MonthlyWorkflowAnalyticsChart } from "@/features/dashboard/staff/monthly-worflow-analytics-chart";
+import { MonthlyWorkflowAnalyticsChart } from "@/features/dashboard/staff/monthly-requestVassignment-analytics-chart";
 
 const StaffDashboard = () => {
   const requestsQuery = useGetMyRequestsList({
@@ -33,7 +33,7 @@ const StaffDashboard = () => {
         desc="Manage your industry requests and project assignments."
         hasBackBtn={false}
       />
-      <DashboardStat stats={stats} />
+      <StaffDashboardStats stats={stats} />
 
       <div className="gap-6 grid grid-cols-[1fr_30rem]">
         <MonthlyWorkflowAnalyticsChart

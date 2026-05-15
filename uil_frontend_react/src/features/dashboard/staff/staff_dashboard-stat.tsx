@@ -5,7 +5,7 @@ type Props = {
   stats: any;
 };
 
-const DashboardStat = ({ stats }: Props) => {
+const StaffDashboardStats = ({ stats }: Props) => {
   const formattedStats: Stat[] = [
     {
       title: "Total Assignments",
@@ -48,4 +48,4 @@ const DashboardStat = ({ stats }: Props) => {
   return <StatCard stats={formattedStats} />;
 };
 
-export default DashboardStat;
+export default StaffDashboardStats;
