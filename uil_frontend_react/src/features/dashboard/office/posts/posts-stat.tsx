@@ -19,37 +19,37 @@ const PostsStat = ({ stats }: Props) => {
   const formattedStats: Stat[] = [
     {
       title: "Total Posts",
-      value: total_posts.toString(),
+      value: total_posts?.toString(),
       Icon: Newspaper,
       colorVariant: "info",
     },
     {
       title: "Thematic Area",
-      value: thematic_area.toString(),
+      value: thematic_area?.toString(),
       Icon: BookOpen,
       colorVariant: "warning",
       subStats: [
         {
           label: "Success Story",
-          value: success_story.toString(),
+          value: success_story?.toString(),
           colorVariant: "success",
         },
         {
           label: "Guideline",
-          value: guideline.toString(),
+          value: guideline?.toString(),
           colorVariant: "secondary",
         },
       ],
     },
     {
       title: "Open Requests",
-      value: open_request.toString(),
+      value: open_request?.toString(),
       Icon: Antenna,
       colorVariant: "primary",
       subStats: [
         {
           label: "Announcement",
-          value: announcement.toString(),
+          value: announcement?.toString(),
           colorVariant: "warning",
         },
       ],

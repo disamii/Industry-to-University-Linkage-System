@@ -20,43 +20,43 @@ const AssignmentStat = ({ stats }: Props) => {
   const formattedStats: Stat[] = [
     {
       title: "Total Assignments",
-      value: total_assignments.toString(),
+      value: total_assignments?.toString(),
       Icon: Inbox,
       colorVariant: "info",
     },
     {
       title: "Pending",
-      value: pending.toString(),
+      value: pending?.toString(),
       Icon: ThumbsUp,
       colorVariant: "secondary",
       subStats: [
         {
           label: "Accepted",
-          value: accepted.toString(),
+          value: accepted?.toString(),
           colorVariant: "primary",
         },
         {
           label: "Rejected",
-          value: rejected.toString(),
+          value: rejected?.toString(),
           colorVariant: "danger",
         },
       ],
     },
     {
       title: "In Progress",
-      value: in_progress.toString(),
+      value: in_progress?.toString(),
       Icon: Loader,
       colorVariant: "in_progress",
     },
     {
       title: "Completed",
-      value: completed.toString(),
+      value: completed?.toString(),
       Icon: CheckCircle,
       colorVariant: "success",
       subStats: [
         {
           label: "Cancelled",
-          value: cancelled.toString(),
+          value: cancelled?.toString(),
           colorVariant: "muted",
         },
       ],

@@ -8,7 +8,6 @@ import { useAuthStore } from "@/store/use-auth-store";
 
 const StaffAssignmentsPage = () => {
   const { user } = useAuthStore();
-
   const query = useGetAssignmentsListByUserId(user?.id);
 
   return (

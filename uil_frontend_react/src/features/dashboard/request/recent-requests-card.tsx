@@ -9,15 +9,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatDate, formatType } from "@/lib/utils";
-import { RequestDetailResponse } from "@/types/interfaces.requests";
-import { ArrowRight, Calendar, Logs } from "lucide-react";
+import {
+  MyRequestResponse,
+  RequestDetailResponse,
+} from "@/types/interfaces.requests";
+import { Calendar, Logs, MoveUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type Props = {
   viewAllLink: string;
   viewEachLink: (id: number) => string;
   max_requests?: number;
-  requests: RequestDetailResponse[];
+  requests: RequestDetailResponse[] | MyRequestResponse[];
   renderDesc: (max_requests: number) => string;
 };
 
@@ -48,7 +51,7 @@ const RecentRequestsCard = ({
               className="hover:bg-transparent text-primary hover:text-primary/90 hover:underline transition-all"
             >
               View All
-              <ArrowRight className="size-3" />
+              <MoveUpRight className="size-3" />
             </Link>
           </Button>
         )}

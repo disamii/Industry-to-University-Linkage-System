@@ -6,7 +6,7 @@ import { ComponentVariant, StatCardKeys } from "@/types/interfaces";
 export const variantContainers: Record<ComponentVariant, string> = {
   small: "p-2 text-sm",
   inline: "p-4 text-base",
-  section: "p-12 border rounded-xl my-4",
+  section: "p-12 border rounded-xl",
   page: "min-h-[70vh] flex flex-col justify-center p-6",
 };
 

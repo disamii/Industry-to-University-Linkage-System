@@ -17,25 +17,25 @@ const RequestsStat = ({ stats }: Props) => {
   const formattedStats: Stat[] = [
     {
       title: "Total Requests",
-      value: total_requests.toString(),
+      value: total_requests?.toString(),
       Icon: Inbox,
       colorVariant: "info",
     },
     {
       title: "Initiated Requests",
-      value: initiated_requests.toString(),
+      value: initiated_requests?.toString(),
       Icon: PlusCircle,
       colorVariant: "secondary",
     },
     {
       title: "Assigned Requests",
-      value: assigned_requests.toString(),
+      value: assigned_requests?.toString(),
       Icon: UserCheck,
       colorVariant: "warning",
     },
     {
       title: "Completed Requests",
-      value: completed_requests.toString(),
+      value: completed_requests?.toString(),
       Icon: CheckCircle,
       colorVariant: "success",
     },

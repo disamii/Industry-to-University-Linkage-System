@@ -13,19 +13,19 @@ const IndustryStat = ({ stats }: Props) => {
   const formattedStats: Stat[] = [
     {
       title: "Total Industries",
-      value: total.toString(),
+      value: total?.toString(),
       Icon: Building2,
       colorVariant: "info",
     },
     {
       title: "With Requests",
-      value: industries_with_requests.toString(),
+      value: industries_with_requests?.toString(),
       Icon: FileText,
       colorVariant: "warning",
     },
     {
       title: "Registered This Year",
-      value: industries_registered_this_year.toString(),
+      value: industries_registered_this_year?.toString(),
       Icon: CalendarPlus,
       colorVariant: "success",
     },
