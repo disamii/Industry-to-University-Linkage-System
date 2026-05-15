@@ -174,6 +174,9 @@ export const getNameInitials = (name: string) =>
     .join("")
     .toUpperCase();
 
+const capitalize = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+
 export const getFullName = (
   user: {
     first_name?: string | null;
@@ -181,18 +184,22 @@ export const getFullName = (
     grand_father_name?: string | null;
     email?: string;
   },
-  level?: 1 | 2 | 3, // 3 = full, 2 = first+father, 1 = father+grand
+  level?: 1 | 2 | 3,
 ) => {
   const { first_name, father_name, grand_father_name, email } = user;
 
   const parts = [first_name, father_name, grand_father_name];
 
-  // Decide how many parts to include based on level
   const slicedParts = level ? parts.slice(0, level) : parts;
 
-  const fullName = slicedParts.filter(Boolean).join(" ");
+  const fullName = slicedParts
+    .filter(Boolean)
+    .map((name) => capitalize(name!))
+    .join(" ");
 
-  return fullName.length > 0 ? fullName : (email ?? "Unknown");
+  return fullName.length > 0
+    ? fullName
+    : (capitalize(email?.split("@")?.[0] || "") ?? "Unknown");
 };
 
 export const formatType = (type: string) =>

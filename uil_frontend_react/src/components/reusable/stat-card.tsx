@@ -1,4 +1,3 @@
-// stat-card.tsx
 import { colorVariants } from "@/lib/mappings";
 import { cn } from "@/lib/utils";
 import { StatCardKeys } from "@/types/interfaces";

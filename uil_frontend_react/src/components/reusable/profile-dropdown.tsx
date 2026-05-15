@@ -43,7 +43,12 @@ export default function ProfileDropdown({ className }: ProfileDropdownProps) {
             userName={userName}
             size="md"
           />
-          <span className="font-medium">{userName || "User"}</span>
+          <div className="">
+            <p className="font-medium">{userName || "User"}</p>
+            <p className="max-w-40 text-muted-foreground text-xs truncate">
+              {user?.email}
+            </p>
+          </div>
         </div>
         <DropdownMenuSeparator />
 

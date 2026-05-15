@@ -5,7 +5,7 @@ import { Metadata } from "./interfaces";
 export type PostStats = {
   total_posts: number;
   success_story: number;
-  thematic_area: number;
+  thematic_call: number;
   open_request: number;
   announcement: number;
   guideline: number;

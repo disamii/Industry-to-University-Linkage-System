@@ -3,7 +3,7 @@ import { QueryState } from "@/components/reusable/query-state-ui";
 import { useGetAssignmentsListByUserId } from "@/data/assignments/assignments-list-by-user_id-query";
 import { useGetMyRequestsList } from "@/data/requests/my-requests-list-query";
 import RecentAssignmentsCard from "@/features/dashboard/assignments/recent-assignments-card";
-import StaffDashboardStats from "@/features/dashboard/staff/staff_dashboard-stat";
+import StaffDashboardStats from "@/features/dashboard/staff/staff-dashboard-stat";
 import RecentRequestsCard from "@/features/dashboard/request/recent-requests-card";
 import { Entity } from "@/lib/enums";
 import { getFullName } from "@/lib/utils";
@@ -57,7 +57,7 @@ const StaffDashboard = () => {
               viewAllLink={`/dashboard/staff/assignments`}
               viewEachLink={(id) => `/dashboard/staff/assignments/${id}`}
               renderDesc={(max_assignments) =>
-                `Your last ${max_assignments} requests`
+                `Your last ${max_assignments} assignments`
               }
               assignments={data.results}
             />

@@ -10,7 +10,7 @@ const PostsStat = ({ stats }: Props) => {
   const {
     total_posts,
     success_story,
-    thematic_area,
+    thematic_call,
     open_request,
     announcement,
     guideline,
@@ -25,7 +25,7 @@ const PostsStat = ({ stats }: Props) => {
     },
     {
       title: "Thematic Area",
-      value: thematic_area?.toString(),
+      value: thematic_call?.toString(),
       Icon: BookOpen,
       colorVariant: "warning",
       subStats: [
