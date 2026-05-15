@@ -54,8 +54,14 @@ const IndustryDetailPage = () => {
 
               <IndustryInfoCard industry={data} />
               <RecentRequestsCard
-                industry_id={data.id}
+                viewAllLink={`/dashboard/office/requests?tab=incoming&requests.industry=${data.id}`}
+                viewEachLink={(id) =>
+                  `/dashboard/office/requests/${id}?tab=incoming`
+                }
                 requests={data.requests}
+                renderDesc={(max_requests) =>
+                  `Last ${max_requests} requests by this industry`
+                }
               />
             </div>
 

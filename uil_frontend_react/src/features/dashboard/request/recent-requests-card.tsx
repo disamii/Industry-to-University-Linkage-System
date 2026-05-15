@@ -14,15 +14,19 @@ import { ArrowRight, Calendar, Logs } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type Props = {
-  industry_id?: number;
+  viewAllLink: string;
+  viewEachLink: (id: number) => string;
   max_requests?: number;
   requests: RequestDetailResponse[];
+  renderDesc: (max_requests: number) => string;
 };
 
 const RecentRequestsCard = ({
-  industry_id,
+  viewAllLink,
+  viewEachLink,
   max_requests = 5,
   requests,
+  renderDesc,
 }: Props) => {
   return (
     <Card>
@@ -33,14 +37,14 @@ const RecentRequestsCard = ({
             Recent Requests
           </CardTitle>
           <CardDescription className="font-normal text-muted-foreground text-xs">
-            Last {max_requests} requests by this industry
+            {renderDesc(max_requests)}
           </CardDescription>
         </div>
 
         {!!requests.length && (
           <Button asChild size="sm" variant="ghost">
             <Link
-              to={`/dashboard/office/requests?tab=incoming&requests.industry=${industry_id}`}
+              to={viewAllLink}
               className="hover:bg-transparent text-primary hover:text-primary/90 hover:underline transition-all"
             >
               View All
@@ -64,7 +68,7 @@ const RecentRequestsCard = ({
                 <div key={request.id} className="space-y-0.5 py-2">
                   <div className="flex flex-wrap items-center gap-1">
                     <Link
-                      to={`/dashboard/office/requests/${request.id}?tab=incoming`}
+                      to={viewEachLink(request.id)}
                       className="block font-semibold hover:text-primary text-base hover:underline transition-all"
                     >
                       {request.title}
@@ -80,10 +84,13 @@ const RecentRequestsCard = ({
                       <Calendar className="size-3 text-muted-foreground" />
                       <span>{formatDate(request.created_at)}</span>
                     </div>
-                    <RequestActionBadge
-                      type={request.latest_action}
-                      size="sm"
-                    />
+
+                    {request.latest_action && (
+                      <RequestActionBadge
+                        type={request.latest_action}
+                        size="sm"
+                      />
+                    )}
                   </div>
                 </div>
               ))
