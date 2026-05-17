@@ -103,7 +103,7 @@ class IndustryCreateSerializer(serializers.ModelSerializer):
 
 
 class IndustrySerializer(serializers.ModelSerializer):
-    contact_full_name = serializers.SerializerMethodField()
+    contact_full_name = serializers.CharField(required=False)  # Now writable
     contact_email = serializers.SerializerMethodField()
 
     class Meta:
@@ -124,12 +124,33 @@ class IndustrySerializer(serializers.ModelSerializer):
             "contact_email",
         ]
 
+    def get_contact_email(self, obj):
+        return obj.contact_person.email
+
     def get_contact_full_name(self, obj):
+        # Used only for representation — see to_representation below
         user = obj.contact_person
         return f"{user.first_name} {user.father_name} {user.grand_father_name}".strip()
 
-    def get_contact_email(self, obj):
-        return obj.contact_person.email
+    def update(self, instance, validated_data):
+        full_name = validated_data.pop("contact_full_name", None)
+
+        if full_name:
+            parts = full_name.strip().split()
+            user = instance.contact_person
+            user.first_name = parts[0] if len(parts) > 0 else ""
+            user.father_name = parts[1] if len(parts) > 1 else ""
+            user.grand_father_name = parts[2] if len(parts) > 2 else ""
+            user.save(update_fields=["first_name",
+                      "father_name", "grand_father_name"])
+
+        return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        # Override so contact_full_name reads from the related user, not the raw field
+        data = super().to_representation(instance)
+        data["contact_full_name"] = self.get_contact_full_name(instance)
+        return data
 
 
 class GenericActorField(serializers.Field):

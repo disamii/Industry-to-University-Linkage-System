@@ -26,6 +26,7 @@ const ContactDetailsForm = ({ showPasswordFields = true }: Props) => {
         label="Email"
         placeholder="Enter contact person email"
         required
+        disabled={!showPasswordFields}
       />
       <FormInput
         form={form}

@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useIndustryUpdateMutation } from "@/data/industry/industry-update-mutation";
 import ContactDetailsForm from "@/features/auth/signup/contact-details-form";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import {
@@ -20,6 +21,7 @@ const ContactPersonInfoUpdateForm = ({
   contact_email,
   contact_person_phone_number,
 }: IndustryResponse) => {
+  const { mutate, isPending } = useIndustryUpdateMutation();
   const form = useForm<ContactPersonUpdateInput>({
     resolver: zodResolver(contactPersonUpdateSchema),
     defaultValues: {
@@ -29,7 +31,9 @@ const ContactPersonInfoUpdateForm = ({
     },
   });
 
-  const onSubmit = () => {};
+  const onSubmit = (data: ContactPersonUpdateInput) => {
+    mutate(data);
+  };
 
   return (
     <Card>
@@ -48,6 +52,7 @@ const ContactPersonInfoUpdateForm = ({
           formId="update-contact-person-form"
           onSubmit={onSubmit}
           submitLabel="Update Account"
+          isPending={isPending}
         >
           <ContactDetailsForm showPasswordFields={false} />{" "}
         </FormWrapper>

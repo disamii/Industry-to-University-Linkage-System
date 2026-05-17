@@ -59,14 +59,25 @@ class IndustryViewSet(viewsets.ModelViewSet):
             permission_classes = [HasRequiredPermissions]
         return [permission() for permission in permission_classes]
 
-    @action(detail=False, methods=['get'], url_path='me')
+    @action(detail=False, methods=['get', 'put', 'patch'], url_path='me')
     def me(self, request):
         try:
             industry = request.user.industry_profile
         except Industry.DoesNotExist:
             raise NotFound("Industry profile not found")
-        serializer = IndustrySerializer(industry)
-        return Response(serializer.data)
+
+        if request.method == 'GET':
+            serializer = IndustrySerializer(industry)
+            return Response(serializer.data)
+
+        # Enables updating via the /me endpoint
+        elif request.method in ['PUT', 'PATCH']:
+            partial = (request.method == 'PATCH')
+            serializer = IndustrySerializer(
+                industry, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 
 class RequestViewSet(

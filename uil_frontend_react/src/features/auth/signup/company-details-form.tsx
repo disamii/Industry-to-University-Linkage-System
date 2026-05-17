@@ -9,7 +9,11 @@ import { IndustryType } from "@/lib/enums";
 import { formatSelectOptions } from "@/lib/utils";
 import { FieldValues, useFormContext } from "react-hook-form";
 
-const CompanyDetailsForm = () => {
+type Props = {
+  actionType?: "create" | "update";
+};
+
+const CompanyDetailsForm = ({ actionType = "create" }: Props) => {
   const form = useFormContext<FieldValues>();
 
   return (
@@ -51,6 +55,7 @@ const CompanyDetailsForm = () => {
             name="industry_email"
             label="Company Email"
             placeholder="Enter company Email"
+            disabled={actionType === "update"}
           />
 
           <FormInput

@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useIndustryUpdateMutation } from "@/data/industry/industry-update-mutation";
 import CompanyDetailsForm from "@/features/auth/signup/company-details-form";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import {
@@ -26,6 +27,8 @@ const IndustryUpdateForm = ({
   number_of_employees,
   website,
 }: IndustryResponse) => {
+  const { mutate, isPending } = useIndustryUpdateMutation();
+
   const form = useForm<IndustryUpdateInput>({
     resolver: zodResolver(industryUpdateSchema),
     defaultValues: {
@@ -41,7 +44,9 @@ const IndustryUpdateForm = ({
     },
   });
 
-  const onSubmit = () => {};
+  const onSubmit = (data: IndustryUpdateInput) => {
+    mutate(data);
+  };
 
   return (
     <Card>
@@ -60,6 +65,7 @@ const IndustryUpdateForm = ({
           formId="update-industry-form"
           onSubmit={onSubmit}
           submitLabel="Update Industry"
+          isPending={isPending}
         >
           <CompanyDetailsForm />
         </FormWrapper>
