@@ -22,6 +22,8 @@ const FormWrapper = <T extends FieldValues>({
   isPending,
   formId,
 }: Props<T>) => {
+  const { isDirty } = form.formState;
+
   return (
     <FormProvider {...form}>
       <form
@@ -31,7 +33,11 @@ const FormWrapper = <T extends FieldValues>({
       >
         {children}
 
-        <Button type="submit" disabled={isPending} className="mt-4 w-full h-11">
+        <Button
+          type="submit"
+          disabled={isPending || !isDirty}
+          className="mt-4 w-full h-11"
+        >
           {isPending && <Spinner data-icon="inline-start" />}
           {submitLabel}
         </Button>

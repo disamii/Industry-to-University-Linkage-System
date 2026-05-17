@@ -2,8 +2,8 @@ import DashboardContentHeader from "@/components/reusable/dashboard-content-head
 import { QueryState } from "@/components/reusable/query-state-ui";
 import { TabsContent } from "@/components/ui/tabs";
 import { useGetIndustryMe } from "@/data/industry/industry-current-profile-query";
+import UpdateUserPasswordForm from "@/features/auth/update-user-password-form";
 import ContactPersonInfoUpdateForm from "@/features/dashboard/industry/manage-account/contact-person-info-update-form";
-import ContactPersonPasswordUpdateForm from "@/features/dashboard/industry/manage-account/contact-person-password-update-form";
 import IndustryUpdateForm from "@/features/dashboard/industry/manage-account/industry-update-form";
 import AdminTabs from "@/features/dashboard/layout/admin-tabs";
 import { Building2, UserRoundCog } from "lucide-react";
@@ -43,7 +43,7 @@ const IndustryManageAccountPage = () => {
               <TabsContent value="contact_person" className="mt-4">
                 <div className="gap-8 grid grid-cols-2">
                   <ContactPersonInfoUpdateForm {...data} />
-                  <ContactPersonPasswordUpdateForm />
+                  <UpdateUserPasswordForm />
                 </div>
               </TabsContent>
 

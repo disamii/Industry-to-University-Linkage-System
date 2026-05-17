@@ -23,7 +23,7 @@ const industryFields = {
 const contactPersonFields = {
   contact_person_phone_number: z.string().nullish(),
   contact_full_name: z.string().min(1, "Contact person name is required"),
-  contact_email: z.string().email("Invalid contact email"),
+  contact_email: z.email({ message: "Invalid contact email" }),
 };
 
 const passwordFields = {
@@ -61,21 +61,6 @@ export const contactPersonUpdateSchema = z
 
 export type ContactPersonUpdateInput = z.infer<
   typeof contactPersonUpdateSchema
->;
-
-// --- Contact Password Update Schema ---
-export const contactPersonUpdatePasswordSchema = z
-  .object({
-    old_password: z.string().min(1, "Current password is required"),
-    ...passwordFields,
-  })
-  .refine((data) => data.contact_password === data.confirm_password, {
-    message: "Passwords don't match",
-    path: ["confirm_password"],
-  });
-
-export type ContactPersonUpdatePasswordInput = z.infer<
-  typeof contactPersonUpdatePasswordSchema
 >;
 
 // --- Default Values ---

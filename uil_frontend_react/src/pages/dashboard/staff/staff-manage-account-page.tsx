@@ -10,6 +10,7 @@ const StaffManageAccountPage = () => {
         desc="Update your account information."
         hasBackBtn
       />
+
       <div className="gap-8 grid grid-cols-2">
         <UpdateUserAccountForm />
         <UpdateUserPasswordForm />

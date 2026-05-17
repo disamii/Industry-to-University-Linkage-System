@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useChangePasswordMutation } from "@/data/user/change-password-mutation";
 import {
   UserUpdatePasswordInput,
   userUpdatePasswordSchema,
@@ -15,12 +16,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 const UpdateUserPasswordForm = () => {
+  const { mutate, isPending } = useChangePasswordMutation();
+
   const form = useForm<UserUpdatePasswordInput>({
     resolver: zodResolver(userUpdatePasswordSchema),
-    defaultValues: {},
+    defaultValues: {
+      current_password: "",
+      new_password: "",
+      confirm_password: "",
+    },
   });
 
-  const onSubmit = () => {};
+  const onSubmit = (data: UserUpdatePasswordInput) => {
+    mutate(data);
+  };
 
   return (
     <Card>
@@ -39,6 +48,7 @@ const UpdateUserPasswordForm = () => {
           formId="update-user-password-form"
           onSubmit={onSubmit}
           submitLabel="Update Password"
+          isPending={isPending}
         >
           <ChangeUserPasswordForm />
         </FormWrapper>

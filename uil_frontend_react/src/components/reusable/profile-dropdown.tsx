@@ -27,7 +27,7 @@ export default function ProfileDropdown({ className }: ProfileDropdownProps) {
   const homepage = getAdminHomepageLink(role ? [role] : []);
 
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
-  const userName = getFullName({ ...user });
+  const userName = getFullName({ ...user }, 2);
 
   return (
     <DropdownMenu>

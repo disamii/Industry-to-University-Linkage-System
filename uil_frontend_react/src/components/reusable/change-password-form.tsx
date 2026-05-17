@@ -2,7 +2,9 @@ import { FormInput } from "@/components/reusable/form-components";
 import { FieldGroup } from "@/components/ui/field";
 import { FieldValues, useFormContext } from "react-hook-form";
 
-const ChangeUserPasswordForm = () => {
+type Props = { fieldName?: string };
+
+const ChangeUserPasswordForm = ({ fieldName }: Props) => {
   const form = useFormContext<FieldValues>();
 
   return (
@@ -10,7 +12,7 @@ const ChangeUserPasswordForm = () => {
       <FormInput
         type="password"
         form={form}
-        name="old_password"
+        name="current_password"
         label="Current Password"
         placeholder="Enter current password"
         required
@@ -20,7 +22,7 @@ const ChangeUserPasswordForm = () => {
         <FormInput
           type="password"
           form={form}
-          name="contact_password"
+          name={fieldName || "new_password"}
           label="New Password"
           placeholder="Enter new password"
           required

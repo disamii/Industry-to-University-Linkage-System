@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
+import { useUserAccountMutation } from "@/data/user/user-account-mutation";
 import { useAuthStore } from "@/store/use-auth-store";
 import {
   UserAccountUpdateInput,
@@ -19,6 +20,8 @@ import { useForm } from "react-hook-form";
 
 const UpdateUserAccountForm = () => {
   const { user } = useAuthStore();
+  const { mutate, isPending } = useUserAccountMutation();
+
   const {
     username,
     email,
@@ -30,7 +33,7 @@ const UpdateUserAccountForm = () => {
 
   const form = useForm<UserAccountUpdateInput>({
     resolver: zodResolver(userAccountUpdateSchema),
-    defaultValues: {
+    values: {
       username,
       email,
       first_name,
@@ -40,7 +43,9 @@ const UpdateUserAccountForm = () => {
     },
   });
 
-  const onSubmit = () => {};
+  const onSubmit = (data: UserAccountUpdateInput) => {
+    mutate(data);
+  };
 
   return (
     <Card>
@@ -59,7 +64,7 @@ const UpdateUserAccountForm = () => {
           formId="update-user-account"
           onSubmit={onSubmit}
           submitLabel="Update Account"
-          isPending={false}
+          isPending={isPending}
         >
           <FieldGroup>
             {/* --- Account Information --- */}
@@ -89,7 +94,6 @@ const UpdateUserAccountForm = () => {
                 name="first_name"
                 label="First Name"
                 placeholder="Enter first name"
-                required
               />
 
               <FormInput
@@ -97,7 +101,6 @@ const UpdateUserAccountForm = () => {
                 name="father_name"
                 label="Father Name"
                 placeholder="Enter father name"
-                required
               />
             </div>
 
@@ -106,7 +109,6 @@ const UpdateUserAccountForm = () => {
               name="grand_father_name"
               label="Grand Father Name"
               placeholder="Enter grand father name"
-              required
             />
 
             <TreeSelectOrgUnit form={form} variant="form" />
