@@ -1,3 +1,4 @@
+import ChangeUserPasswordForm from "@/components/reusable/change-password-form";
 import FormWrapper from "@/components/reusable/form-wrapper";
 import {
   Card,
@@ -6,17 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ChangeUserPasswordForm from "@/components/reusable/change-password-form";
 import {
-  ContactPersonUpdatePasswordInput,
-  contactPersonUpdatePasswordSchema,
-} from "@/validation/validation.industry";
+  UserUpdatePasswordInput,
+  userUpdatePasswordSchema,
+} from "@/validation/validation.auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-const ContactPersonPasswordUpdateForm = () => {
-  const form = useForm<ContactPersonUpdatePasswordInput>({
-    resolver: zodResolver(contactPersonUpdatePasswordSchema),
+const UpdateUserPasswordForm = () => {
+  const form = useForm<UserUpdatePasswordInput>({
+    resolver: zodResolver(userUpdatePasswordSchema),
     defaultValues: {},
   });
 
@@ -36,7 +36,7 @@ const ContactPersonPasswordUpdateForm = () => {
       <CardContent>
         <FormWrapper
           form={form}
-          formId="update-contact-person-password-form"
+          formId="update-user-password-form"
           onSubmit={onSubmit}
           submitLabel="Update Password"
         >
@@ -47,4 +47,4 @@ const ContactPersonPasswordUpdateForm = () => {
   );
 };
 
-export default ContactPersonPasswordUpdateForm;
+export default UpdateUserPasswordForm;

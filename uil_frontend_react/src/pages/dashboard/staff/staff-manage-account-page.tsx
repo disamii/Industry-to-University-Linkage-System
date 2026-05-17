@@ -1,36 +1,19 @@
 import DashboardContentHeader from "@/components/reusable/dashboard-content-header";
-import { TabsContent } from "@/components/ui/tabs";
-import AdminTabs from "@/features/dashboard/layout/admin-tabs";
-import { getFullName } from "@/lib/utils";
-import { useAuthStore } from "@/store/use-auth-store";
-import { User, UserRoundCog } from "lucide-react";
-
-const tabs = [
-  {
-    value: "account",
-    label: "Manage Account",
-    Icon: UserRoundCog,
-  },
-  {
-    value: "profile",
-    label: "Manage Profile",
-    Icon: User,
-  },
-];
+import UpdateUserAccountForm from "@/features/auth/update-user-account-form";
+import UpdateUserPasswordForm from "@/features/auth/update-user-password-form";
 
 const StaffManageAccountPage = () => {
-  const { user } = useAuthStore();
-
   return (
     <div className="space-y-6">
       <DashboardContentHeader
-        title={`Manage your Account, ${getFullName(user!, 1)}`}
-        hasBackBtn={true}
+        title="Manage Account"
+        desc="Update your account information."
+        hasBackBtn
       />
-
-      <AdminTabs defaultValue="account" tabs={tabs}>
-        <TabsContent value="account" className="space-y-6 mt-4"></TabsContent>
-      </AdminTabs>
+      <div className="gap-8 grid grid-cols-2">
+        <UpdateUserAccountForm />
+        <UpdateUserPasswordForm />
+      </div>
     </div>
   );
 };

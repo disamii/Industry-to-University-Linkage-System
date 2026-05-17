@@ -2,7 +2,7 @@ import { FormInput } from "@/components/reusable/form-components";
 import { FieldGroup } from "@/components/ui/field";
 import { FieldValues, useFormContext } from "react-hook-form";
 
-const ContactPasswordForm = () => {
+const ChangeUserPasswordForm = () => {
   const form = useFormContext<FieldValues>();
 
   return (
@@ -39,4 +39,4 @@ const ContactPasswordForm = () => {
   );
 };
 
-export default ContactPasswordForm;
+export default ChangeUserPasswordForm;

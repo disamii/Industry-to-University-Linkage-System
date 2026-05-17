@@ -13,6 +13,7 @@ import SiteConfigPage from "@/pages/dashboard/office/site-config-page";
 import { RouteObject } from "react-router-dom";
 import PostEditPage from "@/pages/dashboard/office/post/post-edit-page";
 import PostDetailPage from "@/pages/dashboard/office/post/post-detail-page";
+import OfficeManageAccountPage from "@/pages/dashboard/office/office-manage-account-page";
 
 const base = "dashboard/office";
 
@@ -20,7 +21,7 @@ const withBase = (path: string) => `${base}/${path}`;
 
 export const officeRoutes: RouteObject[] = [
   { path: withBase(""), element: <OfficeDashboard /> },
-  { path: withBase("manage-account"), element: <div>PROFILE MANAGEMENT</div> },
+  { path: withBase("manage-account"), element: <OfficeManageAccountPage /> },
   { path: withBase("requests"), element: <OfficeRequestsPage /> },
   {
     path: withBase("requests/:id"),

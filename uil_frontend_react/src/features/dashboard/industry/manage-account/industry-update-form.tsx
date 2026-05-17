@@ -1,3 +1,4 @@
+import FormWrapper from "@/components/reusable/form-wrapper";
 import {
   Card,
   CardContent,
@@ -6,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import CompanyDetailsForm from "@/features/auth/signup/company-details-form";
-import IndustryFormWrapper from "@/features/auth/signup/industry-form-wrapper";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import {
   IndustryUpdateInput,
@@ -55,14 +55,14 @@ const IndustryUpdateForm = ({
       </CardHeader>
 
       <CardContent>
-        <IndustryFormWrapper
+        <FormWrapper
           form={form}
           formId="update-industry-form"
           onSubmit={onSubmit}
           submitLabel="Update Industry"
         >
           <CompanyDetailsForm />
-        </IndustryFormWrapper>
+        </FormWrapper>
       </CardContent>
     </Card>
   );

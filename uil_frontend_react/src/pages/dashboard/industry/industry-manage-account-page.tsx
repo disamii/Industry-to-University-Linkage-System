@@ -41,7 +41,7 @@ const IndustryManageAccountPage = () => {
           {(data) => (
             <>
               <TabsContent value="contact_person" className="mt-4">
-                <div className="gap-12 grid grid-cols-2">
+                <div className="gap-8 grid grid-cols-2">
                   <ContactPersonInfoUpdateForm {...data} />
                   <ContactPersonPasswordUpdateForm />
                 </div>

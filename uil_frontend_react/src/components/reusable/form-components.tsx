@@ -35,10 +35,11 @@ import { Badge } from "../ui/badge";
 type BaseFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
   label: string;
-  name: Path<T>; // This ensures 'name' is a valid key of your schema
+  name: Path<T>;
   placeholder?: string;
   className?: string;
-  required?: boolean; // Add this
+  required?: boolean;
+  disabled?: boolean;
 };
 
 export const Asterisk = () => (
@@ -67,6 +68,7 @@ export const FormInput = <T extends FieldValues>({
   type = "text",
   required,
   className,
+  disabled,
 }: FormInputProps<T>) => {
   const isCheckbox = type === "checkbox";
 
@@ -74,6 +76,7 @@ export const FormInput = <T extends FieldValues>({
     <Controller
       name={name}
       control={form.control}
+      disabled={disabled}
       render={({ field, fieldState }) => (
         <Field
           data-invalid={fieldState.invalid}

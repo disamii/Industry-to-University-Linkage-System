@@ -14,7 +14,7 @@ type Props<T extends FieldValues> = {
   formId: string;
 };
 
-const IndustryFormWrapper = <T extends FieldValues>({
+const FormWrapper = <T extends FieldValues>({
   form,
   onSubmit,
   children,
@@ -31,7 +31,7 @@ const IndustryFormWrapper = <T extends FieldValues>({
       >
         {children}
 
-        <Button type="submit" disabled={isPending} className="w-full h-11">
+        <Button type="submit" disabled={isPending} className="mt-4 w-full h-11">
           {isPending && <Spinner data-icon="inline-start" />}
           {submitLabel}
         </Button>
@@ -40,4 +40,4 @@ const IndustryFormWrapper = <T extends FieldValues>({
   );
 };
 
-export default IndustryFormWrapper;
+export default FormWrapper;

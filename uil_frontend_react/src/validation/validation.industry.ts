@@ -5,7 +5,6 @@ import { z } from "zod";
 const industryFields = {
   name: z.string().min(1, "Name is required"),
   industry_email: z
-    .string()
     .email({ message: "Invalid industry email address" })
     .or(z.literal(""))
     .nullish(),

@@ -1,3 +1,4 @@
+import FormWrapper from "@/components/reusable/form-wrapper";
 import {
   Card,
   CardContent,
@@ -6,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ContactDetailsForm from "@/features/auth/signup/contact-details-form";
-import IndustryFormWrapper from "@/features/auth/signup/industry-form-wrapper";
 import { IndustryResponse } from "@/types/interfaces.industry";
 import {
   ContactPersonUpdateInput,
@@ -43,14 +43,14 @@ const ContactPersonInfoUpdateForm = ({
       </CardHeader>
 
       <CardContent>
-        <IndustryFormWrapper
+        <FormWrapper
           form={form}
           formId="update-contact-person-form"
           onSubmit={onSubmit}
           submitLabel="Update Account"
         >
           <ContactDetailsForm showPasswordFields={false} />{" "}
-        </IndustryFormWrapper>
+        </FormWrapper>
       </CardContent>
     </Card>
   );
