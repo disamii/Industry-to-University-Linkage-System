@@ -20,6 +20,7 @@ const withBase = (path: string) => `${base}/${path}`;
 
 export const officeRoutes: RouteObject[] = [
   { path: withBase(""), element: <OfficeDashboard /> },
+  { path: withBase("manage-account"), element: <div>PROFILE MANAGEMENT</div> },
   { path: withBase("requests"), element: <OfficeRequestsPage /> },
   {
     path: withBase("requests/:id"),

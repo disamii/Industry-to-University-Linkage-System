@@ -5,4 +5,5 @@ export const industryKeys = {
   list: (params?: IndustryParams) =>
     [...industryKeys.all(), "list", params] as const,
   detail: (id: number) => [...industryKeys.all(), "detail", id] as const,
+  me: () => [...industryKeys.all(), "me"] as const,
 };

@@ -5,6 +5,7 @@ import IndustryRequestsPage from "@/pages/dashboard/industry/industry_requests-p
 
 import IndustryRequestSubmitPage from "@/pages/dashboard/industry/industry_request-submit-page";
 import { RouteObject } from "react-router-dom";
+import IndustryManageAccountPage from "@/pages/dashboard/industry/industry-manage-account-page";
 
 const base = "dashboard/industry";
 
@@ -12,6 +13,7 @@ const withBase = (path: string) => `${base}/${path}`;
 
 export const industryRoutes: RouteObject[] = [
   { path: withBase(""), element: <IndustryDashboard /> },
+  { path: withBase("manage-account"), element: <IndustryManageAccountPage /> },
   { path: withBase("requests"), element: <IndustryRequestsPage /> },
   { path: withBase("requests/:id"), element: <IndustryRequestDetailPage /> },
   { path: withBase("requests/create"), element: <IndustryRequestSubmitPage /> },

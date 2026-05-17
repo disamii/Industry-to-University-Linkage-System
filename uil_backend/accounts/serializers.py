@@ -144,9 +144,11 @@ class BulkUserSerializer(serializers.ModelSerializer):
         repeated_emails = [email for email,
                            count in email_counts.items() if count > 1]
         if repeated_emails:
-                raise ValidationError(f"Duplicate email(s) found in upload  {', '.join(repeated_emails)}")
+            raise ValidationError(
+                f"Duplicate email(s) found in upload  {', '.join(repeated_emails)}")
         if duplicate_rows:
-            raise ValidationError( f"Duplicate user(s) found at row(s): {', '.join(map(str, duplicate_rows))}")
+            raise ValidationError(
+                f"Duplicate user(s) found at row(s): {', '.join(map(str, duplicate_rows))}")
 
     def create(self, validated_data):
         validated_data['status'] = 'APPROVED'
@@ -174,7 +176,8 @@ class FirstTimeChangePasswordSerializer(serializers.Serializer):
         try:
             validate_password(attrs["new_password"], user)
         except Exception as e:
-            raise serializers.ValidationError(e.messages if hasattr(e, 'messages') else [str(e)])
+            raise serializers.ValidationError(
+                e.messages if hasattr(e, 'messages') else [str(e)])
 
         return attrs
 

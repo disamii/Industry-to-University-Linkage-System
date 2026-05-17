@@ -5,22 +5,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
+import { getAdminHomepageLink, getFullName } from "@/lib/utils";
 import { useAuthStore } from "@/store/use-auth-store";
 import { LogOut, Repeat, User } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import ConfirmLogoutDialog from "./confirm-logout-dialog";
 import UserAvatar from "./user-avatar";
-import { useState } from "react";
-import { getFullName } from "@/lib/utils";
 
 interface ProfileDropdownProps {
   className?: string;
 }
 
 export default function ProfileDropdown({ className }: ProfileDropdownProps) {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
+
   const { pathname } = useLocation();
+
+  const role = useGetRoleByPath();
+  const homepage = getAdminHomepageLink(role ? [role] : []);
+
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
   const userName = getFullName({ ...user });
 
@@ -52,12 +57,11 @@ export default function ProfileDropdown({ className }: ProfileDropdownProps) {
         </div>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          className="py-3 cursor-pointer"
-          onClick={() => navigate("/manage-account/credentials")}
-        >
-          <User size={18} className="mr-2" />
-          Manage your Profile
+        <DropdownMenuItem className="py-3 cursor-pointer" asChild>
+          <Link to={`${homepage}/manage-account`}>
+            <User size={18} className="mr-2" />
+            Manage your Profile
+          </Link>
         </DropdownMenuItem>
 
         <DropdownMenuItem className="py-3 cursor-pointer">
