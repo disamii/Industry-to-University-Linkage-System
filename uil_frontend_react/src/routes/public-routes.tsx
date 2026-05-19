@@ -5,6 +5,8 @@ import UnauthorizedPage from "@/pages/unauthorized";
 import { RouteObject } from "react-router-dom";
 import TermsPage from "@/pages/public/terms-page";
 import PrivacyPage from "@/pages/public/privacy-page";
+import PostsPage from "@/pages/public/posts-page";
+import PostDetailPage from "@/pages/public/post-detail-page";
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -23,6 +25,8 @@ export const publicRoutes: RouteObject[] = [
     path: LINKS.privacy,
     element: <PrivacyPage />,
   },
+  { path: "/posts", element: <PostsPage /> },
+  { path: "/posts/:id", element: <PostDetailPage /> },
   {
     path: LINKS.unauthorized,
     element: <UnauthorizedPage />,

@@ -24,6 +24,6 @@ export type PostResponse = Metadata & {
 };
 
 export type PostDetailResponse = PostResponse & {
-  related_object: RequestDetailResponse;
+  related_object: RequestDetailResponse | null;
   content_type?: PostContentType | null;
 };

@@ -21,6 +21,8 @@ export const LINKS = {
   forgot_password: "/forgot-password",
   unauthorized: "/unauthorized",
   // about: "/about",
+  // posts: "/posts",
+  // post_detail: "/posts/:id",
   not_found: "/not-found",
   rpms: "http://10.161.65.18",
 };

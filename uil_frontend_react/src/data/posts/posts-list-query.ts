@@ -15,9 +15,14 @@ export const useGetPostsList = () => {
   const queryClient = useQueryClient();
   const { params } = usePostParams();
 
+  const apiParams = {
+    ...params,
+    post_type: params.post_type === "All" ? undefined : params.post_type,
+  };
+
   const query = useQuery({
-    queryKey: postKeys.list(params),
-    queryFn: () => getPostsList(params),
+    queryKey: postKeys.list(apiParams),
+    queryFn: () => getPostsList(apiParams),
     placeholderData: (prev) => prev,
   });
 
@@ -25,7 +30,7 @@ export const useGetPostsList = () => {
     queryClient,
     baseKey: postKeys.list().slice(0, -1),
     queryFn: getPostsList,
-    params,
+    params: apiParams,
     links: query.data?.pagination.links,
     isPlaceholderData: query.isPlaceholderData,
   });
