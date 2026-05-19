@@ -12,6 +12,7 @@ import { officeRoutes } from "./office-routes";
 import { industryRoutes } from "./industry-routes";
 import { staffRoutes } from "./staff-routes";
 import { LINKS } from "@/lib/constants";
+import PublicLayout from "@/layouts/public-layout";
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +20,10 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       // 1. Public Routes
-      ...publicRoutes,
+      {
+        element: <PublicLayout />,
+        children: publicRoutes,
+      },
 
       // 2. Auth Routes
       {

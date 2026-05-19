@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"; // Added Button import
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -5,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useGetRoleByPath } from "@/hooks/use-get-role-by-path";
+import { LINKS } from "@/lib/constants";
 import { getAdminHomepageLink, getFullName } from "@/lib/utils";
 import { useAuthStore } from "@/store/use-auth-store";
 import { LogOut, Repeat, User } from "lucide-react";
@@ -18,17 +19,31 @@ interface ProfileDropdownProps {
   className?: string;
 }
 
-export default function ProfileDropdown({ className }: ProfileDropdownProps) {
+const ProfileDropdown = ({ className }: ProfileDropdownProps) => {
   const { user } = useAuthStore();
-
-  const { pathname } = useLocation();
-
-  const role = useGetRoleByPath();
-  const homepage = getAdminHomepageLink(role ? [role] : []);
+  const homepage = getAdminHomepageLink(user?.roles ? user?.roles : []);
 
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
   const userName = getFullName({ ...user }, 2);
 
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith("/dashboard");
+
+  // 1. Render Login/Signup buttons if the user is not authenticated
+  if (!user) {
+    return (
+      <div className={`flex items-center gap-2 ${className || ""}`}>
+        <Button variant="ghost" asChild>
+          <Link to={LINKS.signin}>Login</Link>
+        </Button>
+        <Button asChild>
+          <Link to={LINKS.signup}>Sign Up</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // 2. Render the original dropdown if the user IS authenticated
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={className}>
@@ -64,9 +79,11 @@ export default function ProfileDropdown({ className }: ProfileDropdownProps) {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="py-3 cursor-pointer">
-          <Repeat size={18} className="mr-2" />
-          Switch to {pathname.startsWith("dashboard") ? "Admin" : "User"}
+        <DropdownMenuItem className="py-3 cursor-pointer" asChild>
+          <Link to={isAdmin ? "/" : homepage}>
+            <Repeat size={18} className="mr-2" />
+            Switch to {isAdmin ? "User" : "Admin"}
+          </Link>
         </DropdownMenuItem>
 
         <DropdownMenuItem
@@ -87,4 +104,6 @@ export default function ProfileDropdown({ className }: ProfileDropdownProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
+
+export default ProfileDropdown;

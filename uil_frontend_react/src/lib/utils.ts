@@ -9,7 +9,7 @@ import { ACADEMIC_STOP_WORDS } from "./constants";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
-export function ScrollToTop() {
+export const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export function ScrollToTop() {
   }, [pathname]);
 
   return null;
-}
+};
 
 export const getAdminHomepageLink = (roles: UserRole[]) => {
   let targetPath = "/dashboard";

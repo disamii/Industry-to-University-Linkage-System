@@ -44,7 +44,7 @@ const CreateEditPostForm = ({ postToEdit }: Props) => {
   }, [postToEdit, isEditing]);
 
   const form = useForm<PostCreateInput | PostUpdateInput>({
-    resolver: zodResolver(postCreateSchema || postUpdateSchema),
+    resolver: zodResolver(isEditing ? postUpdateSchema : postCreateSchema),
     defaultValues,
   });
 
@@ -53,14 +53,21 @@ const CreateEditPostForm = ({ postToEdit }: Props) => {
   const onSubmit = (data: PostCreateInput | PostUpdateInput) => {
     const mutation = isEditing ? updateMutation : createMutation;
 
-    mutation(data, {
+    // Clone data to avoid mutating react-hook-form state directly
+    const payload = { ...data };
+
+    // If editing and the image is just the existing URL string, don't send it to backend
+    if (isEditing && typeof payload.image === "string") {
+      delete payload.image;
+    }
+
+    mutation(payload, {
       onSuccess: () => {
         if (!isEditing) form.reset();
         navigate("/dashboard/office/posts");
       },
     });
   };
-
   return (
     <form
       id="form-create-edit-post"

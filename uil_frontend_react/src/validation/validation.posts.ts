@@ -5,16 +5,21 @@ import { MAX_FILE_SIZE_MB } from "@/lib/constants";
 // --- Reusable validations ---
 const validations = {
   image: z
-    .instanceof(File)
-    .refine(
-      (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
-      {
-        message: "Only JPG, PNG, or WEBP images are allowed",
-      },
-    )
-    .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
-      message: `Max size is ${MAX_FILE_SIZE_MB}MB`,
-    })
+    .union([
+      // Handle new file uploads
+      z
+        .instanceof(File)
+        .refine(
+          (file) =>
+            ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+          { message: "Only JPG, PNG, or WEBP images are allowed" },
+        )
+        .refine((file) => file.size <= MAX_FILE_SIZE_MB * 1024 * 1024, {
+          message: `Max size is ${MAX_FILE_SIZE_MB}MB`,
+        }),
+      // Handle existing image URLs (strings)
+      z.string().url("Invalid image URL"),
+    ])
     .optional()
     .nullable(),
 };

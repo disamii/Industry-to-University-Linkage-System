@@ -139,10 +139,18 @@ const CreateEditRequestsForm = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const academic_unit = (data as any).academic_unit;
 
+    // Clone data to avoid mutating react-hook-form state directly
+    const payload = { ...data };
+
+    // If editing and the image is just the existing URL string, don't send it to backend
+    if (isEditing && typeof payload.attachment === "string") {
+      delete payload.attachment;
+    }
+
     mutation(
       {
         data: {
-          ...data,
+          ...payload,
           academic_unit:
             academic_unit !== OTHER_OPTION_ID ? academic_unit : null,
         },

@@ -43,7 +43,7 @@ const ConfirmLogoutDialog = ({ open, onOpenChange }: Props) => {
             onClick={() => {
               clearAuth();
               queryClient.clear();
-              navigate("/auth");
+              navigate("/signin");
             }}
           >
             Logout

@@ -20,6 +20,7 @@ export const LINKS = {
   signin: "/signin",
   forgot_password: "/forgot-password",
   unauthorized: "/unauthorized",
+  // about: "/about",
   not_found: "/not-found",
   rpms: "http://10.161.65.18",
 };
