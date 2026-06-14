@@ -8,8 +8,11 @@ import httpx
 from typing import Optional, Dict, Any
 from django.contrib.auth import get_user_model
 from .serializers import UserFullSerializer
-RPMS_BASE_URL = "http://10.161.65.18:8000"
-RPMS_API_KEY = "sk_9f3a7c2d1b8e4f6a9c0d2e7f5a1b3c8d"
+from django.conf import settings
+
+RPMS_BASE_URL = settings.RPMS_BASE_URL
+RPMS_API_KEY = settings.RPMS_API_KEY
+
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
@@ -89,9 +92,10 @@ def get_user_from_rpms(email: str) -> Optional[Dict[str, Any]]:
             return response.json()
         return None
 
-    except Exception:
-        return None
-
+    except Exception as e:
+        print(f"RPMS Error: {e}")
+        raise
+    
 @transaction.atomic
 def process_academic_unit(unit_data: Dict) -> int:
     from organizational_structure.models import OrganizationalUnit

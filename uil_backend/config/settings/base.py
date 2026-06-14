@@ -3,8 +3,9 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
+RPMS_BASE_URL = os.getenv("RPMS_BASE_URL")
+RPMS_API_KEY = os.getenv("RPMS_API_KEY")
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 MEDIA_URL = '/media/'
