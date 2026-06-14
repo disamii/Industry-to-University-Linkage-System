@@ -24,7 +24,7 @@ export const LINKS = {
   // posts: "/posts",
   // post_detail: "/posts/:id",
   not_found: "/not-found",
-  rpms: "http://10.161.65.18",
+  rpms: "https://rpms.bdu.edu.et",
 };
 
 /**
