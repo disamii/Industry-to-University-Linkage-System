@@ -7,7 +7,7 @@ import RecentAssignmentsCard from "@/features/dashboard/assignments/recent-assig
 import { QuarterlyRequestChart } from "@/features/dashboard/industry/quarterly-request-chart";
 import OfficeDashboardStats from "@/features/dashboard/office/office-dashboard-stat";
 import RecentRequestsCard from "@/features/dashboard/request/recent-requests-card";
-import { MonthlyWorkflowAnalyticsChart } from "@/features/dashboard/staff/monthly-requestVassignment-analytics-chart";
+import { LatestActionKpiDashboard } from "@/features/dashboard/staff/monthly-requestVassignment-analytics-chart";
 import { RequestTypePieChart } from "@/features/dashboard/staff/request-type-pie-chart";
 import { Entity } from "@/lib/enums";
 import { getFullName } from "@/lib/utils";
@@ -58,14 +58,13 @@ const OfficeDashboard = () => {
         outgoingRequests={outgoingQuery.data?.results}
       />
 
-      <div className="gap-6 grid grid-cols-[1fr_30rem]">
-        <MonthlyWorkflowAnalyticsChart
+      <div className="">
+        <LatestActionKpiDashboard 
           data={[
             ...(incomingQuery.data?.results ?? []),
-            ...(assignmentsQuery.data?.results ?? []),
+            ...(outgoingQuery.data?.results ?? []),
           ]}
         />
-        <RequestTypePieChart data={assignmentsQuery.data?.results} />
       </div>
 
       <div className="items-stretch gap-6 grid grid-cols-2">

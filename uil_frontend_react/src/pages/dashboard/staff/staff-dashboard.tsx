@@ -9,7 +9,7 @@ import { Entity } from "@/lib/enums";
 import { getFullName } from "@/lib/utils";
 import { useAuthStore } from "@/store/use-auth-store";
 import { RequestTypePieChart } from "@/features/dashboard/staff/request-type-pie-chart";
-import { MonthlyWorkflowAnalyticsChart } from "@/features/dashboard/staff/monthly-requestVassignment-analytics-chart";
+import { LatestActionKpiDashboard } from "@/features/dashboard/staff/monthly-requestVassignment-analytics-chart";
 
 const StaffDashboard = () => {
   const requestsQuery = useGetMyRequestsList({
@@ -35,14 +35,14 @@ const StaffDashboard = () => {
       />
       <StaffDashboardStats stats={stats} />
 
-      <div className="gap-6 grid grid-cols-[1fr_30rem]">
-        <MonthlyWorkflowAnalyticsChart
+      <div className="">
+        <LatestActionKpiDashboard 
           data={[
             ...(requestsQuery.data?.results ?? []),
             ...(assignmentsQuery.data?.results ?? []),
           ]}
         />
-        <RequestTypePieChart data={assignmentsQuery.data?.results} />
+        {/* <RequestTypePieChart data={assignmentsQuery.data?.results} /> */}
       </div>
 
       <div className="items-stretch gap-6 grid grid-cols-2">
